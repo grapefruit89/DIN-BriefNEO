@@ -36,7 +36,6 @@ Das Dokumentenformat `.json` folgt derselben hocheffizienten Tabular-/Tuple-Arch
   },
   "layout": {
     "form": "form-b",
-    "copyfit": false,
     "marks": true
   },
   "fields": [

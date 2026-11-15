@@ -688,3 +688,79 @@ Zustand für salutation.js" — das war falsch und ist richtiggestellt.
 lesen. Es ist Druckgeometrie; ein Umbau ohne PDF-Gegenprobe (12 Referenzen,
 0,5 px) wäre genau der Fehler, den dieses Projekt schon dreimal hatte. Bleibt
 im DECISION-LOG als bewusste Nicht-Änderung.
+
+### B88 · Kaskade: 35 spiegelnde `!important` auflösen · **M** · ⭐⭐⭐
+**Herkunft:** GitHub #20 — das externe Review zu Batch 03 hat die 96 Deklarationen in `sheet-multipage.css` sortiert. Die Zahlen sind nachgeprüft (Faktenblatt mit Kommentar- und `@page`-Korrektur, `ce445dc`).
+
+**Aufteilung der 96 (71 im Druck):**
+
+| Gruppe | n | Bedeutung |
+|---|---:|---|
+| (a1) echter Kampf gegen eine Screen-Regel mit **anderem** Wert | 9 | muss bleiben, bis der Gegner umgebaut ist |
+| (a2) **Spiegel**: Druck-Regel wiederholt denselben Wert, den die Screen-Regel schon setzt | **35** | änderbar nichts — die Datei hat kein `@media screen`, die Screen-Regeln gelten im Druck mit. Kandidaten zum Löschen |
+| (b) `!important` nur gegen ein anderes `!important` | 8 | Wettrüstungs-Rest |
+| (c) gegen Inline-Style oder `@page` | 0 belegbar | – |
+| nicht beurteilbar (Gegner in anderer Datei) | 17 | braucht base/sidebar/common im selben Blick |
+
+**Stichprobe (a2) bestätigt:** `#betreff` Screen Z. 286–290 (`display: block`, `font-size: 12pt`, `font-weight: 700`, `line-height: 1.4`) und Druck Z. 567–572 — dieselben vier Werte, dort mit `!important`. Gleiches Muster bei `#text` (583–590 gegen 314–326) und `#grussformel` (605–610 gegen 330–337).
+
+**Drei Einzelfälle:**
+- Z. 473/474 (`@page :first { content: none !important }`) sind vermutlich überflüssig: `@page :first` ist spezifischer als `@page`, und `@top-left` hat in Z. 447–464 gar kein `content`. Gegenprobe: entfernen, PDF Seite 1 prüfen.
+- Z. 122 (`margin: 0 auto !important`) hat in der Datei nur Z. 109 als Gegner (0,1,0 gegen 0,2,1) — dort unnötig.
+- Z. 276 (`#spacer { display: block !important }`) hat keinen Gegner; ein `<div>` ist ohnehin `block`.
+
+**Achtung, Korrektur am Review:** die fünf `container-type: normal !important` (Z. 88, 99, 508, 516, 533) sind **nicht** tot. Sie schalten `container-type: size` aus `base.css:291` ab, und `cqw`/`cqh` werden in `base.css:234/237` (`@function --mm-x/--mm-y`) tatsächlich benutzt. Das Review schlug Löschen vor, „wenn kein `@container` trifft" — das Kriterium greift zu kurz.
+
+**Messung:** 12 PDFs (Form A/B × 1/2/3 Seiten × Anlagen an/aus), `pdftotext -bbox`, Toleranz 0,5 px; Pixelgegenprobe per `pdftoppm -r 300` + `compare`.
+
+✅ ERLEDIGT 2026-11-15 — **31 spiegelnde `!important` entfernt, 0 Pixel
+Unterschied.**
+
+**Was entfernt wurde:** Deklarationen im Druckblock, die exakt denselben Wert
+setzen, den dieselbe Datei für denselben Selektor schon außerhalb des
+Druckkontexts setzt (`#betreff`, `#anrede`, `#text`, `#grussformel`,
+`#unterschrift`, `#anlagenvermerk`, `#kern`). Gefunden mit einem Scanner
+(Selektor + Eigenschaft + Wert, Kommentare entfernt); 31 Treffer, nicht 35 —
+die Differenz zum Review ist nicht aufgeklärt, die vier zusätzlichen Fälle
+sind also nicht als Spiegel belegt und bleiben stehen.
+
+**Beweis, dass es wirkungslos war** (nicht „sieht gleich aus", sondern
+gemessen):
+
+| Prüfung | Ergebnis |
+|---|---|
+| Zeilen `sheet-multipage.css` | 642 → **600** (−42, inkl. fünf leerer Blöcke) |
+| `!important` in der Datei | 100 → **69** (65 echte + 4 in Kommentaren) |
+| Referenzbriefe | 4 (Form A/B × kurz/lang), 6 Seiten |
+| Seitenzahlen vorher/nachher | 1/2/1/2 → **1/2/1/2** |
+| Pixelvergleich (pdftoppm 150 dpi, PIL) | **0 abweichende Pixel auf allen 6 Seiten** |
+
+**Warum das gefahrlos war — und warum man es trotzdem messen muss:** die Datei
+hat kein `@media screen`, also gelten die Nicht-Druck-Regeln auch im Druck. Die
+Spiegel-Regel konnte deshalb nichts ändern. Sie hätte es aber können, wenn eine
+Regel aus `base.css`/`sidebar.css` dieselbe Eigenschaft mit höherer Spezifität
+setzt — genau dieser Fall wäre im PDF aufgetaucht.
+
+**Nicht angefasst:** die 9 echten Kämpfe, die 8 `!important` gegen
+`!important` und die 29 Regeln ohne Partner in dieser Datei. Sie brauchen
+Selektorvergleich, nicht Textvergleich.
+
+### B86 · Tote Einstellung `copyfit` entfernen oder implementieren · **S** · ⭐⭐
+**Befund 2026-11-14:** `copyfit` steht in `DEFAULT_SETTINGS`, im Persistenz-Schema (`persistence.js:497`, `:606`) und in `website/llms.txt` — **niemand liest den Wert**. Es gibt keinen Code, der bei `copyfit: true` irgendetwas täte. Das Konzept liegt in `docs/90-archive/todo-2026-11/07-addon-copyfitting-plan.md`.
+**Lösung:** Entweder implementieren (Kompaktsatz nach DIN-5008-Toleranz) oder Feld samt Schema-Zweig und `llms.txt`-Satz entfernen. Ein Schalter, der nichts schaltet, ist die schlechteste Variante.
+
+✅ ERLEDIGT 2026-11-15 — **gelöscht, nicht gebaut.**
+`copyfit` war der Schalter für „Kompaktsatz": Schriftgröße, Zeilen- und
+Absatzabstand stauchen, um 4–8 Zeilen zu sparen und eine zweite Seite zu
+vermeiden (Plan: `docs/90-archive/todo-2026-11/07-addon-copyfitting-plan.md`).
+Genau das ist der Grund, ihn nicht zu bauen — **Schrift verkleinern ist keine
+Funktion, die man versehentlich im Brief haben will.**
+
+Entfernt: `DEFAULT_SETTINGS.copyfit`, `DinSettings.copyfit`,
+`DinLetterLayout.copyfit`, der Export-Zweig in `buildDinLetterPayload`, die
+Import-Prüfung in `parseDinLetterPayload`, der Übernahmezweig in
+`applyImportedData`, das Beispiel in `website/llms.txt` und vier Teststellen.
+
+**Verträglichkeit:** alte `.json`-Dateien mit `layout.copyfit` werden weiter
+importiert — der Schlüssel wird ignoriert, nicht abgelehnt. Kein
+Schema-Versionssprung nötig, weil `layout` nicht Teil von `_meta.schema` ist.

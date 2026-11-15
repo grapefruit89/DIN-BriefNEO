@@ -26,7 +26,6 @@ import { currentISODate } from './format.js';
  * @property {'auto' | 'light' | 'dark' | string} theme
  * @property {'form-a' | 'form-b' | string} layout
  * @property {boolean} [marks]
- * @property {boolean} [copyfit]
  * @property {boolean} [pluginTestbrief]
  * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
@@ -38,11 +37,15 @@ import { currentISODate } from './format.js';
  * Standard-Einstellungen für UI und Typografie.
  * @type {DinSettings}
  */
+/* `layout.copyfit` ist am 2026-11-15 entfernt: es war ein Schalter fuer
+ * Kompaktsatz (Schriftgroesse/Zeilenabstand stauchen, um eine Seite zu sparen)
+ * und hatte nie einen Leser — nur Speicherfeld, Schema-Pruefung und
+ * llms.txt-Beispiel. Alte Dateien mit `layout.copyfit` werden weiterhin
+ * importiert: der Schluessel wird ignoriert, nicht abgelehnt. */
 export const DEFAULT_SETTINGS = {
   theme: 'auto',
   layout: 'form-b',
   marks: true,
-  copyfit: false,
   pluginTestbrief: true,
   previewFont: 'default',
   formality: 'formal',
@@ -356,7 +359,6 @@ export const DINLETTER_FORMAT = 'dinletter';
 /**
  * @typedef {object} DinLetterLayout
  * @property {'form-a' | 'form-b'} form
- * @property {boolean} copyfit
  * @property {boolean} marks
  */
 
@@ -494,7 +496,6 @@ export function buildDinLetterPayload(draft, settings = null) {
     },
     layout: {
       form: (s.layout === 'form-a' || s.layout === 'form-b') ? s.layout : 'form-b',
-      copyfit: typeof s.copyfit === 'boolean' ? s.copyfit : false,
       marks: typeof s.marks === 'boolean' ? s.marks : true
     },
     fields,
@@ -602,10 +603,6 @@ export function parseDinLetterPayload(input) {
         return { ok: false, reason: 'Ungültiger layout.form-Wert (form-a oder form-b erwartet).', error: 'Ungültiger layout.form-Wert (form-a oder form-b erwartet).' };
       }
       layout.form = raw.form;
-    }
-    if (raw.copyfit !== undefined) {
-      if (typeof raw.copyfit !== 'boolean') return { ok: false, reason: 'Ungültiger layout.copyfit-Wert (Boolean erwartet).', error: 'Ungültiger layout.copyfit-Wert (Boolean erwartet).' };
-      layout.copyfit = raw.copyfit;
     }
     if (raw.marks !== undefined) {
       if (typeof raw.marks !== 'boolean') return { ok: false, reason: 'Ungültiger layout.marks-Wert (Boolean erwartet).', error: 'Ungültiger layout.marks-Wert (Boolean erwartet).' };
@@ -772,7 +769,6 @@ export function applyImportedData(pendingImport, { reloadFn = () => location.rel
     const layout = pendingImport.layout;
     if (layout) {
       if (layout.form !== undefined) nextSettings.layout = layout.form;
-      if (layout.copyfit !== undefined) nextSettings.copyfit = layout.copyfit;
       if (layout.marks !== undefined) nextSettings.marks = layout.marks;
     }
     if (pendingImport.signature?.transform) {

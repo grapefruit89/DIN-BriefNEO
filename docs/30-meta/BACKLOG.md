@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-31 offene Punkte. Details unterhalb, nach Art gruppiert.
+29 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -76,14 +76,12 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B64** | `sidebar.css`: Optik und Struktur trennen | L | ⭐⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
 | **B80** | Export als `.txt` und `.md` | S | ⭐⭐ |
-| **B81** | Multi-Tab-Sync: entscheiden statt halb | S | ⭐⭐ |
+| **B81** | Multi-Tab: das Restrisiko benennen oder abschaffen | S | ⭐ |
 | **B82** | Toast: Auto-Dismiss in CSS statt JS-Timer | S | ⭐ |
 | **B83** | Signatur: globalen `pointerdown`-Listener durch `:hover`/`:focus-within` ersetzen | S | ⭐⭐ |
 | **B84** | `ClipboardAddressParser` bewerten: behalten oder aufteilen | M | ⭐⭐ |
 | **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
-| **B86** | Tote Einstellung `copyfit` entfernen oder implementieren | S | ⭐⭐ |
 | **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
-| **B88** | Kaskade: 35 spiegelnde `!important` auflösen | M | ⭐⭐⭐ |
 | **B91** | BIC → Bankname als Erweiterung (Addon) | M | ⭐⭐ |
 ## 🏗️ Architektur & Technik
 
@@ -171,10 +169,26 @@ Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
 **Problem:** Es gibt genau zwei Ausgabeformen — Druck/PDF und `.json`. Wer den Brief in einem Mailprogramm oder einer Textdatei braucht, muss den Text von Hand markieren.
 **Lösung:** Zwei Knöpfe im Ausgabe-Block: `.txt` (reiner Text, `stripHtmlToPlaintext` existiert) und `.md` (Überschriften und Absätze aus dem Rich-Text). Download über `Blob` + `URL.createObjectURL`, kein neuer Zustand. `.docx` bleibt zurückgestellt.
 
-### B81 · Multi-Tab-Sync: entscheiden statt halb · **S** · ⭐⭐
-**Herkunft:** `docs/90-archive/todo-2026-11/15-overengineering-review.md` (Punkt 20), geprüft: `draft-manager.js` hört auf `storage`, aber nur lesend.
-**Problem:** Zwei Tabs auf demselben Brief überschreiben sich. Der Listener existiert, die Regel fehlt: Wer gewinnt bei gleichzeitigen Änderungen? Heute gewinnt der letzte Schreibvorgang, ohne Warnung.
-**Lösung:** Entweder vollständig (Version im Entwurf, Konflikt-Hinweis per Toast, Übernahme nur auf Klick) oder ganz entfernen. Beides ist ehrlicher als der halbe Zustand.
+### B81 · Multi-Tab: das Restrisiko benennen oder abschaffen · **S** · ⭐
+**Stand 2026-11-15 (Code gelesen, `draft-manager.js`):** Es gibt eine Regel,
+keine halbe Lösung:
+- Ein `storage`-Event auf `din_draft_current` wird ausgewertet.
+- Ist dieser Tab **im Hintergrund** und hat **keine offenen Eingaben**
+  (`debounceTimer === null`), übernimmt er den neuen Stand (`loadDraft()`).
+- Sonst erscheint der Toast „Der Brief wurde in einem anderen Tab
+  aktualisiert." (`Constants.TOASTS.DRAFT.MULTI_TAB`).
+- Web Locks wurden **bewusst** verworfen (Single-User-App, Over-Engineering).
+
+**Was wirklich offen ist:** der Fall *beide Tabs tippen*. Tab A hat einen
+offenen Debounce, Tab B speichert — der Toast warnt A, aber A's nächster
+Speichervorgang überschreibt B. Auf einem Bildschirm ist das selten (nur ein
+Tab hat den Fokus), mit zwei Fenstern auf zwei Monitoren aber möglich.
+
+**Entscheidung nötig, nicht Code:** Restrisiko dokumentieren und akzeptieren
+(Toast ist die Warnung) **oder** eine Versionsnummer im Entwurf einführen und
+beim Speichern vergleichen (dann: Konflikt statt Überschreiben). Empfehlung:
+akzeptieren — der Schaden ist ein verlorener Absatz, die Reparatur wäre ein
+zweiter Zustand in jeder Speicherung.
 
 ### B82 · Toast: Auto-Dismiss in CSS statt JS-Timer · **S** · ⭐
 **Herkunft:** `docs/90-archive/todo-2026-11/15-overengineering-review.md` (Punkt 24).
@@ -190,30 +204,6 @@ Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
 **Herkunft:** `docs/90-archive/todo-2026-11/done/18-overengineering-mass.md` (Punkt 35), geprüft: Modul lebt, 615 Zeilen.
 **Problem:** Das Modul ist die größte Einzeldatei nach `address.js` und trägt Parsing, Normalisierung und UI-Anbindung. Ob das eine Verantwortung ist, wurde nie entschieden.
 **Lösung:** Eine Messung (wie viele Pfade, wie viele Tests) und dann eine Entscheidung: behalten mit Begründung oder in Parser + Anbindung teilen.
-
-### B88 · Kaskade: 35 spiegelnde `!important` auflösen · **M** · ⭐⭐⭐
-**Herkunft:** GitHub #20 — das externe Review zu Batch 03 hat die 96 Deklarationen in `sheet-multipage.css` sortiert. Die Zahlen sind nachgeprüft (Faktenblatt mit Kommentar- und `@page`-Korrektur, `ce445dc`).
-
-**Aufteilung der 96 (71 im Druck):**
-
-| Gruppe | n | Bedeutung |
-|---|---:|---|
-| (a1) echter Kampf gegen eine Screen-Regel mit **anderem** Wert | 9 | muss bleiben, bis der Gegner umgebaut ist |
-| (a2) **Spiegel**: Druck-Regel wiederholt denselben Wert, den die Screen-Regel schon setzt | **35** | änderbar nichts — die Datei hat kein `@media screen`, die Screen-Regeln gelten im Druck mit. Kandidaten zum Löschen |
-| (b) `!important` nur gegen ein anderes `!important` | 8 | Wettrüstungs-Rest |
-| (c) gegen Inline-Style oder `@page` | 0 belegbar | – |
-| nicht beurteilbar (Gegner in anderer Datei) | 17 | braucht base/sidebar/common im selben Blick |
-
-**Stichprobe (a2) bestätigt:** `#betreff` Screen Z. 286–290 (`display: block`, `font-size: 12pt`, `font-weight: 700`, `line-height: 1.4`) und Druck Z. 567–572 — dieselben vier Werte, dort mit `!important`. Gleiches Muster bei `#text` (583–590 gegen 314–326) und `#grussformel` (605–610 gegen 330–337).
-
-**Drei Einzelfälle:**
-- Z. 473/474 (`@page :first { content: none !important }`) sind vermutlich überflüssig: `@page :first` ist spezifischer als `@page`, und `@top-left` hat in Z. 447–464 gar kein `content`. Gegenprobe: entfernen, PDF Seite 1 prüfen.
-- Z. 122 (`margin: 0 auto !important`) hat in der Datei nur Z. 109 als Gegner (0,1,0 gegen 0,2,1) — dort unnötig.
-- Z. 276 (`#spacer { display: block !important }`) hat keinen Gegner; ein `<div>` ist ohnehin `block`.
-
-**Achtung, Korrektur am Review:** die fünf `container-type: normal !important` (Z. 88, 99, 508, 516, 533) sind **nicht** tot. Sie schalten `container-type: size` aus `base.css:291` ab, und `cqw`/`cqh` werden in `base.css:234/237` (`@function --mm-x/--mm-y`) tatsächlich benutzt. Das Review schlug Löschen vor, „wenn kein `@container` trifft" — das Kriterium greift zu kurz.
-
-**Messung:** 12 PDFs (Form A/B × 1/2/3 Seiten × Anlagen an/aus), `pdftotext -bbox`, Toleranz 0,5 px; Pixelgegenprobe per `pdftoppm -r 300` + `compare`.
 
 ## ✨ Neue Features
 
@@ -264,6 +254,35 @@ angefasst, solange irgendetwas anderes offen ist.
 
 ---
 
+### B33 · DIN-5008-Telefonnummer-Formatierer (Expliziter Button) · **S** · ⭐⭐⭐
+**Kontext:** DIN 5008 Kap. 20.6 (funktionsbezogene Gliederung von Telefonnummern).
+**Ziel:** Rechtskonforme, standardisierte Formatierung deutscher und internationaler Rufnummern:
+- **Normformat:** Landesvorwahl mit `+` (z. B. `+49`), Trennung von Ortsnetz/Mobilfunk und Rufnummer durch Leerzeichen, Durchwahl mit Bindestrich ohne Leerzeichen (`+49 2241 12345-67`).
+- **KISS-Bedienung:** Kein fehleranfälliges `oninput`- oder `onblur`-Auto-Formatting (verhindert Cursor-Jumping und Falschkorrekturen bei Sonderrufnummern).
+- **UI:** Expliziter Aktions-Button `#btn-format-tel` direkt am Telefonnummern-Eingabefeld.
+- **Defensives Parsing:** Kann eine Nummer nicht eindeutig zerlegt werden, bleibt der Originaltext unberührt und es wird ein dezenter Warnhinweis ausgegeben.
+
+### B35 · Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) · **S** · ⭐⭐⭐
+**Kontext:** DIN 5008 Kap. 20.3 (Falzmarken Form A/B und Lochmarke).
+**Ziel:** Höchste Präzision beim Drucken und PDF-Rendern:
+- **Problem:** CSS-Border (`border-top: 1px solid`) leidet bei 96/300 DPI unter Rundungsfehlern und treiberabhängigen Skalierungsunschärfen (Hairline-Problem).
+- **Lösung:** Vektorbasierte `<svg>`-Marken mit `stroke-width="0.25mm"` und `vector-effect="non-scaling-stroke"`.
+- **IMR-Invariante:** Koordinaten (`data-falz-1-y`, `data-falz-2-y`, `data-loch-y`) verbleiben als deklarative `data-*`-Attribute am HTML-Wurzelelement (SSoT).
+- **Print-Sicherheit:** Sicherstellen, dass `print.css` die SVG-Marken nicht versehentlich unterdrückt.
+
+---
+
+### B87 · Text- und Adress-Parsing modernisieren (Konzept) · **M** · ⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/09-text-parsing-modernization-plan.md`, geprüft: kein `Intl.Segmenter` und kein `RegExp`-`v`-Flag im Code.
+**Inhalt:** Dreistufige Pipeline für die Zwischenablage (Segmentierung via `Intl.Segmenter`, Muster via `RegExp` mit `v`-Flag, deterministische Adress-Zuordnung) statt der heutigen Kette aus `split`/Regex.
+**Warum ⭐:** Kein belegter Schaden, reine Modernisierung. Erst anfassen, wenn `clipboard-parser.js` ohnehin geändert wird (siehe B84).
+
+## 🧩 Addons
+
+Eigene Erweiterungen nach dem Muster `website/addons/`: per `import()` beim
+Klick geladen, **nie** im Boot-Pfad. Ein Addon darf den Kern nicht voraussetzen
+und muss ohne es laufen (0 Byte, wenn niemand es öffnet).
+
 ### B32 · Brief-Verlauf und zwei Adressbücher (Addon `verlauf`) · **S** · ⭐⭐⭐⭐
 **Kontext:** Re-integriert aus archivierten Entwurfsmustern. Verhindert Datenverlust bei versehentlichem Leeren oder Überschreiben des Entwurfs.
 **Ziel:** Automatisches oder semi-automatisches Archivieren von Briefständen:
@@ -304,38 +323,11 @@ Druck/Export, sonst zehn Fassungen desselben Briefes), ob „Zurücksetzen" den
 Verlauf mitlöscht, und ob der Empfänger automatisch ins Buch wandert (Empfehlung:
 nur auf Klick). Die UI fehlt bewusst — dieses Addon ist die Datenschicht.
 
-### B33 · DIN-5008-Telefonnummer-Formatierer (Expliziter Button) · **S** · ⭐⭐⭐
-**Kontext:** DIN 5008 Kap. 20.6 (funktionsbezogene Gliederung von Telefonnummern).
-**Ziel:** Rechtskonforme, standardisierte Formatierung deutscher und internationaler Rufnummern:
-- **Normformat:** Landesvorwahl mit `+` (z. B. `+49`), Trennung von Ortsnetz/Mobilfunk und Rufnummer durch Leerzeichen, Durchwahl mit Bindestrich ohne Leerzeichen (`+49 2241 12345-67`).
-- **KISS-Bedienung:** Kein fehleranfälliges `oninput`- oder `onblur`-Auto-Formatting (verhindert Cursor-Jumping und Falschkorrekturen bei Sonderrufnummern).
-- **UI:** Expliziter Aktions-Button `#btn-format-tel` direkt am Telefonnummern-Eingabefeld.
-- **Defensives Parsing:** Kann eine Nummer nicht eindeutig zerlegt werden, bleibt der Originaltext unberührt und es wird ein dezenter Warnhinweis ausgegeben.
-
-### B35 · Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) · **S** · ⭐⭐⭐
-**Kontext:** DIN 5008 Kap. 20.3 (Falzmarken Form A/B und Lochmarke).
-**Ziel:** Höchste Präzision beim Drucken und PDF-Rendern:
-- **Problem:** CSS-Border (`border-top: 1px solid`) leidet bei 96/300 DPI unter Rundungsfehlern und treiberabhängigen Skalierungsunschärfen (Hairline-Problem).
-- **Lösung:** Vektorbasierte `<svg>`-Marken mit `stroke-width="0.25mm"` und `vector-effect="non-scaling-stroke"`.
-- **IMR-Invariante:** Koordinaten (`data-falz-1-y`, `data-falz-2-y`, `data-loch-y`) verbleiben als deklarative `data-*`-Attribute am HTML-Wurzelelement (SSoT).
-- **Print-Sicherheit:** Sicherstellen, dass `print.css` die SVG-Marken nicht versehentlich unterdrückt.
-
----
-
 ### B76 · PDF-Export als Addon · **M** · ⭐⭐
 Der DeepSeek-Mitschnitt (2026-11-14) schlägt `window.print()` plus Metadaten
 vor, alternativ `pdf-lib` per CDN. Entscheidung: eigener Addon-Pfad unter
 `website/addons/`, geladen per `import()` beim Klick, **nicht** im Boot-Pfad
 (Muster: `testbrief.js`). Voraussetzung ist der Plugin-Punkt aus B52.
-
-### B86 · Tote Einstellung `copyfit` entfernen oder implementieren · **S** · ⭐⭐
-**Befund 2026-11-14:** `copyfit` steht in `DEFAULT_SETTINGS`, im Persistenz-Schema (`persistence.js:497`, `:606`) und in `website/llms.txt` — **niemand liest den Wert**. Es gibt keinen Code, der bei `copyfit: true` irgendetwas täte. Das Konzept liegt in `docs/90-archive/todo-2026-11/07-addon-copyfitting-plan.md`.
-**Lösung:** Entweder implementieren (Kompaktsatz nach DIN-5008-Toleranz) oder Feld samt Schema-Zweig und `llms.txt`-Satz entfernen. Ein Schalter, der nichts schaltet, ist die schlechteste Variante.
-
-### B87 · Text- und Adress-Parsing modernisieren (Konzept) · **M** · ⭐
-**Herkunft:** `docs/90-archive/todo-2026-11/09-text-parsing-modernization-plan.md`, geprüft: kein `Intl.Segmenter` und kein `RegExp`-`v`-Flag im Code.
-**Inhalt:** Dreistufige Pipeline für die Zwischenablage (Segmentierung via `Intl.Segmenter`, Muster via `RegExp` mit `v`-Flag, deterministische Adress-Zuordnung) statt der heutigen Kette aus `split`/Regex.
-**Warum ⭐:** Kein belegter Schaden, reine Modernisierung. Erst anfassen, wenn `clipboard-parser.js` ohnehin geändert wird (siehe B84).
 
 ### B91 · BIC → Bankname als Erweiterung (Addon) · **M** · ⭐⭐
 **Herkunft:** GitHub #21. Material für eine Erweiterung, nicht für den Kern.
@@ -364,10 +356,18 @@ Briefe nie brauchen.
 Offene Entscheidungen und Dokumentationslücken. Brauchen eine Antwort, keinen Code.
 
 ### B36 · Schema-Datei für v3 anlegen oder Verweis endgültig streichen · **N** · ⭐
-Die `$schema`-Zeile in `llms.txt` ist seit `186664c` entfernt (kein 404 mehr).
-Offen ist die Entscheidung: eine `website/schema/v3/din-letter.json` anlegen (dann
-Verweis wieder aufnehmen) oder das Schema dauerhaft nicht ausliefern.
-Kein akuter Bug — nur eine Entscheidung, die irgendwann fallen muss.
+Die `$schema`-Zeile in `website/llms.txt` ist seit `186664c` entfernt (kein
+404 mehr). Offen ist nur die Entscheidung:
+
+| Option | Kosten | Nutzen |
+|---|---|---|
+| `website/schema/v3/din-letter.json` anlegen | ~100 Zeilen JSON-Schema, muss bei jeder Feldänderung mitgepflegt werden | fremde Werkzeuge können Dateien validieren |
+| Verweis dauerhaft streichen | 0 | – |
+
+**Empfehlung: streichen.** Es gibt keinen Konsumenten (kein Build, kein
+externer Parser), und `parseDinLetterPayload` ist die Wahrheit — ein zweites
+Schema daneben driftet garantiert. Wenn jemand fremdes die Dateien validieren
+will, ist das der Moment, es anzulegen, nicht vorher.
 
 ### B38 · Chromium klemmt Rahmenbreiten unter 1px auf 1px · **N** · ⭐
 Gemessen in Chromium 156 auf einer leeren `data:`-Seite ohne App-CSS: `0.25pt`,

@@ -31,39 +31,39 @@ Spezifitaet gewinnt die spaetere Datei. `sheet.css` wird **nicht** geladen.
 | Datei | Zeilen | `!important` | davon im Druckkontext | ID-Selektoren | Custom Properties | `@layer` | `@scope` | `@function` |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | `base.css` | 359 | 24 | 17 | 4 | 67 | 0 | 0 | 6 |
-| `sheet-common.css` | 721 | 1 | 0 | 123 | 10 | 0 | 1 | 0 |
-| `sheet-multipage.css` | 641 | 96 | 71 | 62 | 9 | 0 | 2 | 6 |
+| `sheet-common.css` | 723 | 1 | 0 | 123 | 10 | 0 | 1 | 0 |
+| `sheet-multipage.css` | 600 | 65 | 40 | 57 | 9 | 0 | 2 | 6 |
 | `sheet.css` (stillgelegt) | 354 | 23 | 21 | 22 | 0 | 0 | 1 | 0 |
 | `sidebar.css` | 1270 | 3 | 0 | 111 | 3 | 0 | 0 | 0 |
 
-Im Betrieb (ohne `sheet.css`): **124** `!important`, davon **88**
+Im Betrieb (ohne `sheet.css`): **93** `!important`, davon **57**
 in `@media print`-Kontexten. `@layer` kommt **0**-mal vor.
 
 ## 3. `!important` nach Eigenschaft
 
 | Eigenschaft | Vorkommen |
 |---|---:|
-| `display` | 19 |
+| `display` | 14 |
 | `height` | 6 |
-| `width` | 6 |
 | `margin` | 6 |
+| `width` | 5 |
 | `container-type` | 5 |
-| `font-size` | 5 |
 | `#viewport { padding` | 5 |
 | `#app-shell { display` | 4 |
 | `background` | 4 |
 | `min-height` | 4 |
 | `padding` | 4 |
-| `margin-bottom` | 4 |
 | `box-shadow` | 3 |
 | `justify-content` | 3 |
 | `align-items` | 3 |
+| `overflow` | 3 |
+| `transform` | 3 |
 
 ## 4. Die `!important`-Regeln in `sheet-multipage.css`
 
 Block = der zuletzt gesehene Selektor (bei `@media`-Kontexten der Selektor
 davor). "print" heisst: steht in einem `@media print`-Block
-(Zeilen 447, 466, 478, 635).
+(Zeilen 447, 466, 478, 594).
 
 | Zeile | print | Selektor | Eigenschaft |
 |---:|:---:|---|---|
@@ -122,47 +122,16 @@ davor). "print" heisst: steht in einem `@media print`-Block
 | 537 | ja | `#kern` | `min-height` |
 | 538 | ja | `#kern` | `padding` |
 | 545 | ja | `#kern` | `box-decoration-break` |
-| 546 | ja | `#kern` | `width` |
-| 547 | ja | `#kern` | `box-sizing` |
-| 548 | ja | `#kern` | `column-count` |
-| 549 | ja | `#kern` | `column-height` |
-| 550 | ja | `#kern` | `column-wrap` |
-| 551 | ja | `#kern` | `row-gap` |
-| 552 | ja | `#kern` | `background` |
-| 553 | ja | `#kern` | `filter` |
-| 554 | ja | `#kern` | `display` |
-| 567 | ja | `#betreff` | `display` |
-| 568 | ja | `#betreff` | `font-size` |
-| 569 | ja | `#betreff` | `font-weight` |
-| 570 | ja | `#betreff` | `line-height` |
-| 571 | ja | `#betreff` | `margin-bottom` |
-| 572 | ja | `#betreff` | `text-wrap` |
-| 576 | ja | `#anrede` | `display` |
-| 577 | ja | `#anrede` | `font-size` |
-| 578 | ja | `#anrede` | `line-height` |
-| 579 | ja | `#anrede` | `margin-bottom` |
-| 583 | ja | `#text` | `display` |
-| 584 | ja | `#text` | `font-size` |
-| 585 | ja | `#text` | `line-height` |
-| 586 | ja | `#text` | `text-align` |
-| 587 | ja | `#text` | `hyphens` |
-| 588 | ja | `#text` | `text-wrap` |
-| 589 | ja | `#text` | `orphans` |
-| 590 | ja | `#text` | `widows` |
-| 597 | ja | `#text p` | `margin` |
-| 601 | ja | `#text p:last-child` | `margin-bottom` |
-| 605 | ja | `#grussformel` | `display` |
-| 606 | ja | `#grussformel` | `font-size` |
-| 607 | ja | `#grussformel` | `margin-top` |
-| 608 | ja | `#grussformel` | `margin-bottom` |
-| 609 | ja | `#grussformel` | `break-after` |
-| 610 | ja | `#grussformel` | `page-break-after` |
-| 614 | ja | `#unterschrift` | `font-size` |
-| 615 | ja | `#unterschrift` | `font-weight` |
-| 621 | ja | `#anlagenvermerk` | `break-inside` |
-| 622 | ja | `#anlagenvermerk` | `page-break-inside` |
-| 627 | ja | `:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk` | `display` |
-| 638 | ja | `body[data-seiten="1"] :scope` | `margin` |
+| 546 | ja | `#kern` | `column-count` |
+| 547 | ja | `#kern` | `column-height` |
+| 548 | ja | `#kern` | `column-wrap` |
+| 549 | ja | `#kern` | `row-gap` |
+| 550 | ja | `#kern` | `background` |
+| 551 | ja | `#kern` | `filter` |
+| 570 | ja | `#text p` | `margin` |
+| 574 | ja | `#text p:last-child` | `margin-bottom` |
+| 586 | ja | `:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk` | `display` |
+| 597 | ja | `body[data-seiten="1"] :scope` | `margin` |
 
 ## 5. Grenzen dieses Blatts
 

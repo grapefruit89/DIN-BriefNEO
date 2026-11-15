@@ -543,15 +543,12 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
        Seitengrenze -> Seite 1 endet bei 272,50mm, der Fussblock ab 285mm
        ueberlappt nicht mehr. */
     box-decoration-break: slice !important; /* clone wuerde das obere Padding auf jeder Seite wiederholen */
-    width: 210mm !important;
-    box-sizing: border-box !important;
     column-count: auto !important;
     column-height: auto !important;
     column-wrap: nowrap !important;
     row-gap: normal !important;
     background: none !important;
     filter: none !important;
-    display: block !important;
   }
 
   /* Hier standen zwei wirkungslose Regeln:
@@ -563,32 +560,8 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
      es nur. Der Abstand kommt jetzt ausschliesslich aus --spacer-hoehe
      (2026-11-11 entfernt). */
 
-  #betreff {
-    display: block !important;
-    font-size: 12pt !important;
-    font-weight: 700 !important;
-    line-height: 1.4 !important;
-    margin-bottom: 8.46mm !important;
-    text-wrap: balance !important;
-  }
 
-  #anrede {
-    display: block !important;
-    font-size: 10.5pt !important;
-    line-height: 1.4 !important;
-    margin-bottom: 4.23mm !important;
-  }
 
-  #text {
-    display: block !important;
-    font-size: 10.5pt !important;
-    line-height: 4.5mm !important;
-    text-align: justify !important;
-    hyphens: auto !important;
-    text-wrap: pretty !important;
-    orphans: 2 !important;
-    widows: 2 !important;
-  }
 
   #text p {
     /* 0,65 Zeilen (2,9 mm bei 4,5 mm Zeilenhoehe) - gleicher Wert wie auf dem
@@ -601,25 +574,11 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     margin-bottom: 0 !important;
   }
 
-  #grussformel {
-    display: block !important;
-    font-size: 10.5pt !important;
-    margin-top: 4.23mm !important;
-    margin-bottom: 12.69mm !important;
-    break-after: avoid !important;
-    page-break-after: avoid !important;
-  }
 
-  #unterschrift {
-    font-size: 10.5pt !important;
-    font-weight: 500 !important;
-  }
 
   .unterschrift-zeile,
   #unterschriftsbild-container,
   #anlagenvermerk {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
   }
 
   :root:not(:has(#toggle-anlagen:checked)) din-anlagenvermerk,

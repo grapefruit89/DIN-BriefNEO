@@ -763,9 +763,9 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assertEqual(buildDinLetterPayload({}).layout.marks, true, 'Default ist true');
   });
 
-  it('layout.copyfit und layout.form haben die erwarteten Defaults', () => {
-    assertEqual(buildDinLetterPayload({}).layout.copyfit, false, 'copyfit hat keinen Schreiber, Default false');
+  it('layout.form hat den erwarteten Default (copyfit ist entfernt)', () => {
     assertEqual(buildDinLetterPayload({}).layout.form, 'form-b', 'Default Form B');
+    assert(!('copyfit' in buildDinLetterPayload({}).layout), 'copyfit ist nicht mehr im Payload');
     assertEqual(buildDinLetterPayload({}, { layout: 'form-a' }).layout.form, 'form-a', 'Form A kommt an');
     assertEqual(buildDinLetterPayload({}, { layout: 'form-z' }).layout.form, 'form-b', 'ungültige Form fällt auf B zurück');
   });
@@ -902,9 +902,9 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   });
 
   it('buildDinLetterPayload erzeugt die v4-Struktur (layout, _meta, fields, signature)', () => {
-    const payload = buildDinLetterPayload({ betreff: 'V4 Test' }, { layout: 'form-a', copyfit: true, marks: false });
+    const payload = buildDinLetterPayload({ betreff: 'V4 Test' }, { layout: 'form-a', marks: false });
     assertEqual(payload.layout.form, 'form-a');
-    assertEqual(payload.layout.copyfit, true);
+    assert(!('copyfit' in payload.layout), 'copyfit ist entfernt');
     assertEqual(payload.layout.marks, false);
     const idxBetreff = payload._meta.schema.indexOf('betreff');
     assertEqual(payload.fields[idxBetreff], 'V4 Test');
@@ -914,7 +914,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
 
   it('buildDINLetterJSON erzeugt exakt dasselbe Datenmodell wie Export-Payload (SSoT / DeepEqual)', () => {
     saveJSON(STORAGE_KEYS.draft, { 'empfaenger-name': 'Max Mustermann', betreff: 'SSoT Test', text: '<p>Hallo Welt</p>', 'toggle-fuss': true });
-    saveJSON(STORAGE_KEYS.settings, { layout: 'form-b', copyfit: false, marks: false });
+    saveJSON(STORAGE_KEYS.settings, { layout: 'form-b', marks: false });
 
     const directPayload = buildDinLetterPayload(
       loadJSON(STORAGE_KEYS.draft, {}),
@@ -978,7 +978,6 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
 
     const settings = {
       layout: 'form-a',
-      copyfit: false,
       marks: true,
       signatureState: { x: 15.5, y: 102.3, scale: 0.75, rot: 2 }
     };
@@ -1688,13 +1687,20 @@ describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
       `Abstand ${(betreffBoxB - infoblockEndeB).toFixed(2)}mm >= zwei Leerzeilen (8,46mm)`);
   });
 
-  it('Bildschirm und Druck lesen denselben Wert (kein margin-top im Print-Override)', async () => {
+  it('Bildschirm und Druck lesen denselben Wert (kein Print-Override für #betreff)', async () => {
+    /* Seit B88 (2026-11-15) gibt es den Print-Override gar nicht mehr: er
+       wiederholte nur die Basiswerte und wurde entfernt (6 Referenzbriefe,
+       0 abweichende Pixel). Der Test prueft jetzt die staerkere Zusicherung:
+       es gibt genau EINE Regel, und sie setzt kein margin-top. */
     const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
-    const printBlock = css.slice(css.indexOf('@media print'));
-    const betreffPrint = (printBlock.match(/#betreff\s*\{([^}]*)\}/) || [])[1] ?? '';
-    assert(betreffPrint !== '', 'Print-Override fuer #betreff gefunden');
-    assert(betreffPrint.includes('margin-top') === false,
-      'Print-Override setzt kein margin-top -> Basiswert 33,54mm gilt in beiden Pfaden');
+    const printStart = css.indexOf('@media print');
+    assert(printStart > -1, '@media print gefunden');
+    const printBlock = css.slice(printStart);
+    assert(!/#betreff\s*\{/.test(printBlock), 'kein Print-Override fuer #betreff');
+    const basisBlock = (css.slice(0, printStart).match(/#betreff\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(basisBlock !== '', 'Basis-Regel #betreff gefunden');
+    assert(basisBlock.includes('margin-top: 0'),
+      'Basis-Regel setzt margin-top: 0 -> der 33,54mm-Abstand aus --spacer-hoehe gilt');
   });
 });
 

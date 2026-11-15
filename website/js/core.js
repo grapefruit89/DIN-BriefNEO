@@ -160,8 +160,6 @@ export const eventBus = createEventBus();
 let dom = null;
 /** @type {{ message: string } | null} */
 let current = null;
-/** @type {ReturnType<typeof setTimeout> | null} */
-let timer = null;
 /* Einmal-Initialisierung: im Boot-Pfad gibt es genau einen Aufrufer, aber ein
    spaeterer Re-Init (Einstellungen neu anwenden) wuerde sonst ein zweites
    `toggle`-Abo und zwei EventBus-Abos auf dasselbe Element legen. Ein
@@ -182,12 +180,14 @@ export function initToastSystem() {
   // das native toggle-Event räumt dabei den Auto-Dismiss-Timer auf.
   global.addEventListener('toggle', (e) => {
     if (/** @type {ToggleEvent} */ (e).newState === 'closed') {
-      if (timer !== null) {
-        clearTimeout(timer);
-        timer = null;
-      }
       current = null;
     }
+  });
+
+  /* Der Toast schliesst sich, wenn seine CSS-Animation endet. Das ist der
+     einzige Ausloeser fuer den Auto-Abbau — kein Timer, kein Aufraeumpfad. */
+  global.addEventListener('animationend', (e) => {
+    if (/** @type {AnimationEvent} */ (e).animationName === 'hinweis-lebensdauer') hide();
   });
 
   eventBus.subscribe(Events.NOTIFICATION_REQUESTED, (payload) => {
@@ -213,8 +213,8 @@ export function showToast(message, type = 'info') {
     if (dom.global.dataset.type !== type) {
       dom.global.dataset.type = type;
     }
+    setzeLebensdauer(message);
     showPopoverSafe(dom.global);
-    startTimer(message);
     return;
   }
 
@@ -222,19 +222,22 @@ export function showToast(message, type = 'info') {
   dom.global.dataset.type = type;
   current = { message };
 
+  setzeLebensdauer(message);
   showPopoverSafe(dom.global);
-  startTimer(message);
 }
 
-/** @param {string} message */
-function startTimer(message) {
-  if (timer !== null) clearTimeout(timer);
-  const duration = Math.min(5000, 2000 + message.length * 30);
-  timer = setTimeout(hide, duration);
+/**
+ * Setzt die Lebensdauer als CSS-Variable. Die Zeit selbst laeuft in CSS
+ * (`animation: hinweis-lebensdauer`), nicht in einem `setTimeout` — damit gibt
+ * es keinen Timer, der beim manuellen Schliessen aufgeraeumt werden muss.
+ * @param {string} message
+ */
+function setzeLebensdauer(message) {
+  const dauer = Math.min(5000, 2000 + message.length * 30);
+  dom?.global?.style.setProperty('--hinweis-dauer', `${dauer}ms`);
 }
 
 function hide() {
-  if (timer !== null) { clearTimeout(timer); timer = null; }
   current = null;
   hidePopoverSafe(dom?.global);
 }

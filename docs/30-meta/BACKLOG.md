@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-29 offene Punkte. Details unterhalb, nach Art gruppiert.
+28 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -77,7 +77,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
 | **B80** | Export als `.txt` und `.md` | S | ⭐⭐ |
 | **B81** | Multi-Tab: das Restrisiko benennen oder abschaffen | S | ⭐ |
-| **B82** | Toast: Auto-Dismiss in CSS statt JS-Timer | S | ⭐ |
 | **B83** | Signatur: globalen `pointerdown`-Listener durch `:hover`/`:focus-within` ersetzen | S | ⭐⭐ |
 | **B84** | `ClipboardAddressParser` bewerten: behalten oder aufteilen | M | ⭐⭐ |
 | **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
@@ -189,11 +188,6 @@ Tab hat den Fokus), mit zwei Fenstern auf zwei Monitoren aber möglich.
 beim Speichern vergleichen (dann: Konflikt statt Überschreiben). Empfehlung:
 akzeptieren — der Schaden ist ein verlorener Absatz, die Reparatur wäre ein
 zweiter Zustand in jeder Speicherung.
-
-### B82 · Toast: Auto-Dismiss in CSS statt JS-Timer · **S** · ⭐
-**Herkunft:** `docs/90-archive/todo-2026-11/15-overengineering-review.md` (Punkt 24).
-**Problem:** `core.js` führt einen `setTimeout` und räumt ihn im `toggle`-Handler auf. Das kann CSS heute selbst: `animation` mit `animation-fill-mode` und `animationend` bzw. `@starting-style` — kein Timer, kein Aufräumpfad.
-**Nutzen:** Eine Zustandsmaschine weniger, die man bei Gelegenheit vergisst. Nur beim nächsten Anfassen von `core.js`.
 
 ### B83 · Signatur: globalen `pointerdown`-Listener durch `:hover`/`:focus-within` ersetzen · **S** · ⭐⭐
 **Herkunft:** `docs/90-archive/todo-2026-11/17-js-vs-css-rest.md` (Punkt 29), geprüft: `pointerdown` steht noch in `signature.js`.

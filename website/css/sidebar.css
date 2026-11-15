@@ -899,7 +899,7 @@ input[type="checkbox"][switch] {
   word-break: break-all;
 }
 
-/* --- SCHWEBENDE UI: TOASTS, POPOVERS & DIALOGE (aus ehemals floating.css) --- */
+/* --- SCHWEBENDE UI: HINWEISE, POPOVERS & DIALOGE (aus ehemals floating.css) --- */
 /* Kein `display` im Grundzustand: es überschreibt
    `[popover]:not(:popover-open) { display: none }`, und der unsichtbare Block
    fängt Klicks auf dem Brief ab (gemessen 2026-11-10). */
@@ -934,6 +934,17 @@ input[type="checkbox"][switch] {
   pointer-events: auto;
   opacity: 1;
   transform: translateY(0);
+  /* Lebensdauer des Hinweises. Die Animation aendert nichts (opacity 1 -> 1);
+     sie laeuft nur, damit `animationend` in core.js den Hinweis schliessen
+     kann. Vorher stand hier ein setTimeout mit Aufraeumpfad — den gibt es
+     jetzt nicht mehr. Die Dauer setzt core.js als --hinweis-dauer nach
+     Textlaenge (2000 ms + 30 ms/Zeichen, hoechstens 5000 ms). */
+  animation: hinweis-lebensdauer var(--hinweis-dauer, 4000ms) linear forwards;
+}
+
+@keyframes hinweis-lebensdauer {
+  from { opacity: 1; }
+  to   { opacity: 1; }
 }
 
 @starting-style {

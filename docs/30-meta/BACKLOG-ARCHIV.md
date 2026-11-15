@@ -804,3 +804,33 @@ und wird von zwei Tests bewacht.
 Bildschirm-Prüfstand für `data-seiten="2"` auflösen — der PDF-Vergleich allein
 sieht diesen Zustand nicht. Wer es angeht, braucht beide Messungen (PDF **und**
 Geometrie-Dump), sonst verschiebt er das Sicherheitsnetz unbemerkt.
+
+### B82 · Toast: Auto-Dismiss in CSS statt JS-Timer · **S** · ⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/15-overengineering-review.md` (Punkt 24).
+**Problem:** `core.js` führt einen `setTimeout` und räumt ihn im `toggle`-Handler auf. Das kann CSS heute selbst: `animation` mit `animation-fill-mode` und `animationend` bzw. `@starting-style` — kein Timer, kein Aufräumpfad.
+**Nutzen:** Eine Zustandsmaschine weniger, die man bei Gelegenheit vergisst. Nur beim nächsten Anfassen von `core.js`.
+
+✅ ERLEDIGT 2026-11-15 — **kein Timer mehr.** Der Hinweis lebt jetzt über
+eine CSS-Animation (`animation: hinweis-lebensdauer var(--hinweis-dauer)`),
+und `animationend` schließt das Popover. Die Animation ändert nichts
+(`opacity: 1 → 1`); sie ist ein Timer in CSS.
+
+Entfernt: die `timer`-Variable, `startTimer()` und das `clearTimeout` im
+`toggle`-Handler. Damit gibt es keinen Zustand mehr, der beim manuellen
+Schließen aufgeräumt werden muss.
+
+**Gemessen im Browser (127.0.0.1:8088):**
+
+| Fall | Dauer | geschlossen nach |
+|---|---:|---:|
+| normal („Test", 4 Zeichen) | 2120 ms | 2165 ms |
+| `prefers-reduced-motion: reduce` | 2120 ms | 2164 ms |
+
+Die zweite Zeile war die Falle: `base.css` kürzt im Reduce-Modus **alle**
+Animationen auf 0,01 ms — der Hinweis wäre sofort weg. Dafür steht jetzt eine
+begründete Ausnahme in `base.css`: diese Animation bewegt nichts, sie ist eine
+Zeitangabe; die Regel soll Bewegung abschalten, nicht Information verschlucken.
+
+Nebenbei: `--toast-dauer`/`toast-lebensdauer` hießen zuerst so — die
+IMR-Regel verbietet „Toast" im CSS (kanonisch: „Hinweis"). Alle Vorkommen
+umbenannt, Fitness blieb danach grün.

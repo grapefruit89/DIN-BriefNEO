@@ -67,6 +67,14 @@ html, body {
     transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* Ausnahme: die Hinweis-Lebensdauer ist eine Animation ohne Bewegung
+     (opacity 1 -> 1). Gekuerzt auf 0,01 ms waere der Hinweis sofort weg und
+     damit nutzlos. Hier ist die Animation ein Timer, keine Bewegung — die
+     Regel oben soll Bewegung abschalten, nicht Information verschlucken. */
+  #hinweis-v4:popover-open {
+    animation-duration: var(--hinweis-dauer, 4000ms) !important;
+  }
 }
 
 /* Accessibility: Skip-Link für Tastaturnavigation */

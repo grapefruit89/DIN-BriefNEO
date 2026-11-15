@@ -447,7 +447,6 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 @page {
   size: A4;
   margin: 25mm 0 var(--rand-u) 0;
-  page-margin-safety: auto;
   @top-left {
     padding-left: 25mm;
     font: 9pt var(--font-system-stack, sans-serif);

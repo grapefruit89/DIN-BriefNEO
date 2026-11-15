@@ -3529,3 +3529,29 @@ App-Attribute, die eine Einstellung spiegeln.
 muss `true` sagen, und ein **fehlender** Wert muss als „an" gelten
 (`istAn(undefined) === true`). Damit fällt ein stiller Wechsel der Vorgabe
 sofort auf — der Knopf kann nicht mehr durch einen Code-Default verschwinden.
+
+---
+
+## 2026-11-15 — B57: `page-margin-safety: auto` war ungültig, `clamp` ist nicht messbar
+
+Die Zeile `page-margin-safety: auto` stand seit dem 2026-09-09 in
+`sheet-multipage.css` als Kandidat für Hardware-Rand-Kompensation. Geprüft im
+Zielbrowser (Chrome 156):
+
+| Prüfung | Ergebnis |
+|---|---|
+| `CSS.supports('page-margin-safety', 'auto')` | **false** |
+| `CSS.supports('page-margin-safety', 'clamp')` | **true** |
+| CSSOM der `@page`-Regel | `size: a4; margin: 25mm 0 var(--rand-u) 0;` — die Deklaration **fehlt**, Chrome hat sie beim Parsen verworfen |
+| Entfernen der Zeile | 4 Referenzbriefe / 6 Seiten, **0 abweichende Pixel** |
+| `clamp` temporär gesetzt | CSSOM behält es; 6 Seiten, **0 abweichende Pixel** |
+
+**Entscheidung:** beide Zeilen raus. `auto` war beweisbar wirkungslos.
+`clamp` ist gültig, wirkt aber auf den unbedruckbaren Rand echter Hardware —
+hier nicht messbar, und wenn es greift, verschiebt es Text in die sichere
+Fläche, also DIN-Geometrie. Kein Beleg, kein Eingriff.
+
+**Was bleibt:** ein abkneifender Druckertreiber ist eine Treibereinstellung
+(randlos/Skalierung), keine Dokumenteigenschaft. Die Zeile war der falsche
+Ort für das Problem. `sheet.css:313` (stillgelegt, nicht geladen) bleibt
+unverändert.

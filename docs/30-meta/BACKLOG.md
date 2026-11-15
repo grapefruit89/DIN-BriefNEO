@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-24 offene Punkte. Details unterhalb, nach Art gruppiert.
+23 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -66,7 +66,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B40** | Vier vorbestehende Testfehler dokumentieren | M | ⭐⭐ |
 | **B51** | Design-Tokens in `sidebar.css` durchziehen | M | ⭐⭐ |
 | **B52** | Plugin-Punkt für `website/addons/` | L | ⭐⭐ |
-| **B57** | CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren | S | ⭐⭐ |
 | **B58** | Gzip/Minify als Abschluss-Option | S | ⭐ |
 | **B59** | Kaskade über `@layer` statt `!important` | M | ⭐⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
@@ -122,11 +121,6 @@ Derselbe Andockpunkt würde drei Dinge tragen, die heute einzeln gelöst sind:
 austauschbares Theme-CSS, PDF-Export (siehe DeepSeek-Mitschrift 2026-11-14)
 und die WebMCP-Bridge. Bedingung: ein Addon darf den Boot-Pfad nicht belasten,
 also Registrierung nach `data-ready` und Code erst beim Aufruf.
-
-### B57 · CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren · **S** · ⭐⭐
-- **Quelle:** `docs/90-archive/web-standards-tracking.md`.
-- **Problem:** Druckertreiber klemmen DIN-5008-Ränder an unbedruckbaren Bereichen ab.
-- **Aufgabe:** Evaluierung des Chrome-150+ Descriptors `@page { page-margin-safety: clamp; }` für Hardware-Rand-Kompensation.
 
 ### B58 · Gzip/Minify als Abschluss-Option · **S** · ⭐
 Nicht jetzt. Gemessen am 2026-11-14: JS 314 KB roh → 134 KB minifiziert (gzip

@@ -984,3 +984,43 @@ entscheidet die Ladereihenfolge (`base.css` vor `sidebar.css`) hier nichts.
 #btn-testbrief` (Zustand, nicht Modus-Struktur) und die 93 Optik-Selektoren.
 Ein Vorschlag, der die Optik-Datei weiter aufteilt, gehört in eine eigene
 Scheibe — nicht in B64.
+
+### B57 · CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren · **S** · ⭐⭐
+- **Quelle:** `docs/90-archive/web-standards-tracking.md`.
+- **Problem:** Druckertreiber klemmen DIN-5008-Ränder an unbedruckbaren Bereichen ab.
+- **Aufgabe:** Evaluierung des Chrome-150+ Descriptors `@page { page-margin-safety: clamp; }` für Hardware-Rand-Kompensation.
+
+✅ ERLEDIGT 2026-11-15 — **`auto` war ungültig, `clamp` ist unmesbar. Beide raus.**
+
+**Befund 1: `auto` wurde nie angewendet.** Im Zielbrowser (Chrome 156)
+gemessen:
+
+```
+CSS.supports('page-margin-safety', 'auto')   → false
+CSS.supports('page-margin-safety', 'clamp')  → true
+```
+
+Und die CSSOM zeigt, was Chrome aus der Regel macht: `@page` enthält
+`size: a4; margin: 25mm 0 var(--rand-u) 0;` — die Deklaration
+`page-margin-safety: auto` **fehlt**, Chrome hat sie beim Parsen verworfen.
+Sie stand seit dem 2026-09-09 als tote Zeile in `sheet-multipage.css`.
+
+**Befund 2: `clamp` ist gültig, aber hier nicht messbar.** Temporär
+eingesetzt, `printToPDF`, 4 Referenzbriefe / 6 Seiten, `pdftoppm -r 150` +
+Pixelvergleich: **0 abweichende Pixel** gegenüber „ohne". Der Descriptor
+zielt auf den unbedruckbaren Rand echter Hardware; ein virtueller Drucker
+bildet ihn nicht nach.
+
+**Entscheidung: keine der beiden Zeilen bleibt.** `auto` war nachweislich
+wirkungslos (Entfernen: 6 Seiten, **0 Pixel**). `clamp` wäre eine
+Layout-Eigenschaft, deren Wirkung auf echten Druckern niemand hier messen
+kann — und wenn sie greift, verschiebt sie Text in die sichere Fläche, also
+genau die DIN-Geometrie, die nicht ohne Beleg wandern darf.
+
+**Was das für den Fall aus dem Backlog heißt:** ein Druckertreiber, der
+Ränder abklemmt, lässt sich mit CSS nicht zuverlässig kompensieren — das ist
+eine Einstellung des Treibers („randlos" / Skalierung), keine Aufgabe des
+Dokuments. Die Zeile war der falsche Ort für das Problem.
+
+`sheet.css:313` trägt die Zeile weiterhin — die Datei ist stillgelegt und
+wird nicht geladen (B60), sie bleibt unangetastet.

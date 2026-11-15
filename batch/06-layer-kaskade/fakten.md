@@ -53,8 +53,6 @@ Sie sind der Grund, warum `@layer` erst nach dem Umbau greift.
 | 105 | `body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,#viewport[data` | `height: auto !important;` |
 | 106 | `body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,#viewport[data` | `width: 100% !important;` |
 | 107 | `body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,#viewport[data` | `container-type: normal !important;` |
-| 480 | `?` | `@top-left { content: none !important; }` |
-| 481 | `?` | `@top-right { content: none !important; }` |
 
 ## 4. Alle `!important` je Datei
 

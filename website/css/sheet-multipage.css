@@ -517,14 +517,14 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   }
 
   din-blatt {
-    position: relative !important;
+    /* `position`, `box-shadow`, `width` und `max-width` standen hier als
+       Spiegel: `@scope (din-blatt) :scope` setzt ausserhalb des Druckblocks
+       dieselben Werte, und die Datei hat kein @media screen. Entfernt
+       2026-11-15 (B88-Nachtrag), 0 Pixel Unterschied im PDF-Vergleich. */
     transform: none !important;
-    box-shadow: none !important;
     /* -25mm: hebt den Oberrand aus @page wieder auf, damit das Blatt bei
        Papierkante 0 beginnt (sonst wandern alle absoluten Y-Werte um 25mm). */
     margin: -25mm 0 0 0 !important;
-    width: 210mm !important;
-    max-width: 210mm !important;
     min-width: 210mm !important;
     height: auto !important;
     /* ohne das ragt das 297mm-Blatt 20mm ueber die Seite und erzeugt ein
@@ -576,9 +576,14 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 
 
 
-  .unterschrift-zeile,
-  #unterschriftsbild-container,
-  #anlagenvermerk {
+  /* Nur der Container hat keinen Screen-Partner: `.unterschrift-zeile` und
+     #anlagenvermerk setzen break-inside bereits ausserhalb des Druckblocks
+     (die Datei hat kein @media screen). Beim Entfernen der spiegelnden
+     Druckregel am 2026-11-15 fiel dieser Selektor mit weg — der Pixelvergleich
+     konnte es nicht sehen, weil im Testbrief kein Signaturbild haengt. */
+  #unterschriftsbild-container {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   :root:not(:has(#toggle-anlagen:checked)) din-anlagenvermerk,

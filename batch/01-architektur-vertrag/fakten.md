@@ -7,7 +7,7 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 ## Umfang
 
 - HTML-Dateien: 1, JS-Dateien: 21, CSS-Dateien: 5
-- Zeilen gesamt: HTML 466, JS 10389, CSS 3306
+- Zeilen gesamt: HTML 466, JS 10389, CSS 3311
 - Tests: 342 (`it(`-Aufrufe in `test/all.js`, statisch gezaehlt)
 - Antipattern-Regeln: 51 (Summe aus `tools/antipatterns/*.json`)
 - Fitness-Score: bewusst nicht hier — entsteht nur durch `node tools/build_db.js`
@@ -24,7 +24,7 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 | `website/js/persistence.js` | 895 |
 | `website/css/sheet-common.css` | 723 |
 | `website/js/clipboard-parser.js` | 615 |
-| `website/css/sheet-multipage.css` | 600 |
+| `website/css/sheet-multipage.css` | 605 |
 | `website/js/draft-manager.js` | 550 |
 | `website/index.html` | 466 |
 | `website/js/format.js` | 450 |
@@ -38,7 +38,7 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 |---|---:|---:|---:|---:|---:|---:|
 | `website/css/base.css` | 359 | 24 | 4 | 67 | 0 | 7 |
 | `website/css/sheet-common.css` | 723 | 2 | 138 | 10 | 2 | 0 |
-| `website/css/sheet-multipage.css` | 600 | 69 | 67 | 9 | 2 | 6 |
+| `website/css/sheet-multipage.css` | 605 | 67 | 67 | 9 | 3 | 6 |
 | `website/css/sheet.css` | 354 | 26 | 22 | 0 | 3 | 3 |
 | `website/css/sidebar.css` | 1270 | 3 | 120 | 3 | 0 | 0 |
 

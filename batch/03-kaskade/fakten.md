@@ -32,11 +32,11 @@ Spezifitaet gewinnt die spaetere Datei. `sheet.css` wird **nicht** geladen.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | `base.css` | 359 | 24 | 17 | 4 | 67 | 0 | 0 | 6 |
 | `sheet-common.css` | 723 | 1 | 0 | 123 | 10 | 0 | 1 | 0 |
-| `sheet-multipage.css` | 600 | 65 | 40 | 57 | 9 | 0 | 2 | 6 |
+| `sheet-multipage.css` | 605 | 63 | 38 | 56 | 9 | 0 | 2 | 6 |
 | `sheet.css` (stillgelegt) | 354 | 23 | 21 | 22 | 0 | 0 | 1 | 0 |
 | `sidebar.css` | 1270 | 3 | 0 | 111 | 3 | 0 | 0 | 0 |
 
-Im Betrieb (ohne `sheet.css`): **93** `!important`, davon **57**
+Im Betrieb (ohne `sheet.css`): **91** `!important`, davon **55**
 in `@media print`-Kontexten. `@layer` kommt **0**-mal vor.
 
 ## 3. `!important` nach Eigenschaft
@@ -46,24 +46,24 @@ in `@media print`-Kontexten. `@layer` kommt **0**-mal vor.
 | `display` | 14 |
 | `height` | 6 |
 | `margin` | 6 |
-| `width` | 5 |
 | `container-type` | 5 |
 | `#viewport { padding` | 5 |
 | `#app-shell { display` | 4 |
 | `background` | 4 |
 | `min-height` | 4 |
 | `padding` | 4 |
-| `box-shadow` | 3 |
+| `width` | 4 |
 | `justify-content` | 3 |
 | `align-items` | 3 |
 | `overflow` | 3 |
 | `transform` | 3 |
+| `transition` | 2 |
 
 ## 4. Die `!important`-Regeln in `sheet-multipage.css`
 
 Block = der zuletzt gesehene Selektor (bei `@media`-Kontexten der Selektor
 davor). "print" heisst: steht in einem `@media print`-Block
-(Zeilen 447, 466, 478, 594).
+(Zeilen 447, 466, 478, 599).
 
 | Zeile | print | Selektor | Eigenschaft |
 |---:|:---:|---|---|
@@ -109,12 +109,8 @@ davor). "print" heisst: steht in einem `@media print`-Block
 | 514 | ja | `body[data-seiten="1"] #brief-ansicht` | `width` |
 | 515 | ja | `body[data-seiten="1"] #brief-ansicht` | `display` |
 | 516 | ja | `body[data-seiten="1"] #brief-ansicht` | `container-type` |
-| 520 | ja | `din-blatt` | `position` |
-| 521 | ja | `din-blatt` | `transform` |
-| 522 | ja | `din-blatt` | `box-shadow` |
-| 525 | ja | `din-blatt` | `margin` |
-| 526 | ja | `din-blatt` | `width` |
-| 527 | ja | `din-blatt` | `max-width` |
+| 524 | ja | `din-blatt` | `transform` |
+| 527 | ja | `din-blatt` | `margin` |
 | 528 | ja | `din-blatt` | `min-width` |
 | 529 | ja | `din-blatt` | `height` |
 | 532 | ja | `din-blatt` | `min-height` |
@@ -130,8 +126,10 @@ davor). "print" heisst: steht in einem `@media print`-Block
 | 551 | ja | `#kern` | `filter` |
 | 570 | ja | `#text p` | `margin` |
 | 574 | ja | `#text p:last-child` | `margin-bottom` |
-| 586 | ja | `:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk` | `display` |
-| 597 | ja | `body[data-seiten="1"] :scope` | `margin` |
+| 585 | ja | `#unterschriftsbild-container` | `break-inside` |
+| 586 | ja | `#unterschriftsbild-container` | `page-break-inside` |
+| 591 | ja | `:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk` | `display` |
+| 602 | ja | `body[data-seiten="1"] :scope` | `margin` |
 
 ## 5. Grenzen dieses Blatts
 

@@ -713,7 +713,7 @@ im DECISION-LOG als bewusste Nicht-Änderung.
 
 **Messung:** 12 PDFs (Form A/B × 1/2/3 Seiten × Anlagen an/aus), `pdftotext -bbox`, Toleranz 0,5 px; Pixelgegenprobe per `pdftoppm -r 300` + `compare`.
 
-✅ ERLEDIGT 2026-11-15 — **31 spiegelnde `!important` entfernt, 0 Pixel
+✅ ERLEDIGT 2026-11-15 — **35 spiegelnde `!important` entfernt, 0 Pixel
 Unterschied.**
 
 **Was entfernt wurde:** Deklarationen im Druckblock, die exakt denselben Wert
@@ -729,8 +729,8 @@ gemessen):
 
 | Prüfung | Ergebnis |
 |---|---|
-| Zeilen `sheet-multipage.css` | 642 → **600** (−42, inkl. fünf leerer Blöcke) |
-| `!important` in der Datei | 100 → **69** (65 echte + 4 in Kommentaren) |
+| Zeilen `sheet-multipage.css` | 642 → **605** (−37, inkl. leerer Blöcke) |
+| `!important` in der Datei | 100 → **67** (63 echte + 4 in Kommentaren) |
 | Referenzbriefe | 4 (Form A/B × kurz/lang), 6 Seiten |
 | Seitenzahlen vorher/nachher | 1/2/1/2 → **1/2/1/2** |
 | Pixelvergleich (pdftoppm 150 dpi, PIL) | **0 abweichende Pixel auf allen 6 Seiten** |

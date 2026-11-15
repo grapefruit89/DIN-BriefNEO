@@ -16,7 +16,7 @@ Quelle: `index.html` (Ladereihenfolge) und die CSS-Kennzahlen aus
 | 1 | `website/css/base.css` | 359 | 24 | 17 | 4 |
 | 2 | `website/css/sidebar.css` | 1270 | 3 | 0 | 111 |
 | 3 | `website/css/sheet-common.css` | 723 | 1 | 0 | 123 |
-| 4 | `website/css/sheet-multipage.css` | 600 | 65 | 40 | 57 |
+| 4 | `website/css/sheet-multipage.css` | 605 | 63 | 38 | 56 |
 
 `website/css/sheet.css` wird **nicht** geladen (stillgelegt, Statuskopf in der
 Datei). Sie taucht im Faktenblatt nur auf, damit die Zählung vollständig ist.

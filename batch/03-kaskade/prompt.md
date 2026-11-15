@@ -3,7 +3,7 @@
 ## Rolle
 
 Du bist CSS-Architekt für **kaskadentreue, druckbare Dokumente**. Du änderst
-**nichts**. Du prüfst eine Frage: **warum braucht diese Codebasis 93
+**nichts**. Du prüfst eine Frage: **warum braucht diese Codebasis 91
 `!important`, und welchen Teil davon kann `@layer` ersetzen — ohne dass ein
 einziges Maß auf dem Papier wandert?**
 
@@ -17,9 +17,9 @@ Die Zahlen (aus `fakten.md`, dort mit Zeile belegt):
 
 | | |
 |---|---:|
-| `!important` im Betrieb (ohne die stillgelegte `sheet.css`) | **93** |
-| davon im Druckkontext (`@media print` oder `@page`) | **57** |
-| allein in `sheet-multipage.css` | **65** (40 davon Druck) |
+| `!important` im Betrieb (ohne die stillgelegte `sheet.css`) | **91** |
+| davon im Druckkontext (`@media print` oder `@page`) | **55** |
+| allein in `sheet-multipage.css` | **63** (38 davon Druck) |
 | ID-Selektor-Vorkommen (ohne die stillgelegte `sheet.css`) | **295** |
 | `@layer`-Deklarationen | **0** |
 
@@ -33,9 +33,9 @@ Harte Randbedingungen:
 
 ## Was seit dem letzten Review schon passiert ist
 
-Das Review zu dieser Scheibe (GitHub #20) hat 31 spiegelnde `!important`
+Das Review zu dieser Scheibe (GitHub #20) hat 35 spiegelnde `!important`
 gefunden — Druckregeln, die denselben Wert wiederholen, den die Datei
-ohnehin schon setzt. Sie sind am 2026-11-15 **entfernt**: 41 Zeilen weniger,
+ohnehin schon setzt. Sie sind am 2026-11-15 **entfernt**: 37 Zeilen weniger,
 4 Referenzbriefe (Form A/B × kurz/lang, 6 Seiten) sind **pixelgleich**,
 0 abweichende Pixel bei 150 dpi. Der Anhang zeigt den Stand **danach**.
 
@@ -47,7 +47,7 @@ ohnehin schon setzt. Sie sind am 2026-11-15 **entfernt**: 41 Zeilen weniger,
 | Datei | Inhalt |
 |---|---|
 | `fakten.md` | Ladereihenfolge mit Zeile, Kennzahlen je Datei, `!important` nach Eigenschaft, **alle 100 Regeln aus `sheet-multipage.css`** mit Zeile, Selektor und ob sie im `@media print`-Block stehen |
-| `sheet-multipage.css` | 600 Zeilen, **65 `!important`**, 40 davon im Druck, 6 `@function` |
+| `sheet-multipage.css` | 605 Zeilen, **63 `!important`**, 38 davon im Druck, 6 `@function` |
 
 **Nicht im Anhang** (Rolle und Zahlen in `KONTRAKT.md`): `base.css` (359
 Zeilen, 24 `!important`, 17 davon print, 67 Custom Properties, 7 `@function`),
@@ -61,7 +61,7 @@ Reihenfolge **nicht**, sodass `!important` überhaupt nötig wurde? Belege mit
 Datei und Zeile. Sag ausdrücklich, welche Kämpfe du **nicht** beurteilen
 kannst, weil die Gegenpartei nicht im Anhang ist.
 
-**2. Die 40 Druck-`!important` klassifizieren.** Teile sie in drei Gruppen:
+**2. Die 38 Druck-`!important` klassifizieren.** Teile sie in drei Gruppen:
 (a) nötig, weil eine Screen-Regel gleicher Spezifität sonst gewinnt,
 (b) nur gegen eine **andere** `!important`-Regel gerichtet (echter Wettrüstungs-
 Rest), (c) gegen Inline-Style oder `@page`-Randboxen. Nenne je Gruppe die

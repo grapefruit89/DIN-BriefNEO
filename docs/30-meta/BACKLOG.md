@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-29 offene Punkte. Details unterhalb, nach Art gruppiert.
+30 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -83,6 +83,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
 | **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
 | **B91** | BIC → Bankname als Erweiterung (Addon) | M | ⭐⭐ |
+| **B92** | Kaskade: die vier Restfälle aus dem Review | S | ⭐⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
@@ -204,6 +205,29 @@ zweiter Zustand in jeder Speicherung.
 **Herkunft:** `docs/90-archive/todo-2026-11/done/18-overengineering-mass.md` (Punkt 35), geprüft: Modul lebt, 615 Zeilen.
 **Problem:** Das Modul ist die größte Einzeldatei nach `address.js` und trägt Parsing, Normalisierung und UI-Anbindung. Ob das eine Verantwortung ist, wurde nie entschieden.
 **Lösung:** Eine Messung (wie viele Pfade, wie viele Tests) und dann eine Entscheidung: behalten mit Begründung oder in Parser + Anbindung teilen.
+
+### B92 · Kaskade: die vier Restfälle aus dem Review · **S** · ⭐⭐
+**Herkunft:** GitHub #20. Der große Teil ist erledigt (B88: 35 spiegelnde
+`!important` entfernt, 0 Pixel Unterschied). Das hier bleibt:
+
+| Fall | Beleg | Was zu tun ist |
+|---|---|---|
+| `@page :first { @top-left/@top-right { content: none !important } }` | Zeilen 473/474 | `@page :first` ist spezifischer als `@page`, und `@top-left` hat in der Basisregel **gar kein** `content`. Beide Zeilen entfernen, PDF Seite 1 prüfen: darf keinen „Seite 1 von N"-Text tragen. |
+| `margin: 0 auto !important` | Zeile 122 | Einziger Gegner in der Datei ist Zeile 109 (Spezifität 0,1,0 gegen 0,2,1) — dort ist das `!important` unnötig. Es erzwingt den Sonderblock am Dateiende. |
+| `#spacer { display: block !important }` | Zeile 276 | Ein `<div>` ist ohnehin `block`; in der Datei gibt es keinen Gegner. |
+| 8 Duelle `!important` gegen `!important` | Print 503/506/507 gegen 53/64–68/74–76; 514–516 gegen 83–88/93–99; 525 und 638 gegen 122 | Auflösbar, wenn Print-Block und Screen-Sperre zusammen betrachtet werden. |
+
+**Nicht anfassen:** die 9 echten Kämpfe (anderer Wert) und die 25
+Nicht-Druck-`!important` — letztere sind das Zero-Scroll-Schloss.
+
+**Widerlegt (nicht wieder vorschlagen):** die fünf
+`container-type: normal !important` sind **nicht** tot. Sie schalten
+`container-type: size` aus `base.css:291` ab, und `cqw`/`cqh` werden in
+`base.css:234/237` (`@function --mm-x/--mm-y`) benutzt. Das Kriterium des
+Reviews („wenn kein `@container` trifft") greift zu kurz.
+
+**Messung:** wie bei B88 — 4 Referenzbriefe (Form A/B × kurz/lang) vor/nach,
+`pdftoppm -r 150` + Pixelvergleich, plus Sichtprüfung von Seite 1.
 
 ## ✨ Neue Features
 

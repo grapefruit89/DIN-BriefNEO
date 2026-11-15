@@ -168,6 +168,11 @@ Bildschirm-Sperre (`sheet-multipage.css:74/83/93`) in Schichten legen, dann
 können die Druck-`!important` fallen. Vorher nicht — sonst gewinnen die
 ungeschichteten Regeln.
 
+**Vollständiger Plan, Messprotokoll und Abbruchkriterium:**
+`docs/30-meta/B59-LAYER-PLAN.md`. Dort steht auch, was **nicht** geht (gemessen)
+— damit diese Untersuchung nicht ein zweites Mal gemacht wird. Die „billige"
+Ausbeute ist erschöpft: **2 von 90** (Test 1), der Rest braucht den Umbau.
+
 **Vorbedingung aus B92 (gemessen, nicht vermutet):** die 92 sind **nicht**
 pauschal ersetzbar. Von fünf geprüften Kandidaten waren **drei nicht tot**
 (`@top-left`/`@top-right` `content: none` und `#spacer { display: block }`

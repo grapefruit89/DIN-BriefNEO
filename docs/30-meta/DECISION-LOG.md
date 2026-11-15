@@ -3634,3 +3634,28 @@ Vergleich wie ein eigener Block; 1,0 mm klebt bei mehrzeiligen Absätzen.
 
 Test angepasst: verlangt 1,5 mm in beiden Dateien und prüft, dass es **unter**
 einer halben Zeile bleibt (vorher: „mindestens halbe Zeile").
+
+**Nachtrag 2 (gleicher Tag, zweiter Ausfall).** Der Testbrief-Knopf war erneut
+weg — wieder `pluginTestbrief: false` im Profil. Diesmal mit Falle gemessen,
+statt zu vermuten:
+
+| Prüfung | Ergebnis |
+|---|---|
+| App schreibt `din_settings` beim reinen Laden? | **nein** — `Storage.prototype.setItem`-Falle: **0 Schreibvorgänge**, Knopf sichtbar, Attribut `true` |
+| Einzige Schreibstelle im Code | `settings.js:336–340`, `change`-Listener am Schalter `#plugin-testbrief` |
+| Nach Neuladen mit `pluginTestbrief: true` | stabil `true`, Knopf sichtbar (267×40 px) |
+
+Damit bleibt als Ursache: ein **Messskript** hat den Wert gesetzt, während der
+Schalter unchecked war — die alte PDF-Harness lag unter `/tmp/opencode` und
+schrieb eigene `din_settings`-Fixtures; sie ist beim Aufräumen von `/tmp`
+verschwunden, ihr Inhalt ist nicht mehr prüfbar. **Bewiesen ist das nicht**,
+aber es ist die einzige Stelle, die übrig bleibt.
+
+**Konsequenz (umgesetzt):** `tools/druck-pixel.mjs` ersetzt die /tmp-Harness
+und liegt im Repo. Es sichert `din_settings` und `din_draft_current` **vor** dem
+ersten Lauf, schreibt sie im `finally` zurück und **warnt**, wenn
+`pluginTestbrief` danach nicht `true` ist. Fixtures setzen dort ausdrücklich
+`pluginTestbrief: true`.
+
+**Regel (AGENTS.md):** Messwerkzeug darf die App des Nutzers nicht verändern.
+Zustand sichern, zurückgeben, danach prüfen.

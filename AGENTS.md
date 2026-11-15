@@ -409,9 +409,16 @@ div → span, custom element → natives Element), ist ein Vorher/Nachher-Nachwe
    persistent: wer `localStorage` oder gespiegelte Attribute
    (`data-plugin-testbrief`, `data-marks`, `data-layout`, `data-seiten`) setzt
    und nicht zurückstellt, verändert die App des Nutzers dauerhaft. Am
-   2026-11-15 verschwand so der Testbrief-Knopf (siehe DECISION-LOG). Vor dem
-   Eingriff sichern, danach zurückschreiben — oder einen eigenen Origin
-   benutzen.
+   2026-11-15 verschwand so **zweimal** der Testbrief-Knopf (siehe
+   DECISION-LOG). Vor dem Eingriff sichern, danach zurückschreiben — oder einen
+   eigenen Origin benutzen.
+
+   **PDF-Messungen nur mit `tools/druck-pixel.mjs`.** Das Skript sichert
+   `din_settings`/`din_draft_current`, setzt Fixtures mit
+   `pluginTestbrief: true`, gibt den Zustand im `finally` zurück und warnt,
+   wenn der Schalter danach nicht `true` ist. Ad-hoc-Harnesse unter `/tmp`
+   sind verboten: sie verschwinden beim Aufräumen und haben genau diesen
+   Ausfall verursacht.
 7. **Der Harness bildet den Nutzerpfad nach** (Seite im Bildschirmmodus laden,
    füllen, dann drucken). Weicht er ab, sind `data-seiten`, Viewport-Padding und
    `#probe`-Höhe im Output zu protokollieren — sonst misst man einen Zustand, den

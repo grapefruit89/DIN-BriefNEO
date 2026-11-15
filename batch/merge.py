@@ -3,7 +3,7 @@
 
 Eine Scheibe ist ein Ordner unter `reviews/` mit:
 
-    reviews/2026-11-13-seitenleiste/
+    batch/2026-11-13-seitenleiste/
     ├── prompt.md     ← der Auftrag, den der Reviewer liest
     ├── files.txt     ← eine Pfadzeile je Quelle (Kommentare mit #)
     └── merge.txt     ← Build-Output (nicht committen)
@@ -28,7 +28,7 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-REVIEWS = ROOT / 'reviews'
+REVIEWS = ROOT / 'batch'
 ORDER = {'.html': 0, '.css': 1, '.js': 2, '.txt': 3, '.json': 4, '.md': 5}
 
 
@@ -93,8 +93,9 @@ def baue(ordner: pathlib.Path) -> tuple:
     teile = [
         f'# Review {ordner.name} — Snapshot',
         '',
-        'Dieses Dokument enthaelt alle Quelldateien der Review-Scheibe in EINER',
-        'Datei. Reihenfolge = Tree. Der Auftrag steht in `prompt.md` daneben.',
+        'Dieses Dokument enthaelt den Auftrag UND alle Quelldateien der',
+        'Review-Scheibe in EINER Datei. Reihenfolge = Tree. Der Auftrag steht',
+        'unter „Auftrag" — er muss nicht mitgeschickt werden.',
         '',
         f'Quellstand: Arbeitsbaum auf Basis HEAD {commit}. Verbindlich ist die',
         'SHA256-Tabelle unten: passt sie nicht, ist der Anhang veraltet — dann',
@@ -112,6 +113,22 @@ def baue(ordner: pathlib.Path) -> tuple:
     for name, rel, n, kurz, _ in zeilen_kopf:
         teile.append(f'| `{name}` | `{rel}` | {n} | `{kurz}` |')
     teile += ['', f'Gesamt: {gesamt} Zeichen ≈ {gesamt // 4 // 1000}k Token.', '']
+
+    # Der Auftrag gehoert in DIESE Datei. Am 2026-11-15 kam bei einem Reviewer
+    # nur der Anhang an, die Nachricht war leer — prompt.md lag „daneben" und
+    # fehlte. Ein Snapshot ohne Auftrag ist nicht reviewbar.
+    auftrag = ordner / 'prompt.md'
+    if auftrag.exists():
+        teile += [
+            '---',
+            '',
+            '## Auftrag',
+            '',
+            auftrag.read_text(encoding='utf-8').rstrip(),
+            '',
+        ]
+    else:
+        teile += ['---', '', '## Auftrag', '', '**FEHLT: prompt.md** — Scheibe ohne Auftrag.', '']
 
     # Die Messwerte sind JS-spezifisch (export, Funktionen, Listener, DOM).
     # Fuer eine reine CSS-Scheibe waeren alle Spalten null - das ist Rauschen,

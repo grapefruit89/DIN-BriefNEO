@@ -78,8 +78,11 @@ python3 /home/moritz/repos/DIN-BriefNEO/reviews/merge.py <scheibe>
 ```
 
 `merge.py` prüft sich selbst: die Zahl der Quellblöcke muss zur Zahl der
-Dateien passen, sonst bricht der Lauf ab. Angehängt wird **nur** `merge.txt`,
-plus `prompt.md` als Text.
+Dateien passen, sonst bricht der Lauf ab. Verschickt wird **nur** `merge.txt`
+— der Auftrag steht seit 2026-11-15 **in** dieser Datei (Abschnitt „Auftrag",
+direkt nach der SHA-Tabelle). Grund: bei Batch 06 kam beim Reviewer nur der
+Anhang an, die Nachricht war leer, und `prompt.md` lag daneben. Ein Snapshot
+ohne Auftrag ist nicht reviewbar.
 
 **5. Auswerten, nicht übernehmen.** Jeder Befund wird am Code oder am Objekt
 nachgerechnet (`git show <stand>:datei`, `grep`, Messung). Drei Sorten:

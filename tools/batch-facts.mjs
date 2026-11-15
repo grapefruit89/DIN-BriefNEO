@@ -286,9 +286,50 @@ ${graph.map((g) => `| \`${g.ziel}\` | ${g.von.length} |`).join('\n')}
  * Grenze im Blatt, nicht als stille Annahme.
  */
 
+/**
+ * Entfernt CSS-Kommentare, ohne die Zeilenzahl zu veraendern (jedes Zeichen
+ * wird durch ein Leerzeichen ersetzt). Ohne das zaehlt der Scanner die
+ * `!important` mit, die in Kommentaren als Historie stehen — im Blatt fuer
+ * Scheibe 03 waren das vier (Zeilen 558, 559, 561, 562), gefunden vom
+ * externen Review am 2026-11-15.
+ * @param {string} css
+ * @returns {string[]}
+ */
+function ohneKommentare(css) {
+  const out = [];
+  let imKommentar = false;
+  for (const zeile of css.split('\n')) {
+    let neu = '';
+    let i = 0;
+    while (i < zeile.length) {
+      if (!imKommentar && zeile.startsWith('/*', i)) {
+        imKommentar = true;
+        i += 2;
+        neu += '  ';
+        continue;
+      }
+      if (imKommentar) {
+        if (zeile.startsWith('*/', i)) {
+          imKommentar = false;
+          i += 2;
+          neu += '  ';
+          continue;
+        }
+        neu += ' ';
+        i += 1;
+        continue;
+      }
+      neu += zeile[i];
+      i += 1;
+    }
+    out.push(neu);
+  }
+  return out;
+}
+
 /** @param {string} css */
 function cssKennzahlenAus(css) {
-  const zeilen = css.split('\n');
+  const zeilen = ohneKommentare(css);
   let tiefe = 0;
   let printTiefe = null;
   let selektor = '—';
@@ -298,11 +339,15 @@ function cssKennzahlenAus(css) {
   zeilen.forEach((z, i) => {
     const nr = i + 1;
     const zeile = z.trim();
+    /* @page ist Druck per Definition — gehoert also in denselben Kontext. */
     if (zeile.startsWith('@media print')) {
       atPrint.push(nr);
       printTiefe = tiefe + 1;
     }
-    /* Selektoren stehen vor der oeffnenden Klammer und enden mit "{". */
+    if (/^@page\b/.test(zeile)) {
+      atPrint.push(nr);
+      printTiefe = tiefe + 1;
+    }
     const m = z.match(/^\s*([^@\s][^{]*?)\s*\{\s*$/);
     if (m) selektor = m[1].trim();
 
@@ -322,16 +367,17 @@ function cssKennzahlenAus(css) {
     }
     for (const _ of z.matchAll(/#[a-zA-Z][a-zA-Z0-9_-]*/g)) ids++;
   });
+  const sauber = zeilen.join('\n');
   return {
-    zeilen: zeilen.length - (css.endsWith('\n') ? 1 : 0),
+    zeilen: css.split('\n').length - (css.endsWith('\n') ? 1 : 0),
     occurrences: important.length,
     important,
     ids,
     atPrint,
-    variablen: new Set(css.match(/--[a-zA-Z0-9-]+\s*:/g) || []).size,
-    layer: (css.match(/@layer/g) || []).length,
-    scope: (css.match(/@scope/g) || []).length,
-    funktion: (css.match(/@function/g) || []).length,
+    variablen: new Set((sauber.match(/--[a-zA-Z0-9-]+\s*:/g) || [])).size,
+    layer: (sauber.match(/@layer/g) || []).length,
+    scope: (sauber.match(/@scope/g) || []).length,
+    funktion: (sauber.match(/@function/g) || []).length,
   };
 }
 
@@ -371,6 +417,16 @@ function scheibe03() {
 Alle Zahlen und Zeilen sind aus den CSS-Dateien gelesen. Gezaehlt werden
 **Vorkommen** von \`!important\`, nicht Zeilen (eine Zeile kann zwei tragen).
 
+Zwei Regeln, die das Blatt anwendet und die man kennen muss:
+
+1. **Kommentare zaehlen nicht.** Der Scanner entfernt \`/* … */\` vor dem
+   Zaehlen. Ohne das zaehlt er die Historie mit — in \`sheet-multipage.css\`
+   standen vier \`!important\` in einem Kommentar ueber entfernte Regeln
+   (Zeilen 558, 559, 561, 562). Gefunden vom externen Review am 2026-11-15.
+2. **\`@page\` ist Druck.** Die Spalte „im Druckkontext" umfasst
+   \`@media print\` **und** \`@page\`-Bloecke (Randboxen wie \`@top-right\`).
+   Ein Reviewer, der nur \`@media print\` zaehlt, kommt auf 2 weniger.
+
 ## 1. Ladereihenfolge
 
 | Zeile in \`index.html\` | Datei |
@@ -382,7 +438,7 @@ Spezifitaet gewinnt die spaetere Datei. \`sheet.css\` wird **nicht** geladen.
 
 ## 2. Kennzahlen je Datei
 
-| Datei | Zeilen | \`!important\` | davon in \`@media print\` | ID-Selektoren | Custom Properties | \`@layer\` | \`@scope\` | \`@function\` |
+| Datei | Zeilen | \`!important\` | davon im Druckkontext | ID-Selektoren | Custom Properties | \`@layer\` | \`@scope\` | \`@function\` |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 ${kennzahlen
   .map((k) => {
@@ -420,6 +476,9 @@ ${(mp ? mp.important : [])
 - **Keine Spezifitaetsberechnung.** Welche \`!important\`-Regel eine andere
   schlaegt, steht hier nicht — dafuer braucht es Selektorvergleich, nicht Regex.
   Das ist eine Aufgabe des Reviews, nicht des Blatts.
+- **Kein Selektorvergleich zwischen Dateien.** Ob zwei Regeln wirklich
+  gegeneinander laufen, entscheidet erst der Druck. Das Blatt liefert die
+  Kandidaten, nicht das Urteil.
 `;
 }
 

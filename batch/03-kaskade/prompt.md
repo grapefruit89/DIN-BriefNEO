@@ -3,7 +3,7 @@
 ## Rolle
 
 Du bist CSS-Architekt für **kaskadentreue, druckbare Dokumente**. Du änderst
-**nichts**. Du prüfst eine Frage: **warum braucht diese Codebasis 129
+**nichts**. Du prüfst eine Frage: **warum braucht diese Codebasis 124
 `!important`, und welchen Teil davon kann `@layer` ersetzen — ohne dass ein
 einziges Maß auf dem Papier wandert?**
 
@@ -17,10 +17,10 @@ Die Zahlen (aus `fakten.md`, dort mit Zeile belegt):
 
 | | |
 |---|---:|
-| `!important` im Betrieb (ohne die stillgelegte `sheet.css`) | **129** |
-| davon in einem `@media print`-Kontext | **90** |
-| allein in `sheet-multipage.css` | **100** (73 davon print) |
-| ID-Selektor-Vorkommen (ohne die stillgelegte `sheet.css`) | **334** |
+| `!important` im Betrieb (ohne die stillgelegte `sheet.css`) | **124** |
+| davon im Druckkontext (`@media print` oder `@page`) | **88** |
+| allein in `sheet-multipage.css` | **96** (71 davon Druck) |
+| ID-Selektor-Vorkommen (ohne die stillgelegte `sheet.css`) | **309** |
 | `@layer`-Deklarationen | **0** |
 
 Harte Randbedingungen:
@@ -36,11 +36,11 @@ Harte Randbedingungen:
 | Datei | Inhalt |
 |---|---|
 | `fakten.md` | Ladereihenfolge mit Zeile, Kennzahlen je Datei, `!important` nach Eigenschaft, **alle 100 Regeln aus `sheet-multipage.css`** mit Zeile, Selektor und ob sie im `@media print`-Block stehen |
-| `sheet-multipage.css` | 641 Zeilen, **100 `!important`**, 73 davon print, 6 `@function` |
+| `sheet-multipage.css` | 641 Zeilen, **96 `!important`**, 71 davon im Druck, 6 `@function` |
 
 **Nicht im Anhang** (Rolle und Zahlen in `KONTRAKT.md`): `base.css` (359
 Zeilen, 24 `!important`, 17 davon print, 67 Custom Properties, 7 `@function`),
-`sheet-common.css` (721 Zeilen, 2 `!important`, 138 ID-Selektoren),
+`sheet-common.css` (721 Zeilen, 1 `!important`, 123 ID-Selektoren),
 `sidebar.css` (1270 Zeilen, 3 `!important`), `index.html` (Ladereihenfolge).
 
 ## Aufgaben
@@ -50,13 +50,13 @@ Reihenfolge **nicht**, sodass `!important` überhaupt nötig wurde? Belege mit
 Datei und Zeile. Sag ausdrücklich, welche Kämpfe du **nicht** beurteilen
 kannst, weil die Gegenpartei nicht im Anhang ist.
 
-**2. Die 73 Print-`!important` klassifizieren.** Teile sie in drei Gruppen:
+**2. Die 71 Druck-`!important` klassifizieren.** Teile sie in drei Gruppen:
 (a) nötig, weil eine Screen-Regel gleicher Spezifität sonst gewinnt,
 (b) nur gegen eine **andere** `!important`-Regel gerichtet (echter Wettrüstungs-
 Rest), (c) gegen Inline-Style oder `@page`-Randboxen. Nenne je Gruppe die
 Zahl und drei Beispiele mit Zeile.
 
-**3. Die 27 Nicht-Print-`!important`.** Diese sitzen im normalen Fluß
+**3. Die 25 Nicht-Druck-`!important`.** Diese sitzen im normalen Fluß
 (`overflow`, `display`, `height`, `container-type`). Warum stehen sie dort?
 Sind sie Layout-Kampf oder Absicht? Das ist der verdächtigste Teil der Datei.
 

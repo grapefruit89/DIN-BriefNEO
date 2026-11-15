@@ -14,9 +14,9 @@ Quelle: `index.html` (Ladereihenfolge) und die CSS-Kennzahlen aus
 | Reihenfolge | Datei | Zeilen | `!important` | davon print | ID-Selektoren |
 |---:|---|---:|---:|---:|---:|
 | 1 | `website/css/base.css` | 359 | 24 | 17 | 4 |
-| 2 | `website/css/sidebar.css` | 1270 | 3 | 0 | 120 |
-| 3 | `website/css/sheet-common.css` | 721 | 2 | 0 | 138 |
-| 4 | `website/css/sheet-multipage.css` | 641 | 100 | 73 | 72 |
+| 2 | `website/css/sidebar.css` | 1270 | 3 | 0 | 111 |
+| 3 | `website/css/sheet-common.css` | 721 | 1 | 0 | 123 |
+| 4 | `website/css/sheet-multipage.css` | 641 | 96 | 71 | 62 |
 
 `website/css/sheet.css` wird **nicht** geladen (stillgelegt, Statuskopf in der
 Datei). Sie taucht im Faktenblatt nur auf, damit die Zählung vollständig ist.

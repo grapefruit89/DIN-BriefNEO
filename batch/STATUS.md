@@ -12,7 +12,8 @@ Review-Scheiben — nicht der Chat.
 | 03 | CSS-Kaskade: `!important` und `@layer` | ✅ | ✅ Review #1 **ausgewertet** | ✅ **B88 + B92** | 3 / 28 KiB |
 | 04 | `sidebar.css`: Optik und Struktur trennen | ✅ | ✅ **ausgewertet** | ✅ **B64 umgesetzt** | 2 / **42 KiB** |
 | 05 | Zustand und Restore: zwei Pfade, eine Frage | ✅ | ✅ **ausgewertet** | ✅ **F5 + Vermerk behoben** | 3 / **37 KiB** |
-| 06 | PDF-Export als Addon | Skizze | – | – | zurückgestellt (Nutzerentscheidung) |
+| 06 | Layer-Kaskade: `@layer` in welcher Reihenfolge | ✅ **15.11.** | ⬜ offen | – | 3 / **48 KiB** |
+| 07 | PDF-Export als Addon | Skizze | – | – | zurückgestellt (Nutzerentscheidung) |
 
 **Regel:** Die Skizzen enthalten nur die Fragen und Messpunkte — kein
 vollständiger Auftrag. Ausformuliert wird erst, wenn die Scheibe dran ist
@@ -27,6 +28,11 @@ Ordner enthält seit dem 15.11. einen **Neuschnitt** mit dem Stand nach dieser
 Auswertung (92 statt 91) — der ist kein neuer Review-Auftrag, sondern die
 Vorlage für **B59** (`@layer`). Wer ihn verschickt, fragt nach dem Umbau, nicht
 nach dem Bestand.
+
+**Ausnahme 06:** 48 KiB — die Frage ist eine *Dateigrenzen*-Frage
+(`base.css` lädt zuerst, `sheet-multipage.css` zuletzt), beide Dateien und das
+Faktenblatt mit allen 86 `!important` gehören zusammen. Wer eine weglässt,
+schneidet die Gegenpartei weg.
 
 **Ausnahmen 04 und 05:** 42 bzw. 37 KiB. Beide Fragen brauchen die
 **vollständigen** Dateien: 05 zwei Pfade (183 + 551 Zeilen), 04 eine Datei, die
@@ -117,6 +123,7 @@ DECISION-LOG-Eintrag „Der erste Paint ist keine Zusage".
 | 03 | `node tools/batch-facts.mjs --scheibe 03` |
 | 04 | `node tools/batch-facts.mjs --scheibe 04` |
 | 05 | `node tools/batch-facts.mjs --scheibe 05` |
+| 06 | `node tools/batch-facts.mjs --scheibe 06` |
 
 Jeweils mit `--check` im Gate; `npm run docs:all` prüft Backlog-Tabelle,
 Faktenblätter und Test-Dossier zusammen.

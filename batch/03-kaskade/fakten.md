@@ -32,12 +32,12 @@ Spezifitaet gewinnt die spaetere Datei. `sheet.css` wird **nicht** geladen.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | `base.css` | 402 | 25 | 17 | 22 | 67 | 0 | 0 | 6 |
 | `sheet-common.css` | 725 | 1 | 0 | 123 | 10 | 0 | 1 | 0 |
-| `sheet-multipage.css` | 605 | 63 | 38 | 56 | 9 | 0 | 2 | 6 |
+| `sheet-multipage.css` | 612 | 61 | 38 | 56 | 9 | 1 | 2 | 6 |
 | `sheet.css` (stillgelegt) | 354 | 23 | 21 | 22 | 0 | 0 | 1 | 0 |
 | `sidebar.css` | 1263 | 3 | 0 | 94 | 3 | 0 | 0 | 0 |
 
-Im Betrieb (ohne `sheet.css`): **92** `!important`, davon **55**
-in `@media print`-Kontexten. `@layer` kommt **0**-mal vor.
+Im Betrieb (ohne `sheet.css`): **90** `!important`, davon **55**
+in `@media print`-Kontexten. `@layer` kommt **1**-mal vor.
 
 ## 3. `!important` nach Eigenschaft
 
@@ -50,11 +50,11 @@ in `@media print`-Kontexten. `@layer` kommt **0**-mal vor.
 | `#viewport { padding` | 5 |
 | `#app-shell { display` | 4 |
 | `background` | 4 |
-| `min-height` | 4 |
 | `padding` | 4 |
 | `width` | 4 |
 | `justify-content` | 3 |
 | `align-items` | 3 |
+| `min-height` | 3 |
 | `overflow` | 3 |
 | `transform` | 3 |
 | `transition` | 2 |
@@ -63,73 +63,71 @@ in `@media print`-Kontexten. `@layer` kommt **0**-mal vor.
 
 Block = der zuletzt gesehene Selektor (bei `@media`-Kontexten der Selektor
 davor). "print" heisst: steht in einem `@media print`-Block
-(Zeilen 447, 466, 478, 599).
+(Zeilen 455, 473, 485, 606).
 
 | Zeile | print | Selektor | Eigenschaft |
 |---:|:---:|---|---|
-| 53 | — | `#viewport` | `overflow-x` |
-| 56 | — | `#viewport` | `min-height` |
-| 64 | — | `#viewport[data-seiten="1"]` | `overflow-y` |
-| 65 | — | `#viewport[data-seiten="1"]` | `display` |
-| 66 | — | `#viewport[data-seiten="1"]` | `justify-content` |
-| 67 | — | `#viewport[data-seiten="1"]` | `align-items` |
-| 68 | — | `#viewport[data-seiten="1"]` | `padding` |
-| 74 | — | `#viewport[data-seiten]:not([data-seiten="1"])` | `overflow-y` |
-| 75 | — | `#viewport[data-seiten]:not([data-seiten="1"])` | `display` |
-| 76 | — | `#viewport[data-seiten]:not([data-seiten="1"])` | `padding` |
-| 83 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `display` |
-| 84 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `justify-content` |
-| 85 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `align-items` |
-| 86 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `height` |
-| 87 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `width` |
-| 88 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `container-type` |
-| 93 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `display` |
-| 94 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `justify-content` |
-| 95 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `align-items` |
-| 96 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `min-height` |
-| 97 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `height` |
-| 98 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `width` |
-| 99 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `container-type` |
-| 122 | — | `body[data-seiten="1"] :scope` | `margin` |
-| 276 | — | `#spacer` | `display` |
-| 473 | ja | `:root:has(#toggle-anlagen:checked) #anlagenvermerk` | `@top-left { content` |
-| 474 | ja | `:root:has(#toggle-anlagen:checked) #anlagenvermerk` | `@top-right { content` |
-| 481 | ja | `html, body` | `overflow` |
-| 482 | ja | `html, body` | `height` |
-| 483 | ja | `html, body` | `background` |
-| 487 | ja | `#probe` | `display` |
-| 493 | ja | `#anschriftfeld::after, #folgekoepfe, .folgekopf-screen` | `display` |
-| 503 | ja | `#app-shell #viewport` | `padding` |
-| 504 | ja | `#app-shell #viewport` | `background` |
-| 505 | ja | `#app-shell #viewport` | `height` |
-| 506 | ja | `#app-shell #viewport` | `overflow` |
-| 507 | ja | `#app-shell #viewport` | `display` |
-| 508 | ja | `#app-shell #viewport` | `container-type` |
-| 513 | ja | `body[data-seiten="1"] #brief-ansicht` | `margin` |
-| 514 | ja | `body[data-seiten="1"] #brief-ansicht` | `width` |
-| 515 | ja | `body[data-seiten="1"] #brief-ansicht` | `display` |
-| 516 | ja | `body[data-seiten="1"] #brief-ansicht` | `container-type` |
-| 524 | ja | `din-blatt` | `transform` |
-| 527 | ja | `din-blatt` | `margin` |
-| 528 | ja | `din-blatt` | `min-width` |
-| 529 | ja | `din-blatt` | `height` |
-| 532 | ja | `din-blatt` | `min-height` |
-| 533 | ja | `din-blatt` | `container-type` |
-| 537 | ja | `#kern` | `min-height` |
-| 538 | ja | `#kern` | `padding` |
-| 545 | ja | `#kern` | `box-decoration-break` |
-| 546 | ja | `#kern` | `column-count` |
-| 547 | ja | `#kern` | `column-height` |
-| 548 | ja | `#kern` | `column-wrap` |
-| 549 | ja | `#kern` | `row-gap` |
-| 550 | ja | `#kern` | `background` |
-| 551 | ja | `#kern` | `filter` |
-| 570 | ja | `#text p` | `margin` |
-| 574 | ja | `#text p:last-child` | `margin-bottom` |
-| 585 | ja | `#unterschriftsbild-container` | `break-inside` |
-| 586 | ja | `#unterschriftsbild-container` | `page-break-inside` |
-| 591 | ja | `:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk` | `display` |
-| 602 | ja | `body[data-seiten="1"] :scope` | `margin` |
+| 72 | — | `#viewport[data-seiten="1"]` | `overflow-y` |
+| 73 | — | `#viewport[data-seiten="1"]` | `display` |
+| 74 | — | `#viewport[data-seiten="1"]` | `justify-content` |
+| 75 | — | `#viewport[data-seiten="1"]` | `align-items` |
+| 76 | — | `#viewport[data-seiten="1"]` | `padding` |
+| 82 | — | `#viewport[data-seiten]:not([data-seiten="1"])` | `overflow-y` |
+| 83 | — | `#viewport[data-seiten]:not([data-seiten="1"])` | `display` |
+| 84 | — | `#viewport[data-seiten]:not([data-seiten="1"])` | `padding` |
+| 91 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `display` |
+| 92 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `justify-content` |
+| 93 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `align-items` |
+| 94 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `height` |
+| 95 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `width` |
+| 96 | — | `#viewport[data-seiten="1"] #brief-ansicht` | `container-type` |
+| 101 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `display` |
+| 102 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `justify-content` |
+| 103 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `align-items` |
+| 104 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `min-height` |
+| 105 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `height` |
+| 106 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `width` |
+| 107 | — | `#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht` | `container-type` |
+| 130 | — | `body[data-seiten="1"] :scope` | `margin` |
+| 284 | — | `#spacer` | `display` |
+| 480 | ja | `:root:has(#toggle-anlagen:checked) #anlagenvermerk` | `@top-left { content` |
+| 481 | ja | `:root:has(#toggle-anlagen:checked) #anlagenvermerk` | `@top-right { content` |
+| 488 | ja | `html, body` | `overflow` |
+| 489 | ja | `html, body` | `height` |
+| 490 | ja | `html, body` | `background` |
+| 494 | ja | `#probe` | `display` |
+| 500 | ja | `#anschriftfeld::after, #folgekoepfe, .folgekopf-screen` | `display` |
+| 510 | ja | `#app-shell #viewport` | `padding` |
+| 511 | ja | `#app-shell #viewport` | `background` |
+| 512 | ja | `#app-shell #viewport` | `height` |
+| 513 | ja | `#app-shell #viewport` | `overflow` |
+| 514 | ja | `#app-shell #viewport` | `display` |
+| 515 | ja | `#app-shell #viewport` | `container-type` |
+| 520 | ja | `body[data-seiten="1"] #brief-ansicht` | `margin` |
+| 521 | ja | `body[data-seiten="1"] #brief-ansicht` | `width` |
+| 522 | ja | `body[data-seiten="1"] #brief-ansicht` | `display` |
+| 523 | ja | `body[data-seiten="1"] #brief-ansicht` | `container-type` |
+| 531 | ja | `din-blatt` | `transform` |
+| 534 | ja | `din-blatt` | `margin` |
+| 535 | ja | `din-blatt` | `min-width` |
+| 536 | ja | `din-blatt` | `height` |
+| 539 | ja | `din-blatt` | `min-height` |
+| 540 | ja | `din-blatt` | `container-type` |
+| 544 | ja | `#kern` | `min-height` |
+| 545 | ja | `#kern` | `padding` |
+| 552 | ja | `#kern` | `box-decoration-break` |
+| 553 | ja | `#kern` | `column-count` |
+| 554 | ja | `#kern` | `column-height` |
+| 555 | ja | `#kern` | `column-wrap` |
+| 556 | ja | `#kern` | `row-gap` |
+| 557 | ja | `#kern` | `background` |
+| 558 | ja | `#kern` | `filter` |
+| 577 | ja | `#text p` | `margin` |
+| 581 | ja | `#text p:last-child` | `margin-bottom` |
+| 592 | ja | `#unterschriftsbild-container` | `break-inside` |
+| 593 | ja | `#unterschriftsbild-container` | `page-break-inside` |
+| 598 | ja | `:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk` | `display` |
+| 609 | ja | `body[data-seiten="1"] :scope` | `margin` |
 
 ## 5. Grenzen dieses Blatts
 

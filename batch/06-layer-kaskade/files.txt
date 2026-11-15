@@ -1,0 +1,8 @@
+# Batch 06 — Layer-Kaskade (B59)
+# base.css laedt zuerst, sheet-multipage.css zuletzt; die Frage ist eine
+# Dateigrenzen-Frage, deshalb stehen beide im Anhang. sidebar.css (1.263 Z.,
+# 3 !important) und sheet-common.css (726 Z., 1 !important) bleiben draussen -
+# ihre Zahlen stehen in fakten.md, ihre Rolle in KONTRAKT.md.
+/home/moritz/repos/DIN-BriefNEO/website/css/base.css
+/home/moritz/repos/DIN-BriefNEO/website/css/sheet-multipage.css
+/home/moritz/repos/DIN-BriefNEO/batch/06-layer-kaskade/fakten.md

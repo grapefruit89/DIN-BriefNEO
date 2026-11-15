@@ -29,7 +29,7 @@ const iScheibe = process.argv.indexOf('--scheibe');
 const SCHEIBE = iScheibe > -1 && process.argv[iScheibe + 1] ? process.argv[iScheibe + 1] : '02';
 const ZIEL = join(
   ROOT,
-  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade', '05': 'batch/05-zustand-restore', '04': 'batch/04-seitenleiste-struktur' }[SCHEIBE] || 'batch/02-boot-pfad',
+  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade', '05': 'batch/05-zustand-restore', '04': 'batch/04-seitenleiste-struktur', '06': 'batch/06-layer-kaskade' }[SCHEIBE] || 'batch/02-boot-pfad',
   'fakten.md',
 );
 
@@ -800,6 +800,130 @@ Verwechslung hat am 2026-11-13 eine Zahl um eins verschoben.
 `;
 }
 
+function scheibe06() {
+  /* Layer-Kaskade (B59): wer gewinnt heute gegen wen, und was liegt
+   * ungeschichtet. Zwei Dateien, weil die Frage nur ueber die Dateigrenze
+   * hinweg zu beantworten ist. */
+  const DATEIEN06 = [
+    { rel: 'website/css/base.css', rolle: 'Fundament: Reset, Tokens, App-Shell (laedt zuerst)' },
+    { rel: 'website/css/sheet-multipage.css', rolle: 'Bildschirm-Sperre und Druckblock (laedt zuletzt)' },
+  ];
+
+  /** Scannt eine CSS-Datei und liefert je !important den Kontext. */
+  function scan(rel) {
+    const src = lies(rel);
+    const ohne = ohneKommentare(src).join('\n').split('\n');
+    const out = { scope: [], layer: [], printBloecke: [], important: [] };
+    const stack = [];
+    let buf = '';
+    ohne.forEach((line, i) => {
+      for (const ch of line) {
+        if (ch === '{') {
+          const kopf = buf.trim();
+          stack.push(kopf);
+          if (kopf.startsWith('@scope')) out.scope.push({ nr: i + 1, text: kopf });
+          if (kopf.includes('media print')) out.printBloecke.push({ nr: i + 1, text: kopf });
+          if (kopf.startsWith('@layer')) out.layer.push({ nr: i + 1, text: kopf });
+          buf = '';
+        } else if (ch === '}') {
+          if (stack.length) stack.pop();
+          buf = '';
+        } else buf += ch;
+      }
+      if (!line.includes('!important')) return;
+      const selektoren = stack.filter((s) => !s.startsWith('@'));
+      const ats = stack.filter((s) => s.startsWith('@'));
+      /* Vorkommen, nicht Zeilen: base.css:332 traegt vier in einer Regel
+       * (`#app-shell { … }`). Wer Zeilen zaehlt, kommt auf 22 statt 25 und
+       * rechnet falsch — genau dieser Fehler stand am 2026-11-15 im Backlog. */
+      const deklarationen = line.split('!important').length - 1;
+      for (let k = 0; k < deklarationen; k++) {
+        out.important.push({
+          nr: i + 1,
+          selektor: (selektoren.at(-1) || '?').slice(0, 70),
+          eigenschaft: line.split(':')[0].trim(),
+          deklaration: line.trim().slice(0, 60),
+          print: ats.some((a) => a.includes('media print')),
+          scope: ats.find((a) => a.startsWith('@scope')) || null,
+        });
+      }
+    });
+    return out;
+  }
+
+  const scans = DATEIEN06.map((d) => ({ ...d, s: scan(d.rel) }));
+
+  /* Ungeschichtete Bildschirm-Bloecke in sheet-multipage: Regeln, die im Druck
+   * mitgelten, weil sie NICHT in @media screen stehen. Das ist Sorte C. */
+  const mp = scans.find((d) => d.rel.endsWith('sheet-multipage.css'));
+  const sperre = mp.s.important.filter((w) => !w.print && !w.scope && !w.selektor.startsWith('#'));
+
+  const gesamt = scans.reduce((n, d) => n + d.s.important.length, 0);
+  const print = scans.reduce((n, d) => n + d.s.important.filter((w) => w.print).length, 0);
+
+  return `# Fakten zur Layer-Kaskade (B59)
+
+**Erzeugt von \`tools/batch-facts.mjs --scheibe 06\` — nicht von Hand bearbeiten.**
+\`--check\` bricht ab, wenn dieses Blatt nicht mehr zum Quelltext passt.
+Zaehlweise: **Vorkommen**, nicht Zeilen.
+
+## 1. Kennzahlen
+
+| Datei | Zeilen | \`!important\` | davon Druck | \`@layer\` | \`@scope\` | \`@media print\`-Bloecke |
+|---|---:|---:|---:|---:|---:|---:|
+${scans
+  .map(
+    (d) =>
+      `| \`${d.rel.replace('website/css/', '')}\` | ${lies(d.rel).split('\n').length - 1} | ${d.s.important.length} | ${d.s.important.filter((w) => w.print).length} | ${d.s.layer.length} | ${d.s.scope.length} | ${d.s.printBloecke.length} |`,
+  )
+  .join('\n')}
+| **Summe (diese zwei Dateien)** | | **${gesamt}** | **${print}** | | | |
+
+Die anderen beiden geladenen Dateien sind nicht im Anhang:
+\`sidebar.css\` (1.263 Zeilen, 3 \`!important\`, 0 \`@scope\`) und
+\`sheet-common.css\` (726 Zeilen, 1 \`!important\`, 0 \`@scope\`).
+
+## 2. \`@scope\`-Bloecke
+
+${scans
+  .filter((d) => d.s.scope.length)
+  .map(
+    (d) =>
+      `**${d.rel.replace('website/css/', '')}**\n\n| Zeile | Block |\n|---:|---|\n${d.s.scope
+        .map((s) => `| ${s.nr} | \`${esc(s.text).slice(0, 90)}\` |`)
+        .join('\n')}`,
+  )
+  .join('\n\n') || '_keine_'}
+
+## 3. Die Bildschirm-Sperre: Regeln OHNE \`@media screen\`
+
+Diese Regeln gelten im Druck mit — deshalb braucht der Druckblock \`!important\`.
+Sie sind der Grund, warum \`@layer\` erst nach dem Umbau greift.
+
+| Zeile | Selektor | Deklaration |
+|---:|---|---|
+${sperre.map((w) => `| ${w.nr} | \`${esc(w.selektor)}\` | \`${esc(w.deklaration)}\` |`).join('\n')}
+
+## 4. Alle \`!important\` je Datei
+
+\`\`\`
+Datei | Zeile | Kontext | @scope | Selektor | Deklaration
+\`\`\`
+
+${scans
+  .map((d) => {
+    const datei = d.rel.replace('website/css/', '');
+    return d.s.important
+      .map(
+        (w) =>
+          `| \`${datei}:${w.nr}\` | ${w.print ? 'Druck' : 'global'} | ${w.scope ? 'ja' : '—'} | \`${esc(w.selektor).slice(0, 44)}\` | \`${esc(w.deklaration).slice(0, 30)}\` |`,
+      )
+      .join('\n');
+  })
+  .join('\n')}
+`;
+}
+
 const SKRIPTE = skripte();
 const DATEIEN = ['website/js/boot.js', 'website/js/boot-state.js', 'website/js/main.js'];
 
@@ -808,6 +932,7 @@ if (SCHEIBE === '01') bloecke.push(scheibe01());
 else if (SCHEIBE === '03') bloecke.push(scheibe03());
 else if (SCHEIBE === '05') bloecke.push(scheibe05());
 else if (SCHEIBE === '04') bloecke.push(scheibe04());
+else if (SCHEIBE === '06') bloecke.push(scheibe06());
 else bloecke.push(`# Fakten zum Boot-Pfad
 
 **Erzeugt von \`tools/batch-facts.mjs\` — nicht von Hand bearbeiten.**

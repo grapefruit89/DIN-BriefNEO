@@ -1,4 +1,8 @@
-# Batch 06 — PDF-Export als Addon (SKIZZE, zurückgestellt)
+# Batch 07 — PDF-Export als Addon (SKIZZE, zurückgestellt)
+
+> **Am 2026-11-15 von 06 auf 07 umnummeriert:** die 06 ist jetzt die
+> Layer-Kaskade (B59), weil die Frage aktuell ist und der PDF-Export auf
+> B52 (Plugin-Punkt) wartet.
 
 > Noch nicht ausformuliert. Liegt absichtlich hinten: erst wenn die Struktur
 > steht und der Plugin-Punkt (B52) existiert.

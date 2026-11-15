@@ -1,6 +1,6 @@
 ---
 id: "test-dossier"
-title: "Test-Dossier: was die 346 Fälle abdecken"
+title: "Test-Dossier: was die 347 Fälle abdecken"
 status: "active"
 type: "reference"
 created: "2026-11-15"
@@ -25,7 +25,7 @@ supersedes: []
 `node tools/test-dossier.mjs --check` bricht ab, wenn dieses Verzeichnis nicht
 mehr zu `test/all.js` passt.
 
-**Zahl:** 346 Fälle in 91 Gruppen.
+**Zahl:** 347 Fälle in 91 Gruppen.
 Gezählt per Textsuche über `describe(`/`it(` am Zeilenanfang — auskommentierte
 und dynamisch erzeugte Fälle zählen **nicht** mit. Die Einzelfälle stehen im
 Lauf (`node tools/test-runner.mjs`); hier steht, **wo** sie liegen und **wie
@@ -60,6 +60,7 @@ dick** ein Bereich abgedeckt ist.
 | formatDatum (DIN 5008 § 11.4) | 4 |
 | Ratsche P38: contenteditable auf offenen Feldern | 4 |
 | sanitizeRichText — Kursiv | 4 |
+| SettingsManager: Drill-Down Modus-Umschaltung (Seitenleiste) | 4 |
 | Textformatierung — Toolbar | 4 |
 | toggleInlineFormat — Bold | 4 |
 | toggleInlineFormat — Italic | 4 |
@@ -75,7 +76,6 @@ dick** ein Bereich abgedeckt ist.
 | formatUhrzeit (DIN 5008 § 11.5) | 3 |
 | Popover: geschlossene Overlays blockieren keine Klickfläche | 3 |
 | Schalter-Semantik: eine Regel statt drei (B65) | 3 |
-| SettingsManager: Drill-Down Modus-Umschaltung (Seitenleiste) | 3 |
 | Tote Zustaende bleiben weg (Issue #17, 2026-11-14) | 3 |
 | Unterrand (20/30) | 3 |
 | Absatzabstand im Fließtext | 2 |

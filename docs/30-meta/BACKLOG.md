@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-29 offene Punkte. Details unterhalb, nach Art gruppiert.
+32 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -83,6 +83,9 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
 | **B86** | Tote Einstellung `copyfit` entfernen oder implementieren | S | ⭐⭐ |
 | **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
+| **B88** | Kaskade: 35 spiegelnde `!important` auflösen | M | ⭐⭐⭐ |
+| **B89** | Chrome-157–160-Behauptungen prüfen, bevor sie ins Design gehen | S | ⭐⭐ |
+| **B90** | `data-generated` ist tot, `--rand-u` könnte CSS lesen | S | ⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
@@ -189,6 +192,45 @@ Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
 **Problem:** Das Modul ist die größte Einzeldatei nach `address.js` und trägt Parsing, Normalisierung und UI-Anbindung. Ob das eine Verantwortung ist, wurde nie entschieden.
 **Lösung:** Eine Messung (wie viele Pfade, wie viele Tests) und dann eine Entscheidung: behalten mit Begründung oder in Parser + Anbindung teilen.
 
+### B88 · Kaskade: 35 spiegelnde `!important` auflösen · **M** · ⭐⭐⭐
+**Herkunft:** GitHub #20 — das externe Review zu Batch 03 hat die 96 Deklarationen in `sheet-multipage.css` sortiert. Die Zahlen sind nachgeprüft (Faktenblatt mit Kommentar- und `@page`-Korrektur, `ce445dc`).
+
+**Aufteilung der 96 (71 im Druck):**
+
+| Gruppe | n | Bedeutung |
+|---|---:|---|
+| (a1) echter Kampf gegen eine Screen-Regel mit **anderem** Wert | 9 | muss bleiben, bis der Gegner umgebaut ist |
+| (a2) **Spiegel**: Druck-Regel wiederholt denselben Wert, den die Screen-Regel schon setzt | **35** | änderbar nichts — die Datei hat kein `@media screen`, die Screen-Regeln gelten im Druck mit. Kandidaten zum Löschen |
+| (b) `!important` nur gegen ein anderes `!important` | 8 | Wettrüstungs-Rest |
+| (c) gegen Inline-Style oder `@page` | 0 belegbar | – |
+| nicht beurteilbar (Gegner in anderer Datei) | 17 | braucht base/sidebar/common im selben Blick |
+
+**Stichprobe (a2) bestätigt:** `#betreff` Screen Z. 286–290 (`display: block`, `font-size: 12pt`, `font-weight: 700`, `line-height: 1.4`) und Druck Z. 567–572 — dieselben vier Werte, dort mit `!important`. Gleiches Muster bei `#text` (583–590 gegen 314–326) und `#grussformel` (605–610 gegen 330–337).
+
+**Drei Einzelfälle:**
+- Z. 473/474 (`@page :first { content: none !important }`) sind vermutlich überflüssig: `@page :first` ist spezifischer als `@page`, und `@top-left` hat in Z. 447–464 gar kein `content`. Gegenprobe: entfernen, PDF Seite 1 prüfen.
+- Z. 122 (`margin: 0 auto !important`) hat in der Datei nur Z. 109 als Gegner (0,1,0 gegen 0,2,1) — dort unnötig.
+- Z. 276 (`#spacer { display: block !important }`) hat keinen Gegner; ein `<div>` ist ohnehin `block`.
+
+**Achtung, Korrektur am Review:** die fünf `container-type: normal !important` (Z. 88, 99, 508, 516, 533) sind **nicht** tot. Sie schalten `container-type: size` aus `base.css:291` ab, und `cqw`/`cqh` werden in `base.css:234/237` (`@function --mm-x/--mm-y`) tatsächlich benutzt. Das Review schlug Löschen vor, „wenn kein `@container` trifft" — das Kriterium greift zu kurz.
+
+**Messung:** 12 PDFs (Form A/B × 1/2/3 Seiten × Anlagen an/aus), `pdftotext -bbox`, Toleranz 0,5 px; Pixelgegenprobe per `pdftoppm -r 300` + `compare`.
+
+### B90 · `data-generated` ist tot, `--rand-u` könnte CSS lesen · **S** · ⭐
+**Herkunft:** GitHub #17 — eine „JS→CSS"-Analyse. **Sieben der acht Punkte sind erledigt** und standen trotzdem als offen im Issue; nur diese zwei bleiben:
+
+| Punkt aus #17 | Stand heute |
+|---|---|
+| `data-anlagen`/`data-fuss` | erledigt (Batch 01, `:has()`) |
+| `data-gesetzt` | erledigt (B62, `:has(option:checked…`) |
+| `data-visible` | erledigt (`:not(:placeholder-shown)`) |
+| `data-layout` | erledigt (B63, eine Spur) |
+| `data-generated` | **tot**: kein Schreiber, kein Leser — nur noch Kommentare in `sheet-common.css:672` und in der stillgelegten `sheet.css` |
+| Font-Presets | `font-feature.js` setzt `--active-font-family` — eine `:has()`-Variante wäre möglich, aber ohne Messwert keinen Umbau wert |
+| `--rand-u` | 2 Schreiber (`boot.js:68`, `settings.js:113`), CSS liest es nur im Druck (`#kern` padding). `:has(#btn-rand-u-30:checked)` wäre möglich — **aber** es ist Druckgeometrie, also nur mit PDF-Gegenprobe |
+
+**Lösung:** Die zwei toten Kommentare entfernen (Zeilenangabe oben) und `--rand-u` nur anfassen, wenn ohnehin ein PDF-Diff ansteht. Der Rest des Issues ist geschlossen.
+
 ## ✨ Neue Features
 
 Produktideen. Sie ändern, **was** die App kann — nicht, wie sie gebaut ist.
@@ -212,6 +254,12 @@ Reihenfolge ist Absicht: erst die Struktur, dann die Features.
 **Priorität: ZZZ — zuletzt.** Bewusst geparkt: reine Komfort-Validierung
 (Zeilenlimit-Anzeige, IBAN-Modulo-97), kein Schaden belegt. Wird nicht
 angefasst, solange irgendetwas anderes offen ist.
+
+**Ergänzung 2026-11-15 (GitHub #21):** Der Vorschlag dort trennt drei Dinge sauber, und nur die zwei kleinen gehören hierher:
+- **Formatieren** ist reine Algorithmik und existiert (`formatIban` in `format.js`) — nichts zu tun.
+- **IBAN prüfen** ist Modulo-97 über BigInt, ein paar Zeilen — das ist der Kern dieses Eintrags.
+- **BIC formal prüfen** ist ein Regex (`^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$`), 0 Byte Daten — passt dazu, gleicher Aufwand.
+- **Bankname zu BIC** bräuchte eine Bundesbank-JSON (~80–120 KB, lazy geladen). Das ist ein eigener Eintrag, wenn es je gewünscht wird — eine Datenquelle ist ein Versprechen auf Pflege, keine Zeile Code.
 
 ### B28 · Multi-Provider Geocoding Abstraktionsschicht (Nominatim, Photon, BKG) · **M** · ⭐⭐⭐
 **Kontext:** Konsolidiert aus `MULTI_PROVIDER_INTEGRATION_BLUEPRINT.md`.
@@ -304,3 +352,13 @@ Die Testlandschafts-Analyse liegt nur im Chat. `befundpruefung-2026-11-05.md` (a
 **Herkunft:** `docs/90-archive/todo-2026-11/README.md` (Punkt 49), unverändert offen.
 **Problem:** Die Rücksendezeile steht 5,7–6,8 mm und die Empfängeranschrift 12,1 mm zu hoch (gemessen 2026-11-11). `data-anschriftfeld-y` trifft die DIN-Rücksendezeile auf 0,1–0,2 mm, wird aber als Beginn der Adresszone gelesen; `#vermerke` reserviert die 17,7-mm-Zone nicht (`display: none`). Optionen A/B/C stehen in `docs/10-architecture/IMR-Registry.md` §2a.
 **Warum offen:** Jede normkonforme Variante verschiebt alle PDF-Referenzen und braucht eine neue Referenzmessung. Das ist eine Nutzerentscheidung, keine Codefrage.
+
+### B89 · Chrome-157–160-Behauptungen prüfen, bevor sie ins Design gehen · **S** · ⭐⭐
+**Herkunft:** GitHub #22 — eine Liste neuer Web-Plattform-Features für Chrome 157 bis 160.
+
+**Warum das auf den Tisch muss:** Der Testlauf meldet heute **Chrome 156** (`test-runner`). Behauptungen über 157–160 betreffen also **noch nicht veröffentlichte** Versionen. Bei diesem Projekt gab es das schon einmal: von zwölf Behauptungen hielten fünf nicht (`docs/90-archive/upstream-befund-2026-11-10.md`). Ein Design, das auf einer erfundenen API aufsetzt, kostet einen Tag.
+
+**Was zu tun ist:** Jede Zeile einzeln gegen die Primärquelle (`chromestatus.com/api/v0/features`, BCD, `web-features`) prüfen und mit „belegt / erfunden / noch nicht ausgeliefert" markieren. Danach bleibt erfahrungsgemäß wenig übrig — realistisch zwei bis drei Sätze für die Feature-Liste, kein Umbau.
+
+**Relevanz-Vorfilter:** Für dieses Projekt sind nur drei Zeilen überhaupt interessant — `Sanitizer`-Erweiterung (könnte `sanitizeRichText` vereinfachen), `text-decoration-inset` (Typografie), `::highlight(*)` (Live-Validierung). Der Rest ist Mobilfunk, Canvas oder Install-Prompt.
+

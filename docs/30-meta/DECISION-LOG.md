@@ -3788,3 +3788,38 @@ desselben Zustands, ohne Abnehmer.
 kommt die tote Klasse nicht still zurück.
 
 **Druck: 0 Pixel** gegen HEAD (6 Seiten), 354 Tests, Fitness 100,0 %.
+
+---
+
+## 2026-11-16 — GitHub #25 geprüft: ein Befund hält, der Rest ist erledigt oder widerlegt
+
+#25 („Javascript") prüft 12 Dateien, davon **7 gesehen** und **6 nicht**
+(`persistence.js`, `salutation.js`, `settings.js`, `signature.js`,
+`webapi.d.ts`, `address.js`). Alle 13 sind geprüft — die 6 fehlenden waren nur
+im Review nicht dabei, nicht im Repo.
+
+**Der einzige haltbare Befund** („Kleinigkeit C", nicht in der Bilanz):
+`main.js:253` iterierte über eine Liste mit **einem** Element (`['toggle-fuss']`)
+— Rest einer früheren Zwei-Element-Liste. Jetzt direkter Zugriff. Belegt im
+Browser: Schalter aus → Entwurf `false`, an → `true` (`din_draft_current`).
+
+| Behauptung aus #25 | Prüfung | Ergebnis |
+|---|---|---|
+| `document.js`: `formatElementMicroTypography` wird obsolet, wenn `applyMicroTypography` nach CSS geht | `format.js:428` setzt **geschützte Leerzeichen** in §-Angaben, Einheiten, Abkürzungen — Texttransformation, CSS kann das nicht | ❌ Prämisse falsch, nichts gelöscht |
+| `font-feature.js`: reduced-motion-Guard raus | #26 hat sich selbst korrigiert: Snapshot-Capture bleibt | ❌ (siehe Eintrag zu #26) |
+| `font-feature.js`: `schrift-eigene-aktiv` durch `:has()` ersetzen | Klasse ist **ungenutzt** (kein CSS-Leser seit `3bf9cc2`) | ✅ entfernt, siehe Eintrag oben |
+| `draft-manager.js`: `#setSaveStatus`-Text per `::after` | `title` und `aria-live` bleiben JS; ohne Text verlören Screenreader den Status | ❌ nicht angefasst |
+| `signature.js`: `style.transform` → Individual Properties | ist bereits so: `--sig-x/-y/-scale/-rot`, CSS liest `translate/scale/rotate` (`sheet-common.css:453–455`) | ✅ schon erledigt |
+| `settings.js`: Theme über `:has()` | `data-theme` wird von CSS gelesen und schützt vor FOUC (30/30 Messungen) | ❌ bleibt |
+| `multipage-controller.js`: `--i` → `:nth-child()` | `--i` positioniert die Bildschirm-Folgeköpfe per `calc()`; Druck-Geometrie, tabu ohne Messreihe | ⏸ bleibt |
+
+**Dazu zwei Gegenproben, die das Review nicht gemacht hat:**
+
+- **Tote Exporte** (alle 22 JS-Dateien + Addons, Verwendungszählung): nur
+  `website/addons/verlauf/` hat 7 Exporte ohne Aufrufer — und dessen README
+  sagt ausdrücklich „vorbereitet, NICHT geladen". Gewollt, keine Leiche.
+- **`persistence.js`**: drei Funktionen sahen im Datei-lokalen Scan tot aus
+  (`requestPersistentStorage`, `stripHtmlToPlaintext`, `initImportExport`);
+  alle drei werden in `main.js:120/163` und `draft-manager.js:309` benutzt.
+
+**Druck: 0 Pixel** gegen HEAD (6 Seiten), 354 Tests, Fitness 100,0 %.

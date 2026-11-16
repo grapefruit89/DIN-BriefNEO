@@ -250,13 +250,10 @@ function initApp() {
     // Der Fuss-Schalter hat keine eigene UI-Logik, braucht aber denselben
     // Speicherimpuls: ohne ihn landet sein Zustand nie im Entwurf und ist nach
     // einem Neuladen weg. Die Sichtbarkeit liest CSS direkt (:has).
-    for (const id of ['toggle-fuss']) {
-      const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById(id));
-      if (!schalter) continue;
-      schalter.addEventListener('change', () => {
-        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
-      });
-    }
+    const fussSchalter = document.getElementById('toggle-fuss');
+    fussSchalter?.addEventListener('change', () => {
+      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+    });
 
     // Textformatierung (B, I, ❝): Range-API, kein nativer Editing-Befehl (A52). pointerdown
     // + preventDefault haelt Fokus und Selection im #text, sonst wirkt der

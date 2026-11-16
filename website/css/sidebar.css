@@ -955,9 +955,8 @@ input[type="checkbox"][switch] {
   transform: translateY(0);
   /* Lebensdauer des Hinweises. Die Animation aendert nichts (opacity 1 -> 1);
      sie laeuft nur, damit `animationend` in core.js den Hinweis schliessen
-     kann. Vorher stand hier ein setTimeout mit Aufraeumpfad — den gibt es
-     jetzt nicht mehr. Die Dauer setzt core.js als --hinweis-dauer nach
-     Textlaenge (2000 ms + 30 ms/Zeichen, hoechstens 5000 ms). */
+     kann. Die Dauer steht vollstaendig hier (siehe `--hinweis-dauer` unten) —
+     kein JS-Wert, kein setTimeout. */
   animation: hinweis-lebensdauer var(--hinweis-dauer, 4000ms) linear forwards;
 }
 
@@ -989,6 +988,15 @@ input[type="checkbox"][switch] {
   color: var(--c-danger);
   background: oklch(50% 0.2 20 / 10%);
 }
+
+/* Lebensdauer je Typ — die einzige Stelle, an der ein Hinweis Zeit bekommt.
+   Frueher rechnete core.js 2000 ms + 30 ms/Zeichen (max 5000 ms). Textlaenge
+   ist in CSS nicht messbar (`attr()` liefert Zeichen, keine Laenge), also
+   traegt jetzt der Typ die Dauer: Fehler bleiben laenger stehen als ein
+   "Gespeichert". Die Obergrenze des alten Modells (5 s) bleibt fuer Info. */
+#hinweis-v4 { --hinweis-dauer: 4000ms; }
+#hinweis-v4[data-type="warning"] { --hinweis-dauer: 5000ms; }
+#hinweis-v4[data-type="error"]   { --hinweis-dauer: 6000ms; }
 
 #hinweis-v4[data-type="success"] { border-left: 4px solid var(--c-success); }
 #hinweis-v4[data-type="error"]   { border-left: 4px solid var(--c-danger); }

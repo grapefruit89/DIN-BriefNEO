@@ -213,28 +213,20 @@ export function showToast(message, type = 'info') {
     if (dom.global.dataset.type !== type) {
       dom.global.dataset.type = type;
     }
-    setzeLebensdauer(message);
     showPopoverSafe(dom.global);
     return;
   }
 
   dom.message.textContent = message;
+  /* `data-type` ist die einzige Steuerung, die dieses Modul an CSS gibt: die
+     Farbe (sidebar.css:993) und die Lebensdauer (`--hinweis-dauer`) haengen
+     daran. Die Dauer wird NICHT mehr nach Textlaenge berechnet — CSS kann
+     Textlaenge nicht messen, und ein JS-Wert dafuer war die letzte
+     Rechenaufgabe im Toastsystem. */
   dom.global.dataset.type = type;
   current = { message };
 
-  setzeLebensdauer(message);
   showPopoverSafe(dom.global);
-}
-
-/**
- * Setzt die Lebensdauer als CSS-Variable. Die Zeit selbst laeuft in CSS
- * (`animation: hinweis-lebensdauer`), nicht in einem `setTimeout` — damit gibt
- * es keinen Timer, der beim manuellen Schliessen aufgeraeumt werden muss.
- * @param {string} message
- */
-function setzeLebensdauer(message) {
-  const dauer = Math.min(5000, 2000 + message.length * 30);
-  dom?.global?.style.setProperty('--hinweis-dauer', `${dauer}ms`);
 }
 
 function hide() {

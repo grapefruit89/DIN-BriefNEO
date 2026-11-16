@@ -3839,3 +3839,45 @@ Browser: Schalter aus → Entwurf `false`, an → `true` (`din_draft_current`).
 | 1.7 Anchor Positioning | ✅ war schon so | `anchor-name` in `sheet-common.css:407/409`, `sidebar.css:355`; `address.js` ohne `getBoundingClientRect` |
 
 Fazit: #23 beschreibt einen Zustand, den der Code hinter sich hat. Gelöscht.
+
+---
+
+## 2026-11-16 — Toast-Lebensdauer komplett in CSS (GitHub #23, Punkt 1.3)
+
+Nutzer: „toast und alles was damit zu tun hat bitte soweit es geht über css
+regeln!".
+
+**Vorher:** `core.js#setzeLebensdauer()` schrieb `--hinweis-dauer` als
+Inline-Style, berechnet aus der Textlänge (`min(5000, 2000 + 30·Zeichen)`).
+Das war die letzte Rechenaufgabe im Toast — und der einzige Grund, warum das
+Modul DOM-Styling anfasste.
+
+**Was CSS kann und was nicht:** Textlänge ist in CSS **nicht** messbar.
+`attr()` liefert Zeichen, keine Länge; Container Queries messen Boxen, nicht
+Inhalt. Eine „langer Text bleibt länger"-Regel ist damit nicht darstellbar.
+
+**Was jetzt in CSS steht** (`sidebar.css:997`):
+
+| Typ | Dauer | vorher (Länge) |
+|---|---:|---|
+| info / success | 4000 ms | 2000–5000 ms |
+| warning | 5000 ms | 2000–5000 ms |
+| error | 6000 ms | 2000–5000 ms |
+
+Gemessen im Browser (nach Reload): `4s / 4s / 5s / 6s`, kein Inline-Style am
+Element. Auto-Abbau geprüft: Info-Toast ist 4300 ms nach dem Start geschlossen.
+
+**Was in JS bleibt und warum:**
+- `showPopoverSafe` / `hidePopoverSafe` — Popover-Zustand ist eine API, keine
+  Property.
+- `animationend` → `hide()` — CSS kann kein Popover schließen; die Animation
+  ist der Timer, der Aufruf bleibt ein Listener.
+- `current` (Dedupe gleicher Meldungen) und `data-type` — Zustand.
+- Die Ausnahme für `prefers-reduced-motion` (`base.css:76`) bleibt: die
+  Lebensdauer-Animation ist ein Timer ohne Bewegung und darf nicht auf 0,01 ms
+  gekürzt werden. Sie liest jetzt denselben `--hinweis-dauer`-Wert.
+
+**Nicht mehr im Modul:** `style.setProperty` ist aus `core.js` verschwunden —
+ein Test hält das fest (Ratsche auf `style.setProperty('--hinweis-dauer'`).
+
+**Druck: 0 Pixel** (Toast ist `nicht-drucken`), 355 Tests, Fitness 100,0 %.

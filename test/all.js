@@ -2223,6 +2223,27 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
     assertEqual(container?.dataset.type, 'warning', 'Toast-Typ im DOM gesetzt (A21 data-type)');
   });
 
+  it('Lebensdauer kommt aus CSS und staffelt nach Typ (kein JS-Wert)', async () => {
+    /* GitHub #23 (1.3): die Dauer war 2000 ms + 30 ms/Zeichen, in JS gesetzt.
+       Textlaenge ist in CSS nicht messbar — jetzt traegt der Typ die Dauer. */
+    const el = document.getElementById('hinweis-v4');
+    assert(el, 'Toast-Fixture vorhanden');
+    if (!el) return;
+    /** @param {string} typ */
+    const dauer = (typ) => {
+      el.dataset.type = typ;
+      return getComputedStyle(el).getPropertyValue('--hinweis-dauer').trim();
+    };
+    assertEqual(dauer('info'), '4000ms', 'Info: 4 s');
+    assertEqual(dauer('success'), '4000ms', 'Erfolg: 4 s');
+    assertEqual(dauer('warning'), '5000ms', 'Warnung: 5 s');
+    assertEqual(dauer('error'), '6000ms', 'Fehler: 6 s');
+    delete el.dataset.type;
+    const js = await (await fetch('/website/js/core.js')).text();
+    assert(js.includes('setzeLebensdauer') === false, 'keine Dauerberechnung im JS');
+    assert(js.includes("style.setProperty('--hinweis-dauer'") === false, 'kein Inline-Schreiben der Dauer');
+  });
+
   it('räumt current bei toggle newState=closed auf und erlaubt Re-Triggering nach Escape (C2, C3)', () => {
     initToastSystem();
     const container = document.getElementById('hinweis-v4');

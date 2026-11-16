@@ -17,7 +17,11 @@
      unterzubringen: ihr Oberkante ist genau die Unterkante des Textbereichs. */
   --fuss-hoehe: 0mm;
   --nutz: calc(var(--seite) - var(--rand-o) - var(--rand-u) - var(--fuss-hoehe)); /* 252mm, mit Fuss 237mm */
-  --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke)); /* 53mm */
+  /* Der Zeilenabstand zwischen zwei Blattreihen muss das Fussband mitnehmen:
+     `--nutz` wird um `--fuss-hoehe` kuerzer, also rueckt sonst Seite 2 um
+     genau diesen Betrag nach oben und der Folgekopf steht im Text
+     (gemeldet 2026-11-16). Dritte Verwendung derselben Zahl. */
+  --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke) + var(--fuss-hoehe)); /* 53mm, mit Fuss 68mm */
 }
 
 /* Spacer-Höhe auf Seite 1: schiebt den Betreff an die DIN-5008-Position.

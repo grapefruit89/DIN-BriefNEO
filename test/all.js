@@ -2051,6 +2051,10 @@ describe('Druck — Unterrand und Fußzeile', () => {
       'Schalter setzt das Band auf 15mm');
     assert(/--nutz:\s*calc\([^;]*-\s*var\(--fuss-hoehe\)\)/.test(multipage),
       'Textbereich (--nutz) kuerzt um das Band');
+    /* Ohne diese Zeile rutscht Seite 2 um das Band nach oben und der
+       Folgekopf steht im Text (gemeldet 2026-11-16). */
+    assert(/--zeilenabstand:\s*calc\([^;]*\+\s*var\(--fuss-hoehe\)\)/.test(multipage),
+      'Seitenabstand waechst um das Band (Folgekopf bleibt frei)');
 
     const regel = (multipage.match(/#geschaeftsangaben\s*\{([^}]*)\}/) || [])[1] ?? '';
     assert(regel !== '', 'Druckregel für die Fußzeile gefunden');

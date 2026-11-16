@@ -3763,3 +3763,28 @@ nachgewiesen").
 steht als Angebot, nicht als erledigt.
 
 **Druck: 0 Pixel** gegen HEAD (6 Seiten).
+
+---
+
+## 2026-11-16 — `schrift-eigene-aktiv` war Rest eines entfernten Features (gelöscht)
+
+Nutzer: „wenn das schlecht umgesetzt ist bitte korrigieren".
+
+**Herkunft belegt (git):** die Klasse hatte **einen** CSS-Leser —
+`body.schrift-eigene-aktiv #btn-schrift-zuruecksetzen { display: flex; }`.
+Der Hygiene-Sweep `3bf9cc2` (17.10.2026) hat `#btn-schrift-zuruecksetzen`
+samt Regel entfernt (der 2-Zustände-Knopf aus `efe5af8` ersetzte ihn). Zurück
+blieb der **Schreiber** ohne Leser: zwei `classList`-Zeilen in
+`font-feature.js`, drei Assertions in `test/all.js`.
+
+**Der Zustand war nie die Klasse.** Er steht in `--active-font-family`
+(gelesen in `base.css:135`, `sheet-common.css:22`) und in
+`data-font-state="loaded"` (gelesen in `sidebar.css:490`). Beide bleiben, alle
+Zustands-Assertions der Tests bleiben — die Klasse war die dritte Kopie
+desselben Zustands, ohne Abnehmer.
+
+**Ersatz der drei Live-Assertions:** eine **Ratsche** auf den Quelltext —
+`font-feature.js` darf `schrift-eigene-aktiv` nicht mehr enthalten. Damit
+kommt die tote Klasse nicht still zurück.
+
+**Druck: 0 Pixel** gegen HEAD (6 Seiten), 354 Tests, Fitness 100,0 %.

@@ -3546,7 +3546,6 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
     ff.updateFontStatusUI(false);
     assertEqual(btn.dataset.fontState, 'empty');
     assert(btn.textContent?.includes('Eigene Schriftart laden') || false, 'Text zeigt Schriftart laden');
-    assert(!document.body.classList.contains('schrift-eigene-aktiv'), 'body hat nicht schrift-eigene-aktiv');
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
@@ -3557,7 +3556,6 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
     ff.updateFontStatusUI(true);
     assertEqual(btn.dataset.fontState, 'loaded');
     assert(btn.textContent?.includes('Eigene Schrift entfernen') || false, 'Text zeigt Schrift entfernen');
-    assert(document.body.classList.contains('schrift-eigene-aktiv'), 'body hat schrift-eigene-aktiv');
     assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('CustomUserFont'), '--active-font-family enthaelt CustomUserFont');
   });
 
@@ -3575,7 +3573,13 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
     assert(await warteAuf(async () => (await loadBlob('font')) === null), 'IndexedDB-Eintrag wurde gelöscht');
     assertEqual(localStorage.getItem('din_custom_font'), null, 'localStorage enthält keine Schrift');
     assertEqual(btn.dataset.fontState, 'empty');
-    assert(!document.body.classList.contains('schrift-eigene-aktiv'), 'body Klasse entfernt');
+    /* Der Zustand lebt in `--active-font-family` (CSS: base.css:135,
+       sheet-common.css:22) und `data-font-state`. Die Klasse
+       `schrift-eigene-aktiv` war seit dem Hygiene-Sweep 3bf9cc2 ohne CSS-Leser
+       (ihr einziger war `#btn-schrift-zuruecksetzen`, das dabei entfiel) und
+       darf nicht zurueckkommen. */
+    const ffQuelle = await (await fetch('/website/js/font-feature.js')).text();
+    assert(ffQuelle.includes('schrift-eigene-aktiv') === false, 'kein schrift-eigene-aktiv mehr im Code');
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 

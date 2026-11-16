@@ -263,9 +263,6 @@ export class FontFeature {
     const apply = () => {
       if (hasCustomFont) {
         document.documentElement.style.setProperty('--active-font-family', "'CustomUserFont', var(--font-system-stack)");
-        if (document.body) {
-          document.body.classList.add('schrift-eigene-aktiv');
-        }
         if (btn) {
           /* Ein Zustandsattribut: `data-font-state` ist das, was CSS und
              index.html lesen. `data-schrift-modus` fuehrte denselben Zustand
@@ -275,9 +272,6 @@ export class FontFeature {
         }
       } else {
         this.#applyPresetCss(this.settings.previewFont || 'default');
-        if (document.body) {
-          document.body.classList.remove('schrift-eigene-aktiv');
-        }
         if (btn) {
           btn.dataset.fontState = 'empty';
           btn.textContent = '🔤 Eigene Schriftart laden';

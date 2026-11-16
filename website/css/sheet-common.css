@@ -156,14 +156,38 @@ din-lochmarke {
   visibility: hidden;
 }
 
-/* Sichtbarkeit kommt direkt aus dem Schalter (:has), NICHT aus einem
-   Schalter: `:has(#toggle-fuss:checked)` war im ersten Frame falsch.
-   Beide Selektoren, weil `#geschaeftsangaben` als ID (1,0,0) eine reine
-   Element-Regel schlaegt — die alte :has()-Regel war durch den ID im :has
-   staerker (1,1,0). */
+/* Fusszeile: IM FLUSS, nicht absolut.
+   Vorher stand sie `position: absolute; top: 241mm; height: 15mm` — mitten im
+   Textbereich, der bis 272/277 mm laeuft. Gemessen 2026-11-16 (Brief mit zwei
+   Seiten): Text endete bei 249 mm, die Fusszeile begann bei 243 mm → beide
+   uebereinander. Im Fluss kann sie per Konstruktion nichts ueberdecken:
+   sie steht hinter dem Briefkern, `break-inside: avoid` haelt sie zusammen.
+   Die frueheren Absolutwerte (top/bottom/left/right/height/z-index) sind
+   deshalb entfallen, nicht ersetzt. */
+#geschaeftsangaben,
+din-geschaeftsangaben {
+  display: none;
+  font-size: --pt-rel(attr(data-font type(<number>)));
+  color: var(--blatt-schwach);
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, auto);
+  gap: 0 --mm-rel-x(10);
+  column-rule: 0.5px solid var(--blatt-schwach);
+  border-top: 0.5px solid var(--blatt-schwach);
+}
+
+/* Sichtbarkeit kommt direkt aus dem Schalter (:has). Beide Selektoren, weil
+   die ID (1,0,0) eine reine Element-Regel schlaegt.
+   `--fuss-hoehe` ist der Vertrag gegen Ueberlappung: derselbe Wert verkuerzt
+   den Textbereich (--nutz, sheet-multipage.css) und setzt die Oberkante der
+   Fusszeile. Text und Fusszeile koennen sich deshalb nie treffen. */
 :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
 :root:has(#toggle-fuss:checked) #geschaeftsangaben {
   display: grid;
+}
+
+:root:has(#toggle-fuss:checked) {
+  --fuss-hoehe: 15mm;
 }
 
 #fuss-firma     { grid-area: 1 / 1; }
@@ -743,9 +767,5 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       font-style: italic;
     }
 
-  :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
-    :root:has(#toggle-fuss:checked) #geschaeftsangaben {
-      display: grid;
-    }
 
 }

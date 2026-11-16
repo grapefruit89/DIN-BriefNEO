@@ -3928,3 +3928,43 @@ Code: drei Wiederholungen mit identischem Stand ergaben **0** Pixel, und die
 Verschiebung trat nur in einem Lauf nach den Fußzeilen-Experimenten auf
 (Print-Snapshot mit altem Seitenzustand). Lehre: ein einzelner Pixel-Ausreißer
 nach Experimenten wird wiederholt, bevor er als Regression gilt.
+
+---
+
+## 2026-11-16 — Fußzeile: nur Seite 1, im reservierten Band (Überlappung konstruktiv aus)
+
+**Korrektur des Users:** „die GMBH angaben KOMMEN NUR AUF SEITE 1 !!!!!! harte din
+5008 anforderung". Mein erster Anlauf (Fußzeile im Fluss, also am Briefende) war
+damit falsch und wurde verworfen.
+
+**Gemessenes Problem:** `position: absolute; top: 241mm` liegt im Textbereich
+(der bis 272/277 mm läuft). Bei einem zweiseitigen Brief endete der Text bei
+249 mm — 6 mm unter der Fußzeilen-Oberkante. Eine Fußzeile im Unterrand
+(`top: 277mm`) ist keine Lösung: Chrome schneidet am `@page`-Inhaltsrand ab,
+im Druck erschien **eine** Pixelzeile.
+
+**Der Vertrag (eine Zahl, zwei Verwendungen):**
+
+```css
+--fuss-hoehe: 0mm;                                   /* aus */
+:root:has(#toggle-fuss:checked) { --fuss-hoehe: 15mm; }
+--nutz: calc(… - var(--fuss-hoehe));                 /* Textbereich */
+top: calc(var(--seite) - var(--rand-u) - var(--fuss-hoehe));  /* Fußzeile */
+```
+
+Textbereich-Unterkante und Fußzeilen-Oberkante sind **dieselbe Rechnung** —
+sie können sich nicht treffen, auch nicht bei Änderung von `--rand-u`
+(20/30 mm) oder der Fußzeilenhöhe.
+
+| Nachweis | Wert |
+|---|---|
+| Fußzeile im PDF | Seite **1**: 264,0 – 276,5 mm |
+| letzter Text darüber | endet **263,8 mm** → 0,2 mm Abstand, keine Überlappung |
+| Seite 2 | **keine** Fußzeilen-Wörter (DIN 5008 erfüllt) |
+| Fußzeile AUS, HEAD vs. jetzt | **0 Pixel** (Default unberührt) |
+| Tests | 356, Fitness 100,0 % |
+
+**Preis, offen benannt:** das Band gilt auf **jeder** Seite (Textbereich 237 mm
+statt 252 mm), damit Bildschirm und Druck dasselbe zeigen (WYSIWYG). Eine
+Reservierung nur auf Seite 1 (`@page :first`) wäre im Druck möglich, würde den
+Schirm aber vom PDF entkoppeln. Bewusst dagegen entschieden.

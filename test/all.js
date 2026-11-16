@@ -2035,20 +2035,29 @@ describe('Druck — Unterrand und Fußzeile', () => {
       'box-decoration-break: slice auf #kern (clone wiederholte den Oberrand pro Seite)');
   });
 
-  it('4: Fußzeile beginnt unterhalb des Textbereichs', async () => {
-    const src = ohneKommentare(await lade());
-    const fussRegel = (src.match(/#geschaeftsangaben\s*\{([^}]*)\}/) || [])[1] ?? '';
-    assert(fussRegel !== '', '#geschaeftsangaben-Regel gefunden');
-    const top = Number((fussRegel.match(/top:\s*([\d.]+)mm/) || [])[1]);
-    const druck = await druckBlock();
-    // Default aus :root, weil der Druck die Variable liest (einstellbar 20/30mm)
-    const padUnten = Number((src.match(/--rand-u:\s*([\d.]+)mm/) || [])[1]);
-    const hoehe = Number((fussRegel.match(/height:\s*([\d.]+)mm/) || [])[1]);
-    assert(top > 0 && padUnten > 0 && hoehe > 0, `Werte lesbar (top=${top}mm, hoehe=${hoehe}mm, padding=${padUnten}mm)`);
-    /* Vertragsänderung 2026-11-12: der Fuss muss INNERHALB des Bands
-       (25-277mm) liegen. 280mm lag ausserhalb und wurde abgeschnitten. */
-    assert(top > 25 && top + hoehe <= 297 - padUnten,
-      `Fuss ${top}..${top + hoehe}mm muss im Band bis ${297 - padUnten}mm liegen`);
+  it('4: Fußzeile nur auf Seite 1, im reservierten Band — Überlappung ausgeschlossen', async () => {
+    /* Vertragsänderung 2026-11-16 (zweiter Anlauf). DIN 5008: die
+       Geschäftsangaben stehen NUR auf Seite 1. Ein Fußblock am Ende des
+       Briefs (im Fluss) ist falsch, eine absolut positionierte Zeile mitten
+       im Textbereich überlappt (gemessen: Text bis 249 mm, Fuß ab 243 mm).
+       Der Vertrag ist jetzt: EIN Wert (`--fuss-hoehe`) verkürzt den
+       Textbereich UND setzt die Oberkante der Fußzeile. Beide liegen damit
+       per Konstruktion auf derselben Linie. */
+    const multipage = ohneKommentare(await lade());
+    const basis = ohneKommentare(await (await fetch('/website/css/sheet-common.css')).text());
+
+    assert(/--fuss-hoehe:\s*0mm/.test(multipage), 'Default: kein Band (0mm)');
+    assert(/:root:has\(#toggle-fuss:checked\)\s*\{[^}]*--fuss-hoehe:\s*15mm/.test(basis),
+      'Schalter setzt das Band auf 15mm');
+    assert(/--nutz:\s*calc\([^;]*-\s*var\(--fuss-hoehe\)\)/.test(multipage),
+      'Textbereich (--nutz) kuerzt um das Band');
+
+    const regel = (multipage.match(/#geschaeftsangaben\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(regel !== '', 'Druckregel für die Fußzeile gefunden');
+    assert(/position:\s*absolute/.test(regel), 'Fußzeile ist absolut positioniert (Seite 1)');
+    assert(/top:\s*calc\(var\(--seite\)\s*-\s*var\(--rand-u\)\s*-\s*var\(--fuss-hoehe\)\)/.test(regel),
+      'Oberkante = Unterkante des Textbereichs (gleiche Rechnung)');
+    assert(/(?<![-\w])height\s*:/.test(regel) === false, 'keine feste Höhe im Druck');
   });
 });
 

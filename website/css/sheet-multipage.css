@@ -11,7 +11,12 @@
   --rand-l: 25mm;                /* linker Rand */
   --rand-r: 20mm;                /* rechter Rand */
 
-  --nutz: calc(var(--seite) - var(--rand-o) - var(--rand-u)); /* 252mm */
+  /* Fußband: wenn die Geschäftsangaben an sind, endet der Textbereich 15mm
+     höher — auf JEDER Seite, damit Bildschirm und Druck dasselbe zeigen
+     (WYSIWYG). Nur so ist die Fußzeile auf Seite 1 überlappungsfrei
+     unterzubringen: ihr Oberkante ist genau die Unterkante des Textbereichs. */
+  --fuss-hoehe: 0mm;
+  --nutz: calc(var(--seite) - var(--rand-o) - var(--rand-u) - var(--fuss-hoehe)); /* 252mm, mit Fuss 237mm */
   --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke)); /* 53mm */
 }
 
@@ -361,14 +366,16 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     page-break-inside: avoid;
   }
 
-  /* Fußzeile auf Seite 1 */
+  /* Fusszeile: Seite 1, im freigehaltenen Band. `top` ist per Konstruktion
+     gleich der Unterkante von #kern (beide rechnen mit --nutz/--fuss-hoehe),
+     deshalb kann kein Text darueber laufen. DIN 5008: Geschaeftsangaben
+     stehen nur auf Seite 1. */
   #geschaeftsangaben {
     display: none;
     position: absolute;
-    top: 241mm;
+    top: calc(var(--seite) - var(--rand-u) - var(--fuss-hoehe));
     left: var(--rand-l);
     right: var(--rand-r);
-    height: 15mm;
     font-size: --pt-abs(attr(data-font type(<number>)));
     color: var(--blatt-schwach);
     padding-top: 2mm;
@@ -376,6 +383,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     grid-template-rows: repeat(4, auto);
     gap: 0 10mm;
     column-rule: 0.5px solid var(--blatt-schwach);
+    border-top: 0.5px solid var(--blatt-schwach);
     z-index: 10;
   }
 

@@ -3733,3 +3733,33 @@ Laufs waren der Datumswechsel 15. → 16.11. in der Referenz, nicht der Code).
 **Lehre für künftige Reviews:** Zeilenzahlen stimmen oft, die Begründung ist
 aus READMEs geraten. Gegenprobe vor dem Löschen: die Regel, die angeblich
 fehlt, im CSS suchen.
+
+---
+
+## 2026-11-16 — GitHub #26 geprüft: das Review fand keinen Codefehler, aber eine Dopplung
+
+#26 („Schon drin?") ist eine **Selbstkorrektur** des Reviewers zu
+`font-feature.js#transitionOn`. Geprüft, nicht übernommen:
+
+| Behauptung | Prüfung | Ergebnis |
+|---|---|---|
+| „vier Guard-Zweige, nicht einer" | `core.js` (vorher `font-feature.js:23–39`): matchMedia, `typeof startViewTransition`, `visibilityState`, `hatKasten` | ✅ stimmt |
+| „reduced-motion raus spart ~2 Zeilen, kostet Snapshot-Capture" | `base.css:309–313` animiert 0,6 s; ein CSS-Override `animation-duration: 0s` verhindert den Snapshot **nicht** | ✅ Argument trägt, **nichts geändert** |
+| „`startViewTransition` mit 0×0-Element hängt" | Guard 4 fängt es ab | ✅ stimmt |
+| „nicht anfassen" | — | ✅ übernommen |
+
+**Der Reviewer hat hier recht — und zwar gegen sich selbst.** Es gab keinen
+Codefehler zu beheben. Gefunden wurde beim Nachprüfen etwas anderes, das im
+Review fehlte (weil `settings.js` dort nie gelesen wurde, siehe #25):
+`transitionOn` stand **zeichengleich doppelt** in `font-feature.js` und
+`settings.js`. Jetzt einmal in `core.js`, beide importieren sie. Der
+Feature-Check in `tools/reconciliation.js` zeigte auf `settings.js` und wurde
+auf `core.js` umgehängt (sonst meldet die Fitness „View Transitions nicht
+nachgewiesen").
+
+**Nicht angefasst:** `schrift-eigene-aktiv` (in `font-feature.js` gesetzt,
+**keine** CSS-Regel liest sie, 3 Tests prüfen sie) — das Review nennt es
+„redundant", tatsächlich ist es ungenutzt. 2 Zeilen plus 3 Teständerungen;
+steht als Angebot, nicht als erledigt.
+
+**Druck: 0 Pixel** gegen HEAD (6 Seiten).

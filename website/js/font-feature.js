@@ -10,33 +10,11 @@
  */
 
 import { deleteBlob, loadBlob, saveBlob } from './binary-storage.js';
-import { Constants, notify } from './core.js';
+import { Constants, notify, transitionOn } from './core.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 
 /** Typ-Referenz auf den SettingsManager (nur Typ, kein Laufzeit-Import). */
 /** @typedef {import('./settings.js').SettingsManager} SettingsManager */
-
-/**
- * @param {any} target
- * @param {() => void} fn
- */
-function transitionOn(target, fn) {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    fn();
-    return;
-  }
-  const hatKasten = typeof target?.getBoundingClientRect === 'function' && target.getBoundingClientRect().width > 0;
-  if (typeof target.startViewTransition !== 'function' || document.visibilityState !== 'visible' || !hatKasten) {
-    fn();
-    return;
-  }
-  try {
-    target.startViewTransition(fn).finished.catch(() => {});
-  } catch (err) {
-    console.debug('[ViewTransition] übersprungen:', err instanceof Error ? err.name : err);
-    fn();
-  }
-}
 
 /**
  * Lokale DIN-5008 Testschriften (eingedampft)

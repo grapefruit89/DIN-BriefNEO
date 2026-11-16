@@ -171,8 +171,10 @@ const FEATURE_CHECKS = {
     file: 'website/css/sheet.css'
   },
   'View Transitions': {
+    /* Stand 2026-11-16: die Implementierung liegt in core.js (transitionOn).
+       Vorher stand sie doppelt in settings.js und font-feature.js. */
     regex: /startViewTransition/g,
-    file: 'website/js/settings.js'
+    file: 'website/js/core.js'
   }
 };
 

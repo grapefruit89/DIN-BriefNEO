@@ -252,6 +252,39 @@ export function notify(message, type = 'info') {
 }
 
 /**
+ * Führt `fn` in einer View Transition aus, wenn das gefahrlos geht.
+ *
+ * Vier Guards, jeder mit Grund (geprüft 2026-11-16 gegen GitHub #26):
+ *   1. `prefers-reduced-motion`  — wer Bewegung ablehnt, bekommt keinen Snapshot
+ *   2. Methode vorhanden         — `typeof` statt `CSS.supports()`, es geht um
+ *                                  eine Methode am Element, nicht um eine Property
+ *   3. Tab sichtbar              — im Hintergrund liefert der Snapshot nichts
+ *   4. Element hat einen Kasten  — bei 0×0 (z. B. `[hidden]`) hängt `finished`
+ *
+ * Danach fällt jede Transition auf den direkten Aufruf zurück: die Funktion
+ * darf nie verschluckt werden.
+ * @param {any} target
+ * @param {() => void} fn
+ */
+export function transitionOn(target, fn) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    fn();
+    return;
+  }
+  const hatKasten = typeof target?.getBoundingClientRect === 'function' && target.getBoundingClientRect().width > 0;
+  if (typeof target.startViewTransition !== 'function' || document.visibilityState !== 'visible' || !hatKasten) {
+    fn();
+    return;
+  }
+  try {
+    target.startViewTransition(fn).finished.catch(() => {});
+  } catch (err) {
+    console.debug('[ViewTransition] übersprungen:', err instanceof Error ? err.name : err);
+    fn();
+  }
+}
+
+/**
  * Zeigt ein Popover an — nur wenn es nicht schon offen ist.
  *
  * Vorher stand hier ein try/catch gegen den InvalidStateError, der bei

@@ -8,7 +8,7 @@
  * Die Signatur-Engine liegt in `signature.js`, das Font-Management in `font-feature.js`.
  */
 
-import { Events, eventBus } from './core.js';
+import { Events, eventBus, transitionOn } from './core.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 
 export { FONT_PRESETS } from './font-feature.js';
@@ -34,28 +34,6 @@ function setzeAttribut(el, name, wert) {
  */
 function setzeSchalter(box, wert) {
   if (box && box.checked !== wert) box.checked = wert;
-}
-
-/**
- * @param {any} target
- * @param {() => void} fn
- */
-function transitionOn(target, fn) {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    fn();
-    return;
-  }
-  const hatKasten = typeof target?.getBoundingClientRect === 'function' && target.getBoundingClientRect().width > 0;
-  if (typeof target.startViewTransition !== 'function' || document.visibilityState !== 'visible' || !hatKasten) {
-    fn();
-    return;
-  }
-  try {
-    target.startViewTransition(fn).finished.catch(() => {});
-  } catch (err) {
-    console.debug('[ViewTransition] übersprungen:', err instanceof Error ? err.name : err);
-    fn();
-  }
 }
 
 /* =========================================================================================

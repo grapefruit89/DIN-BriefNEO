@@ -252,27 +252,25 @@ export function notify(message, type = 'info') {
 }
 
 /**
- * Zeigt ein Popover fehlertolerant an (fängt InvalidStateError ab).
+ * Zeigt ein Popover an — nur wenn es nicht schon offen ist.
+ *
+ * Vorher stand hier ein try/catch gegen den InvalidStateError, der bei
+ * doppeltem `showPopover()` fliegt. `:popover-open` ist genau dieser Zustand;
+ * die Abfrage ist billiger und erzeugt kein Konsolen-Rauschen.
  * @param {Element | null | undefined} el
  */
 export function showPopoverSafe(el) {
-  if (!el || typeof (/** @type {any} */ (el)).showPopover !== 'function') return;
-  try {
-    (/** @type {HTMLElement & { showPopover: () => void }} */ (el)).showPopover();
-  } catch (err) {
-    console.debug('[Popover] showPopoverSafe übersprungen:', err);
-  }
+  const popover = /** @type {HTMLElement & { showPopover: () => void } | null} */ (el ?? null);
+  if (!popover || typeof popover.showPopover !== 'function') return;
+  if (!popover.matches(':popover-open')) popover.showPopover();
 }
 
 /**
- * Schließt ein Popover fehlertolerant (fängt InvalidStateError ab).
+ * Schließt ein Popover — nur wenn es offen ist (siehe `showPopoverSafe`).
  * @param {Element | null | undefined} el
  */
 export function hidePopoverSafe(el) {
-  if (!el || typeof (/** @type {any} */ (el)).hidePopover !== 'function') return;
-  try {
-    (/** @type {HTMLElement & { hidePopover: () => void }} */ (el)).hidePopover();
-  } catch (err) {
-    console.debug('[Popover] hidePopoverSafe übersprungen:', err);
-  }
+  const popover = /** @type {HTMLElement & { hidePopover: () => void } | null} */ (el ?? null);
+  if (!popover || typeof popover.hidePopover !== 'function') return;
+  if (popover.matches(':popover-open')) popover.hidePopover();
 }

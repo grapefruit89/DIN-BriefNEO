@@ -1212,6 +1212,47 @@ describe('Popover: geschlossene Overlays blockieren keine Klickfläche', () => {
     }
   });
 
+  it('showPopoverSafe/hidePopoverSafe sind idempotent und werfen nicht', async () => {
+    /* GitHub #24: der try/catch gegen InvalidStateError war ein Umweg —
+       `:popover-open` nennt genau den Zustand, um den es geht. */
+    const { showPopoverSafe, hidePopoverSafe } = await import('../website/js/core.js');
+    const el = /** @type {HTMLElement | null} */ (document.getElementById('plz-suggestions-popover'));
+    assert(el, 'Popover-Fixture vorhanden');
+    if (!el) return;
+    hidePopoverSafe(el);
+    showPopoverSafe(el);
+    showPopoverSafe(el);
+    assertEqual(el.matches(':popover-open'), true, 'doppeltes showPopover bleibt offen');
+    hidePopoverSafe(el);
+    hidePopoverSafe(el);
+    assertEqual(el.matches(':popover-open'), false, 'doppeltes hidePopover bleibt zu');
+    showPopoverSafe(null);
+    showPopoverSafe(undefined);
+    hidePopoverSafe(null);
+    assertEqual(el.matches(':popover-open'), false, 'null/auch undefined sind harmlos');
+  });
+
+  it('Puls beim Einfuegen kommt aus CSS und respektiert reduced-motion', async () => {
+    const [css, js] = await Promise.all([
+      fetch('/website/css/sheet-common.css').then((r) => r.text()),
+      fetch('/website/js/clipboard-parser.js').then((r) => r.text())
+    ]);
+    assert(/@keyframes\s+feld-puls/.test(css), '@keyframes feld-puls steht im Stylesheet');
+    assert(
+      /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]{0,120}?\.field-highlight\s*\{[\s\S]{0,80}?animation:\s*none/.test(css),
+      'reduced-motion schaltet den Puls ab'
+    );
+    /* Die Test-Fixture laedt sheet-common.css nicht (nur base/sidebar), deshalb
+       wird die Regel am Text geprueft; das laufende Verhalten ist im echten
+       Blatt per CDP gemessen (1 Animation, 500 ms; reduced-motion: keine). */
+    assert(/from\s*\{[\s\S]{0,120}?oklch\(0\.92 0\.08 145\)/.test(css), 'Startfarbe der bestehenden Optik');
+    assert(js.includes("classList.add('field-highlight')"), 'das JS setzt die Klasse');
+    assert(js.includes('.animate(') === false, 'keine Web-Animations-API mehr');
+    assert(js.includes("matchMedia('(prefers-reduced-motion: reduce)')") === false,
+      'der Reduced-Motion-Check steht jetzt im CSS, nicht im JS');
+    assert(js.includes('source_type') === false, 'source_type ist entfernt (0 Leser)');
+  });
+
   it('Reset bietet kein zweites Undo-Popover', async () => {
     /* Entscheidung 2026-11-12: der Bestätigungsdialog ist die Sicherung.
        Ein zusätzliches „Rückgängig"-Popover nach dem Reset erklärt den Nutzer

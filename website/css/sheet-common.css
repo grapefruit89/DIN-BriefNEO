@@ -262,6 +262,29 @@ din-anlagen-angabe {
   flex-shrink: 0;
 }
 
+/* UX-4: Rueckmeldung nach dem Einfuegen einer Anschrift (clipboard-parser.js).
+   Nur `background` — keine Geometrie, kein Layout, kein Druck. */
+@keyframes feld-puls {
+  from {
+    background: light-dark(oklch(0.92 0.08 145), oklch(0.75 0.10 145));
+  }
+  to {
+    background: transparent;
+  }
+}
+
+.field-highlight {
+  animation: feld-puls 500ms ease-out;
+}
+
+/* Wer Bewegung reduziert haben will, bekommt keine Animation — der Zustand
+   bleibt gesetzt, ist aber unsichtbar (siehe Kommentar in clipboard-parser.js). */
+@media (prefers-reduced-motion: reduce) {
+  .field-highlight {
+    animation: none;
+  }
+}
+
 /* DIN 5008 Tab. B.1, Fussnote a: "Zeilenhöhe 4,23 mm (= 12 Punkt)". Die vier
    Empfaengerzeilen brauchen dieses Raster: ab der ersten Zeile der
    Anschriftzone (63,5 mm) laufen sie mit 1.4em (4,94 mm) bei vier Zeilen bis

@@ -3700,3 +3700,36 @@ springt.
 Basisregel `#seitenleiste`. Gleiche Spezifität, spätere Deklaration gewinnt —
 die Regel war wirkungslos (963 → 963). Erst nach dem Verschieben hinter die
 Basisregel: 963 → 935.
+
+---
+
+## 2026-11-16 — GitHub #24 geprüft: drei Befunde halten, drei nicht
+
+Das Issue („Css2", 179 Zeilen, Bilanz mit Zeilenzahlen) behauptete **78
+entfernbare Zeilen**. Jeder Befund wurde am Code geprüft, nicht übernommen:
+
+| Kandidat | Behauptung | Prüfung | Ergebnis |
+|---|---:|---|---|
+| 2a `source_type` | 4 | 3 Vorkommen: Typ + 2 Schreiber, **0 Leser** | ✅ entfernt |
+| 3 `showPopoverSafe` | 6 | `:popover-open` statt try/catch | ✅ ersetzt |
+| 1.1 Clipboard-Animation | ~15 | `@keyframes feld-puls` statt `.animate()` | ✅ ersetzt |
+| 2c `schreibeFeld` else | 4 | erreichbar, solange `contenteditable` möglich ist | ⏸ bleibt (defensiv, 4 Zeilen) |
+| 2b `data-plugin-multipage` | 1 | `test/all.js:3618` prüft das Attribut | ❌ bleibt |
+| 2d `targetLock` | 3 | gelesen in `address.js:242/1129` | ❌ widerlegt |
+| 1 boot-state.js | ~55 | CSS liest `data-layout` **schon** (`sheet-common.css:41`) | ❌ Prämisse falsch |
+
+**Der zentrale Fehler:** das Issue unterstellt, die UI style sich über
+`:checked` und `data-*` sei die „saubere Lösung". `sheet-common.css:39–40`
+dokumentiert, dass `body:has(#btn-form-a:checked)` als doppelter Schreiber
+(Befund B11) längst entfernt ist. `boot-state.js` setzt die Controls, weil der
+Control-Zustand **das ist, was der Nutzer sieht** — Radio checked, Select-Wert.
+Ohne diese Zeilen zeigt die Leiste „Form B", während das Blatt Form A rendert.
+
+**Gemessen (CDP, echtes Blatt):** Puls = 1 Animation, `feld-puls`, 500 ms;
+`prefers-reduced-motion: reduce` → 0 Animationen. Popover idempotent, ohne
+Ausnahme. **Druck: 0 Pixel** gegen HEAD (6 Seiten; die 586 Pixel des ersten
+Laufs waren der Datumswechsel 15. → 16.11. in der Referenz, nicht der Code).
+
+**Lehre für künftige Reviews:** Zeilenzahlen stimmen oft, die Begründung ist
+aus READMEs geraten. Gegenprobe vor dem Löschen: die Regel, die angeblich
+fehlt, im CSS suchen.

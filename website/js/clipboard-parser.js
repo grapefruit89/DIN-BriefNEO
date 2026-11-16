@@ -62,7 +62,6 @@ function levenshtein(a, b) {
  * @property {string} strasse
  * @property {string} plz
  * @property {string} ort
- * @property {string} [source_type]
  * @property {boolean} [verified]
  * @property {boolean} [ortCorrected]
  * @property {boolean} [ortMismatch]
@@ -389,8 +388,7 @@ export class ClipboardAddressParser {
         ortMismatch: plzOrt.ortMismatch,
         canonicalOrt: plzOrt.canonicalOrt,
         state: plzOrt.state,
-        district: plzOrt.district,
-        source_type: 'multiline'
+        district: plzOrt.district
       });
     }
 
@@ -438,8 +436,7 @@ export class ClipboardAddressParser {
         ortMismatch: plzOrt.ortMismatch,
         canonicalOrt: plzOrt.canonicalOrt,
         state: plzOrt.state,
-        district: plzOrt.district,
-        source_type: 'inline'
+        district: plzOrt.district
       });
     }
 
@@ -499,15 +496,19 @@ export class ClipboardAddressParser {
 
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
 
-    // UX-4: Visuelles Feedback beim Einfügen — Web Animations API statt
-    // CSS-Klasse + setTimeout. Die Animation raeumt sich selbst ab.
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      for (const f of [empfFirmaEl, empfNameEl, empfStrasseEl, empfOrtEl]) {
-        f?.animate(
-          [{ background: 'light-dark(oklch(0.92 0.08 145), oklch(0.75 0.10 145))' }, { background: 'transparent' }],
-          { duration: 500, easing: 'ease-out' }
-        );
-      }
+    /* UX-4: Visuelles Feedback beim Einfügen. Die Optik steht als
+       `@keyframes feld-puls` in sheet-common.css — `prefers-reduced-motion`
+       schaltet sie dort ab. Hier nur der Neustart: Klasse weg, Reflow,
+       Klasse dran (sonst laeuft eine bereits gesetzte Animation nicht neu an).
+       Die Klasse faellt per animationend wieder ab; bei reduzierter Bewegung
+       gibt es kein animationend, sie bleibt dann inert stehen und wird beim
+       naechsten Einfuegen zuerst entfernt. */
+    for (const f of [empfFirmaEl, empfNameEl, empfStrasseEl, empfOrtEl]) {
+      if (!f) continue;
+      f.classList.remove('field-highlight');
+      void f.offsetWidth;
+      f.classList.add('field-highlight');
+      f.addEventListener('animationend', () => f.classList.remove('field-highlight'), { once: true });
     }
 
     const label = candidate.firma || candidate.name || candidate.strasse;

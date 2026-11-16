@@ -3823,3 +3823,19 @@ Browser: Schalter aus → Entwurf `false`, an → `true` (`din_draft_current`).
   alle drei werden in `main.js:120/163` und `draft-manager.js:309` benutzt.
 
 **Druck: 0 Pixel** gegen HEAD (6 Seiten), 354 Tests, Fitness 100,0 %.
+
+---
+
+## 2026-11-16 — GitHub #23 überflogen: nichts mehr zu holen (7 Punkte, 0 offen)
+
+| Punkt | Stand | Beleg |
+|---|---|---|
+| 1.1 Clipboard-Animation → CSS | ✅ erledigt heute | `@keyframes feld-puls`, `sheet-common.css` |
+| 1.2 boot.js → `:has()` | ❌ Regression | `boot.js` ist Classic-Script im `<head>` (Z. 36), `boot-state.js` ist Modul (Z. 478) und läuft **nach** dem Parse. Über `:has()` käme Layout/Marken erst nach dem ersten Paint → FOUC auf der Blattgeometrie, nicht nur am Theme |
+| 1.3 Toast-Dauer variabel | ⏸ Grenzfall | `--hinweis-dauer` aus Textlänge (`core.js:237`), gelesen in `base.css:76` + `sidebar.css:961`. Feste 3 s = Feature weg für 3 Zeilen |
+| 1.4 multipage `--i` → statisch | ❌ tabu | `--i` positioniert Bildschirm-Folgeköpfe (`adoptedStyleSheets`, `multipage-controller.js:44/110`); Druckgeometrie |
+| 1.5 Signatur-Transform | ✅ war schon so | `--sig-x/-y/-scale/-rot`, CSS: `translate/scale/rotate` (`sheet-common.css:453–455`) |
+| 1.6 `applyMicroTypography` → CSS | ❌ falsch | setzt geschützte Leerzeichen (Text!), CSS kann das nicht |
+| 1.7 Anchor Positioning | ✅ war schon so | `anchor-name` in `sheet-common.css:407/409`, `sidebar.css:355`; `address.js` ohne `getBoundingClientRect` |
+
+Fazit: #23 beschreibt einen Zustand, den der Code hinter sich hat. Gelöscht.

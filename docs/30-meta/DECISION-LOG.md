@@ -3881,3 +3881,50 @@ Element. Auto-Abbau geprüft: Info-Toast ist 4300 ms nach dem Start geschlossen.
 ein Test hält das fest (Ratsche auf `style.setProperty('--hinweis-dauer'`).
 
 **Druck: 0 Pixel** (Toast ist `nicht-drucken`), 355 Tests, Fitness 100,0 %.
+
+---
+
+## 2026-11-16 — Toast: kein JS-Schließen mehr (Nutzer: „nicht sehen = nicht da")
+
+Nutzer: *„popover muss auch nicht geschlossen werden (!!) … nicht sehen ===
+nicht da === geschlossen … kann das sein? also eine 140% option!?"*
+
+**Ja, und es ist keine 140 %-Option, sondern der Normalfall:** der Endzustand
+der Animation bleibt per `forwards` stehen —
+
+```css
+@keyframes hinweis-lebensdauer {
+  0%, 99%  { opacity: 1; visibility: visible; }
+  100%     { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+```
+
+Damit ist der Hinweis nach Ablauf **unsichtbar, nicht klickbar und aus dem
+Accessibility-Baum** — ohne dass JS etwas schließt. Entfernt: der
+`animationend`-Listener und die `hide()`-Funktion (≈10 Zeilen).
+
+**Was JS bleiben muss — mit Messung belegt:**
+
+| Versuch | Ergebnis |
+|---|---|
+| Animation abgelaufen | `opacity: 0`, `visibility: hidden`, `pointer-events: none` ✅ |
+| Klick-Test auf die Mitte des Hinweises | `elementFromPoint` liefert **nicht** den Hinweis → nichts wird blockiert ✅ |
+| Neuer Hinweis danach | wieder sichtbar (`opacity: 1`) — Neustart klappt ✅ |
+| Neustart **ohne** Reflow | bleibt unsichtbar (`0`) ❌ |
+| Neustart **mit** `void el.offsetWidth` | sichtbar (`1`) ✅ |
+
+Der Reflow ist also nötig: `hidePopover()` + `showPopover()` in derselben Task
+werden zu **einem** Style-Recalc zusammengefasst, `:popover-open` ändert sich
+nie sichtbar, die Animation startet nicht neu. Eine Zeile, gemessen.
+
+**Popover-Zustand bleibt offen** (`:popover-open` = true, solange niemand Esc
+oder Klick daneben drückt). Das ist Absicht: `popover="auto"` gibt dem Nutzer
+die Light-Dismiss-Bedienung, und der Zustand schadet nicht, weil der Endzustand
+keine Klicks fängt.
+
+**Messfalle (wichtig fürs Druck-Gate):** ein Lauf meldete **503 553**
+abweichende Pixel in Form B — 25,2 mm Verschiebung. Ursache war **nicht** der
+Code: drei Wiederholungen mit identischem Stand ergaben **0** Pixel, und die
+Verschiebung trat nur in einem Lauf nach den Fußzeilen-Experimenten auf
+(Print-Snapshot mit altem Seitenzustand). Lehre: ein einzelner Pixel-Ausreißer
+nach Experimenten wird wiederholt, bevor er als Regression gilt.

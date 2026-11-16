@@ -184,11 +184,11 @@ export function initToastSystem() {
     }
   });
 
-  /* Der Toast schliesst sich, wenn seine CSS-Animation endet. Das ist der
-     einzige Ausloeser fuer den Auto-Abbau — kein Timer, kein Aufraeumpfad. */
-  global.addEventListener('animationend', (e) => {
-    if (/** @type {AnimationEvent} */ (e).animationName === 'hinweis-lebensdauer') hide();
-  });
+  /* Kein `animationend`-Listener mehr: der Hinweis verschwindet durch den
+     Endzustand seiner Animation (opacity 0, visibility hidden,
+     pointer-events none — `forwards` haelt ihn). "Nicht sichtbar" IST
+     "geschlossen"; es gibt nichts aufzuraeumen. Was bleibt, ist das
+     Neustarten: siehe showToast(). */
 
   eventBus.subscribe(Events.NOTIFICATION_REQUESTED, (payload) => {
     if (payload && typeof payload.message === 'string') {
@@ -209,29 +209,28 @@ export function initToastSystem() {
 export function showToast(message, type = 'info') {
   if (!dom) return;
 
-  if (current?.message === message) {
+  const gleich = current?.message === message;
+  if (gleich) {
     if (dom.global.dataset.type !== type) {
       dom.global.dataset.type = type;
     }
-    showPopoverSafe(dom.global);
-    return;
+  } else {
+    dom.message.textContent = message;
+    /* `data-type` ist die einzige Steuerung, die dieses Modul an CSS gibt: die
+       Farbe und die Lebensdauer (`--hinweis-dauer`) haengen daran. Die Dauer
+       wird nicht nach Textlaenge berechnet — CSS kann Textlaenge nicht messen. */
+    dom.global.dataset.type = type;
+    current = { message };
   }
 
-  dom.message.textContent = message;
-  /* `data-type` ist die einzige Steuerung, die dieses Modul an CSS gibt: die
-     Farbe (sidebar.css:993) und die Lebensdauer (`--hinweis-dauer`) haengen
-     daran. Die Dauer wird NICHT mehr nach Textlaenge berechnet — CSS kann
-     Textlaenge nicht messen, und ein JS-Wert dafuer war die letzte
-     Rechenaufgabe im Toastsystem. */
-  dom.global.dataset.type = type;
-  current = { message };
-
+  /* Neustart = schliessen + oeffnen: `:popover-open` ist der Ausloeser der
+     CSS-Lebensdauer, und ein bereits offener Hinweis wuerde die alte,
+     abgelaufene Animation weiterlaufen lassen. Ein Reflow dazwischen, damit
+     der Browser den Zustandswechsel wirklich sieht (sonst fasst er beide
+     Aenderungen in einem Style-Recalc zusammen). */
+  hidePopoverSafe(dom.global);
+  void dom.global.offsetWidth;
   showPopoverSafe(dom.global);
-}
-
-function hide() {
-  current = null;
-  hidePopoverSafe(dom?.global);
 }
 
 /**

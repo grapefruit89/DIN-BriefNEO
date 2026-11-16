@@ -2223,6 +2223,35 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
     assertEqual(container?.dataset.type, 'warning', 'Toast-Typ im DOM gesetzt (A21 data-type)');
   });
 
+  it('verschwindet durch den CSS-Endzustand — ohne animationend-Listener', async () => {
+    /* "Nicht sichtbar" IST "geschlossen": der Endzustand der Animation bleibt
+       per `forwards` stehen (opacity 0, visibility hidden, pointer-events
+       none). JS muss nichts schliessen; es oeffnet nur und startet neu. */
+    const core = await import('../website/js/core.js');
+    const el = document.getElementById('hinweis-v4');
+    assert(el, 'Toast-Fixture vorhanden');
+    if (!el) return;
+    el.style.setProperty('--hinweis-dauer', '120ms');
+    try {
+      core.showToast('Endzustand-Test', 'info');
+      await new Promise((r) => setTimeout(r, 320));
+      const cs = getComputedStyle(el);
+      assertEqual(cs.opacity, '0', 'nach der Dauer unsichtbar');
+      assertEqual(cs.visibility, 'hidden', 'aus dem Accessibility-Baum');
+      assertEqual(cs.pointerEvents, 'none', 'faengt keine Klicks');
+      /* Neustart: schliessen + Reflow + oeffnen macht ihn wieder sichtbar. */
+      core.showToast('Endzustand-Test 2', 'info');
+      await new Promise((r) => setTimeout(r, 40));
+      assertEqual(getComputedStyle(el).opacity, '1', 'erneut sichtbar');
+    } finally {
+      el.hidePopover();
+      el.style.removeProperty('--hinweis-dauer');
+    }
+    const js = await (await fetch('/website/js/core.js')).text();
+    assert(js.includes("addEventListener('animationend'") === false, 'kein animationend-Listener mehr');
+    assert(/\nfunction hide\(/.test(js) === false, 'keine hide()-Funktion mehr');
+  });
+
   it('Lebensdauer kommt aus CSS und staffelt nach Typ (kein JS-Wert)', async () => {
     /* GitHub #23 (1.3): die Dauer war 2000 ms + 30 ms/Zeichen, in JS gesetzt.
        Textlaenge ist in CSS nicht messbar — jetzt traegt der Typ die Dauer. */

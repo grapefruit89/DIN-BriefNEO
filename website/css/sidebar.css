@@ -953,16 +953,29 @@ input[type="checkbox"][switch] {
   pointer-events: auto;
   opacity: 1;
   transform: translateY(0);
-  /* Lebensdauer des Hinweises. Die Animation aendert nichts (opacity 1 -> 1);
-     sie laeuft nur, damit `animationend` in core.js den Hinweis schliessen
-     kann. Die Dauer steht vollstaendig hier (siehe `--hinweis-dauer` unten) —
-     kein JS-Wert, kein setTimeout. */
+  /* Lebensdauer des Hinweises: die Animation ist Timer UND Schluss. Ihr
+     Endzustand (siehe @keyframes unten) bleibt per `forwards` stehen, damit
+     der Hinweis verschwindet, ohne dass JS etwas schliessen muss. Die Dauer
+     steht vollstaendig hier (`--hinweis-dauer` unten) — kein JS-Wert. */
   animation: hinweis-lebensdauer var(--hinweis-dauer, 4000ms) linear forwards;
 }
 
+/* Die Animation ist der Timer UND das Schliessen: der Endzustand (opacity 0,
+   visibility hidden, pointer-events none) bleibt per `forwards` stehen.
+   Damit braucht JS kein `animationend` und kein `hidePopover()` — "nicht
+   sichtbar" ist "geschlossen". `visibility` nimmt den Hinweis zusaetzlich aus
+   dem Accessibility-Baum, `pointer-events` verhindert, dass er Klicks faengt
+   (Regression 2026-11-10). */
 @keyframes hinweis-lebensdauer {
-  from { opacity: 1; }
-  to   { opacity: 1; }
+  0%, 99% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 @starting-style {

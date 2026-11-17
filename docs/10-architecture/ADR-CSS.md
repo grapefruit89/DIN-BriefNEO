@@ -4,7 +4,7 @@ title: "ADR-CSS: CSS Architecture, Constraints & Single Source of Truth (SSOT)"
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-11-09'
+updated: '2026-11-17'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -68,7 +68,7 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 2. **Container Queries (`cqw`, `cqh`):**
    Sämtliche inneren Maße, Ränder, Faltmarken und typografischen Größen verwenden `cqw` und `cqh`, um proportional zum Papierbogen zu skalieren (`calc(10 * 0.168cqw)` für 10pt Fließtext).
 3. **Absolute Viewport- & Blatt-Sperre (Zero-Scroll-Garantie):**
-   `overflow: hidden` auf `html`/`body` und `overflow: clip; contain: strict;` auf `<din-blatt>` und `#kern` verbieten jegliches Scrollen physisch. Der Substring `scroll` ist in allen Produktionsdateien unter `website/*.html` und `website/css/*.css` durch das CI-Gate (`tools/start.ps1`) strikt verboten.
+   `overflow: hidden` auf `html`/`body` und `overflow: clip; contain: strict;` auf `<din-blatt>` und `#kern` verbieten jegliches Scrollen physisch. Mechanisch geprüft wird das an zwei Stellen: die Antipattern-Regel in `tools/antipatterns/web.json` fängt `overflow: scroll` ab, die Zero-Scroll-Assertions in `test/all.js` prüfen `scrollWidth`, `scrollX` und `scrollHeight` im laufenden Browser (`npm test`).
 4. **Natives Feldwachstum & Text-Fitting (JS-Kill Phase 1):**
    `field-sizing: content` lässt einzeilige und mehrzeilige Textfelder mitwachsen. `text-fit: shrink 60%` und `text-fit: shrink` stauchen überlange Empfänger- und Betreffzeilen rein deklarativ ohne JS-DOM-Messschleifen (Catalog A49).
 5. **Typografische Umbruchbalance:**
@@ -244,7 +244,7 @@ Folgende CSS-Praktiken und Alt-Techniken sind im Projekt **strikt verboten (HARD
 ## 5. Konsequenzen & Entwickler-Direktiven
 
 1. **Zero-Scroll-Garantie:**
-   Ein physischer Briefbogen hat feste Ränder und scrollt niemals. Sobald eine CSS-Regel ein Scrollen des Blattes ermöglicht oder das Wort `scroll` in HTML/CSS verwendet wird, schlägt die CI-Pipeline (`tools/start.ps1`) fehl.
+   Ein physischer Briefbogen hat feste Ränder und scrollt niemals. Sobald eine CSS-Regel ein Scrollen des Blattes ermöglicht, schlägt das Fitness Gate fehl: `node tools/reconciliation.js --only-rules` meldet die Antipattern-Regel aus `tools/antipatterns/web.json`, `npm test` meldet die gebrochene Zero-Scroll-Assertion aus `test/all.js`.
 2. **Container Queries First:**
    Alle Abstände und Abmessungen auf dem Blatt müssen als Funktion von `cqw` oder `cqh` definiert werden. Absolute Pixelmaße (`px`) sind auf dem Papierbogen verboten.
 3. **Top-Layer-Pflicht für Schwebendes:**

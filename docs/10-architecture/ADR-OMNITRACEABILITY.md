@@ -4,7 +4,7 @@ title: 'ADR-OMNI: OmniTraceability System'
 type: adr
 status: active
 created: '2026-07-06'
-updated: '2026-09-30'
+updated: '2026-11-17'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -110,7 +110,7 @@ Dieses System ist auf 3–5 Jahre Wartbarkeit ausgelegt. Aktiv am Quellcode vera
    ```javascript
    /* @adr [[ADR-NEUES-FEATURE]] */
    ```
-4. **Build:** Führe `scripts/start.ps1` aus. Das Feature erscheint automatisch in der Matrix.
+4. **Build:** Führe `node tools/build_db.js` aus. Das Feature erscheint automatisch in der Matrix (`Code-Referenzen.md` und `Function-Traceability.md`, abgelegt unter `~/.din-briefneo/build/`).
 
 ### Szenario B: Architektur verworfen (Refactoring)
 
@@ -139,9 +139,9 @@ Siehe [[tooling-overview]] für vollständige Werkzeug-Inventur.
 
 ## 8. Implementation & Verification
 
-- `tools/migrate_frontmatter.py` wurde erfolgreich angewandt, um Altlasten in Schema V6 zu überführen.
+- `tools/migrate_frontmatter.py` wurde erfolgreich angewandt, um Altlasten in Schema V6 zu überführen (Skript ist nicht mehr im Repo, nur noch in der Historie).
 
-- `scripts/start.ps1` garantiert durch Reality Reconciliation einen Evolutionary Fitness Score von 100%.
+- `node tools/build_db.js` garantiert durch Reality Reconciliation einen Evolutionary Fitness Score von 100 %. Auf `main` erzwingt `.github/workflows/fitness.yml` denselben Lauf, lokal der Pre-Commit-Hook (`githooks/pre-commit`).
 
 - Kein Feature darf `main` erreichen, wenn seine Traceability-Kette gebrochen ist — das Fitness Gate blockiert den Release-Prozess automatisch.
 

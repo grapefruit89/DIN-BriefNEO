@@ -4084,3 +4084,27 @@ Layout-Schalter (`:not(.segmented-control-layout)`); `index.html` — Control tr
 `segmented-control-layout`; `settings.js` — zweiter `data-layout`-Schreiber entfernt.
 **Nicht angefasst:** die Blattgeometrie (`sheet-common.css`, `sheet-multipage.css` lesen
 `[data-layout]`).
+
+## 2026-11-17 — Korrektur: `W4`, `I/EM`, `M1`–`M7` sind auffindbar
+
+**Korrektur des Eintrags von heute.** Dort standen die drei IDs als „ungeklärt". Eine
+projektweite Suche (inkl. `tools/`, `skills/`, `batch/`, `Papierkorb/`, Law Catalog) hat
+sie aufgelöst:
+
+- **`W4`** ist eine **Antipattern-Regel** in `tools/antipatterns/web.json` (Zero-HEX-Farbsystem),
+  kein Gesetz. Ein Law `W4` existiert nicht und hat nie existiert — die sachlich
+  zuständigen Gesetze sind `A16`–`A20`. Der Fehlverweis war am 2026-09 bereits notiert
+  (Eintrag „Sonde beruft sich auf ein Gesetz, das es nicht gibt": `W4/W5/W6` → `A16`, `A20`).
+  Offen bleibt nur die **Bezeichnung** an fünf Stellen (`repository.yaml:80`,
+  `llm-modern-web-playbook-2026.md:49,118`, zwei Skill-Beschreibungen).
+- **`I/EM`** meint die HTML-Tags `<i>` und `<em>` in der Rich-Text-Allowlist —
+  `website/js/document.js:38` führt beide; der Beschluss steht im Eintrag
+  „Sanitizer-Dedup" (2026-09-10). Die Abkürzung war nicht ausgeschrieben, das war
+  der ganze Fehler.
+- **`M1`–`M7`** sind die Befunde des **Grok-Website-Reviews** vom 2026-09-10
+  (Eintrag „Grok-Website-Review: 5 Batches umgesetzt"). Alle sieben stehen dort mit
+  Ausgang: `M2` behoben (`9ecbed6`), `M1`/`M4` vertagt, `M5`–`M7` abgehakt.
+
+**Konsequenz im Register:** `W` ist ein **aktiver Nummernkreis** (W2–W6 neben P1–P40),
+keine Unklarheit. `tools/id-register.js` prüft jetzt auch die Deckung von `W` gegen
+`tools/antipatterns/web.json`.

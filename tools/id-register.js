@@ -135,6 +135,7 @@ function checkIds(targetDir) {
     ['A', LAW_CATALOG, /\|\s*A(\d{1,3})\s*\|/g],
     ['H', LAW_CATALOG, /\|\s*H(\d{1,3})\s*\|/g],
     ['P', PROJECT_ANTIPATTERNS, /"id":\s*"P(\d{1,3})"/g],
+    ['W', 'tools/antipatterns/web.json', /"id":\s*"W(\d{1,3})"/g],
     ['B', BACKLOG, /^### (B\d+) ·/gm]
   ];
   for (const [prefix, quelle, muster] of deckung) {

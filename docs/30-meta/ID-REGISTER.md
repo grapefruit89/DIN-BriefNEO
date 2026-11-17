@@ -28,7 +28,8 @@ supersedes: []
 
 Der Befund, der dieses Dokument erzwungen hat: Am 2026-11-17 zählte der Doku-Korpus
 **elf** parallele Nummernkreise (`B`, `A`, `P`, `H`, `R`, `F`, `S`, `T`, `M`, `C`, `W`).
-Drei davon (`M`, `T`, `W`) waren nirgends definiert. Dieselbe Sache trug bis zu drei
+Drei davon (`M`, `T`, `W`) waren nirgends als Nummernkreis beschrieben — `W` hat sich
+als Regel-Kreis in `tools/antipatterns/web.json` aufgeloest, `M` als Review-Befunde. Dieselbe Sache trug bis zu drei
 Namen: der `@layer`-Umbau hieß `B59` im Backlog, `S2` in `batch/STATUS.md` und
 „S2 `@layer` statt `!important`" im DECISION-LOG.
 
@@ -57,7 +58,17 @@ Format: Präfix in Großbuchstaben, Zahl ohne Trennzeichen, im Fließtext in Bac
 | `H` | HARD BAN / PREFERRED innerhalb des Law Catalog | `docs/00-foundation/Immutable-Law-Catalog.md` | H1–H11 | Teil von `lawcoverage.js` |
 | `C` | Farb-Fallback-Kette (Stufenfolge) | `docs/00-foundation/Immutable-Law-Catalog.md` (A16–A20) | C1 | `lawcoverage.js` |
 | `P` | Projekt-Antipattern-Regel mit `max_violations`-Ratsche | `tools/antipatterns/project.json` | P1–P40 | `tools/reconciliation.js` |
+| `W` | Web-Antipattern-Regel (Browser-/Plattformmuster, nicht projektspezifisch) | `tools/antipatterns/web.json` | W2–W6 | `tools/reconciliation.js` |
 | `B` | Backlog-Punkt: offen oder abgeschlossen | `docs/30-meta/BACKLOG.md` (offen), `docs/30-meta/BACKLOG-ARCHIV.md` (erledigt) | B6–B95 | `tools/backlog-sync.mjs` (Tabelle), `tools/id-register.js` (Auflösbarkeit) |
+
+**`W4` ist eine Regel, kein Gesetz.** Die ID existiert (`tools/antipatterns/web.json`:
+Zero-HEX-Farbsystem), aber drei Stellen nennen sie „Law W4" — ein Law mit dieser Nummer
+gibt es nicht. Die inhaltlich zuständigen Gesetze sind `A16`–`A20` (Farb-Fallback-Kette).
+Der Fehlverweis war am 2026-09 bereits einmal aufgefallen (DECISION-LOG, Sonde
+„beruft sich auf ein Gesetz, das es nicht gibt": `W4/W5/W6` → `A16`, `A20`).
+Reststände stehen weiter in `repository.yaml:80`, `docs/00-foundation/llm-modern-web-playbook-2026.md:49,118`
+und zwei Skill-Beschreibungen — sie sind als Bezeichnungsfehler zu lesen, nicht als
+fehlende Regel.
 
 **`B1`–`B5` sind Sonderfall:** das sind **historische Prinzipien** aus dem H1-Backlog
 (Zero-Dependency, Offline-First, KISS, …), zitiert in `docs/10-architecture/ADR-ANTIPATTERN.md`.
@@ -74,7 +85,7 @@ Keine neuen Nummern. Auflösung über die Alias-Tabelle.
 | `R` | Batch 01, Review-Befunde R3–R5 | Befunde eines einzelnen Reviews, teils verworfen, teils beantwortet. |
 | `F` | Batch 05, Befunde F1–F6 | Dito; Ergebnisse stehen im DECISION-LOG. |
 | `T` | Batch 02, Messfälle T1/T2 | Testfälle, keine Aufgaben. Aufgegangen in `B72`. |
-| `M` | Externes Review (Log-Eintrag 2026-11-?) | Nie definiert; `M1`–`M7` sind Review-Befunde ohne Register. `M2` (Anlagen-Datenverlust) hat einen Fix-Commit `9ecbed6`, aber keine `B`-Nummer. |
+| `M` | Befunde des Grok-Website-Reviews (2026-09-10) | Review-Befunde ohne eigenen Nummernkreis; Ausgang je Befund steht im DECISION-LOG. `M2` (Anlagen-Datenverlust) wurde mit `9ecbed6` behoben. |
 
 ## Keine IDs — Verwechslungsgefahr
 
@@ -106,16 +117,24 @@ Keine neuen Nummern. Auflösung über die Alias-Tabelle.
 | `T1`/`T2` – Boot-Marker-Messfälle | `B72` | `tools/paint-probe.mjs`, 3 Profile × 30 |
 | `M1`–`M7` | **ungeklärt** | externes Review, keine `B`-Nummer; `M2`-Fix = `9ecbed6` |
 
-## Ungeklärt (offen, nicht erfunden)
+## Aufgelöste Unklarheiten
 
-1. **`W4`** — als „Law W4" (100 % OKLCH-Farbtokens) an drei Stellen zitiert
-   (`repository.yaml:80`, `docs/00-foundation/llm-modern-web-playbook-2026.md:49,118`),
-   im Law Catalog aber **nicht definiert**. Entweder fehlt das Gesetz, oder die drei
-   Stellen zitieren etwas, das es nie gab.
-2. **`I/EM`** — `AGENTS.md:342` spricht von einer „Allowlist-Erweiterung (I/EM)".
-   Die Abkürzung ist nirgends aufgelöst.
-3. **`M1`–`M7`** — kein Register, keine Zuordnung zu `B`-Nummern. `M2` ist über den
-   Fix-Commit `9ecbed6` auffindbar, der Rest nur über den damaligen Log-Eintrag.
+1. **`W4`** — aufgelöst: eine **Antipattern-Regel** aus `tools/antipatterns/web.json`
+   (Zero-HEX-Farbsystem), kein Gesetz. Siehe Abschnitt „Aktive Nummernkreise" und die
+   Notiz dort; die inhaltlich zuständigen Gesetze sind `A16`–`A20`.
+2. **`I/EM`** — aufgelöst: die Abkürzung meint die beiden HTML-Tags `<i>` und `<em>`
+   in der Rich-Text-Allowlist. `website/js/document.js:38` führt `'I', 'EM'` als
+   zulässige Tags; der zugehörige Beschluss steht im DECISION-LOG (Sanitizer-Dedup,
+   2026-09-10), wo die beiden Tags als Überlebende der Allowlist geprüft wurden.
+   `AGENTS.md:346` zitiert damit diese konkrete Erweiterung, nicht ein Dokument.
+3. **`M1`–`M7`** — aufgelöst: Befunde des **Grok-Website-Reviews** vom 2026-09-10
+   (DECISION-LOG, Eintrag „Grok-Website-Review: 5 Batches umgesetzt"). Dort stehen
+   alle sieben mit Ausgang: `M2` behoben (`9ecbed6`), `M1` (A11y) und `M4` (CSP)
+   vertagt, `M5`–`M7` als Details abgehakt. Die Fundliste selbst liegt nicht mehr im
+   Repo — der Log-Eintrag ist der Beleg.
 
-Jeder dieser drei Punkte gehört entweder ins Register oder in den Backlog — beides
-ist eine Entscheidung, keine Aufräumarbeit.
+### Was daraus folgt
+
+Keine ID im Korpus ist mehr ohne Quelle. Offen ist nur noch die **Bezeichnung**:
+fünf Stellen nennen `W4` ein „Gesetz". Das ist ein Doku-Fehler (`P6`–`P11`-Klasse),
+kein fehlendes Register.

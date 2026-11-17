@@ -4,7 +4,7 @@ title: Tool-Inventur — tools/
 status: active
 type: reference
 created: '2026-08-07'
-updated: '2026-11-09'
+updated: '2026-11-17'
 tags:
 - din-briefneo
 - meta
@@ -29,6 +29,13 @@ supersedes: []
 > **Ueberarbeitet 2026-11-09**: Veraltete SQLite-Retrieval-Pipeline (`docs_index.js`),
 > `log_session.js` und MCP-Server entfallen. Diese Inventur
 > beschreibt den aktuellen Ist-Stand der deterministischen Werkzeuge.
+>
+> **Reste entfernt 2026-11-17 — Code bleibt in der Historie abrufbar:** Die Altlasten
+> lagen zuletzt unter `Papierkorb/` (Retrieval-Index, MCP-Server, Session-Log, Spezifikation,
+> Context-Digests, Test-Traces) und sind dort geloescht. Wiederherstellen per
+> `git show 3d40782^:tools/docs_index.js` — analog `tools/log_session.js`,
+> `agent/mcp/dinbrief-mcp/index.js` und `docs/30-meta/README-DB.md`. Die geplante, nie gebaute
+> semantische Stufe bleibt beschrieben in `Papierkorb/archive/sqlite-vec.md`.
 
 ## Aktives Kern-Tooling
 

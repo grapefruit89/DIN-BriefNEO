@@ -8,13 +8,12 @@ cd "$REPO_ROOT" || exit 1
 LOG=$(mktemp)
 trap 'rm -f "$LOG"' EXIT INT TERM
 
-# --- PAPIERKORB-SCHUTZ: Unumgehbarer Abbruch ---
+# --- PAPIERKORB-SCHUTZ: Verzeichnis bleibt bestehen (2026-11-17 gelockert) ---
+# Einzelne Dateien dürfen auf ausdrückliche Nutzerweisung entfernt werden
+# (DECISION-LOG 2026-11-17). Das Verzeichnis selbst darf weder verschwinden
+# noch geleert werden — dieser Schutz bleibt mechanisch.
 if [ ! -d "Papierkorb" ] || [ $(find Papierkorb -type f | wc -l) -eq 0 ]; then
   echo "❌ [pre-commit] FATAL: 'Papierkorb/' fehlt oder ist leer! Commit abgebrochen." >&2
-  exit 1
-fi
-if git diff --cached --name-only --diff-filter=D | grep -q '^Papierkorb/'; then
-  echo "❌ [pre-commit] FATAL: Das Löschen von Dateien aus 'Papierkorb/' ist strikt verboten!" >&2
   exit 1
 fi
 

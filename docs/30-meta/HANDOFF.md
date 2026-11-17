@@ -4,7 +4,7 @@ title: "PROJEKT-BRIEFING & LLM-HANDOFF: DIN-BriefNEO"
 type: meta
 status: active
 created: '2026-08-07'
-updated: '2026-11-09'
+updated: '2026-11-17'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -135,7 +135,7 @@ DIN-BriefNEO/
    - **Kein Bloat:** Niemals externe Bibliotheken oder npm-Runtime-Pakete vorschlagen. Alles über native W3C-APIs, reines CSS und moderne JS-Features lösen.
    - **DIN 5008 ist Gesetz:** Alle Maße, Abstände und Formatierungsregeln müssen der DIN 5008:2020-03 entsprechen.
    - **Direkter Arbeitsstil:** Keine Floskeln, kein Höflichkeits-Overhead, keine Entschuldigungen – direkt zur Sache.
-   - **Permanenter Schutz für `Papierkorb/` (Unantastbarkeits-Klausel):** Der Ordner `Papierkorb/` ist eine permanente, unantastbare Ablage. Das Löschen, Leeren oder Verschieben dieses Verzeichnisses ist für alle Agenten strikt verboten.
+   - **Permanenter Schutz für `Papierkorb/` (Unantastbarkeits-Klausel):** Der Ordner `Papierkorb/` ist eine permanente Ablage. Das Löschen, Leeren oder Verschieben **dieses Verzeichnisses** ist für alle Agenten strikt verboten. Einzelne Dateien dürfen nur auf ausdrückliche Nutzerweisung entfernt werden — nie auf eigene Initiative (Präzisierung 2026-11-17, siehe [[DECISION-LOG]]).
 
 8. **Autonome CLI-Ausführung & Verbindlicher Tätigkeitsbericht-Vertrag:**
    - **Ausführendes Organ:** Der CLI-Agent führt alle Aktionen, Code-Änderungen, Prüfungen und Tests autonom im Dateisystem aus. Seine Ausgaben enthalten niemals manuelle Shell-Befehle, Snippets oder „Befehle zum Kopieren“ für den Nutzer.

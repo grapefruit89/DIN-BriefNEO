@@ -3968,3 +3968,38 @@ sie können sich nicht treffen, auch nicht bei Änderung von `--rand-u`
 statt 252 mm), damit Bildschirm und Druck dasselbe zeigen (WYSIWYG). Eine
 Reservierung nur auf Seite 1 (`@page :first`) wäre im Druck möglich, würde den
 Schirm aber vom PDF entkoppeln. Bewusst dagegen entschieden.
+
+## 2026-11-17 — Papierkorb geschrumpft: Pipeline-Reste leben nur noch in der Historie
+
+**Anlass:** Platzbedarf (Repositorium 87 MB apparent, davon 62 MB `node_modules` und
+35 MB `.git`) und die Frage, ob in `Papierkorb/` noch Wissen steckt.
+
+**Befund:** Nein fuer die Retrieval-Pipeline. Sie war bereits am 2026-11-09 mit
+`3d40782` („remove sqlite fts5 index and mcp server pipeline") abgeschafft und in
+[[tooling-overview]] als entfallen dokumentiert. Die `context-dumps/` waren keine
+Chatverlaeufe, sondern Gitingest-Exporte des Repos — Wegwerf-Snapshots. Die
+semantische Stufe (`sqlite-vec`, embeddings) wurde nie gebaut: null Treffer im Code.
+
+**Entfernt (2,8 MB → 1,2 MB im Papierkorb):** `context-dumps/`, `test-traces/`,
+`mcp/dinbrief-mcp/`, `docs_index.js`, `README-DB.md`, `log_session.js`, `codeql.yml`,
+`research/din-5008-svgs/` sowie die ueberholten Datenkopien
+(`de_plz_ort.json[.br,.gz]`, `de_grosskunden_plz.json[.br,.gz]`, `de_districts.json`,
+`de_vornamen_gender.json[.br]`, sechs Mess-JSONs). Live sind die Daten unter
+`website/data/` und werden von `tools/build_plz_data.mjs` aus den Geonames-Rohdaten
+erzeugt.
+
+**Behalten (bewusst):** `research/*.md` (gemessene Benchmarks, Anbietervergleiche,
+Parser-Haertetests — nicht reproduzierbar), `audit/`, `archive/`, `scripts/`
+(Herkunftsnachweis der Datasets). Die Skill-Korpora `skill-ux-principles/` und
+`skills-legacy-references/` bleiben ebenfalls, weil sie nirgends sonst auf der
+Maschine existieren.
+
+**Wiederherstellung:** alles oben Genannte ist in der Git-Historie, z. B.
+`git show 3d40782^:tools/docs_index.js`. Kein Rewrite, kein Force-Push.
+
+**Guard gelockert (Nutzerentscheid, 2026-11-17):** Der Pre-Commit-Hook verbot bisher
+*jede* Löschung unter `Papierkorb/` — das ist die Ursache des Reverts `b8a0aca` →
+`00c2cd9` vom 2026-11-09. Auf ausdrückliche Weisung ist die Regel jetzt auf das
+Verzeichnis beschränkt: `githooks/pre-commit` bricht weiter ab, wenn `Papierkorb/`
+fehlt oder leer ist, erlaubt aber einzelne Löschungen auf Nutzerweisung. Dieselbe
+Präzisierung steht in [[HANDOFF]] (Unantastbarkeits-Klausel).

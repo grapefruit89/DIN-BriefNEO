@@ -4003,3 +4003,13 @@ Maschine existieren.
 Verzeichnis beschränkt: `githooks/pre-commit` bricht weiter ab, wenn `Papierkorb/`
 fehlt oder leer ist, erlaubt aber einzelne Löschungen auf Nutzerweisung. Dieselbe
 Präzisierung steht in [[HANDOFF]] (Unantastbarkeits-Klausel).
+
+**Nachtrag — externes Agent-Home `~/.din-briefneo` (70 MB → 31 MB):** Entfernt wurden
+`cache/` (13 MB, hielt die beiden SQLite-Reste der Retrieval-Pipeline,
+`docs_search.db` und `DIN-Brief_docs.db`), `feature-cache/` (25 MB, npm-Cache von
+`tools/check-feature.js`, per Netz neu füllbar) und `research-raw/` (1,3 MB Rohquellen).
+`node_modules/` bleibt: `tools/reconciliation.js:423` sucht den TypeScript-Compiler
+ausschliesslich dort (`$DIN_HOME/node_modules/.bin/tsc`) und meldet ohne ihn einen
+`critical`-Befund — es gibt kein `tsc` im PATH. `build/` erzeugt `tools/build_db.js`
+bei jedem Lauf neu. `/home/moritz/.din-briefneo` ist damit kein Build- oder
+Datenbank-Ort mehr.

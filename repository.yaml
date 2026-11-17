@@ -85,7 +85,7 @@ structure:
     decided_over: agent/skills/ (flach im Projekt-Root konsolidiert)
 
   build/:
-    purpose: Generierte Artefakte (SQLite-DB-Import, Matrizen). Liegt extern unter ~/.din-briefneo/build/.
+    purpose: Generierte Artefakte (Code-Referenzen, Function-Traceability). Liegt extern unter ~/.din-briefneo/build/ und wird von tools/build_db.js bei jedem Gate-Lauf neu erzeugt.
     regenerate_with: tools/build_db.js
 
 

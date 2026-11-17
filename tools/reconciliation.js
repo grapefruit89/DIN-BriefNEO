@@ -733,6 +733,39 @@ function runReconciliation() {
     }
   }
 
+  // --- ID-Check ("Ein Punkt, eine ID", ID-Register 2026-11-17) ---
+  // Werkzeug: tools/id-register.js. Die Nummernkreise stehen NICHT im Code,
+  // sondern in docs/30-meta/ID-REGISTER.md. Geprueft werden: Aufloesbarkeit
+  // jeder B-Referenz, Verwendung ausgelaufener Praefixe (S/R/F/T/M) und die
+  // Deckung des Registers gegen Law Catalog, Antipattern-Datei und Backlog.
+  conformanceChecked += 1;
+  {
+    let idViolations = [];
+    try {
+      idViolations = require('./id-register.js').checkIds(targetDir).violations;
+    } catch (err) {
+      logs.push({
+        file_path: 'tools/id-register.js',
+        check_type: 'ids',
+        severity: 'low',
+        message: `ID-Check uebersprungen: ${err.message}`
+      });
+      idViolations = [];
+    }
+    if (idViolations.length === 0) {
+      conformancePassed += 1;
+    } else {
+      for (const v of idViolations) {
+        logs.push({
+          file_path: v.file,
+          check_type: 'ids',
+          severity: 'critical',
+          message: `${v.message} (${v.rule}, Zeile ${v.line})`
+        });
+      }
+    }
+  }
+
   const docFiles = getFilesRecursively(targetDir);
   if (!fs.existsSync(path.join(targetDir, 'docs', 'STRUCTURE.md'))) {
     logs.push({
@@ -804,7 +837,7 @@ function runReconciliation() {
         // P5: Doku-Groessenwarnung (>400 Zeilen). Ausnahmen: DECISION-LOG
         // (append-only Chronik), generierte Code-Referenzen und die IMR-Registry
         // (normative SSOT des Fachmodells — darf nicht gesplittet werden).
-        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/30-meta/DECISION-LOG-2026-H1.md', 'docs/30-meta/BACKLOG-ARCHIV.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md', 'docs/00-foundation/din5008.md'];
+        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/30-meta/DECISION-LOG-2026-H1.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md', 'docs/00-foundation/din5008.md'];
         /* Bereits archivierte Dokumente sind von der Groessenregel ausgenommen:
          * Die Regel fordert als Abhilfe genau den Umzug nach docs/90-archive/ —
          * sie dort weiter zu melden ist eine unerfuellbare Forderung (das Archiv

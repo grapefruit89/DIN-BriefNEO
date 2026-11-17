@@ -45,6 +45,7 @@ supersedes: []
 | **Test-Infrastruktur** | `node tools/test-runner.mjs` | Nutzt `static-server.mjs` und steuert Chromium via CDP (183 Unit-Tests). Gebündelt in `npm test` mit `node test/corpus/run.js` (80 Adress-Fälle). |
 | **Daten-Pipeline** | `node tools/build_plz_data.mjs` | Kompiliert Columnar-JSON-Daten nach `website/data/orte.json.gz` & `website/data/grosskunden.json.gz` (Data-as-Code). |
 | **Typografie-Asset-Pipeline** | `tools/subset_fonts.py` | DIN-5008 WOFF2 Subsetting via `fontTools` (Anhang H/F: tnum, Umlaute, ẞ, Brüche, Sonderzeichen). |
+| **ID-Gate** | `node tools/build_db.js -q` | `tools/id-register.js` prüft jeden `B`-Verweis gegen Backlog und Archiv, verbietet ausgelaufene Präfixe (`S`, `R`, `F`, `T`, `M`) und gleicht die Bereiche in [[ID-REGISTER]] gegen Law Catalog, `project.json` und Backlog ab. |
 
 ## repository.json (docs/10-architecture/)
 

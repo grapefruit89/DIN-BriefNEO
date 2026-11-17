@@ -4,7 +4,7 @@ title: 'Roadmap — echte Zukunft des Produkts'
 type: roadmap
 status: active
 created: '2026-07-07'
-updated: '2026-10-23'
+updated: '2026-11-17'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -57,7 +57,7 @@ exportieren können.
 - Zero-Scroll-Garantie im Editor: Horizontales Karussell / Paging-Stepper mit View Transitions API statt vertikalem Scrollen.
 - Textfluss: Modell 1 (Explizite Folgeseite per Strg+Enter / Button) statt instabiler DOM-Messschleifen (A49).
 - Druckarchitektur: Nativer Umbruch via `page-break-after: always; break-after: page;` und `din-a4:last-of-type { page-break-after: avoid; }`.
-- Paginierung nach DIN 5008 Kap. 20.17: **erledigt** als natives `@page`-Marginfeld (`counter(page)` / `counter(pages)`) mit „Seite X von Y“, auf der Erstseite unterdrückt (siehe [[BACKLOG-ARCHIV#B34]]). Kein `<din-seitenangabe>`-Element: der Browser zählt die Druckseiten selbst.
+- Paginierung nach DIN 5008 Kap. 20.17: **erledigt** als natives `@page`-Marginfeld (`counter(page)` / `counter(pages)`) mit „Seite X von Y“, auf der Erstseite unterdrückt (B34, siehe [[BACKLOG-ARCHIV]]). Kein `<din-seitenangabe>`-Element: der Browser zählt die Druckseiten selbst.
 - Schlussblock-Integrität: Grußformel und Unterschrift wandern auf die letzte Seite (unter Beachtung der Schusterjungen-Regel).
 
 

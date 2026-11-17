@@ -213,6 +213,10 @@ Maschinell geprüft: die Regeln `P6`–`P11` in `tools/antipatterns/project.json
 Fitness Gate bei einer verdrängten Variante anschlagen. Englische Bezeichner im Code
 (`draft`, `settings`) sind davon unberührt — geprüft wird Fließtext in `docs/`.
 
+Dasselbe Prinzip gilt für **IDs**: ein Punkt hat eine Nummer, nicht drei. Die verbindliche
+Liste der Nummernkreise, ihre Vergabe und die Alias-Tabelle für ausgelaufene Präfixe
+(`S2` → `B59`) steht in [[ID-REGISTER]]. Maschinell geprüft von `tools/id-register.js`.
+
 ### 5.6 Geschützte Dokumente
 
 Drei Gruppen dürfen nicht gelöscht, verschoben oder umbenannt werden. Alle drei sind

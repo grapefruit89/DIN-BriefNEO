@@ -4013,3 +4013,74 @@ ausschliesslich dort (`$DIN_HOME/node_modules/.bin/tsc`) und meldet ohne ihn ein
 `critical`-Befund — es gibt kein `tsc` im PATH. `build/` erzeugt `tools/build_db.js`
 bei jedem Lauf neu. `/home/moritz/.din-briefneo` ist damit kein Build- oder
 Datenbank-Ort mehr.
+
+## 2026-11-17 — Statusdokumente konsolidiert, ID-Register eingeführt
+
+**Anlass.** Zwei Beschwerden aus der Arbeit: (a) Erledigtes lag als Fließtext in
+`BACKLOG-ARCHIV.md` und `batch/STATUS.md`, Offenes an drei Orten; (b) dieselbe Sache
+hatte bis zu drei Namen (`B59` = `S2` = „@layer-Umbau").
+
+**Befund zur Namenslage (gezählt, nicht geschätzt).** Elf Nummernkreise im Doku-Korpus:
+`B` (266 Nennungen), `A` (217), `P` (55), `H` (37), `R` (24), `F` (19), `M` (18),
+`E` (17), `S` (15), `T` (14), `C` (13). `M`, `T` und `W` waren nirgends definiert;
+`E1` entpuppte sich als Treffer im Dateinamen `PHASE1-…` — es gibt keinen E-Kreis.
+AGENTS.md §5.5 verlangt „ein Sachverhalt, ein Begriff", maschinell geprüft war das
+nur für Begriffe (`P6`–`P11`), nicht für IDs.
+
+**Konsolidiert.**
+- `BACKLOG-ARCHIV.md`: 1.026 → 102 Zeilen. 64 Einträge als Tabelle
+  (`ID | Titel | Ausgang | Datum | Nachweis`). Fließtext bleibt über die Git-Historie
+  der Datei und `git log -S "<ID>"` auffindbar.
+- `batch/STATUS.md`: 130 → 50 Zeilen. Enthält nur noch, was **offen** ist (B94, B95)
+  und welche Entscheidungen beim Nutzer liegen.
+- `BACKLOG.md` ist die einzige offene Liste: 25 Punkte, davon zwei neu
+  (`B94` Review Batch 06, `B95` Review Batch 07). Tabelle per `tools/backlog-sync.mjs`
+  regeneriert.
+- Größen-Ausnahme für `BACKLOG-ARCHIV.md` in `tools/reconciliation.js` entfällt —
+  die Datei liegt jetzt weit unter dem 400-Zeilen-Limit.
+- `S4` („nicht anfassen") bleibt als Nutzerentscheidung dokumentiert, bekommt aber
+  keine ID: es ist keine Aufgabe.
+
+**ID-Register.** `docs/30-meta/ID-REGISTER.md` führt die aktiven Kreise
+(`A`, `H`, `C`, `P`, `B`), die ausgelaufenen (`S`, `R`, `F`, `T`, `M`) mit
+Alias-Tabelle und die Nicht-IDs (`E1`, `FTS5`, `B96`). Drei Regeln: ein Punkt eine ID,
+neue IDs nur aus einem registrierten Kreis, ausgelaufene Präfixe bekommen keine neuen
+Nummern.
+
+**Neu und maschinell geprüft:** `tools/id-register.js` (eingehängt in
+`tools/reconciliation.js` neben dem Terminologie-Check). Es prüft
+(1) jede `B`-Referenz in `docs/`, `batch/`, `skills/` gegen Backlog/Archiv,
+(2) ausgelaufene Präfixe in ID-Form (`` `S5` `` = Verstoß),
+(3) die Deckung des Registers gegen Law Catalog (A, H), `project.json` (P) und
+Backlog (B). Test mit fünf erfundenen IDs: alle fünf gefangen; echte Lage: 0 Verstöße.
+
+**Bewusst nicht erfunden:** `W4` (als „Law W4" dreimal zitiert, im Law Catalog nicht
+definiert), `I/EM` (`AGENTS.md:342`, nirgends aufgelöst) und `M1`–`M7` bleiben als
+**ungeklärt** im Register stehen. Drei offene Punkte, keine drei Behauptungen.
+
+## 2026-11-14 — B63: `data-layout` auf eine Spur (nachgetragen 2026-11-17)
+
+**Warum nachgetragen:** Der Umbau war am 2026-11-14 erledigt, stand aber nur in
+`BACKLOG-ARCHIV.md` — kein Logeintrag. Bei der Konsolidierung am 2026-11-17 aufgefallen.
+
+**Ausgangslage.** `data-layout` hatte zwei Spuren: das Attribut (an drei Stellen gesetzt:
+`boot.js:42`, `settings.js:90`/`:215`) und eine zweite `--active-idx`-Spur in
+`sidebar.css:182`, die nur für diesen Schalter existierte.
+
+**Messung vor und nach dem Umbau** (`6x CPU`, 10 kalte Läufe je Form):
+
+| | frühster Frame falsch | nach Seeding falsch |
+|---|---:|---:|
+| vorher, form-a / form-b | 0/10 · 0/10 | 0/10 · 0/10 |
+| nachher, form-a / form-b | 0/10 · 0/10 | 0/10 · 0/10 |
+
+Entscheidend war der Frame **vor** dem Seeding: bei gespeichertem `form-a` zeigte der
+erste Frame `checked="btn-form-b"` (HTML-Default), die Pille stand über `data-layout`
+aber auf 0. Die `:checked`-Regel hätte die falsche Position gezeigt — die
+Attribut-Spur ist also die tragende, nicht die Dublette.
+
+**Geändert:** `sidebar.css` — generische `:checked`-Regeln gelten nicht mehr für den
+Layout-Schalter (`:not(.segmented-control-layout)`); `index.html` — Control trägt
+`segmented-control-layout`; `settings.js` — zweiter `data-layout`-Schreiber entfernt.
+**Nicht angefasst:** die Blattgeometrie (`sheet-common.css`, `sheet-multipage.css` lesen
+`[data-layout]`).

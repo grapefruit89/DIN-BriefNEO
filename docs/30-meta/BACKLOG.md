@@ -4,7 +4,7 @@ title: Backlog — offene Baustellen nach Aufwand und ROI
 status: active
 type: reference
 created: '2026-10-02'
-updated: '2026-11-05'
+updated: '2026-11-17'
 tags:
 - din-briefneo
 - meta
@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-23 offene Punkte. Details unterhalb, nach Art gruppiert.
+25 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -77,6 +77,8 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
 | **B91** | BIC → Bankname als Erweiterung (Addon) | M | ⭐⭐ |
 | **B93** | `targetLock` wird viermal geleert — Redundanz **nicht** bewiesen | S | ⭐ |
+| **B94** | Batch 06 auswerten: Layer-Kaskade | S | ⭐⭐ |
+| **B95** | Batch 07 auswerten: PDF-Export (Bibliothek oder Browser?) | S | ⭐⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
@@ -426,6 +428,25 @@ ganze Gerätepixel gerundet). Der einzige Weg zu echter Subpixel-Stärke ist der
 SVG-Ansatz aus **B35** (`stroke-width` in mm, `vector-effect="non-scaling-stroke"`).
 Bis dahin nur dokumentieren, damit niemand erwartet, dass 0.5pt auf dem Schirm
 sichtbar dünner ist.
+
+### B94 · Batch 06 auswerten: Layer-Kaskade · **S** · ⭐⭐
+**Herkunft:** `batch/06-layer-kaskade/` (gebaut 2026-11-15, 48 KiB, `merge.txt` versandfertig).
+**Frage der Scheibe:** In welcher Reihenfolge müssen die `@layer` liegen, damit die
+Druck-`!important` in `sheet-multipage.css` fallen können — und was hält sie heute?
+**Warum offen:** Der Review ist nie angefordert worden (kein Issue nach #20). Ohne die
+Antwort beginnt B59 auf Vermutungen; die Vorprobe hat gezeigt, dass ein Etappen-Umbau
+genau hier scheitert (`#kern`, 2.871.046 Pixel Unterschied, siehe [[B59-LAYER-PLAN]]).
+**Nächster Schritt:** `merge.txt` verschicken, Antwort als Issue auswerten, Befunde in
+[[BACKLOG]] und [[DECISION-LOG]] einsortieren.
+
+### B95 · Batch 07 auswerten: PDF-Export (Bibliothek oder Browser?) · **S** · ⭐⭐
+**Herkunft:** `batch/07-pdf-addon/` (gebaut 2026-11-15, 43 KiB, `merge.txt` versandfertig).
+**Frage der Scheibe:** Reicht der native Druckpfad (`window.print`, `@page`) für den
+PDF-Export, oder braucht es eine Bibliothek — und was kostet jede Variante an Blattgröße
+und Kontrolle über Seitenumbrüche?
+**Warum offen:** Review nie angefordert; ohne Antwort bleibt B76 (PDF-Export als Addon)
+eine Entscheidung ohne Grundlage.
+**Nächster Schritt:** wie B94.
 
 ### B85 · Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? · **M** · ⭐⭐⭐
 **Herkunft:** `docs/90-archive/todo-2026-11/README.md` (Punkt 49), unverändert offen.

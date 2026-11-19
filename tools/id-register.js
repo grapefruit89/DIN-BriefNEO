@@ -40,6 +40,7 @@ const EXCLUDED = [
   'docs/30-meta/DECISION-LOG-2026-H1.md',
   'docs/30-meta/ID-REGISTER.md',
   'docs/00-foundation/din5008.md', // wortgetreues Normzitat, enthaelt OCR-Artefakte
+  '.trash/',
   'Papierkorb/',
   'research/'
 ];

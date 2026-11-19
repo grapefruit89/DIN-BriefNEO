@@ -55,4 +55,4 @@ summary: "Kanonische LLM-Map, Verzeichnis-Inventar und Task-to-File-Matrix für 
 | **Vollständiger Wegweiser** | [`docs/30-meta/AUFGABEN-WEGWEISER.md`](docs/30-meta/AUFGABEN-WEGWEISER.md) |
 | **Lokaler Dev-Server / CDP** | Port `8088` (`./tools/start.sh`) · Chromium DevTools Port `9222` |
 | **Budget-Gates** | `AGENTS.md` ≤ 70 Z / 500 W · `map.md` ≤ 100 Z / 700 W / 5.500 B |
-| **Geschützter Mülleimer** | `Papierkorb/` (Invariante von `build_db.js`, niemals löschen) |
+| **Geschützter Mülleimer** | `.trash/` (Invariante von `build_db.js`, niemals löschen) |

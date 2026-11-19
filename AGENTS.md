@@ -19,7 +19,7 @@ summary: "Verbindliche Agenten-Leitplanken, Verfassungs-Invarianten und Kern-Wor
 1. **Höchste Autorität:** [`docs/00-foundation/Immutable-Law-Catalog.md`](docs/00-foundation/Immutable-Law-Catalog.md) steht über allem. Bei Konflikten gilt immer der Law Catalog.
 2. **Vanilla Web & Zero-Build:** Ausschließlich reines HTML5, CSS (OKLCH, modern) und native ES-Module. **Kein Webpack, kein Vite, kein Babel, kein TypeScript, kein Runtime-Framework**.
 3. **Persistenz & Datenintegrität:** `localStorage` nur für Text-Entwürfe (`din_draft`); `IndexedDB` für Binär-Blobs. Kein Base64 in JS-Modulen (Law A64).
-4. **Verfassungsschutz:** `Papierkorb/` ist eine geschützte Invariante und darf nicht gelöscht werden. `website/fonts/` enthält die produktiven `.woff2`-Dateien.
+4. **Verfassungsschutz:** `.trash/` ist eine geschützte Invariante und darf nicht gelöscht werden. `website/fonts/` enthält die produktiven `.woff2`-Dateien.
 5. **Verworfen bleibt verworfen:** Abgelehnte Features in `docs/90-archive/` oder `docs/30-meta/DECISION-LOG.md` werden niemals ohne expliziten Nutzerauftrag reaktiviert.
 
 ---

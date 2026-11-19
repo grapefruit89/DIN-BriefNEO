@@ -8,12 +8,12 @@ cd "$REPO_ROOT" || exit 1
 LOG=$(mktemp)
 trap 'rm -f "$LOG"' EXIT INT TERM
 
-# --- PAPIERKORB-SCHUTZ: Verzeichnis bleibt bestehen (2026-11-17 gelockert) ---
+# --- PAPIERKORB-SCHUTZ: Verzeichnis bleibt bestehen (.trash) ---
 # Einzelne Dateien dürfen auf ausdrückliche Nutzerweisung entfernt werden
 # (DECISION-LOG 2026-11-17). Das Verzeichnis selbst darf weder verschwinden
 # noch geleert werden — dieser Schutz bleibt mechanisch.
-if [ ! -d "Papierkorb" ] || [ $(find Papierkorb -type f | wc -l) -eq 0 ]; then
-  echo "❌ [pre-commit] FATAL: 'Papierkorb/' fehlt oder ist leer! Commit abgebrochen." >&2
+if [ ! -d ".trash" ] || [ $(find .trash -type f | wc -l) -eq 0 ]; then
+  echo "❌ [pre-commit] FATAL: '.trash/' fehlt oder ist leer! Commit abgebrochen." >&2
   exit 1
 fi
 

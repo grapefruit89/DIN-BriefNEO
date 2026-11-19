@@ -203,9 +203,9 @@ ${produktionscodeTabelle()}
 
 function main() {
   const startTime = performance.now();
-  const trashDir = path.join(targetDir, 'Papierkorb');
+  const trashDir = path.join(targetDir, '.trash');
   if (!fs.existsSync(trashDir) || fs.readdirSync(trashDir).length === 0) {
-    console.error("🔴 Build failed: Invariante verletzt — 'Papierkorb/' existiert nicht oder ist leer!");
+    console.error("🔴 Build failed: Invariante verletzt — '.trash/' existiert nicht oder ist leer!");
     process.exit(1);
   }
   // Wegweiser-Gate (E3): genannte Pfade existieren, jedes JS-Modul ist erwaehnt.

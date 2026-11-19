@@ -121,6 +121,7 @@ taxonomy:
     - todo
     - batch
     - build
+    - .trash
     - Papierkorb
   allowed_root_files:
     - github

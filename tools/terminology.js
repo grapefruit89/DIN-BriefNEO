@@ -26,7 +26,8 @@ const EXCLUDED = [
   'docs/30-meta/DECISION-LOG-2026-H1.md', // ausgelagertes Archiv H1 2026
   'docs/00-foundation/din5008.md', // wortgetreues Normzitat (DIN 5008) -- Quelle, kein Fliesstext von uns
   'research/',                   // Laborarchiv
-  'Papierkorb/',                 // Gelöschte/ausgemusterte Altlasten
+  '.trash/',                     // Gelöschte/ausgemusterte Altlasten
+  'Papierkorb/',
   GLOSSARY,                      // enthaelt die verdraengten Varianten per Definition
   'tools/terminology.js'
 ];

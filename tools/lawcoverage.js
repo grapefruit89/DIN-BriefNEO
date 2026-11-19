@@ -33,7 +33,7 @@ const fs = require('fs');
 const path = require('path');
 const { matchFilePattern } = require('./filematch.js');
 
-const CATALOG = 'docs/00-foundation/Immutable-Law-Catalog.md';
+const CATALOG = 'docs/norm/Immutable-Law-Catalog.md';
 const PROBE_DIR = 'tools/antipatterns';
 
 /**

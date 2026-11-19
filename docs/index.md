@@ -25,7 +25,7 @@ code_links:
   - website/index.html
   - website/js/main.js
   - website/css/base.css
-  - 30-meta/AI-AGENTS-CLI.md
+  - meta/AI-AGENTS-CLI.md
 error_patterns:
   - hub
   - navigation
@@ -42,92 +42,99 @@ depends_on: []
 > **Willkommen im Dokumentationszentrum von DIN-Brief Neo.**  
 > Autarker, serverloser DIN-5008-Briefbogen im Browser (Form A & B) — 100% offline-fähig, null Build-Tools, null externe Laufzeit-Abhängigkeiten, optimiert für Chrome 150+ (Standard-Baseline).
 
-Werkzeug für die Sichtprüfung: **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)** (Chrome DevTools MCP an die laufende App).
+Werkzeug für die Sichtprüfung: **[AI-AGENTS-CLI.md](meta/AI-AGENTS-CLI.md)** (Chrome DevTools MCP an die laufende App).
 
 ---
 
-## 🏛️ Der 5-stufige Dezimalrahmen & Audit-Ebene
+## 🏛️ Modulare 1:1 Dokumentations-Architektur
 
-Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen dürfen höhere Ebenen niemals verwässern oder außer Kraft setzen.
+Die Dokumentation spiegelt die Struktur der Web-Applikation (`website/`) 1:1 wider, ergänzt um normative Vorgaben, Metadaten und Archiv:
 
 ```
-00-foundation/      --> Die unantastbare Verfassung (WAS & WARUM)
-10-architecture/    --> Technische Leitplanken, IMR-Registry & ADRs (WIE im Entwurf)
-20-implementation/  --> Praktische Guides, 80/20 B2B-Engine & Glossar (WIE im Code)
-30-meta/            --> Projektgedächtnis, Tooling & Arbeitsweise (STATUS + WIE gearbeitet wird)
-audit/              --> Sprint- & Audit-Artefakte (Spezifikationen, Reviews, zeitbezogene Arbeitsstände)
-90-archive/         --> Historische Einmal-Artefakte (nicht mehr normativ)
+docs/
+├── norm/        --> Verfassung, Gesetze, DIN 5008 Spezifikation, IMR-Registry & Repository-Schema
+├── css/         --> CSS-Architektur, ADR-CSS, B59-Layer-Plan, No-Scroll
+├── js/          --> JS-Architektur, ADRs, Laufzeit, Testing, Salutation
+├── data/        --> Adress- und Großempfänger-Intelligenz, PLZ-Maintenance
+├── fonts/       --> Typografie & Font-Pipeline
+├── addons/      --> Erweiterungen (Testbrief-Generator etc.)
+├── meta/        --> Projektgedächtnis, DECISION-LOG, BACKLOG, Tooling, Wegweiser
+└── archive/     --> Historische Einmal-Artefakte & Alt-Pläne (nicht mehr normativ)
 ```
 
 ---
 
-### 1. [[00-foundation/README|00-foundation — Die Verfassungsebene (Unveränderlich)]]
-*Streng schreibgeschützt für Automatismen. Definiert die Existenzberechtigung und Grundrechte des Projekts.*
-- **[[constitution]]** ⭐⭐⭐ — unveränderliche Projektprinzipien und die kanonische Quellenhierarchie.
+### 1. `docs/norm/` — Verfassungsebene & Normative Spezifikationen
+*Unveränderliche Projektprinzipien, Gesetze und DIN-Standards.*
+- **[[constitution]]** ⭐⭐⭐ — Unveränderliche Projektprinzipien und die kanonische Quellenhierarchie.
 - **[[Immutable-Law-Catalog]]** ⭐⭐⭐ — Normative Gesetzestexte: Stufe 1 (HARD BAN) bis Stufe 3 (FALLBACK).
+- **[[din5008]]** ⭐⭐⭐ — Form A & Form B Bemaßung, Faltmarken, Abstände.
 - **[[spec]]** ⭐⭐⭐ — Fachliche Spezifikation aller Benutzerfunktionen (WAS das Produkt leistet).
-- **[[longevity-guidelines]]** ⭐⭐ — 10-Jahres-Technologiekriterien und einzige Browser-Baseline (Chrome 150+).
-
----
-
-### 2. [[10-architecture/README|10-architecture — Technische Architektur & ADRs]]
-*Das technische Fundament: Regelt Geometrie, Datenfluss und architektonische Entscheidungen.*
-- **[[IMR-Registry]]** ⭐⭐⭐ — Alleinige Quelle der Wahrheit (SSoT) für alle 45 Custom Tags und DIN-5008-Millimetermaße.
-- **[[Immutable-Law-Catalog]]** ⭐⭐⭐ — Alle Verbote und MUST-USE (vor jeder Änderung zwingend lesen!).
-- **[[ADR-ANTIPATTERN]]** — 2026-10-02 aufgelöst; enthält nur noch die Umschlüsselung `Abschnitt → Gesetz`.
+- **[[IMR-Registry]]** ⭐⭐⭐ — Alleinige Quelle der Wahrheit (SSoT) für alle 45 Custom Tags und Millimetermaße.
+- **[[longevity-guidelines]]** ⭐⭐ — 10-Jahres-Technologiekriterien und Browser-Baseline.
+- **[[ADR-HTML]]** — Semantische HTML-Struktur, WYSIWYG & Native Popovers.
 - **[[ADR-OMNITRACEABILITY]]** ⭐⭐ — Bidirektionale Verknüpfung von Quellcode und Dokumentation.
-- **Function-Traceability** ⭐⭐ — Matrix aller JavaScript-Module und zugeordneter Architekturentscheidungen (generiert unter `~/.din-briefneo/build/`, nicht versioniert).
-- **Thematische Architektur-Entscheidungen (ADRs):**
-  - **[[ADR-HTML]]** — Semantische HTML-Struktur, WYSIWYG & Native Popover Toolbars (integriert ehem. ADR-FEATURE).
-  - **[[ADR-CSS]]** — Container Queries, Falzmarken, Viewport-Sizing, oklch (integriert ehem. ADR-BETREFF).
-  - **[[ADR-JS]]** — ES-Module, Temporal API, Zero-Framework-Regel.
-  - **[[ADR-DATA-PERSISTENCE]]** — localStorage-Souveränität und synchroner Speicher-Manager.
-  - **[[ADR-TOAST-SYSTEM]]** — Entkoppeltes Toast-System im Top-Layer.
-  - **[[ADR-SENDER-SYNCHRONIZATION]]** — Automatische Absender-Spiegelung (Absenderblock → Rücksendezeile/Maschinenschrift).
-  - **[[ADR-OFFLINE-ADDRESS-INTELLIGENCE]]** — 70,5 KB Brotli-Dictionary als Offline-Primärquelle (Tier 1) mit optionalem Online-Fallback.
-
----
-
-### 3. [[20-implementation/README|20-implementation — Praktische Guides & How-Tos]]
-*Konkretes Implementierungswissen für den Quelltext (`website/js/` und `website/css/`).* 
-- **[[Salutation-Engine]]** — Anrede-Logik: Neuer 80/20 B2B-Standard, 3 verbindliche Pärchen, Offline-Vornamenerkennung, Adelspartikel und Auto-Reset.
-- **[[datenfluss-und-laufzeit]]** — Datenfluss & Laufzeitverhalten: verifizierter Ist-Stand.
-- **[[din-5008-css-architektur]]** — DIN-5008-Layout, Druckvorstufe (@media print) und Container Queries.
-- **[[no-scroll-techniques]]** — Zero-Scroll-Garantie: TextFit-Squeezing und A4-Viewport-Anpassung.
-- **[[testing-guide]]** — Validierungs-Checklisten für Druckvorschau und responsive Ansichten.
 - **[[glossary]]** — Zentrales Projektglossar (Ubiquitous Language von A bis Z).
 
 ---
 
-### 4. [[30-meta/README|30-meta — Projektgedächtnis, Status & Werkzeuge]]
+### 2. `docs/css/` — Stylesheet-Architektur & Drucklayout
+*Layout, Druckvorstufe (@media print) und Container Queries (Spiegel zu `website/css/`).*
+- **[[ADR-CSS]]** — Container Queries, Falzmarken, Viewport-Sizing, oklch.
+- **[[din-5008-css-architektur]]** — DIN-5008-Layout und Druckvorstufe.
+- **[[ADR-MESS-SCHLEIFE]]** — Mess-Schleifen-Architektur.
+- **[[B59-LAYER-PLAN]]** — B59-Layout-Layering.
+- **[[no-scroll-techniques]]** — Zero-Scroll-Garantie: TextFit-Squeezing und A4-Viewport-Anpassung.
+
+---
+
+### 3. `docs/js/` — JavaScript-Architektur & Engines
+*Laufzeit, Event-Bus und Business-Logik (Spiegel zu `website/js/`).*
+- **[[ADR-JS]]** — ES-Module, Temporal API, Zero-Framework-Regel.
+- **[[Salutation-Engine]]** — Anrede-Logik: 80/20 B2B-Standard, 3 verbindliche Pärchen, Offline-Vornamenerkennung.
+- **[[datenfluss-und-laufzeit]]** — Datenfluss & Laufzeitverhalten: verifizierter Ist-Stand.
+- **[[ADR-EVENT-DRIVEN-ARCHITECTURE]]** — Entkoppelter EventBus und Reaktionskette.
+- **[[ADR-DATA-PERSISTENCE]]** — localStorage-Souveränität und synchroner Speicher-Manager.
+- **[[ADR-TOAST-SYSTEM]]** — Entkoppeltes Toast-System im Top-Layer.
+- **[[ADR-SENDER-SYNCHRONIZATION]]** — Automatische Absender-Spiegelung.
+- **[[testing-guide]]** — Validierungs-Checklisten und Testausführung.
+
+---
+
+### 4. `docs/data/` — Address Intelligence & Stammdaten
+*Spiegel zu `website/data/`.*
+- **[[ADR-OFFLINE-ADDRESS-INTELLIGENCE]]** — 70,5 KB Brotli-Dictionary als Offline-Primärquelle (Tier 1).
+- **[[ADR-COLUMNAR-DATA]]** — Spaltenbasiertes Datenformat für High-Speed Scanning.
+- **[[grossemfaenger-post-und-rechts-spec]]** — Post- und Rechtsvorgaben für Großempfänger.
+- **[[plz-maintenance-and-update-lifecycle]]** — Lifecycle und Updates der PLZ-Daten.
+
+---
+
+### 5. `docs/fonts/` — Typografie & Font-Pipeline
+*Spiegel zu `fonts/` und `website/fonts/`.*
+- **[[ADR-TYPOGRAPHY]]** — Lokale System- & Subset-Fonts, Schriftgrößen, Schriftschnitte.
+
+---
+
+### 6. `docs/addons/` — Erweiterungen
+*Spiegel zu `website/addons/`.*
+- **[[testbrief-generator]]** — Erzeugung synthetischer Testbriefe für visuelle Regressionstests.
+
+---
+
+### 7. `docs/meta/` — Projektgedächtnis, Status & Werkzeuge
 *Historische Protokolle, Statusberichte und Wissensmanagement.*
-- **[[DECISION-LOG]]** — die lebende Entscheidungs- und Begründungschronik (append-only). Der alte `CHANGELOG` ist seit 2026-10-02 archiviert.
+- **[[DECISION-LOG]]** — Lebende Entscheidungs- und Begründungschronik (append-only).
 - **[[Feature-Matrix]]** — Übersicht aller Features mit Reifegrad und Status.
-- **`docs/30-meta/schema-v6.json`** — das Frontmatter-Schema V6 (Pflichtfelder, erlaubte `type`-Werte), maschinenlesbar und damit die einzige Quelle. Der frühere `OBSIDIAN-SETUP-GUIDE` ist seit 2026-10-02 archiviert.
-- **[[tooling-overview]]** — Bestandsaufnahme aller Hilfswerkzeuge im Ordner `tools/` inklusive kanonischem Tool-Result-Schema & Vokabular.
-- **Vorlagen:** **[[TEMPLATES]]** (Vorlagen für neue Architektur-Entscheidungen und How-To Guides).
+- **[[AUFGABEN-WEGWEISER]]** — Orientierungshilfe für Entwicklungsaufgaben.
+- **`docs/meta/schema-v6.json`** — Frontmatter-Schema V6 (Pflichtfelder, Typen).
+- **[[tooling-overview]]** — Bestandsaufnahme aller Hilfswerkzeuge in `tools/`.
+- **[[TEMPLATES]]** — Vorlagen für neue Architektur-Entscheidungen und Guides.
 
 ---
 
-### 5. Entwicklungsprozess & Arbeitsweise
-*Regelt, WIE am Projekt gearbeitet wird (Verfahrensordnung).*
-- Siehe **[[AGENTS]]** (§3 Arbeitsmodi, §2 Quality Gates, §5 Kodier- und Arbeitsprinzipien). Der historische Leitfaden `HYBRID-SPEC-DRIVEN-WORKFLOW` ist archiviert.
-
----
-
-## 🤖 Maschinenlesbare Inventare (SSoT für KI-Agenten)
-
-Lebende Quelle ist die lokal generierte Wissensdatenbank aus `tools/build_db.js`
-(plus die generierten `Code-Referenzen.md` / `Function-Traceability.md`) — **nicht**
-eingefrorene Snapshots. Die beiden früheren `*_inventory.json` (Stand 2026-09-04)
-waren bereits stale und wurden am 2026-10-02 entfernt; siehe [[DECISION-LOG]].
-
-Werkzeug zur Sichtprüfung:
-- **[[AI-AGENTS-CLI]]** (`docs/30-meta/AI-AGENTS-CLI.md`) — Chrome DevTools MCP, Sichtprüfung der laufenden App.
-
----
-
-## 🗄️ Archiv (`docs/90-archive/`)
+### 8. `docs/archive/` — Archiv
+*Historische Einmal-Artefakte (Reviews, Audits, Snapshots, überholte Pläne).*
 
 Historische Einmal-Artefakte (Reviews, Audits, Snapshots) — nicht Teil des aktiven Doku-Satzes, aber aus Nachvollziehbarkeit behalten:
 - `review_grok.md`, `review2_grok.md`, `chatgpt-review-prompt.md` — externe Reviews

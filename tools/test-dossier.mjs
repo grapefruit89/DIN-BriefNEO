@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const QUELLE = join(ROOT, 'test/all.js');
-const ZIEL = join(ROOT, 'docs/30-meta/TEST-DOSSIER.md');
+const ZIEL = join(ROOT, 'docs/meta/TEST-DOSSIER.md');
 const CHECK = process.argv.includes('--check');
 
 const zeilen = readFileSync(QUELLE, 'utf-8').split('\n');
@@ -104,7 +104,7 @@ if (ist === soll) {
   process.exit(0);
 }
 if (CHECK) {
-  console.error('docs/30-meta/TEST-DOSSIER.md weicht von test/all.js ab.');
+  console.error('docs/meta/TEST-DOSSIER.md weicht von test/all.js ab.');
   console.error('Neu schreiben: node tools/test-dossier.mjs');
   process.exit(1);
 }

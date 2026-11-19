@@ -540,7 +540,7 @@ function runReconciliation() {
       imrViolations = require('./imr.js').checkImr(targetDir).violations;
     } catch (err) {
       logs.push({
-        file_path: 'docs/10-architecture/IMR-Registry.md',
+        file_path: 'docs/norm/IMR-Registry.md',
         check_type: 'imr',
         severity: 'low',
         message: `IMR-Check uebersprungen: ${err.message}`
@@ -692,7 +692,7 @@ function runReconciliation() {
     }
     if (coverage) {
       logs.push({
-        file_path: 'docs/00-foundation/Immutable-Law-Catalog.md',
+        file_path: 'docs/norm/Immutable-Law-Catalog.md',
         check_type: 'law_coverage',
         severity: 'info',
         message: `Abdeckung: ${coverage.covered}/${coverage.laws} A-Gesetze maschinell geprueft. Ohne Pruefung: ${coverage.uncovered.join(', ')}`
@@ -702,9 +702,9 @@ function runReconciliation() {
 
   // --- Terminologie-Check ("Ein Sachverhalt, ein Begriff", AGENTS.md 5.5) ---
   // Werkzeug: tools/terminology.js. Die Begriffsliste steht NICHT im Code, sondern
-  // in der Tabelle "Kanonische Begriffe" in docs/20-implementation/glossary.md --
+  // in der Tabelle "Kanonische Begriffe" in docs/norm/glossary.md --
   // sonst waere das Modul selbst die zweite Kopie des Kanons. Ausgenommen:
-  // 90-archive (eingefroren), DECISION-LOG (append-only), research/, das Glossar selbst.
+  // archive (eingefroren), DECISION-LOG (append-only), research/, das Glossar selbst.
   conformanceChecked += 1;
   {
     let termViolations = [];
@@ -735,7 +735,7 @@ function runReconciliation() {
 
   // --- ID-Check ("Ein Punkt, eine ID", ID-Register 2026-11-17) ---
   // Werkzeug: tools/id-register.js. Die Nummernkreise stehen NICHT im Code,
-  // sondern in docs/30-meta/ID-REGISTER.md. Geprueft werden: Aufloesbarkeit
+  // sondern in docs/meta/ID-REGISTER.md. Geprueft werden: Aufloesbarkeit
   // jeder B-Referenz, Verwendung ausgelaufener Praefixe (S/R/F/T/M) und die
   // Deckung des Registers gegen Law Catalog, Antipattern-Datei und Backlog.
   conformanceChecked += 1;
@@ -837,18 +837,18 @@ function runReconciliation() {
         // P5: Doku-Groessenwarnung (>400 Zeilen). Ausnahmen: DECISION-LOG
         // (append-only Chronik), generierte Code-Referenzen und die IMR-Registry
         // (normative SSOT des Fachmodells — darf nicht gesplittet werden).
-        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/30-meta/DECISION-LOG-2026-H1.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md', 'docs/00-foundation/din5008.md'];
+        const docSizeExempt = ['docs/meta/DECISION-LOG.md', 'docs/meta/DECISION-LOG-2026-H1.md', 'docs/norm/Code-Referenzen.md', 'docs/norm/IMR-Registry.md', 'docs/norm/din5008.md'];
         /* Bereits archivierte Dokumente sind von der Groessenregel ausgenommen:
-         * Die Regel fordert als Abhilfe genau den Umzug nach docs/90-archive/ —
+         * Die Regel fordert als Abhilfe genau den Umzug nach docs/archive/ —
          * sie dort weiter zu melden ist eine unerfuellbare Forderung (das Archiv
          * ist eingefroren und wird bewusst nicht nachtraeglich gesplittet). */
-        const isArchived = relPath.includes('90-archive/') || relPath.includes('audit/');
+        const isArchived = relPath.includes('archive/') || relPath.includes('audit/');
         if (zeilenZahl > 400 && !docSizeExempt.includes(relPath) && !isArchived) {
           logs.push({
             file_path: relPath,
             check_type: 'doc-size',
             severity: 'low',
-            message: `Doku-Datei hat ${zeilenZahl} Zeilen (>400). Aufteilen oder nach docs/90-archive/ verschieben (Ausnahme: DECISION-LOG).`
+            message: `Doku-Datei hat ${zeilenZahl} Zeilen (>400). Aufteilen oder nach docs/archive/ verschieben (Ausnahme: DECISION-LOG).`
           });
         }
 

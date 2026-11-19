@@ -16,7 +16,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const DATEI = join(ROOT, 'docs/30-meta/BACKLOG.md');
+const DATEI = join(ROOT, 'docs/meta/BACKLOG.md');
 const CHECK = process.argv.includes('--check');
 
 const text = readFileSync(DATEI, 'utf-8');

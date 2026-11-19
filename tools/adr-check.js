@@ -53,8 +53,8 @@ function parseCodeLinks(filePath) {
  * @returns {object}
  */
 function runAdrCheck() {
-  const cssAdrPath = path.join(REPO_ROOT, 'docs/10-architecture/ADR-CSS.md');
-  const jsAdrPath = path.join(REPO_ROOT, 'docs/10-architecture/ADR-JS.md');
+  const cssAdrPath = path.join(REPO_ROOT, 'docs/css/ADR-CSS.md');
+  const jsAdrPath = path.join(REPO_ROOT, 'docs/js/ADR-JS.md');
 
   // --- REGEL 1: 1:1-Bijektion code_links ↔ Dateisystem ---
   const cssCodeLinks = parseCodeLinks(cssAdrPath);
@@ -109,16 +109,24 @@ function runAdrCheck() {
   const regel3Ok = regel3CssOk && regel3JsOk;
 
   // --- REGEL 4: Verwaiste Assets ---
-  const adrDir = path.join(REPO_ROOT, 'docs/10-architecture');
-  const adrFiles = fs.existsSync(adrDir)
-    ? fs.readdirSync(adrDir).filter(f => f.startsWith('ADR-') && f.endsWith('.md')).sort()
-    : [];
+  const adrFiles = [];
+  function collectAdrs(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory() && ent.name !== 'archive') collectAdrs(full);
+      else if (ent.isFile() && ent.name.startsWith('ADR-') && ent.name.endsWith('.md')) adrFiles.push(full);
+    }
+  }
+  collectAdrs(path.join(REPO_ROOT, 'docs'));
+  adrFiles.sort();
   const fileRefRegex = /(?:`|"|\x27|\b)([a-zA-Z0-9_\-\.\/]+\.(?:css|js|json\.gz|svg))(?:`|"|\x27|\b)/g;
 
   const findings = [];
 
-  for (const file of adrFiles) {
-    const content = fs.readFileSync(path.join(adrDir, file), 'utf8');
+  for (const adrPath of adrFiles) {
+    const file = path.basename(adrPath);
+    const content = fs.readFileSync(adrPath, 'utf8');
     const lines = content.split(/\r?\n/);
     let inFence = false;
     let inAntipattern = false;

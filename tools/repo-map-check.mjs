@@ -14,7 +14,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const MAP_REL = 'docs/30-meta/AUFGABEN-WEGWEISER.md';
+const MAP_REL = 'docs/meta/AUFGABEN-WEGWEISER.md';
 const MAP = path.join(ROOT, MAP_REL);
 
 if (!existsSync(MAP)) {

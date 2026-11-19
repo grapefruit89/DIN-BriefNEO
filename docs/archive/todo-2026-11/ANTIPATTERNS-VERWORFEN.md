@@ -76,7 +76,7 @@ summary: "Kompakte Übersicht aller verworfenen Funktionen, Anti-Nuggets und Feh
 > **Wiederaufnahme-Regel:** Einen Eintrag erst prüfen, wenn sich die Grundlage
 > geändert hat (Chrome-Version, Projekt-Scope). Sonst: verworfen lassen.
 > Messwerte und Quellen der Punkte P1–P12 stehen ausführlich in
-> [`docs/90-archive/upstream-befund-2026-11-10.md`](../../90-archive/upstream-befund-2026-11-10.md).
+> [`docs/archive/upstream-befund-2026-11-10.md`](../upstream-befund-2026-11-10.md).
 
 | Was (Vorschlag / Idee) | Warum verworfen (Begründung) | Norm / Gesetz / Beleg |
 |---|---|---|
@@ -111,6 +111,6 @@ Empfehlung im Playbook (A49) betrifft Textareas, nicht dieses Dokument.
 
 ## 🔗 Verwandte Referenzen im Repository
 
-- **Maschinell erzwungene Gesetze:** [`/home/moritz/repos/DIN-BriefNEO/docs/00-foundation/Immutable-Law-Catalog.md`](../../00-foundation/Immutable-Law-Catalog.md)
-- **Historische Beschluss-Chronik:** [`/home/moritz/repos/DIN-BriefNEO/docs/30-meta/DECISION-LOG.md`](../../30-meta/DECISION-LOG.md)
-- **Zentrale Aufgaben & Roadmap:** [`/home/moritz/repos/DIN-BriefNEO/docs/90-archive/todo-2026-11/README.md`](README.md)
+- **Maschinell erzwungene Gesetze:** [`Immutable-Law-Catalog.md`](../../norm/Immutable-Law-Catalog.md)
+- **Historische Beschluss-Chronik:** [`DECISION-LOG.md`](../../meta/DECISION-LOG.md)
+- **Zentrale Aufgaben & Roadmap:** [`README.md`](README.md)

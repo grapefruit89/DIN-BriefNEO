@@ -23,9 +23,9 @@ const IGNORE_DIRS = ['.git', 'node_modules', 'venv', 'cache', '.agents', '.openc
 const STRIP_EXT = /\.(md|json|js|css|html|canvas|ya?ml)$/i;
 const PLACEHOLDER = /^(adr-x+$|adr-y+$|_template|\.{3}|…)$/i;
 const SCAN_SKIP = [
-  'docs/30-meta/DECISION-LOG.md',
-  'docs/30-meta/DECISION-LOG-2026-H1.md',
-  'docs/90-archive/CHANGELOG.md',
+  'docs/meta/DECISION-LOG.md',
+  'docs/meta/DECISION-LOG-2026-H1.md',
+  'docs/archive/CHANGELOG.md',
 ];
 
 const FM_KEYS = ['doc_links', 'code_links', 'depends_on'];
@@ -145,7 +145,7 @@ function checkLinks(targetDir) {
   for (const abs of allFiles) {
     const rel = path.relative(targetDir, abs).replace(/\\/g, '/');
     if (!rel.endsWith('.md')) continue;
-    if (rel.includes('90-archive/') || rel.includes('audit/') || SCAN_SKIP.includes(rel)) continue;
+    if (rel.includes('archive/') || rel.includes('audit/') || SCAN_SKIP.includes(rel)) continue;
 
     const content = fs.readFileSync(abs, 'utf8');
 

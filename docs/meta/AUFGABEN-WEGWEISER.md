@@ -43,13 +43,13 @@ Code; dann diesen Wegweiser korrigieren.
 | Zwischenablage-Parsing | `website/js/clipboard-parser.js` | `--filter=Clipboard` | test-runner |
 | Persistenz, Export/Import, Undo | `website/js/persistence.js`, `website/js/draft-manager.js`, `website/js/binary-storage.js` | `--filter="DraftManager|Import/Export|51-storage"` | beide |
 | Form A/B, Mehrseiten, Umbruch | `website/css/sheet.css`, `website/css/sheet-multipage.css`, `website/js/multipage-controller.js`, `website/js/settings.js` | `--filter="Layout|Scrollbars"` (nur indirekt) | beide |
-| Druck-/Layout-Bug (visuell) | `docs/10-architecture/ADR-MESS-SCHLEIFE.md`, `website/css/sheet-multipage.css`, `tools/print-messung.mjs` | `--filter=Druck`, `node tools/print-messung.mjs --saetze 42` | test-runner |
-| Prompt für eine Aufgabe schreiben | `docs/30-meta/PERFEKTER-PROMPT.md` (Pflichtfelder, Anti-Patterns) | — | — |
+| Druck-/Layout-Bug (visuell) | `docs/css/ADR-MESS-SCHLEIFE.md`, `website/css/sheet-multipage.css`, `tools/print-messung.mjs` | `--filter=Druck`, `node tools/print-messung.mjs --saetze 42` | test-runner |
+| Prompt für eine Aufgabe schreiben | `docs/meta/PERFEKTER-PROMPT.md` (Pflichtfelder, Anti-Patterns) | — | — |
 | Anrede, Grußformel, Stil | `website/js/salutation.js` | `--filter=Salutation` | test-runner |
 | Telefon/Datum/IBAN/Geld | `website/js/format.js` | `--filter=format` | test-runner |
 | Unterschrift, Stempel | `website/js/signature.js`, `website/css/sheet-common.css` | `--filter=Signature` | test-runner |
 | Schriften, Font-Upload | `website/js/font-feature.js`, `website/fonts/`, `fonts/subset_fonts.py` | `--filter=FontFeature` | test-runner |
-| Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/20-implementation/testbrief-generator.md` | `node tools/testbrief-messung.mjs` | Messgate |
+| Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/addons/testbrief-generator.md` | `node tools/testbrief-messung.mjs` | Messgate |
 | Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/testbrief-messung.mjs` | Messgate |
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
 | Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/boot-state.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
@@ -57,7 +57,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Messen am Bildschirm (ohne Bild) | `tools/mess.js` | MCP `evaluate_script` mit `sourcePath`, `format:"function"` | — |
 | Messen im Druck (ohne PDF) | `tools/mess-print.mjs` | `node tools/mess-print.mjs [url] [breite]` | — |
 | Antipattern-Regel, Gate | `tools/reconciliation.js`, `tools/antipatterns/project.json` | `node tools/reconciliation.js --only-rules` | beide |
-| contenteditable-Feld migrieren | `docs/10-architecture/ADR-CONTENTEDITABLE-MIGRATION.md` (13 Fallstricke), `website/js/field.js` | `--filter="Anlagen-Migration|Field"` | test-runner |
+| contenteditable-Feld migrieren | `docs/js/ADR-CONTENTEDITABLE-MIGRATION.md` (13 Fallstricke), `website/js/field.js` | `--filter="Anlagen-Migration|Field"` | test-runner |
 
 ## 1b. Immer zuerst: `din-dev`
 
@@ -156,12 +156,12 @@ Nie direkt aus dem DOM exportieren.
 - **Antipattern-Ratsche:** `max_violations` in `tools/antipatterns/*.json` ist ein
   Budget. Baseline nur **senken**, nie anheben, um grün zu werden.
 - **contenteditable-Migration:** Lies
-  `docs/10-architecture/ADR-CONTENTEDITABLE-MIGRATION.md` vor dem ersten Feld.
+  `docs/js/ADR-CONTENTEDITABLE-MIGRATION.md` vor dem ersten Feld.
   13 Fallstricke, die der Anlagen-Pilot aufgedeckt hat. Die Ratsche `P38` meldet
   jedes einzeilige `contenteditable` als `warning` (kein Gate, nur Sichtbarkeit).
 - **Tests filtern:** `node tools/test-runner.mjs --filter=<regex>` (Suite: 222 Fälle).
 - **Visuelle Bugs (Druck, Layout, Umbruch):** Lies
-  `docs/10-architecture/ADR-MESS-SCHLEIFE.md`. Heatmap als Prozess (wo ist der
+  `docs/css/ADR-MESS-SCHLEIFE.md`. Heatmap als Prozess (wo ist der
   Unterschied?), `pdftotext -bbox` in Millimetern als Messmethode, Wort-Kollision
   und Anker-Verschiebung als Diagnose, Mechanismus statt Symptom als Fix.
   Rot-Nachweis ist Pflicht. Die Print-Emulation liefert nur Hinweise, das PDF

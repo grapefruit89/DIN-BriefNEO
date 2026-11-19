@@ -24,22 +24,21 @@
 const fs = require('fs');
 const path = require('path');
 
-const REGISTER = 'docs/30-meta/ID-REGISTER.md';
-const BACKLOG = 'docs/30-meta/BACKLOG.md';
-const ARCHIV = 'docs/30-meta/BACKLOG-ARCHIV.md';
-const LAW_CATALOG = 'docs/00-foundation/Immutable-Law-Catalog.md';
+const REGISTER = 'docs/meta/ID-REGISTER.md';
+const BACKLOG = 'docs/meta/BACKLOG.md';
+const ARCHIV = 'docs/meta/BACKLOG-ARCHIV.md';
+const LAW_CATALOG = 'docs/norm/Immutable-Law-Catalog.md';
 const PROJECT_ANTIPATTERNS = 'tools/antipatterns/project.json';
 
 /** Lebende Dokumente: hier wird geprueft. */
 const SCAN_DIRS = ['docs', 'batch', 'skills'];
 /** Bewusst ungeprueft — Zeitdokumente und Quelle statt Fliesstext. */
 const EXCLUDED = [
-  'docs/90-archive/',
-  'docs/audit/',
-  'docs/30-meta/DECISION-LOG.md',
-  'docs/30-meta/DECISION-LOG-2026-H1.md',
-  'docs/30-meta/ID-REGISTER.md',
-  'docs/00-foundation/din5008.md', // wortgetreues Normzitat, enthaelt OCR-Artefakte
+  'docs/archive/',
+  'docs/meta/DECISION-LOG.md',
+  'docs/meta/DECISION-LOG-2026-H1.md',
+  'docs/meta/ID-REGISTER.md',
+  'docs/norm/din5008.md', // wortgetreues Normzitat, enthaelt OCR-Artefakte
   '.trash/',
   'Papierkorb/',
   'research/'

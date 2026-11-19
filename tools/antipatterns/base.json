@@ -2,7 +2,7 @@
   "version": "1.1.1",
   "layer": "base",
   "id_space": "JSON-IDs (B*/W*) bleiben. Normative IDs nur in catalog_ref.",
-  "description": "Übertragbare HARD-BAN-Sonden. Normative SSoT: docs/00-foundation/Immutable-Law-Catalog.md",
+  "description": "Übertragbare HARD-BAN-Sonden. Normative SSoT: docs/norm/Immutable-Law-Catalog.md",
   "rules": [
     {
       "id": "B2",

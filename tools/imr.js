@@ -2,7 +2,7 @@
 /**
  * tools/imr.js — IMR-Registry als maschinenlesbare SSOT.
  *
- * Liest docs/10-architecture/IMR-Registry.md (normatives Modell + JSON-Inventar),
+ * Liest docs/norm/IMR-Registry.md (normatives Modell + JSON-Inventar),
  * prueft die Registry-Invarianten und dass der Website-Code + die `data-*`-Geometrie
  * exakt der Registry entsprechen. Kein Dependency, kein Build-Step.
  *
@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const REGISTRY_REL = 'docs/10-architecture/IMR-Registry.md';
+const REGISTRY_REL = 'docs/norm/IMR-Registry.md';
 
 function readRegistry(targetDir) {
   const md = fs.readFileSync(path.join(targetDir, REGISTRY_REL), 'utf-8');

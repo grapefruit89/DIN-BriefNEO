@@ -40,7 +40,7 @@ supersedes: []
 
 *   **Grund:** Bessere Übersichtlichkeit, Vermeidung eines unlesbaren Riesen-Dokuments, hervorragende Maschinenlesbarkeit für LLMs.
 
-*   **Quelle:** Ordner [ADR/](../10-architecture/)
+*   **Quelle:** Ordner [ADRs/](../norm/)
 
 *   **Status:** Aktiviert
 
@@ -112,7 +112,7 @@ supersedes: []
 
 *   **Grund:** Ermöglicht die automatische, blitzschnelle Indexierung des gesamten Repositories für Obsidian-Notes und AI-LLM-Ingestion mit einem einzigen Lesevorgang.
 
-*   **Quelle:** [ADR/](../10-architecture/), `build/index.json` (generiertes Build-Artefakt)
+*   **Quelle:** [ADRs/](../norm/), `build/index.json` (generiertes Build-Artefakt)
 
 *   **Status:** Aktiviert
 

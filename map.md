@@ -18,7 +18,7 @@ summary: "Kanonische LLM-Map, Verzeichnis-Inventar und Task-to-File-Matrix für 
 | Verzeichnis | Zweck & Inhalt |
 | :--- | :--- |
 | [`website/`](website/) | Produktive Vanilla Web-App: HTML, CSS, JS-Module, `website/fonts/` (WOFF2) |
-| [`docs/`](docs/) | Dokumentation: Law Catalog, Architektur (`docs/10-architecture/`), Meta (`docs/30-meta/`) |
+| [`docs/`](docs/) | Doku gespiegelt: `docs/css/`, `docs/js/`, `docs/data/`, `docs/norm/`, `docs/meta/` |
 | [`tools/`](tools/) | CLI-Werkzeuge: Server (`start.sh`, `dev.sh`), Gates (`build_db.js`), Runner |
 | [`fonts/`](fonts/) | Rohschriften (`.ttf`) und Typografie-Pipeline ([`fonts/subset_fonts.py`](fonts/subset_fonts.py)) |
 | [`test/`](test/) | Test-Suite: Unit-Tests, Korpus-Gate (76/80), Chrome-Runner ([`test/all.js`](test/all.js)) |
@@ -51,8 +51,8 @@ summary: "Kanonische LLM-Map, Verzeichnis-Inventar und Task-to-File-Matrix für 
 
 | Schlüssel | Wert |
 | :--- | :--- |
-| **Höchste Autorität** | [`docs/00-foundation/Immutable-Law-Catalog.md`](docs/00-foundation/Immutable-Law-Catalog.md) |
-| **Vollständiger Wegweiser** | [`docs/30-meta/AUFGABEN-WEGWEISER.md`](docs/30-meta/AUFGABEN-WEGWEISER.md) |
+| **Höchste Autorität** | [`docs/norm/Immutable-Law-Catalog.md`](docs/norm/Immutable-Law-Catalog.md) |
+| **Vollständiger Wegweiser** | [`docs/meta/AUFGABEN-WEGWEISER.md`](docs/meta/AUFGABEN-WEGWEISER.md) |
 | **Lokaler Dev-Server / CDP** | Port `8088` (`./tools/start.sh`) · Chromium DevTools Port `9222` |
 | **Budget-Gates** | `AGENTS.md` ≤ 70 Z / 500 W · `map.md` ≤ 100 Z / 700 W / 5.500 B |
 | **Geschützter Mülleimer** | `.trash/` (Invariante von `build_db.js`, niemals löschen) |

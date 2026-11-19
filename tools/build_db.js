@@ -38,7 +38,7 @@ fs.mkdirSync(CACHE_DIR, { recursive: true });
 
 const standHelper = require('./structure-stand.js');
 
-const REPO_JSON_PATH = path.join(__dirname, '..', 'docs', '10-architecture', 'repository.json');
+const REPO_JSON_PATH = path.join(__dirname, '..', 'docs', 'norm', 'repository.json');
 
 /** @returns {{html?: any[], css?: any[], js?: any[], addons?: any[], data?: any[]}} */
 function ladeRepository() {
@@ -169,11 +169,14 @@ ${produktionscodeTabelle()}
 ## Dokumentation (\`docs/\`)
 | Ordner | Zweck |
 |---|---|
-| 00-foundation/ | Verfassung, Law Catalog, Longevity Guidelines, Spezifikation |
-| 10-architecture/ | Architektur-Entscheidungen (ADRs), IMR-Registry, Canvas |
-| 20-implementation/ | Praxis-Guides (Salutation, CSS, Geocoding, No-Scroll) & Glossar |
-| 30-meta/ | Arbeitsweise, Decision-Log, Backlog, Roadmap, Tooling-Übersicht |
-| 90-archive/ | Eingefrorene historische Artefakte & Reviews (nicht normativ) |
+| css/ | CSS-Architektur, Sheets, Geometrie, Multi-Page, No-Scroll |
+| js/ | JS-Module, State-Management, Salutation, Autocomplete |
+| data/ | Daten-Pipelines, PLZ- und Großkundendaten |
+| fonts/ | Typografie & DIN-5008 Schriften |
+| addons/ | Addon-Dokumentation & Erweiterungen |
+| norm/ | Verfassung, Law Catalog, Longevity Guidelines, Spezifikation, IMR |
+| meta/ | Arbeitsweise, Decision-Log, Backlog, Roadmap, Tooling-Übersicht |
+| archive/ | Eingefrorene historische Artefakte & Reviews (nicht normativ) |
 | audit/ | Zeitbezogene Sprint- und Review-Spezifikationen |
 
 ## Tests (\`test/\`)

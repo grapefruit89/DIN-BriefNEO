@@ -16,7 +16,7 @@ summary: "Verbindliche Agenten-Leitplanken, Verfassungs-Invarianten und Kern-Wor
 
 ## 1. Absolute Sicherheits- & Verfassungs-Invarianten
 
-1. **Höchste Autorität:** [`docs/00-foundation/Immutable-Law-Catalog.md`](docs/00-foundation/Immutable-Law-Catalog.md) steht über allem. Bei Konflikten gilt immer der Law Catalog.
+1. **Höchste Autorität:** [`docs/norm/Immutable-Law-Catalog.md`](docs/norm/Immutable-Law-Catalog.md) steht über allem. Bei Konflikten gilt immer der Law Catalog.
 2. **Vanilla Web & Zero-Build:** Ausschließlich reines HTML5, CSS (OKLCH, modern) und native ES-Module. **Kein Webpack, kein Vite, kein Babel, kein TypeScript, kein Runtime-Framework**.
 3. **Persistenz & Datenintegrität:** `localStorage` nur für Text-Entwürfe (`din_draft`); `IndexedDB` für Binär-Blobs. Kein Base64 in JS-Modulen (Law A64).
 4. **Verfassungsschutz:** `.trash/` ist eine geschützte Invariante und darf nicht gelöscht werden. `website/fonts/` enthält die produktiven `.woff2`-Dateien.
@@ -40,4 +40,4 @@ summary: "Verbindliche Agenten-Leitplanken, Verfassungs-Invarianten und Kern-Wor
 1. Vor der Bearbeitung: `map.md` prüfen und nur die zuständige Datei öffnen.
 2. Keine Annahmen bei Layout-Fragen: Visuelle Messungen per `tools/mess.js` oder `tools/print-messung.mjs` verifizieren.
 3. Vor jedem Abschluss / Commit: Pflichtlauf von `npm test` und `node tools/build_db.js`.
-4. Ausführliche Richtlinien, Historie und Rollen: Siehe [`docs/30-meta/AUFGABEN-WEGWEISER.md`](docs/30-meta/AUFGABEN-WEGWEISER.md) und [`docs/90-archive/AGENTS-LEGACY.md`](docs/90-archive/AGENTS-LEGACY.md).
+4. Ausführliche Richtlinien, Historie und Rollen: Siehe [`docs/meta/AUFGABEN-WEGWEISER.md`](docs/meta/AUFGABEN-WEGWEISER.md) und [`docs/archive/AGENTS-LEGACY.md`](docs/archive/AGENTS-LEGACY.md).

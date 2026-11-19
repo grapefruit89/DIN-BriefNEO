@@ -16,15 +16,14 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const GLOSSARY = 'docs/20-implementation/glossary.md';
+const GLOSSARY = 'docs/norm/glossary.md';
 
 /** Dateien, die bewusst ungeprueft bleiben. */
 const EXCLUDED = [
-  'docs/90-archive/',            // eingefroren (status: archived)
-  'docs/audit/',                 // Audit-Archiv (status: archived)
-  'docs/30-meta/DECISION-LOG.md',// append-only Chronik, Alteintraege sind Zeitdokumente
-  'docs/30-meta/DECISION-LOG-2026-H1.md', // ausgelagertes Archiv H1 2026
-  'docs/00-foundation/din5008.md', // wortgetreues Normzitat (DIN 5008) -- Quelle, kein Fliesstext von uns
+  'docs/archive/',               // eingefroren (status: archived)
+  'docs/meta/DECISION-LOG.md',   // append-only Chronik, Alteintraege sind Zeitdokumente
+  'docs/meta/DECISION-LOG-2026-H1.md', // ausgelagertes Archiv H1 2026
+  'docs/norm/din5008.md',        // wortgetreues Normzitat (DIN 5008) -- Quelle, kein Fliesstext von uns
   'research/',                   // Laborarchiv
   '.trash/',                     // Gelöschte/ausgemusterte Altlasten
   'Papierkorb/',

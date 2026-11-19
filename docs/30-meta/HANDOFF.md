@@ -145,3 +145,16 @@ DIN-BriefNEO/
      3. **Vollzugsnachweis & Testmetriken:** Konkrete Ergebnisse der Testläufe (Unit-Tests bestanden/gesamt, Adress-Korpus-Gate bestanden/known, Antipattern-Prüfung 36/36).
      4. **Fitness-Score:** Evolutionary Fitness Score via `node tools/build_db.js -q` (Soll: 100.0% clean).
      5. **Commit-Hash & Push-Bestätigung:** SHA-Hash des Git-Commits und Bestätigung des Pushes auf `main`.
+
+---
+
+## 7. Offene Vorhaben für Folge-Sessions (Next Tasks)
+
+1. **Die 4 bekannten Korpus-Fälle lösen (Salutation 76/80 → 80/80):**
+   - Datei: `website/js/salutation.js`
+   - Testfilter: `node tools/test-runner.mjs --filter=Salutation`
+   - Bekannte Fälle: `rev-sal-004` (Initialen Frau E. K. Meier), `rev-sal-007` (Bindestrich-Doppelname mit Adelstitel & Dr.), `sal-multi-001` (mehrere akademische Titel), `sal-casual-001` (legere Anrede bei Bindestrich-Name).
+
+2. **Doku-Warnungen bereinigen (Doc-Size > 400 Zeilen):**
+   - `docs/30-meta/BACKLOG.md`: Erledigte historische Einträge nach `BACKLOG-ARCHIV.md` überführen.
+   - `docs/30-meta/PERFEKTER-PROMPT.md`: Straffen oder in Teilmodule gliedern, um unter das 400-Zeilen-Limit zu fallen.

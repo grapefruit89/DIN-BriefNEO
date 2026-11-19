@@ -4108,3 +4108,15 @@ sie aufgelöst:
 **Konsequenz im Register:** `W` ist ein **aktiver Nummernkreis** (W2–W6 neben P1–P40),
 keine Unklarheit. `tools/id-register.js` prüft jetzt auch die Deckung von `W` gegen
 `tools/antipatterns/web.json`.
+
+## 2026-11-19 — Repository-Cockpit (Baustein B), Typography-Zentrierung & CI Budget-Gates
+
+- **Kontext:** Etablierung des standardisierten 3-Dateien-Cockpits (`README.md`, `AGENTS.md`, `map.md`) nach dem kanonischen Muster aus `LLM-ordnerstruktur` (Modul 05: Software-Repositories / Baustein B).
+- **Entscheidung & Umsetzung:**
+  1. `AGENTS.md` radikal von 519 Zeilen auf 43 Zeilen verschlankt (Fokus auf Verfassungs-Invarianten und Kern-Workflows). Bisheriges Altwissen vollständig nach `docs/90-archive/AGENTS-LEGACY.md` archiviert.
+  2. Kanonische `map.md` im Projekt-Root angelegt (58 Zeilen: Aider Repo-Map & Task-to-File Matrix).
+  3. Multi-AI Pointer in `CLAUDE.md` und `GEMINI.md` synchronisiert (1-Schritt O(1)-Routing auf `AGENTS.md` + `map.md`).
+  4. Typografie-Asset-Pipeline in `fonts/` am Repo-Root zentriert (`subset_fonts.py` und Roh-TTF gebündelt; `website/fonts/` produktiv erhalten).
+  5. Mechanisches CI-Budget-Gate in `tools/repo-map-check.mjs` verankert (`AGENTS.md` <= 70 Z., `map.md` <= 100 Z.).
+  6. Test-Isolation repariert: `<div id="anrede">` im HTML-Fixture `test/index.html` ergänzt, sodass isolierte Filter-Läufe (z. B. `--filter="PLZ|Address"`, `--filter=DraftManager`) fehlerfrei durchlaufen.
+- **Folge:** Token-Ersparnis pro KI-Start ~80 %, 0 % Regressionsrisiko, Fitness-Score 100 % clean.

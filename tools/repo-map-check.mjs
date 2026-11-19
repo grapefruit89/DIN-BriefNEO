@@ -46,6 +46,22 @@ for (const datei of module) {
   if (!text.includes(rel)) fehler.push(`NICHT ERWÄHNT: ${rel}`);
 }
 
+// 3) Cockpit Budget-Gates (Poka-Yoke: AGENTS.md <= 70 Zeilen, map.md <= 100 Zeilen)
+const agentsPath = path.join(ROOT, 'AGENTS.md');
+if (existsSync(agentsPath)) {
+  const lines = readFileSync(agentsPath, 'utf8').split('\n').length;
+  if (lines > 70) fehler.push(`BUDGET-OVERFLOW: AGENTS.md hat ${lines} Zeilen (Limit: 70).`);
+} else {
+  fehler.push('FEHLT: AGENTS.md im Projekt-Root.');
+}
+const mapPath = path.join(ROOT, 'map.md');
+if (existsSync(mapPath)) {
+  const lines = readFileSync(mapPath, 'utf8').split('\n').length;
+  if (lines > 100) fehler.push(`BUDGET-OVERFLOW: map.md hat ${lines} Zeilen (Limit: 100).`);
+} else {
+  fehler.push('FEHLT: map.md im Projekt-Root.');
+}
+
 if (fehler.length > 0) {
   for (const f of fehler) console.error(f);
   console.error(`\n❌ Wegweiser-Gate: ${fehler.length} Problem(e).`);

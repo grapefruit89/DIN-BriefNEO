@@ -105,8 +105,8 @@ Prüfen Funktionalität und Browser-Kompatibilität.
 * **`build_grosskunden_columnar.mjs`**
   * **Was es tut:** Kompiliert das Behörden- und Firmenverzeichnis nach `website/data/grosskunden.json.gz`.
 
-* **`subset_fonts.py`**
-  * **Was es tut:** Extrahiert den exakten DIN-5008-Zeichensatz (Anhang H/F) via `fontTools` in WOFF2-Dateien.
+* **`fonts/subset_fonts.py`**
+  * **Was es tut:** Extrahiert den exakten DIN-5008-Zeichensatz (Anhang H/F) via `fontTools` in WOFF2-Dateien (liegt in `fonts/`).
 
 ---
 

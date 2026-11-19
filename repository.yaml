@@ -112,6 +112,7 @@ taxonomy:
     - website
     - skills
     - tools
+    - fonts
     - test
     - specs
     - .github
@@ -125,6 +126,7 @@ taxonomy:
     - github
     - AGENTS.md
     - README.md
+    - map.md
     - CLAUDE.md
     - GEMINI.md
     - LICENSE
@@ -142,6 +144,7 @@ taxonomy:
     skills: Kanonische Agent-Skills & Workflow-Entscheidungslogik (SSoT)
     tools: Build/Gate/Tooling (Node, zero-dep)
     test: Zero-Dependency Unit-Tests
+    fonts: Typografie-Pipeline (subset_fonts.py) und Rohschriften
     specs: Full-Mode-Specs (spec.md/plan.md)
     build: generiert, gitignored
     .github: CI-Workflows

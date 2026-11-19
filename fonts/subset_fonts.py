@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-tools/subset_fonts.py — DIN 5008 Font-Subsetting & WOFF2-Optimierung
+fonts/subset_fonts.py — DIN 5008 Font-Subsetting & WOFF2-Optimierung
 
-Dampft TTF/OTF-Dateien aus Fonts/ mit dem lückenlosen DIN-5008-Zeichensatz
+Dampft TTF/OTF-Dateien aus fonts/ mit dem lückenlosen DIN-5008-Zeichensatz
 (Anhang H/F: Latein, Umlaute, ẞ, Sonderzeichen, tnum, Maße, Haken, Brüche)
 in extrem kompakte .woff2-Dateien nach website/fonts/ ein.
 """
@@ -12,7 +12,7 @@ import subprocess
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SRC_DIR = BASE_DIR / "Fonts"
+SRC_DIR = Path(__file__).resolve().parent
 DEST_DIR = BASE_DIR / "website" / "fonts"
 
 DEST_DIR.mkdir(parents=True, exist_ok=True)

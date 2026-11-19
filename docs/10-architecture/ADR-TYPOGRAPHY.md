@@ -18,7 +18,7 @@ doc_links:
   - ADR-BINARY-ASSETS
   - ADR-HTML
 code_links:
-  - tools/subset_fonts.py
+  - fonts/subset_fonts.py
   - website/css/base.css
   - website/js/settings.js
 error_patterns:
@@ -51,9 +51,9 @@ Durch gezieltes **DIN-5008-Subsetting** mit Brotli-Kompression (`.woff2`) wird d
 
 ### 1.3 Reproduzierbarkeit
 Die Pipeline ist vollständig automatisiert und deterministisch im Repository verankert:
-- **Werkzeug:** `tools/subset_fonts.py`
+- **Werkzeug:** `fonts/subset_fonts.py`
 - **Engine:** Python-Modul `fontTools.subset` (`sys.executable, "-m", "fontTools.subset"` mit `brotli`)
-- **Quell-Verzeichnis:** `Fonts/*.[to]tf`
+- **Quell-Verzeichnis:** `fonts/*.[to]tf`
 - **Ziel-Verzeichnis:** `website/fonts/*.woff2`
 
 ---

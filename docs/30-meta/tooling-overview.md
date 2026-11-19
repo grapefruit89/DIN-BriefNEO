@@ -19,7 +19,7 @@ code_links:
 - 'tools/check-feature.js'
 - 'tools/test-runner.mjs'
 - 'tools/build_plz_data.mjs'
-- 'tools/subset_fonts.py'
+- 'fonts/subset_fonts.py'
 depends_on: []
 supersedes: []
 ---
@@ -44,7 +44,7 @@ supersedes: []
 | **Gate & Governance** | `node tools/build_db.js -q` | Ruft `reconciliation.js` mit `structural-laws.js`, `terminology.js` und `structure-stand.js` auf. Berechnet den Fitness-Score und erzwingt Antipattern-Freiheit. |
 | **Test-Infrastruktur** | `node tools/test-runner.mjs` | Nutzt `static-server.mjs` und steuert Chromium via CDP (183 Unit-Tests). Gebündelt in `npm test` mit `node test/corpus/run.js` (80 Adress-Fälle). |
 | **Daten-Pipeline** | `node tools/build_plz_data.mjs` | Kompiliert Columnar-JSON-Daten nach `website/data/orte.json.gz` & `website/data/grosskunden.json.gz` (Data-as-Code). |
-| **Typografie-Asset-Pipeline** | `tools/subset_fonts.py` | DIN-5008 WOFF2 Subsetting via `fontTools` (Anhang H/F: tnum, Umlaute, ẞ, Brüche, Sonderzeichen). |
+| **Typografie-Asset-Pipeline** | `fonts/subset_fonts.py` | DIN-5008 WOFF2 Subsetting via `fontTools` (Anhang H/F: tnum, Umlaute, ẞ, Brüche, Sonderzeichen). |
 | **ID-Gate** | `node tools/build_db.js -q` | `tools/id-register.js` prüft jeden `B`-Verweis gegen Backlog und Archiv, verbietet ausgelaufene Präfixe (`S`, `R`, `F`, `T`, `M`) und gleicht die Bereiche in [[ID-REGISTER]] gegen Law Catalog, `project.json` und Backlog ab. |
 
 ## repository.json (docs/10-architecture/)
@@ -165,8 +165,8 @@ Zero-Dependency, nutzt `tools/static-server.mjs` und `tools/browser.mjs`.
 
 ## subset_fonts.py
 
-- **Zweck**: Typografie-Asset-Pipeline (`tools/subset_fonts.py`). DIN-5008 WOFF2 Subsetting via `fontTools`. Extrahiert den lückenlosen DIN-5008-Zeichensatz (Anhang H/F: Latein, Umlaute, ẞ, tnum, Maße, Brüche, Sonderzeichen) aus Rohschriftarten nach `website/fonts/`.
-- **Input**: `Fonts/*.ttf`, `Fonts/*.otf`.
+- **Zweck**: Typografie-Asset-Pipeline (`fonts/subset_fonts.py`). DIN-5008 WOFF2 Subsetting via `fontTools`. Extrahiert den lückenlosen DIN-5008-Zeichensatz (Anhang H/F: Latein, Umlaute, ẞ, tnum, Maße, Brüche, Sonderzeichen) aus Rohschriftarten nach `website/fonts/`.
+- **Input**: `fonts/*.ttf`, `fonts/*.otf`.
 - **Output**: Hochgradig optimierte `.woff2`-Dateien in `website/fonts/`.
 - **Abhängigkeiten**: Python 3, `fontTools` / `brotli`.
 - **Aufrufer**: Manuell bei Schriftart-Aktualisierungen.

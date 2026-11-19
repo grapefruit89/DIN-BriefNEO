@@ -22,10 +22,10 @@ depends_on: []
 **DIN-BriefNEO** — browserbasierter Geschäftsbriefeditor nach **DIN 5008:2020-03**.  
 Vanilla HTML/CSS/JS, keine Abhängigkeiten, kein Build-Schritt.
 
-## Verbindlicher Leitfaden
+## Verbindlicher Leitfaden (1-Schritt O(1)-Routing)
 
-Alle Verhaltensregeln, Workflows, Qualitäts-Gates und Architekturvorgaben sind zentral und verbindlich in **[[AGENTS]]** definiert.  
-Alle Gesetze, Verbote und MUST-USE-Regeln sind in **[[Immutable-Law-Catalog]]** verankert.
+1. Vor jeder Aktion zuerst **[[AGENTS]]** (Verhalten, No-Go's, Budget-Gates) und [`map.md`](map.md) (Aider Repo-Map & Task-to-File Matrix) lesen.
+2. Alle Gesetze, Verbote und MUST-USE-Regeln sind in **[[Immutable-Law-Catalog]]** verankert.
 
 ## Start & Verifikation
 

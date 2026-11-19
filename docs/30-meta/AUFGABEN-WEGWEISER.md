@@ -25,6 +25,10 @@ depends_on: []
 
 # Aufgaben-Wegweiser
 
+> 🧭 **Kompakter Einstieg (Root-Cockpit):**  
+> Für den sofortigen O(1)-Sprung bei Standard-Aufgaben existiert die schlanke [`map.md`](../../map.md) im Projekt-Root (≤ 100 Zeilen).  
+> Dieses Dokument dient als vollständige, tiefgehende Referenz für alle Spezialaufgaben.
+
 **Zweck:** Ein Agent soll für eine typische Aufgabe nach **1–2 Tool-Calls** die
 richtige Datei offen haben. Diese Datei ordnet Absicht zu — keinen Dateibaum,
 keine Modulbeschreibung (das leistet [[STRUCTURE]]). Bei Widerspruch gilt der
@@ -44,7 +48,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Anrede, Grußformel, Stil | `website/js/salutation.js` | `--filter=Salutation` | test-runner |
 | Telefon/Datum/IBAN/Geld | `website/js/format.js` | `--filter=format` | test-runner |
 | Unterschrift, Stempel | `website/js/signature.js`, `website/css/sheet-common.css` | `--filter=Signature` | test-runner |
-| Schriften, Font-Upload | `website/js/font-feature.js`, `website/fonts/`, `tools/subset_fonts.py` | `--filter=FontFeature` | test-runner |
+| Schriften, Font-Upload | `website/js/font-feature.js`, `website/fonts/`, `fonts/subset_fonts.py` | `--filter=FontFeature` | test-runner |
 | Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/20-implementation/testbrief-generator.md` | `node tools/testbrief-messung.mjs` | Messgate |
 | Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/testbrief-messung.mjs` | Messgate |
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
@@ -147,7 +151,7 @@ Nie direkt aus dem DOM exportieren.
 - **Kein `new Date()`, kein `Date.now()`.** Nur `Temporal` mit `Europe/Berlin` (A48/A50).
 - **Keine Demo- oder Beispielknöpfe.** Testbrief- und Mehrseiten-Plugin bleiben
   standardmäßig aktiv.
-- **Schriften nur über `tools/subset_fonts.py`** aus dem gitignorierten `Fonts/`.
+- **Schriften nur über `fonts/subset_fonts.py`** aus dem gitignorierten `fonts/`.
   Kein manuelles Kopieren nach `website/fonts/`.
 - **Antipattern-Ratsche:** `max_violations` in `tools/antipatterns/*.json` ist ein
   Budget. Baseline nur **senken**, nie anheben, um grün zu werden.

@@ -111,7 +111,7 @@ deshalb muss der Ordner beim Deploy mitgehen.
 ## 4a. Build-Zeit (nicht Laufzeit)
 
 `tools/` enthält Build-Zeit-Skripte; nichts davon läuft im Browser.
-Font-Subsetting: `tools/subset_fonts.py` dampft Roh-TTF/OTF aus `Fonts/` in DIN-5008-konforme `.woff2` nach `website/fonts/` ein (siehe [[ADR-TYPOGRAPHY]]).
+Font-Subsetting: `fonts/subset_fonts.py` dampft Roh-TTF/OTF aus `fonts/` in DIN-5008-konforme `.woff2` nach `website/fonts/` ein (siehe [[ADR-TYPOGRAPHY]]).
 Datenquelle der Adressdaten: `tools/build_plz_data.mjs` schreibt `data/orte.json.gz` (Columnar, wertebasiert). `data/grosskunden.json.gz` bündelt alle Firmen und Bundesbehörden. Gate, Isolation, Links und IMR liegen ebenfalls dort — Einzeleinträge in [[STRUCTURE]].
 
 ## 4b. Tests (nur lokal)

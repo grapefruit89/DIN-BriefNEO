@@ -66,7 +66,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B51** | Design-Tokens in `sidebar.css` durchziehen | M | ⭐⭐ |
 | **B52** | Plugin-Punkt für `website/addons/` | L | ⭐⭐ |
 | **B58** | Gzip/Minify als Abschluss-Option | S | ⭐ |
-| **B59** | Kaskade über `@layer` statt `!important` | M | ⭐⭐ |
+| **B59** | Kaskade über `@layer` statt `!important` | M | ⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
 | **B80** | Export als `.txt` und `.md` | S | ⭐⭐ |
 | **B81** | Multi-Tab: das Restrisiko benennen oder abschaffen | S | ⭐ |
@@ -130,13 +130,13 @@ wäre Cache-Busting per Hash. Entscheidung: bleibt offen bis zum Abschluss;
 dann als eigenes Experiment messen (LCP/FCP vorher/nachher), nicht als
 Voraussetzung für die Architekturarbeit.
 
-### B59 · Kaskade über `@layer` statt `!important` · **M** · ⭐⭐
-**Ist-Zustand (gemessen 2026-11-15):** 92 `!important` (55 Druck, 37 außerhalb) über 4 CSS-Dateien (`sheet-multipage.css`: 63, `base.css`: 25, `sidebar.css`: 3, `sheet-common.css`: 1), 295 ID-Selektoren, 0 `@layer`.
+### B59 · Kaskade über `@layer` statt `!important` · **M** · ⭐
+**Status (2026-11-20):** Dauerhaft eingefroren / Keine Umsetzung (Architektur-Entscheidung nach `ADR-KISS-MINIMAL-JS`).
 
-**Vollständiger Plan, Messprotokoll und Abbruchkriterium:** [[B59-LAYER-PLAN]].
-- **Vorprobe 2026-11-15:** Zwei Umbauten getestet. Erfolgreich: `#viewport` (Bildschirm) in `@layer screen`, 2 `!important` entfernt, 0 Pixel Diff. Gescheitert: `#kern` (Druck) ohne `!important` (2.871.046 Pixel Abweichung durch `@scope (din-blatt) #kern`).
-- **Reihenfolge:** Erst `base.css` und die Bildschirm-Sperre in Schichten legen, dann können Druck-`!important` fallen.
-- **Vorbedingung:** Pro Etappe PDF-Pixel (0 Diff) und Geometrie-Dump messen. `!important` gegen Inline-Styles und prefers-reduced-motion bleiben bestehen.
+Die verbleibenden 90 `!important` sind kein „Hinterhof-Hack“, sondern eine bewusste, absolut robuste **Medien-Firewall** zwischen interaktivem Bildschirm (Flexbox, Mehrspalten-Karussell, Zoom) und A4-Druck (feste DIN-5008-Geometrie).
+- **Warum kein `@layer`:** CSS Cascade L5 kehrt `!important` in Schichten um (frühe Layer schlagen spätere Layer). Zusammen mit der Scoping-Nähe von `@scope` (Grund für den 2,8-Millionen-Pixel-Crash in Test 2) und dynamischen `@page`-Margin-Boxen (`multipage-controller.js`) birgt ein Umbau extreme Regressionsrisiken bei exakt **0 Pixel Mehrwert** für den Nutzer (reines Overengineering).
+- **Bestand:** 35 echte Duplikate wurden in B88 bereits eliminiert. Die verbleibenden 90 sind unvermeidbare Barrieren (Print-Isolation, FOUC-Schutz, `prefers-reduced-motion`, `[hidden]`, `#spacer`).
+- **Details:** [[B59-LAYER-PLAN]].
 
 ### B93 · `targetLock` wird viermal geleert — Redundanz **nicht** bewiesen · **S** · ⭐
 **Herkunft:** Batch 05 (`fakten.md` §2, gemessen 2026-11-15). **Zurückgestuft**

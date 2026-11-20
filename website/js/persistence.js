@@ -673,7 +673,6 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
       const writable = await handle.createWritable();
       await writable.write(jsonContent);
       await writable.close();
-      notify(Constants.TOASTS.DRAFT.EXPORT_SAVED, 'info');
       return true;
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
@@ -692,7 +691,6 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
     anchor.download = fullName;
     anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    notify(Constants.TOASTS.DRAFT.EXPORT_DOWNLOADED, 'info');
     return true;
   } catch (err) {
     console.error('[Export] Download fehlgeschlagen:', err);
@@ -828,12 +826,21 @@ export function initImportExport({ collectDraft, applyImport = null } = {}) {
   exportBtn.addEventListener('click', handleExport);
 
   if (copyBtn) {
+    /* Erfolgs-Feedback bleibt am Button statt als Toast: 2 s „✓ Kopiert",
+       danach der Originaltext. Der Text steht im HTML, nicht im JS. */
+    const kopierText = copyBtn.textContent;
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    let kopierTimer;
     copyBtn.addEventListener('click', async () => {
       try {
         const payload = buildDINLetterJSON(collectDraft);
         const jsonContent = JSON.stringify(payload, null, 2);
         await navigator.clipboard.writeText(jsonContent);
-        notify(Constants.TOASTS.DRAFT.EXPORT_CLIPBOARD, 'info');
+        copyBtn.textContent = '✓ Kopiert';
+        clearTimeout(kopierTimer);
+        kopierTimer = setTimeout(() => {
+          copyBtn.textContent = kopierText;
+        }, 2000);
       } catch (err) {
         console.error('[Export] Kopieren in Zwischenablage fehlgeschlagen:', err);
         notify(Constants.TOASTS.DRAFT.EXPORT_ERROR, 'error');

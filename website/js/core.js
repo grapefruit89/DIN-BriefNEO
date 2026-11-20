@@ -23,11 +23,11 @@ export const Constants = {
   },
   SCHEMA_VERSION: 5,
   TOASTS: {
+    /* Nur Fehler und Warnungen. Erfolgs-, Download- und Belehrungs-Toasts sind
+       bewusst gestrichen (Option A: Minimal-Toast) — das UI zeigt Erfolg dort,
+       wo er passiert (Button-Text, Feld-Puls, Statuszeile). */
     DRAFT: {
       MULTI_TAB: 'ℹ️ Der Brief wurde in einem anderen Tab aktualisiert.',
-      EXPORT_SAVED: '💾 Brief erfolgreich gespeichert.',
-      EXPORT_DOWNLOADED: '💾 Brief heruntergeladen.',
-      EXPORT_CLIPBOARD: '📋 Brief-JSON in die Zwischenablage kopiert.',
       EXPORT_ERROR: '❌ Fehler beim Exportieren.',
       IMPORT_SIZE_ERROR: '❌ Import abgelehnt: Datei zu groß (max. 1 MB).',
       /** @param {string} reason @returns {string} */
@@ -43,30 +43,17 @@ export const Constants = {
       SAVE_ERROR: '❌ Signaturbild konnte nicht dauerhaft gespeichert werden',
       DECODE_ERROR: '❌ Bild nicht lesbar — bitte PNG, JPG oder WebP verwenden'
     },
-    ADDRESS: {
-      /** @param {string} name @returns {string} */
-      GROSSKUNDE_RECOGNIZED: (name) => `🏛️ Großempfänger erkannt: ${name} (Straße entfällt nach DIN 5008)`
-    },
     CLIPBOARD: {
-      /** @param {string} label @param {string} ort @returns {string} */
-      APPLIED: (label, ort) => `📋 Adresse übernommen: ${label} (${ort})`,
       UNSUPPORTED: '⚠️ Zwischenablage-Zugriff wird von diesem Browser nicht unterstützt.',
       EMPTY: '⚠️ Die Zwischenablage ist leer.',
       NO_ADDRESS: '⚠️ Keine gültige Anschrift in der Zwischenablage gefunden.',
-      /** @param {number} n @returns {string} */
-      MULTIPLE: (n) => `⚠️ ${n} Adressen gefunden. Bitte Auswahlliste nutzen oder Anschrift manuell einfügen.`,
       PERMISSION_DENIED: '⚠️ Zugriff auf die Zwischenablage verweigert oder blockiert.'
     },
     GEOAPIFY: {
-      KEY_INVALID: '❌ Geoapify Key ungültig',
       KEY_EXPIRED: '❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.',
       /** @param {number | string} status @returns {string} */
       UNAVAILABLE: (status) => `⚠️ Geoapify vorübergehend nicht erreichbar (Status ${status}).`,
       NETWORK_ERROR: '⚠️ Geoapify-Suche fehlgeschlagen (Netzwerk?). Der Key bleibt erhalten.'
-    },
-    SALUTATION: {
-      PUNCTUATION: '⚠️ Anrede sollte mit einem Komma enden (DIN 5008)',
-      CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)'
     },
     SYSTEM: {
       SAVE_ERROR: '❌ Fehler beim Speichern!'
@@ -236,7 +223,7 @@ export function showToast(message, type = 'info') {
 /**
  * Publiziert eine Toast-Benachrichtigung zentral über den EventBus.
  * @param {string} message
- * @param {'info' | 'warning' | 'error' | 'success'} [type='info']
+ * @param {'info' | 'warning' | 'error'} [type='info']
  */
 export function notify(message, type = 'info') {
   eventBus.publish(Events.NOTIFICATION_REQUESTED, { message, type });

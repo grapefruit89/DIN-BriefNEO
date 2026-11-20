@@ -13,7 +13,7 @@
 //     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
-import { Constants, Events, eventBus } from './core.js';
+import { Events, eventBus } from './core.js';
 import { Field } from './field.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { letterState, setMeta, unsetMeta } from './state.js';
@@ -209,7 +209,6 @@ export class SalutationFeature {
           unsetMeta(letterState, kind, 'userSet');
         }
       });
-      el.addEventListener('blur', () => this.#hint(kind, el));
     }
 
     /* Reset und Undo/Redo melden sich als DOCUMENT_CHANGED. Ein eigener
@@ -319,20 +318,5 @@ export class SalutationFeature {
     applyValue(kind, value, 'logic');
     unsetMeta(letterState, kind, 'userSet');
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
-  }
-
-  /**
-   * DIN-5008-Hinweis nur für selbst getippten Text.
-   * @param {'anrede' | 'grussformel'} kind
-   * @param {HTMLElement} el
-   */
-  #hint(kind, el) {
-    const text = Field.getValue(el).trim();
-    if (!text || text === this.#auto[kind]) return;
-    if (kind === 'anrede' && !text.endsWith(',')) {
-      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION.PUNCTUATION, type: 'warning' });
-    } else if (kind === 'grussformel' && /[,.]$/.test(text)) {
-      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION.CLOSING_PUNCTUATION, type: 'warning' });
-    }
   }
 }

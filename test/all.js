@@ -2685,10 +2685,13 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
       return getComputedStyle(el).getPropertyValue('--hinweis-dauer').trim();
     };
     assertEqual(dauer('info'), '4000ms', 'Info: 4 s');
-    assertEqual(dauer('success'), '4000ms', 'Erfolg: 4 s');
     assertEqual(dauer('warning'), '5000ms', 'Warnung: 5 s');
     assertEqual(dauer('error'), '6000ms', 'Fehler: 6 s');
     delete el.dataset.type;
+    /* Option A (2026-11-20): Toasts nur noch Fehler/Warnungen — der Typ
+       `success` hat keine CSS-Regel und keine Dauer mehr. */
+    const sidebar = await (await fetch('/website/css/sidebar.css')).text();
+    assert(sidebar.includes('[data-type="success"]') === false, 'kein success-Typ im Toast-CSS');
     const js = await (await fetch('/website/js/core.js')).text();
     assert(js.includes('setzeLebensdauer') === false, 'keine Dauerberechnung im JS');
     assert(js.includes("style.setProperty('--hinweis-dauer'") === false, 'kein Inline-Schreiben der Dauer');

@@ -106,10 +106,8 @@ export class FontFeature {
         if (!this.systemFonts.has(font.family)) this.systemFonts.set(font.family, font);
       }
       this.#baueSystemOptionen();
-      notify(`${this.systemFonts.size} Systemschriften gefunden.`, 'info');
     } catch (e) {
       console.warn('[FontFeature] Systemschriften nicht verfügbar:', e);
-      notify('Systemschriften wurden nicht freigegeben.', 'error');
     } finally {
       if (btn) btn.disabled = false;
     }

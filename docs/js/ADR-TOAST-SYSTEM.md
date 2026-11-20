@@ -63,7 +63,7 @@ depends_on: []
 
 ### Kommunikationsvertrag
 
-Das Toast-System konsumiert `dinbrief:notification.requested`. Publisher übergeben die Meldung als Event-Payload mit dem vereinbarten Nachrichtentext und Meldungslevel (`type`: `'info' | 'success' | 'warning' | 'error'`).
+Das Toast-System konsumiert `dinbrief:notification.requested`. Publisher übergeben die Meldung als Event-Payload mit dem vereinbarten Nachrichtentext und Meldungslevel (`type`: `'info' | 'warning' | 'error'`).
 
 Der EventBus ist für den Transport zuständig. Das Toast-System bleibt für Validierung, Deduplizierung, Lebenszyklus, Anzeige und Barrierefreiheit verantwortlich.
 
@@ -97,39 +97,30 @@ Alle registrierten System-Benachrichtigungen mit exakten Wording-Strings und Lev
 
 ### Toast-Level & Styling
 
-Alle Toasts verwenden native CSS-Transitions (`@starting-style`) und definieren ihre Farbakzente über die Semantik-Klasse `.type-{level}`.
+Alle Toasts verwenden native CSS-Transitions (`@starting-style`). Farbe und Lebensdauer hängen am `data-type` des Containers `#hinweis-v4`.
 
-| Level | CSS Klasse | Accent Color | Einsatzgebiet |
+| Level | Selektor | Accent Color | Einsatzgebiet |
 | :--- | :--- | :--- | :--- |
-| **Info** | `.type-info` | `var(--c-primary)` | Neutrale System-Hinweise (Standard). |
-| **Success** | `.type-success` | `var(--c-success)` | Erfolgreiche Aktionen (Speichern, Key validiert). |
-| **Warning** | `.type-warning` | `var(--c-warning)` | Nicht-kritische Fehler (z.B. API Limit erreicht). |
-| **Error** | `.type-error` | `var(--c-danger)` | Kritische Systemfehler (API Key ungültig). |
+| **Info** | `[data-type="info"]` | `var(--c-primary)` | Seltene System-Hinweise (Standard, z. B. Multi-Tab). |
+| **Warning** | `[data-type="warning"]` | `var(--c-warning)` | Nicht-kritische Fehler (leere Zwischenablage, API-Limit). |
+| **Error** | `[data-type="error"]` | `var(--c-danger)` | Kritische Systemfehler (Import, Speichern, API-Key). |
+
+> [!IMPORTANT]
+> **Option A: Minimal-Toast (2026-11-20).** Ein Toast ist ausschließlich für Fehler und Warnungen da.
+> Erfolgs-, Download- und Belehrungs-Toasts sind gestrichen: Erfolg zeigt das UI dort, wo er passiert
+> (Button-Text wie „✓ Kopiert", Feld-Puls `.field-highlight`, Statuszeile `#geoapify-status`).
+> Der Typ `success` existiert nicht mehr.
 
 ---
 
-### 💾 Storage & Persistence
+### Verbleibende Meldungen (`Constants.TOASTS`)
 
-- **Draft gesichert:** `💾 Entwurf automatisch gespeichert` (Level: `info`)
-- **Manuell gesichert:** `💾 Entwurf gespeichert` (Level: `success`)
-- **Reset:** `🗑️ Alle Eingaben gelöscht` (Level: `warning`)
-
-### 🔑 Geoapify & Address API
-
-- **Key gültig:** `🔑 Geoapify Key gültig!` (Level: `success`)
-- **Key ungültig:** `❌ Geoapify Key ungültig` (Level: `error`)
-- **Key Error:** `❌ Fehler bei der Key-Validierung` (Level: `error`)
-- **API Offline/Limit:** `❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.` (Level: `error`)
-- **Adresse übernommen:** `Adresse übernommen & gespeichert` (Level: `success`)
-
-### 🔤 Font Manager
-
-- **Upload erfolgreich:** `Font erfolgreich geladen` (Level: `success`)
-- **Upload Fehler:** `Fehler beim Lesen der Schriftart` (Level: `error`)
-
-### ⚙️ Healthcheck / Diagnostics
-
-- **Plausibility Error:** Dynamisch generiert mit dem betroffenen DOM-Element, z.B. `[Architektur-Warnung] Element #xyz fehlt!` (Level: `warning`)
+- **Draft:** Multi-Tab-Hinweis, Export-Fehler, Import zu groß / abgelehnt / nicht speicherbar.
+- **Font:** falsches Format, Datei zu groß, Speichern fehlgeschlagen.
+- **Signature:** Bild nicht lesbar, Speichern fehlgeschlagen.
+- **Clipboard:** nicht unterstützt, leer, keine Anschrift gefunden, Zugriff verweigert.
+- **Geoapify:** Key abgelaufen, API nicht erreichbar, Netzwerkfehler.
+- **System:** `SAVE_ERROR` als Fallback für `DOCUMENT_SAVE_FAILED`.
 
 ## Umsetzung (Wie)
 

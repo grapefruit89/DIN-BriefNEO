@@ -511,13 +511,8 @@ export class ClipboardAddressParser {
       f.addEventListener('animationend', () => f.classList.remove('field-highlight'), { once: true });
     }
 
-    const label = candidate.firma || candidate.name || candidate.strasse;
-    if (candidate.ortMismatch && candidate.canonicalOrt) {
-      notify(`⚠️ Anschrift übernommen: PLZ ${candidate.plz} gehört laut Verzeichnis zu ${candidate.canonicalOrt}.`, 'warning');
-    } else {
-      const toastMsg = Constants.TOASTS.CLIPBOARD.APPLIED(label, candidate.ort);
-      notify(toastMsg, 'success');
-    }
+    /* Kein Toast: das Feedback ist der Puls auf den vier Feldern oben
+       (`field-highlight`) — er zeigt genau, wohin die Anschrift ging. */
   }
 
   /**
@@ -603,8 +598,6 @@ export class ClipboardAddressParser {
         bindListSelection(popover, candidates, selectCandidate);
 
         showPopoverSafe(popover);
-      } else {
-        notify(Constants.TOASTS.CLIPBOARD.MULTIPLE(candidates.length), 'warning');
       }
     } catch (err) {
       console.warn('[Clipboard] Lesefehler:', err);

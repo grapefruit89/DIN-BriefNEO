@@ -1011,7 +1011,6 @@ input[type="checkbox"][switch] {
 #hinweis-v4[data-type="warning"] { --hinweis-dauer: 5000ms; }
 #hinweis-v4[data-type="error"]   { --hinweis-dauer: 6000ms; }
 
-#hinweis-v4[data-type="success"] { border-left: var(--space-xs) solid var(--c-success); }
 #hinweis-v4[data-type="error"]   { border-left: var(--space-xs) solid var(--c-danger); }
 #hinweis-v4[data-type="info"]    { border-left: var(--space-xs) solid var(--c-primary); }
 #hinweis-v4[data-type="warning"] { border-left: var(--space-xs) solid var(--c-warning); }

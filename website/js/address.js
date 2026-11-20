@@ -244,15 +244,6 @@ AddressIntelligence.wireDOM = function wireDOM() {
       const plz = plzMatch[1];
       const res = AddressIntelligence.lookupPlz(plz);
       if (res && !userEditing) {
-        // Plausibilitäts-Check: Passt PLZ zu vorher gewähltem Ort?
-        if (AddressIntelligence.targetLock?.city) {
-          const allowedPlzs = AddressIntelligence.ortIndex.get(AddressIntelligence.targetLock.city) || [];
-          if (allowedPlzs.length > 0 && !allowedPlzs.includes(plz)) {
-            const warn = `PLZ ${plz} gehört nicht zu ${AddressIntelligence.targetLock.city} – meinten Sie ${res.city}?`;
-            notify(warn, 'warning');
-          }
-        }
-
         const completed = `${res.plz} ${res.city}`;
         applyValue('empfaenger-ort', completed, 'auto');
 
@@ -266,8 +257,6 @@ AddressIntelligence.wireDOM = function wireDOM() {
           if (empfStrasseEl && !Field.getValue(empfStrasseEl).trim()) {
             empfStrasseEl.setAttribute('data-placeholder', '(Großempfänger – Straße entfällt)');
           }
-          const toastMsg = Constants.TOASTS.ADDRESS.GROSSKUNDE_RECOGNIZED(res.grosskunde.name);
-          notify(toastMsg, 'info');
         }
 
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
@@ -841,7 +830,7 @@ export function initAddressServices() {
     setGeoapifyState('', '');
   } else {
     setGeoapifyState('valid', '✓ Key aktiv und gespeichert.');
-    validateKeyWithHeartbeat(savedKey, { isInitial: true });
+    validateKeyWithHeartbeat(savedKey);
   }
 
   // Key input handler with Heartbeat Validation
@@ -868,9 +857,8 @@ export function initAddressServices() {
 
   /**
    * @param {string} key
-   * @param {{ isInitial?: boolean }} [options]
    */
-  async function validateKeyWithHeartbeat(key, { isInitial = false } = {}) {
+  async function validateKeyWithHeartbeat(key) {
     if (!key) {
       save(STORAGE_KEYS.geoapifyKey, '');
       setGeoapifyState('', '');
@@ -890,9 +878,6 @@ export function initAddressServices() {
       } else if (res.status === 401 || res.status === 403) {
         save(STORAGE_KEYS.geoapifyKey, '');
         setGeoapifyState('invalid', '✗ Key ungültig (401/403).');
-        if (!isInitial) {
-          notify(Constants.TOASTS.GEOAPIFY.KEY_INVALID, 'error');
-        }
       } else {
         // 429/5xx: Server vorübergehend nicht bereit -> Key behalten
         save(STORAGE_KEYS.geoapifyKey, key);

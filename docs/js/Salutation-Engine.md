@@ -87,17 +87,17 @@ Die Engine deckt über 90 % der Geschäftskorrespondenz mit drei abgestimmten, h
 
 ## 📐 DIN-5008-Zeichensetzung & Validierung
 
-Die Engine überwacht die normgerechte Zeichensetzung automatisch bei Verlassen (`blur`) manuell editierter Felder:
+Die Engine kennt die normgerechte Zeichensetzung, erzwingt sie aber nicht per Hinweis-Dialog: Beim Verlassen (`blur`) eines manuell editierten Feldes wird **kein Toast** ausgelöst (Option A: Minimal-Toast, 2026-11-20). Der Text bleibt, wie der Nutzer ihn getippt hat.
 
 1. **Anrede:**
    - **Muss mit Komma enden:** `Sehr geehrte Frau Schmidt,`
    - **Regel:** Der nachfolgende Fließtext startet mit 1 Leerzeile Abstand und beginnt **kleingeschrieben** (Ausnahme: Substantive oder Höflichkeitsanrede *Sie/Ihr*).
-   - **Validierung:** Fehlt das Komma, meldet das System eine dezent warnende Toast-Notification (`Constants.TOASTS.SALUTATION_PUNCTUATION`).
+   - **Validierung:** keine Laufzeit-Warnung — die Auto-Texte der Engine enden bereits mit Komma.
 
 2. **Grußformel:**
    - **STRENG KEIN SATZZEICHEN:** Weder Komma noch Punkt nach der Grußformel (`Mit freundlichen Grüßen` — kein Komma!).
    - **Regel:** Nach der Grußformel folgen 3 Leerzeilen für die handschriftliche Unterschrift, gefolgt vom maschinenschriftlichen Namen.
-   - **Validierung:** Setzt der Nutzer versehentlich ein Komma oder einen Punkt, schlägt die Toast-Warnung an (`Constants.TOASTS.CLOSING_PUNCTUATION`).
+   - **Validierung:** keine Laufzeit-Warnung — die Auto-Texte der Engine enden ohne Satzzeichen.
 
 ---
 

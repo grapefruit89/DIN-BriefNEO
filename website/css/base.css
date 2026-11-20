@@ -210,28 +210,30 @@ body {
   --active-font-family: var(--font-system-stack);
   --schrift-stack: var(--font-system-stack);
 
-  /* --- 3. SPACING (2px-Raster, rem-basiert) --- */
-  --space-2xs: 0.125rem;  /*  2px */
-  --space-xs:  0.25rem;   /*  4px */
-  --space-sm:  0.375rem;  /*  6px */
-  --space-md:  0.5rem;    /*  8px */
-  --space-lg:  0.625rem;  /* 10px */
-  --space-xl:  0.75rem;   /* 12px */
-  --space-2xl: 1rem;      /* 16px */
-  --space-3xl: 1.25rem;   /* 20px */
+  /* --- 3. SPACING & RADII RASTER (2px-Basis: 0.125rem) --- */
+  --grid-unit: 0.125rem;  /* 2px Basis-Raster: alle Abstände und Radien sind Vielfache */
 
-  /* --- 4. RADII (rem-basiert) --- */
-  --radius-xs:   0.25rem;   /*  4px */
-  --radius-sm:   0.375rem;  /*  6px */
-  --radius-md:   0.5rem;    /*  8px */
-  --radius-lg:   0.625rem;  /* 10px */
+  --space-2xs: calc(1 * var(--grid-unit));   /*  2px */
+  --space-xs:  calc(2 * var(--grid-unit));   /*  4px */
+  --space-sm:  calc(3 * var(--grid-unit));   /*  6px */
+  --space-md:  calc(4 * var(--grid-unit));   /*  8px */
+  --space-lg:  calc(5 * var(--grid-unit));   /* 10px */
+  --space-xl:  calc(6 * var(--grid-unit));   /* 12px */
+  --space-2xl: calc(8 * var(--grid-unit));   /* 16px */
+  --space-3xl: calc(10 * var(--grid-unit));  /* 20px */
+
+  /* --- 4. RADII (Vielfache des Basis-Rasters) --- */
+  --radius-xs:   calc(2 * var(--grid-unit)); /*  4px */
+  --radius-sm:   calc(3 * var(--grid-unit)); /*  6px */
+  --radius-md:   calc(4 * var(--grid-unit)); /*  8px */
+  --radius-lg:   calc(5 * var(--grid-unit)); /* 10px */
+  --radius-xl:   calc(6 * var(--grid-unit)); /* 12px */
+  --radius-full: 999px;                      /* Pillen */
 
   /* Steuerhoehen der Seitenleiste. Vorher hatte jedes Element seine eigene
      (15/20/30/32/34/36/38/50 px) - siehe DECISION-LOG 2026-11-13. */
-  --ctl-h:        2rem;      /* 32px: Select, Segmented, Icon-Button, Schalter-Zeile */
-  --ctl-h-aktion: 2.5rem;    /* 40px: Drucken, Speichern, Oeffnen, Kopieren */
-  --radius-xl:   0.75rem;   /* 12px */
-  --radius-full: 999px;     /* Pillen */
+  --ctl-h:        calc(16 * var(--grid-unit)); /* 32px: Select, Segmented, Icon-Button, Schalter-Zeile */
+  --ctl-h-aktion: calc(20 * var(--grid-unit)); /* 40px: Drucken, Speichern, Oeffnen, Kopieren */
 
   /* --- 5. LAYOUT --- */
   /* 300px bei breitem Fenster, 240px als Untergrenze. Vorher war der Wert

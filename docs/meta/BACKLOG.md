@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-23 offene Punkte. Details unterhalb, nach Art gruppiert.
+22 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -63,7 +63,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B33** | DIN-5008-Telefonnummer-Formatierer (Expliziter Button) | S | ⭐⭐⭐ |
 | **B38** | Chromium klemmt Rahmenbreiten unter 1px auf 1px | N | ⭐ |
 | **B40** | Vier vorbestehende Testfehler dokumentieren | M | ⭐⭐ |
-| **B51** | Design-Tokens in `sidebar.css` durchziehen | M | ⭐⭐ |
 | **B52** | Plugin-Punkt für `website/addons/` | L | ⭐⭐ |
 | **B58** | Gzip/Minify als Abschluss-Option | S | ⭐ |
 | **B59** | Kaskade über `@layer` statt `!important` | M | ⭐ |
@@ -106,10 +105,6 @@ bestanden**, dieselben vier rot.
 
 Zu entscheiden: fixen oder als akzeptiert markieren. Betrifft Adress-Parser und
 UI-Policy, nicht den Kern. Siehe [[ARCHITECTURE-MAP]] und `befundpruefung-2026-11-05` (archiviert).
-
-### B51 · Design-Tokens in `sidebar.css` durchziehen · **M** · ⭐⭐
-`sidebar.css` enthält 260 rohe `px`-Werte, obwohl Tokens (`--mm-*`, `--pt`) existieren.
-`sheet.css` nutzt sie bereits; die Seitenleiste nicht.
 
 ### B52 · Plugin-Punkt für `website/addons/` · **L** · ⭐⭐
 `website/addons/` kennt nur `testbrief` und `webmcp-bridge` — es gibt keinen

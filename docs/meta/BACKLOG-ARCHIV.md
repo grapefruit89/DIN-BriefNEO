@@ -71,6 +71,7 @@ Lebende Liste: [[BACKLOG]]. Nummern und Vergaberegeln: [[ID-REGISTER]].
 | B48 | Test-Runner für maschinenlesbare Ergebnisse | erledigt | 2026-11-07 | Historie |
 | B49 | Test-Dossier ins Repo | erledigt | 2026-11-15 | Historie |
 | B50 | Mobile Drawer für die Seitenleiste (< 768px) | abgelehnt | 2026-11-13 | Historie |
+| B51 | Design-Tokens in `sidebar.css` durchziehen (2px-Basis-Raster) | erledigt | 2026-11-20 | Historie |
 | B53 | Speichern systematisch prüfen (stille Fehler, Rückgaben, Wettläufe) | erledigt | 2026-11-07 | `331a1f8` |
 | B54 | Speicherfehler-Toast wirft selbst (`ariaNotify` mit ungültigem `priority`) | erledigt | 2026-11-07 | Historie |
 | B55 | Import scheitert lautlos (Fehlerpfad unerreichbar) | erledigt | 2026-11-07 | Historie |

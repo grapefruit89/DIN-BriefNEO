@@ -130,7 +130,7 @@ fieldset.seitenleiste-field-group > legend {
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-muted);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-sm);
 }
 
 /* Premium Segmented Controls & Buttons */
@@ -187,7 +187,7 @@ fieldset.seitenleiste-field-group > legend {
 
 .btn.primary:hover {
   background: var(--accent-hover);
-  box-shadow: 0 4px 16px var(--accent-glow);
+  box-shadow: 0 var(--space-xs) var(--space-2xl) var(--accent-glow);
 }
 
 .segmented-control {
@@ -237,10 +237,10 @@ fieldset.seitenleiste-field-group > legend {
 .segmented-control::before {
   content: "";
   position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc((100% - 8px) / var(--items));
+  top: var(--space-xs);
+  bottom: var(--space-xs);
+  left: var(--space-xs);
+  width: calc((100% - 2 * var(--space-xs)) / var(--items));
   translate: calc(var(--active-idx) * 100%);
   
   background: var(--segment-active-bg);
@@ -377,20 +377,20 @@ fieldset.seitenleiste-field-group > legend {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
-  margin: 4px 0 0 0;
-  padding: 4px;
+  margin: var(--space-xs) 0 0 0;
+  padding: var(--space-xs);
   list-style: none;
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
 
 .autocomplete-dropdown li {
-  padding: 8px 12px;
+  padding: var(--space-md) var(--space-xl);
   font-size: 0.725rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   
   cursor: pointer;
   white-space: nowrap;
@@ -409,7 +409,7 @@ fieldset.seitenleiste-field-group > legend {
   cursor: default;
   color: var(--accent-color);
   border-bottom: 1px solid var(--border-color);
-  margin-bottom: 4px;
+  margin-bottom: var(--space-xs);
 }
 
 .autocomplete-sub {
@@ -419,11 +419,11 @@ fieldset.seitenleiste-field-group > legend {
 
 .unverified-badge {
   display: inline-block;
-  margin-left: 6px;
+  margin-left: var(--space-sm);
   font-size: 0.75em;
   font-weight: 500;
-  padding: 1px 6px;
-  border-radius: 4px;
+  padding: 1px var(--space-sm);
+  border-radius: var(--radius-xs);
   color: var(--text-muted);
   background: light-dark(oklch(0.94 0.01 260), oklch(0.25 0.01 260));
   border: 1px solid var(--border-color);
@@ -433,11 +433,11 @@ fieldset.seitenleiste-field-group > legend {
 
 .mismatch-badge {
   display: inline-block;
-  margin-left: 6px;
+  margin-left: var(--space-sm);
   font-size: 0.75em;
   font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 4px;
+  padding: 1px var(--space-sm);
+  border-radius: var(--radius-xs);
   color: light-dark(oklch(0.45 0.18 50), oklch(0.85 0.18 70));
   background: light-dark(oklch(0.96 0.05 60), oklch(0.28 0.08 55));
   border: 1px solid light-dark(oklch(0.82 0.12 60), oklch(0.48 0.12 55));
@@ -447,11 +447,11 @@ fieldset.seitenleiste-field-group > legend {
 /* --- COMMENT FORMAT --- */
 .brief-kommentar {
   border-left: 3px solid var(--border-color);
-  padding-left: 8px;
+  padding-left: var(--space-md);
   color: var(--text-muted);
   font-style: italic;
   display: inline-block;
-  margin: 4px 0;
+  margin: var(--space-xs) 0;
   width: 100%;
 }
 
@@ -459,7 +459,7 @@ fieldset.seitenleiste-field-group > legend {
 .seitenleiste-options-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-md);
 }
 
 .seitenleiste-sub-label {
@@ -467,7 +467,7 @@ fieldset.seitenleiste-field-group > legend {
   color: var(--text-muted);
   font-weight: 500;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-xs);
 }
 
 /* Font action button — 2-state look (Schriftarten-Manager) */
@@ -479,7 +479,7 @@ fieldset.seitenleiste-field-group > legend {
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: var(--space-md) var(--space-xl);
   transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -506,7 +506,7 @@ fieldset.seitenleiste-field-group > legend {
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: var(--space-md) var(--space-xl);
   transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -531,7 +531,7 @@ fieldset.seitenleiste-field-group > legend {
   color: var(--text-muted);
   text-decoration: underline;
   text-underline-offset: 2px;
-  margin-top: 2px;
+  margin-top: var(--space-2xs);
 }
 .key-hint-link:hover,
 .key-hint-link:focus-visible {
@@ -543,7 +543,7 @@ fieldset.seitenleiste-field-group > legend {
   font-size: 0.72rem;
   font-weight: 600;
   min-height: 1.2em;
-  margin-top: 2px;
+  margin-top: var(--space-2xs);
 }
 .input-status-hint[data-status="valid"] { color: var(--c-success); }
 .input-status-hint[data-status="invalid"] { color: var(--c-danger); }
@@ -606,13 +606,13 @@ input[type="checkbox"][switch] {
   block-size: 20px;
 }
 .badge-local {
-  margin-inline-start: 6px;
+  margin-inline-start: var(--space-sm);
   float: right;
   font-size: 0.65rem;
   color: var(--accent-color);
   background: var(--segment-bg);
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: var(--radius-xs);
 }
 
 
@@ -674,7 +674,7 @@ input[type="checkbox"][switch] {
    nicht. Die Gruppen-Titel sind h3 mit derselben Optik wie bisher
    (.seitenleiste-label), die Regler-Labels bleiben <label>. */
 .seitenleiste-h2 {
-  margin: 0 0 2px;
+  margin: 0 0 var(--space-2xs);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -687,7 +687,7 @@ input[type="checkbox"][switch] {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: var(--space-sm);
   /* B74: kein zusaetzlicher Bodenabstand - die Leiste hat flex-gap. */
   margin: 0;
   font-size: 0.7rem;
@@ -698,7 +698,7 @@ input[type="checkbox"][switch] {
 .zustand-aendern {
   flex: 0 0 auto;
   /* Klickziel: 24 px Mindesthoehe (WCAG 2.5.8); vorher 15 px. */
-  min-height: 24px;
+  min-height: calc(12 * var(--grid-unit));
   padding: 0;
   border: 0;
   background: none;
@@ -714,10 +714,10 @@ input[type="checkbox"][switch] {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-md);
   white-space: nowrap;
   width: 100%;
-  padding: 8px 10px;
+  padding: var(--space-md) var(--space-lg);
   background: var(--segment-bg);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -763,8 +763,8 @@ input[type="checkbox"][switch] {
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: var(--radius-md);
+  padding: var(--space-xs);
   box-shadow: var(--shadow-lg);
   color: var(--text-primary);
 }
@@ -781,14 +781,14 @@ input[type="checkbox"][switch] {
 .seitenleiste-header-row {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-md);
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-md);
 }
 
 .seitenleiste-header-actions {
   display: flex;
-  gap: 4px;
+  gap: var(--space-xs);
   align-items: center;
 }
 
@@ -858,7 +858,7 @@ input[type="checkbox"][switch] {
   font-size: 0.8rem;
   font-weight: 600;
   color: light-dark(oklch(0.28 0.20 28), oklch(0.25 0.22 28));
-  padding: 6px 12px;
+  padding: var(--space-sm) var(--space-xl);
 }
 
 .btn-danger-subtle:hover {
@@ -874,17 +874,17 @@ input[type="checkbox"][switch] {
 .save-status {
   font-size: 0.75rem;
   font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 999px;
+  padding: var(--space-2xs) var(--space-md);
+  border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-sm);
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 .save-status::before {
   content: "";
-  width: 6px;
-  height: 6px;
+  width: var(--space-sm);
+  height: var(--space-sm);
   border-radius: 50%;
   background: currentColor;
 }
@@ -924,10 +924,10 @@ input[type="checkbox"][switch] {
    fängt Klicks auf dem Brief ab (gemessen 2026-11-10). */
 #hinweis-v4 {
   position: fixed;
-  top: 24px;
-  right: 24px;
-  padding: 12px 16px;
-  border-radius: 12px;
+  top: calc(12 * var(--grid-unit));
+  right: calc(12 * var(--grid-unit));
+  padding: var(--space-xl) var(--space-2xl);
+  border-radius: var(--radius-xl);
   border: 1px solid var(--border-color);
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
@@ -938,9 +938,9 @@ input[type="checkbox"][switch] {
   box-shadow: var(--shadow-lg);
   pointer-events: none;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-xl);
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateY(calc(-1 * var(--space-3xl)));
   transition: 
     opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
@@ -981,7 +981,7 @@ input[type="checkbox"][switch] {
 @starting-style {
   #hinweis-v4:popover-open {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(calc(-1 * var(--space-3xl)));
   }
 }
 
@@ -992,8 +992,8 @@ input[type="checkbox"][switch] {
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
-  padding: 0 4px;
-  border-radius: 4px;
+  padding: 0 var(--space-xs);
+  border-radius: var(--radius-xs);
   transition: color 0.2s, background 0.2s;
 }
 
@@ -1011,10 +1011,10 @@ input[type="checkbox"][switch] {
 #hinweis-v4[data-type="warning"] { --hinweis-dauer: 5000ms; }
 #hinweis-v4[data-type="error"]   { --hinweis-dauer: 6000ms; }
 
-#hinweis-v4[data-type="success"] { border-left: 4px solid var(--c-success); }
-#hinweis-v4[data-type="error"]   { border-left: 4px solid var(--c-danger); }
-#hinweis-v4[data-type="info"]    { border-left: 4px solid var(--c-primary); }
-#hinweis-v4[data-type="warning"] { border-left: 4px solid var(--c-warning); }
+#hinweis-v4[data-type="success"] { border-left: var(--space-xs) solid var(--c-success); }
+#hinweis-v4[data-type="error"]   { border-left: var(--space-xs) solid var(--c-danger); }
+#hinweis-v4[data-type="info"]    { border-left: var(--space-xs) solid var(--c-primary); }
+#hinweis-v4[data-type="warning"] { border-left: var(--space-xs) solid var(--c-warning); }
 
 /* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) {
@@ -1023,14 +1023,14 @@ input[type="checkbox"][switch] {
      das Element dann im Restraum zentriert und landet neben dem Feld
      (gemessen 2026-11-13: PLZ-Popover bei x=1072 statt 730). */
   inset: auto;
-  margin: 4px 0 0;
+  margin: var(--space-xs) 0 0;
   overflow-y: auto;
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  padding: 4px;
+  padding: var(--space-xs);
   list-style: none;
   opacity: 0;
   transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1061,10 +1061,10 @@ input[type="checkbox"][switch] {
 }
 
 #anschrift-vorschlaege li {
-  padding: 8px 12px;
+  padding: var(--space-md) var(--space-xl);
   font-size: 0.8rem;
   color: var(--text-primary);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.1s ease;
   line-height: 1.3;
@@ -1094,24 +1094,24 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
 }
 
 #plz-suggestions-popover li {
-  padding: 6px 10px;
+  padding: var(--space-sm) var(--space-lg);
   font-size: 0.8rem;
   color: var(--text-primary);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.1s ease;
   line-height: 1.3;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-xl);
 }
 
 /* Der gemeinsame Renderer erzeugt diese Unterelemente in beiden Listen
    (#anschrift-vorschlaege und #plz-suggestions-popover). */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-main {
   display: inline-flex;
-  gap: 6px;
+  gap: var(--space-sm);
   align-items: baseline;
   flex-shrink: 0;
 }
@@ -1169,10 +1169,10 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .ac-badge {
   font-size: 0.65rem;
   font-weight: 600;
-  padding: 1px 4px;
-  border-radius: 3px;
+  padding: 1px var(--space-xs);
+  border-radius: var(--radius-xs);
   border: 1px solid currentColor;
-  margin-inline: 4px;
+  margin-inline: var(--space-xs);
   display: inline-block;
   line-height: 1;
   vertical-align: middle;
@@ -1181,12 +1181,12 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .city-sub {
   font-size: 0.75rem;
   color: var(--text-muted, oklch(55% 0 0));
-  margin-inline-start: 4px;
+  margin-inline-start: var(--space-xs);
 }
 
 #plz-suggestions-popover .suggestion-hint,
 #anschrift-vorschlaege .suggestion-hint {
-  padding: 6px 10px;
+  padding: var(--space-sm) var(--space-lg);
   font-size: 0.75rem;
   color: var(--text-muted, oklch(55% 0 0));
   font-style: italic;
@@ -1224,10 +1224,10 @@ aside select {
   border: 1px solid var(--border-color);
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   color: var(--text-primary);
   box-shadow: var(--shadow-lg);
-  padding: 20px;
+  padding: var(--space-3xl);
   max-width: min(90vw, 420px);
   margin: auto;
   opacity: 0;
@@ -1260,13 +1260,13 @@ aside select {
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
 }
-#din-info-dialog .din-info-title { margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; }
-#din-info-dialog .din-info-content { font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
+#din-info-dialog .din-info-title { margin-top: 0; margin-bottom: var(--space-xl); font-size: 1.1rem; }
+#din-info-dialog .din-info-content { font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); display: flex; flex-direction: column; gap: var(--space-md); }
 #din-info-dialog .din-info-content strong { color: var(--text-primary); }
-#din-info-dialog .dialog-actions { margin-top: 16px; }
+#din-info-dialog .dialog-actions { margin-top: var(--space-2xl); }
 .btn.danger,
 .btn-danger {
   border-color: oklch(0.45 0.18 28);
@@ -1310,7 +1310,7 @@ aside select {
 .workbench-actions .btn {
   flex: 1;
   font-size: 0.78rem;
-  padding: 4px 6px;
+  padding: var(--space-xs) var(--space-sm);
 }
 
 /* --- ADDON: GESCHAEFTSANGABEN (§ 35a GmbHG) ---

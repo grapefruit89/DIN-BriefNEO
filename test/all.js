@@ -16,6 +16,7 @@ import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, format
 // @ts-ignore
 import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire } from '../website/js/state.js';
+import { applyValue, commitElement, hydrateStateFromDom, initStateBinding, render } from '../website/js/state-binding.js';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
@@ -41,8 +42,14 @@ const mustField = () => {
   return f;
 };
 const seed = () => mustField().replaceChildren();
-/** @param {string} text */
-const setField = (text) => { mustField().textContent = text; };
+/**
+ * Setzt den Fließtext und meldet ihn wie eine Nutzereingabe (D1: Zustand).
+ * @param {string} text
+ */
+const setField = (text) => {
+  mustField().textContent = text;
+  mustField().dispatchEvent(new Event('input', { bubbles: true }));
+};
 /** @returns {string} */
 const fieldText = () => mustField().textContent || '';
 
@@ -72,6 +79,12 @@ const warteAuf = async (probe) => {
 };
 
 localStorage.clear();
+
+/* D1 Stufe 3: Der Zustand ist der Speicherpfad. Die Testsuite bindet den
+   echten Listener an die Fixture-DOM, aber an einen lokalen Bus: so entstehen
+   keine Autosave-Timer, die spätere Tests mit localStorage.clear() stören. */
+const TEST_BUS = createEventBus();
+initStateBinding(document, { bus: TEST_BUS });
 
 describe('DraftManager: Sanitizing (XSS-Schutz, echte Route localStorage → loadDraft)', () => {
   it('entfernt <script> und erlaubte/verbotene Tags korrekt', () => {
@@ -626,7 +639,7 @@ describe('State: reine Funktionen & Wire-Roundtrip (D1 Stufe 1)', () => {
     assertEqual(toWire(createState(draft, ['brieftext'])), draft, 'DOM-Feld überlebt den Roundtrip');
   });
 
-  it('setWert ist ein No-op bei gleichem Wert und setzt bei "user" die Herkunft', () => {
+  it('setWert ist ein No-op bei gleichem Wert; "auto" markiert die Herkunft', () => {
     const s = createState({ betreff: 'A' });
     assertEqual(setWert(s, 'betreff', 'A'), null, 'gleicher Wert -> kein Patch');
     const patch = setWert(s, 'betreff', 'B', 'user');
@@ -635,7 +648,9 @@ describe('State: reine Funktionen & Wire-Roundtrip (D1 Stufe 1)', () => {
       assertEqual(patch.prev.wert, 'A', 'prev hält den alten Wert');
       assertEqual(patch.next.wert, 'B', 'next hält den neuen Wert');
     }
-    assertEqual(s.meta.betreff?.herkunft, 'manuell', 'Nutzer-Eingabe markiert manuell');
+    assertEqual(s.meta.betreff, undefined, 'Nutzereingabe erfindet keine Herkunft');
+    setWert(s, 'betreff', 'C', 'auto');
+    assertEqual(s.meta.betreff?.herkunft, 'auto', 'programmatische Füllung markiert auto');
     assertEqual(setWert(s, 'gibt-es-nicht', 'X'), null, 'unbekannte ID -> kein Patch');
   });
 
@@ -705,6 +720,13 @@ describe('DraftManager: localStorage-Roundtrip', () => {
 });
 
 describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
+  /** @param {HTMLElement | HTMLTextAreaElement} el @param {string} wert */
+  const tippe = (el, wert) => {
+    el.textContent = wert;
+    if (el instanceof HTMLTextAreaElement) el.value = wert;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
   it('localStorage-String entspricht exakt JSON.stringify(collectDraft())', () => {
     seed();
     setField('Byte-gleich');
@@ -712,7 +734,7 @@ describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
     const vorher = anlagen.value;
     const dm = new DraftManager(createEventBus());
     try {
-      anlagen.value = 'Anlage A\nAnlage B';
+      tippe(anlagen, 'Anlage A\nAnlage B');
       dm.saveDraft();
       assertEqual(
         localStorage.getItem(DRAFT_KEY),
@@ -722,14 +744,19 @@ describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
     } finally {
       dm.destroy();
       anlagen.value = vorher;
+      anlagen.dispatchEvent(new Event('input', { bubbles: true }));
       seed();
+      mustField().dispatchEvent(new Event('input', { bubbles: true }));
     }
   });
 
   it('hält __quelle, datum__dirty und Toggles byte-gleich', () => {
+    seed();
+    mustField().dispatchEvent(new Event('input', { bubbles: true }));
     const ort = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
     ort.textContent = '53111 Bonn';
     ort.dataset.quelle = 'auto';
+    ort.dispatchEvent(new Event('input', { bubbles: true }));
 
     const datum = document.createElement('input');
     datum.id = 'datum';
@@ -738,18 +765,21 @@ describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
     datum.value = '1. März 2020';
     datum.dataset.dirty = 'true';
     document.body.append(datum);
+    datum.dispatchEvent(new Event('input', { bubbles: true }));
 
     const anlagen = document.createElement('input');
     anlagen.type = 'checkbox';
     anlagen.id = 'toggle-anlagen';
     anlagen.checked = true;
     document.body.append(anlagen);
+    anlagen.dispatchEvent(new Event('change', { bubbles: true }));
 
     const fuss = document.createElement('input');
     fuss.type = 'checkbox';
     fuss.id = 'toggle-fuss';
     fuss.checked = false;
     document.body.append(fuss);
+    fuss.dispatchEvent(new Event('change', { bubbles: true }));
 
     const dm = new DraftManager(createEventBus());
     try {
@@ -764,12 +794,59 @@ describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
       fuss.remove();
       delete ort.dataset.quelle;
       ort.textContent = '';
+      ort.dispatchEvent(new Event('input', { bubbles: true }));
     }
+  });
+});
+
+describe('D1 Stufe 3: Zustand und DOM driften nicht auseinander', () => {
+  it('typische Abläufe halten toWire(letterState) und collectDraft() deckungsgleich', () => {
+    hydrateStateFromDom();
+    const el = mustField();
+    el.textContent = 'Drift-Wächter';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    /* Autofill (programmatisch) */
+    applyValue('empfaenger-ort', '53111 Bonn', 'auto');
+    /* Anrede-Seed (Logik-Schreiber) */
+    applyValue('anrede', 'Sehr geehrte Damen und Herren,', 'logic');
+    /* Nutzer-Änderung nach dem Autofill */
+    const ort = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    ort.textContent = '53111 Bonn-Zentrum';
+    ort.dispatchEvent(new Event('input', { bubbles: true }));
+
+    assertEqual(toWire(letterState), collectDraft(), 'Zustand und DOM sind deckungsgleich');
+  });
+
+  it('Echo-Regel: render("user") lässt das aktive Feld unangetastet', () => {
+    hydrateStateFromDom();
+    const el = mustField();
+    el.focus();
+    el.textContent = 'ECHO';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    setWert(letterState, 'brieftext', 'AUS-ZUSTAND', 'logic');
+    render(['brieftext'], 'user');
+    assertEqual(el.textContent, 'ECHO', 'aktives Feld bleibt beim Nutzer-Origin stehen');
+
+    render(['brieftext'], 'logic');
+    assertEqual(el.textContent, 'AUS-ZUSTAND', 'Logik-Origin schreibt in den DOM');
+  });
+
+  it('saveDraft() liest kein collectDraft() mehr (Quelltext-Vertrag)', async () => {
+    const src = await (await fetch('/website/js/draft-manager.js')).text();
+    const start = src.indexOf('  saveDraft() {');
+    const ende = src.indexOf('  loadDraft() {');
+    assert(start > 0 && ende > start, 'saveDraft/loadDraft gefunden');
+    const koerper = src.slice(start, ende);
+    assert(!koerper.includes('collectDraft'), 'Speicherpfad ohne DOM-Scan');
+    assert(koerper.includes('toWire(letterState)'), 'Speicherpfad liest den Zustand');
   });
 });
 
 describe('DraftManager: Undo/Redo', () => {
   it('undo() stellt vorherigen Stand wieder her, redo() stützt ihn wieder vor', () => {
+    hydrateStateFromDom();
     seed();
     setField('Version 1');
     const dm = new DraftManager();
@@ -3371,6 +3448,7 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
     if (!grussEl) {
       grussEl = document.createElement('div');
       grussEl.id = 'grussformel';
+      grussEl.setAttribute('contenteditable', 'plaintext-only');
       document.body.appendChild(grussEl);
     }
 
@@ -3411,6 +3489,7 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
         el.id = id;
         document.body.append(el);
       }
+      if (!el.hasAttribute('contenteditable')) el.setAttribute('contenteditable', 'plaintext-only');
       return el;
     };
     const nameEl = hole('empfaenger-name');
@@ -3423,6 +3502,9 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
     for (const el of [anredeEl, grussEl]) {
       delete el.dataset.dirty;
     }
+    /* Zustand auf den geleerten DOM bringen: sonst hielte er einen Wert aus
+       einem früheren Test und der Seed wäre ein No-op. */
+    hydrateStateFromDom();
 
     const feature = new SalutationFeature();
     feature.init();
@@ -4855,8 +4937,16 @@ describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
   });
 
   it('Autosave-Zuhoerer im App-Code deckt input[data-atom] ab', async () => {
-    const js = await (await fetch('/website/js/main.js')).text();
-    assert(/input\[data-atom\]/.test(js), 'Autosave-Listener kennt die Atom-Felder');
+    /* D1 Stufe 3: Der Autosave-Impuls entsteht in state-binding.js (ein
+       delegierter Listener), nicht mehr in main.js. Der Selektor bleibt SSoT
+       in document.js. */
+    const [binder, doc] = await Promise.all([
+      (await fetch('/website/js/state-binding.js')).text(),
+      (await fetch('/website/js/document.js')).text()
+    ]);
+    assert(binder.includes('EDITABLE_FIELD_SELECTOR'), 'Binder nutzt den SSoT-Selektor');
+    assert(/input\[data-atom\]/.test(doc), 'Selektor kennt die Atom-Felder');
+    assert(binder.includes('DOCUMENT_SAVE_REQUESTED'), 'Binder stößt den Save an');
   });
 
   it('begrenzt die Laenge nativ per maxlength', async () => {
@@ -5218,7 +5308,9 @@ describe('Ein/Aus-Schalter bleiben Haken, keine gestreckte Pille (2026-11-13)', 
 
 describe('Anlagen und Fusszeile als Root-Attribute (ADR-KISS-MINIMAL-JS, Weg 2)', () => {
   it('data-anlagen/data-fuss in JS gesetzt, CSS liest :root[data-...]', async () => {
-    for (const datei of ['/website/js/boot.js', '/website/js/main.js', '/website/js/draft-manager.js']) {
+    /* D1: Schreiber sind boot.js (erster Frame) und state-binding.renderRootFlags();
+       draft-manager.js schreibt sie im Restore-Pfad (bis Stufe 4). */
+    for (const datei of ['/website/js/boot.js', '/website/js/state-binding.js']) {
       const src = await (await fetch(datei)).text();
       assert(src.includes('data-anlagen'), `${datei} setzt data-anlagen`);
       assert(src.includes('data-fuss'), `${datei} setzt data-fuss`);

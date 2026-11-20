@@ -16,6 +16,7 @@
 import { Constants, Events, eventBus } from './core.js';
 import { Field } from './field.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+import { applyValue } from './state-binding.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 
@@ -318,7 +319,7 @@ export class SalutationFeature {
     if (value === current) {
       return;
     }
-    Field.setValue(el, value);
+    applyValue(kind, value, 'logic');
     delete el.dataset.dirty;
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
   }

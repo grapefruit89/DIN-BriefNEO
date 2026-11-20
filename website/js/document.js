@@ -813,6 +813,23 @@ export const EDITABLE_FIELD_SELECTOR =
   '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-atom], select[data-speichern]';
 
 /**
+ * Die IDs, die collectDraft() tatsächlich einsammelt (gleiche Allowlist:
+ * contenteditable, textarea[data-feldtyp], input[data-atom]; Systemwerte nur
+ * #datum). SSoT für den gebundenen Feldsatz des Zustands.
+ * @param {Document | Element} [root]
+ * @returns {string[]}
+ */
+export function draftFieldIds(root = document) {
+  /** @type {string[]} */
+  const ids = [];
+  root.querySelectorAll('[contenteditable], textarea[data-feldtyp], input[data-atom]').forEach((elem) => {
+    if (!elem.id || (elem.getAttribute('data-feldtyp') === 'systemwert' && elem.id !== 'datum')) return;
+    ids.push(elem.id);
+  });
+  return ids;
+}
+
+/**
  * Liest den Wert genau eines Entwurfsfeldes.
  * Rich-Text-Felder werden vor der Ausgabe mit sanitizeRichText abgesichert
  * (A61: einzige Schreibgrenze). Gegenstück zu `writeField`.

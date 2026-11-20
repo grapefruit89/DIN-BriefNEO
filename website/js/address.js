@@ -32,6 +32,7 @@ import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe }
 import { setCaretToEnd } from './document.js';
 import { Field } from './field.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
+import { applyValue } from './state-binding.js';
 
 export {
   AddressData,
@@ -248,7 +249,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
         }
 
         const completed = `${res.plz} ${res.city}`;
-        Field.setValue(empfOrtEl, completed);
+        applyValue('empfaenger-ort', completed, 'logic');
         empfOrtEl.setAttribute('data-autofilled', 'true');
 
         AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
@@ -256,7 +257,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
         // Großkunde / Behörde Automatik
         if (res.isGrosskunde && res.grosskunde) {
           if (empfFirmaEl && (!Field.getValue(empfFirmaEl).trim() || empfFirmaEl.getAttribute('data-autofilled') === 'true')) {
-            Field.setValue(empfFirmaEl, res.grosskunde.name);
+            applyValue('empfaenger-firma', res.grosskunde.name, 'logic');
             empfFirmaEl.setAttribute('data-autofilled', 'true');
           }
           if (empfStrasseEl && !Field.getValue(empfStrasseEl).trim()) {
@@ -1317,10 +1318,10 @@ export function initAddressServices() {
     /* Nur fuellen, was der Treffer wirklich hat: ein Stadt-/PLZ-Treffer hat
        keine Strasse und darf das Empfaengerfeld nicht leeren. */
     if (empfStrasse && item.street) {
-      Field.setValue(empfStrasse, item.street);
+      applyValue('empfaenger-strasse', item.street, 'logic');
     }
     if (empfOrt && (item.postcode || item.city)) {
-      Field.setValue(empfOrt, `${item.postcode} ${item.city}`.trim());
+      applyValue('empfaenger-ort', `${item.postcode} ${item.city}`.trim(), 'logic');
     }
 
     hidePopoverSafe(addressSuggestions);

@@ -111,6 +111,7 @@ website/js/main.js               Orchestrator: bootStep()-Kette, verdrahtet alle
 website/js/core.js               EventBus + Hinweise + Constants. KEINE Fachlogik.
 website/js/schema.js             Kanonische Feld-Reihenfolge (Schema v5), reine Daten
 website/js/state.js              Briefzustand im RAM (werte/meta/rev/ids) + Patch-API
+website/js/state-binding.js      Naht DOM↔Zustand: input/change-Listener, render(), Echo-Regel
 website/js/document.js           contenteditable, Sanitizer, Caret, Feldlimits, collectDraft()
 website/js/persistence.js        localStorage, DIN-Letter-Schema, Metadaten, Export/Import
 website/js/draft-manager.js      Autosave, Undo/Redo, Mehr-Tab-Sync, Reset
@@ -132,9 +133,10 @@ website/js/webapi.d.ts          Ambient-Types (ariaNotify, CloseWatcher) — kei
 ## 3. Datenflüsse
 
 ```
-Autosave:  DOM → collectDraft() → DraftManager.saveDraft() → localStorage('din_draft_current')
-                               → Events.DOCUMENT_SAVED
-Export:    collectDraft() → buildDinLetterPayload() → buildDINLetterJSON() → JSON-Datei
+Autosave:  input/change → state-binding.commit() → letterState → DraftManager.saveDraft()
+                       → toWire(letterState) → localStorage('din_draft_current')
+                       → Events.DOCUMENT_SAVED
+Export:    toWire(letterState) → buildDinLetterPayload() → buildDINLetterJSON() → JSON-Datei
 Import:    parseDinLetterPayload() → applyImportedData() → saveJSON → Reload
 Fonts:     Datei-Input → FontFeature.injectFont() → FontFace + document.fonts
                      → saveBlob('font') → IndexedDB
@@ -142,8 +144,9 @@ Reset:     resetDraft() → DOCUMENT_CHANGED → Salutation.refresh() → saveDr
 Undo:      undo() → restoreDraft() → DOCUMENT_CHANGED → Salutation.seedAuto()
 ```
 
-**Merksatz:** `collectDraft()` ist die einzige Quelle für Export- und Speicherdaten.
-Nie direkt aus dem DOM exportieren.
+**Merksatz:** `letterState` ist die einzige Quelle für Speicher- und Exportdaten;
+der DOM ist seine Projektion. `collectDraft()` ist kein Speicherpfad mehr, sondern
+Drift-Wächter (Tests) und Grundlage des Kaltstart-Restores.
 
 ## 4. Fallstricke
 

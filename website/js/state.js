@@ -158,12 +158,14 @@ export function setWert(state, id, wert, origin = 'logic') {
   const prevMeta = state.meta[id] ?? null;
   state.werte[id] = wert;
   state.rev++;
-  if (origin === 'user' || origin === 'auto') {
-    /* Jede echte Eingabe ist eine Absichtserklärung: Nutzer -> manuell,
-       Helfer -> auto. Andere Herkünfte (undo/import/reset) tragen ihr Meta
-       selbst und dürfen die Herkunft nicht überschreiben. */
+  /* Nur eine programmatische Füllung markiert sich selbst als 'auto'.
+     Eine Nutzereingabe erfindet KEINE Herkunft: `__quelle` ist eine Aussage
+     über Felder, bei denen Herkunft eine Rolle spielt (Rücksendezeile,
+     Adress-Autofill). Sonst würde jeder Tastendruck den Entwurf um
+     `__quelle`-Schlüssel aufblähen (Wire-Kompatibilität, Stufe 2). */
+  if (origin === 'auto') {
     const m = state.meta[id] ?? {};
-    m.herkunft = origin === 'user' ? 'manuell' : 'auto';
+    m.herkunft = 'auto';
     state.meta[id] = m;
   }
   return { id, prev: { wert: prevWert, meta: prevMeta }, next: { wert, meta: state.meta[id] ?? null } };

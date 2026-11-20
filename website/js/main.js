@@ -5,7 +5,7 @@
 import { initAddonDispatcher } from './addons.js';
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
 import { Events, eventBus, initToastSystem } from './core.js';
-import { collectDraft, initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
+import { initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';
 import { Field } from './field.js';
 import { FontFeature } from './font-feature.js';
@@ -15,6 +15,8 @@ import { initImportExport, MetadataService, requestPersistentStorage } from './p
 import { SalutationFeature } from './salutation.js';
 import { SettingsManager } from './settings.js';
 import { SignatureFeature } from './signature.js';
+import { letterState, toWire } from './state.js';
+import { applyValue, initStateBinding } from './state-binding.js';
 
 /**
  * Setzt den Postvermerk im Blattfeld und hält die Auswahlliste synchron.
@@ -32,8 +34,9 @@ function syncPostvermerkFromSidebar(value) {
 
   /* Field statt textContent: #vermerke ist seit 2026-11-12 ein <input>.
      Mit textContent blieb das Feld leer und zeigte nur seinen Platzhalter
-     ("Postvermerk") - gemeldet 2026-11-12. */
-  Field.setValue(field, val);
+     ("Postvermerk") - gemeldet 2026-11-12. Seit D1 ist der Zustand die Quelle:
+     applyValue schreibt Feld und DOM in einem Schritt. */
+  applyValue('vermerke', val, 'logic');
 }
 
 if (document.readyState === 'loading') {
@@ -140,6 +143,11 @@ function initApp() {
 
   const uiProtections = kritischerWert('UI-Schutz-Objekt', () => new UIProtections());
   bootStep('UI-Schutz', () => uiProtections.init());
+  /* D1: Die Naht DOM↔Zustand. Bewusst NACH UIProtections, damit der Commit
+     den bereits gekürzten Endwert liest (Bubble-Reihenfolge). Root ist das
+     Dokument, weil die Toggles und der Postvermerk außerhalb von <din-blatt>
+     liegen; die Feld-Allowlist filtert alles Fremde. */
+  bootStep('Zustandsbindung', () => initStateBinding(document), { critical: true });
   bootStep('Telefon-Formatierung', () => setupPhoneFormatting());
 
   const settingsManager = kritischerWert('Einstellungen-Objekt', () => new SettingsManager());
@@ -160,7 +168,7 @@ function initApp() {
   bootStep('Toast-System', () => initToastSystem());
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());
-  bootStep('Import/Export', () => initImportExport({ collectDraft }));
+  bootStep('Import/Export', () => initImportExport({ collectDraft: () => toWire(letterState) }));
   bootStep('Anrede', () => new SalutationFeature(settingsManager).init());
   bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
   bootStep('Schriftart', () => new FontFeature(settingsManager).init());
@@ -215,15 +223,9 @@ function initApp() {
       });
     }
 
-    const briefblatt = document.querySelector('din-blatt') || document;
-    briefblatt.addEventListener('input', (e) => {
-      if (
-        e.target instanceof Element &&
-        e.target.closest('[contenteditable], input[data-atom], textarea[data-feldtyp]')
-      ) {
-        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
-      }
-    });
+    /* Kein eigener input->save-Listener mehr: state-binding.js ist der eine
+       Schreibpfad (Zustand + DOCUMENT_SAVE_REQUESTED). Zwei Listener würden
+       denselben Vorgang doppelt melden. */
     // Natives select: ein change-Event deckt Maus, Tastatur und Picker ab.
     const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
     if (pvSelect) {
@@ -236,22 +238,14 @@ function initApp() {
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch) {
       anlagenSwitch.addEventListener('change', () => {
-        /* Attribut ist die Wahrheit fuer CSS (pre-paint gesetzt), der Schalter
-           ist das Eingabegeraet - beide hier synchron halten (ADR-KISS-MINIMAL-JS). */
-        document.documentElement.setAttribute('data-anlagen', anlagenSwitch.checked ? 'true' : 'false');
+        /* Attribut schreibt renderRootFlags() (state-binding). Hier bleibt nur
+           die Default-Befüllung des Anlagentexts. */
         const anlagenEl = document.getElementById('anlagen-angabe');
         if (anlagenEl instanceof HTMLTextAreaElement && anlagenSwitch.checked && !anlagenEl.value.trim()) {
-          anlagenEl.value = 'Anlage 1';
+          applyValue('anlagen-angabe', 'Anlage 1', 'logic');
         }
-        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }
-
-    const fussSchalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
-    fussSchalter?.addEventListener('change', () => {
-      document.documentElement.setAttribute('data-fuss', fussSchalter.checked ? 'true' : 'false');
-      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
-    });
 
     // Textformatierung (B, I, ❝): Range-API, kein nativer Editing-Befehl (A52). pointerdown
     // + preventDefault haelt Fokus und Selection im #text, sonst wirkt der

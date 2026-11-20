@@ -12,10 +12,11 @@
 
 import { AddressIntelligence } from './address.js';
 import { Constants, Events, eventBus } from './core.js';
-import { collectDraft, EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, setCaretCharacterOffset, writeField } from './document.js';
+import { EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, setCaretCharacterOffset, writeField } from './document.js';
 import { Field } from './field.js';
 import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
-import { createState, toWire } from './state.js';
+import { letterState, toWire } from './state.js';
+import { hydrateStateFromDom } from './state-binding.js';
 
 export class DraftManager {
   /* Undo/Redo liegt bewusst NUR im RAM (entschieden 2026-11-13, B13).
@@ -42,10 +43,6 @@ export class DraftManager {
    * @type {'pending' | 'synced' | 'error'}
    */
   #saveState = 'synced';
-  /* Schatten-Zustand (D1 Stufe 2): wird beim Speichern aus dem DOM gebaut und
-     über toWire serialisiert. Noch keine Quelle für den Schreibpfad. */
-  /** @type {import('./state.js').LetterState | null} */
-  #state = null;
 
   /**
    * @param {ReturnType<typeof import('./core.js').createEventBus> | null} [bus]
@@ -179,12 +176,10 @@ export class DraftManager {
     let draft;
     let draftStr = '';
     try {
-      draft = collectDraft();
-      /* D1 Stufe 2: Der Shadow-State wird aus dem DOM gebaut, aber das
-         Wire-Format kommt aus toWire(). Das Ergebnis ist byte-gleich zu
-         JSON.stringify(collectDraft()) — deshalb bleibt hier alles beim Alten. */
-      this.#state = createState(draft, Object.keys(draft).filter((k) => !k.endsWith('__quelle') && k !== 'datum__dirty'));
-      draftStr = JSON.stringify(toWire(this.#state));
+      /* D1 Stufe 3: Der Zustand ist die Quelle. Kein DOM-Scan, kein
+         DOMParser im Speicherpfad. */
+      draft = toWire(letterState);
+      draftStr = JSON.stringify(draft);
     } catch (fehler) {
       /* NICHT speichern: fruehere Fassung schrieb '{}' und meldete Erfolg —
          der letzte gute Entwurf war damit weg, obwohl ein Fehler vorlag
@@ -262,6 +257,7 @@ export class DraftManager {
     this.#redoStack = [];
     this.#currentState = { draftStr: JSON.stringify(draft), caretInfo: null };
     this.#restoreState(draft);
+    hydrateStateFromDom();
     return true;
   }
 
@@ -272,6 +268,7 @@ export class DraftManager {
   restoreDraft(draft) {
     if (!draft || typeof draft !== 'object') return;
     this.#restoreState(draft);
+    hydrateStateFromDom();
     this.saveDraft();
   }
 
@@ -386,6 +383,7 @@ export class DraftManager {
     if (!stateObj) return;
     const draft = JSON.parse(stateObj.draftStr);
     this.#restoreState(draft);
+    hydrateStateFromDom();
     /* Rueckgabe pruefen: sonst zeigt der Status "gespeichert", waehrend der
        Speicher den alten Stand haelt und der naechste Reload den Undo-Schritt
        verliert (B4-Review 2026-11-12). */
@@ -405,10 +403,14 @@ export class DraftManager {
         setCaretCharacterOffset(elem, stateObj.caretInfo.offset);
       }
     }
-
     if (this.bus && typeof this.bus.publish === 'function') {
       this.bus.publish(Events.DOCUMENT_CHANGED, { draft });
     }
+    /* Der Vergleichsstand für den nächsten Save muss den Zustand NACH den
+       Listenern spiegeln (Anrede-Seed schreibt Folgewerte): sonst hielte
+       saveDraft() einen "fremden" Stand und würde die Redo-Historie
+       verwerfen (D1 Stufe 3). */
+    this.#currentState = { draftStr: JSON.stringify(toWire(letterState)), caretInfo: stateObj.caretInfo };
   }
 
   resetDraft() {
@@ -477,6 +479,9 @@ export class DraftManager {
     } catch (err) {
       console.warn('[DraftManager] DOCUMENT_CHANGED nach Reset fehlgeschlagen:', err);
     }
+    /* Der Reset hat den DOM geleert (und Listener haben geseedet): bevor der
+       Speicherpfad den Zustand liest, wird er aus dem DOM hydratisiert. */
+    hydrateStateFromDom();
     this.saveDraft();
   }
 
@@ -529,7 +534,8 @@ export class DraftManager {
 
   #updateDocumentTitle() {
     if (isPrintTitleActive()) return;
-    const betreff = Field.getValue(document.getElementById('betreff')).replace(/[\x00-\x1f\r\n]/g, ' ').replace(/\s+/g, ' ').trim() || 'Unbenannt';
+    const roh = letterState.werte.betreff;
+    const betreff = String(typeof roh === 'string' ? roh : '').replace(/[\x00-\x1f\r\n]/g, ' ').replace(/\s+/g, ' ').trim() || 'Unbenannt';
     document.title = betreff;
   }
 }

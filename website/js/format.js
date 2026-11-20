@@ -6,6 +6,7 @@
  * @file format.js — Reine Formatierungsfunktionen nach DIN 5008 (Telefonnummern, Text-Formatierung).
  */
 import { Field } from './field.js';
+import { applyValue } from './state-binding.js';
 
 /**
  * Formatiert eine eingegebene Telefonnummer nach DIN 5008 11.3.2 (Funktions- und
@@ -405,7 +406,7 @@ export function applyLetterDate() {
   if (manuallySet) return;
   const formatted = formatLetterDate();
   if (formatted) {
-    Field.setValue(el, formatted);
+    applyValue('datum', formatted, 'logic');
   }
 }
 

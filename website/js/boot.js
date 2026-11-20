@@ -51,7 +51,8 @@ try {
   root.setAttribute('data-plugin-testbrief', istAn(settings.pluginTestbrief) ? 'true' : 'false');
   /* Addon Geschaeftsangaben: steuert, ob die Fusszeilen-Zeile in der Leiste
    * ueberhaupt angeboten wird (Standard: aus). */
-  root.setAttribute('data-plugin-geschaeftsangaben', settings.pluginGeschaeftsangaben === true ? 'true' : 'false');
+  const pluginGeschaeftAktiv = settings.pluginGeschaeftsangaben === true;
+  root.setAttribute('data-plugin-geschaeftsangaben', pluginGeschaeftAktiv ? 'true' : 'false');
   /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):
    * das Attribut bleibt fuer CSS/Tests gesetzt, ist aber immer 'true', und
    * es gibt keinen Stylesheet-Tausch mehr. `sheet.css` bleibt ungenutzt
@@ -68,8 +69,10 @@ try {
   } catch {
     /* kaputtes JSON: mit Defaults weiter */
   }
-  const hatFuss = draft['toggle-fuss'] === true || draft['toggle-fuss'] === 'true'
-    || Boolean(draft['fuss-firma'] || draft['fuss-sitz'] || draft['fuss-gericht'] || draft['fuss-hrb']);
+  const hatFuss = pluginGeschaeftAktiv && (
+    draft['toggle-fuss'] === true || draft['toggle-fuss'] === 'true'
+    || Boolean(draft['fuss-firma'] || draft['fuss-sitz'] || draft['fuss-gericht'] || draft['fuss-hrb'])
+  );
   const hatAnlagen = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
 
   root.setAttribute('data-anlagen', hatAnlagen ? 'true' : 'false');

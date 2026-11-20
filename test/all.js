@@ -502,6 +502,8 @@ describe('Geschäftsangaben (Addon, § 35a GmbHG)', () => {
     const html = await (await fetch('/website/index.html')).text();
     assert(html.includes('data-addon="geschaeftsangaben"'), 'Zeile ist markiert');
     assert(html.includes('id="plugin-geschaeftsangaben"'), 'Schalter in den Einstellungen');
+    const commonCss = await (await fetch('/website/css/sheet-common.css')).text();
+    assert(commonCss.includes('data-plugin-geschaeftsangaben="false"'), 'Fußzeile bleibt bei deaktiviertem Addon auf Blatt ausgeblendet');
   });
 });
 

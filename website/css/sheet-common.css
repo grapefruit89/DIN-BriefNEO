@@ -190,6 +190,20 @@ din-geschaeftsangaben {
   --fuss-hoehe: 15mm;
 }
 
+/* Ist das Addon Geschäftsangaben (§ 35a) deaktiviert, bleibt die Fußzeile auf dem Blatt
+   strikte 0mm hoch und unsichtbar — selbst wenn toggle-fuss noch true wäre. */
+:root:not([data-plugin-geschaeftsangaben="true"]) #geschaeftsangaben,
+:root:not([data-plugin-geschaeftsangaben="true"]) din-geschaeftsangaben,
+:root[data-plugin-geschaeftsangaben="false"] #geschaeftsangaben,
+:root[data-plugin-geschaeftsangaben="false"] din-geschaeftsangaben {
+  display: none !important;
+}
+
+:root:not([data-plugin-geschaeftsangaben="true"]),
+:root[data-plugin-geschaeftsangaben="false"] {
+  --fuss-hoehe: 0mm !important;
+}
+
 #fuss-firma     { grid-area: 1 / 1; }
 
 #fuss-sitz      { grid-area: 2 / 1; }

@@ -107,7 +107,7 @@ export function fehlendeAngaben(werte) {
  * Verdrahtet die Prüfung mit den Feldern der Fußzeile. Wird nur aufgerufen,
  * wenn der Schalter eingeschaltet ist. Ohne DOM (Tests, Node) tut die Funktion
  * nichts.
- * @returns {void}
+ * @returns {(() => void) | void}
  */
 export function aktiviere() {
   if (typeof document === 'undefined') return;
@@ -134,6 +134,13 @@ export function aktiviere() {
   /* Kein stiller Fehlschlag: das Ergebnis steht im Konsolen-Log, sichtbar für
    * den, der es sucht, ohne den Brief anzufassen. */
   console.info('[Geschäftsangaben] Prüfung:', pruefungen);
+  return () => {
+    const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
+    if (fussSwitch?.checked) {
+      fussSwitch.checked = false;
+      document.documentElement.setAttribute('data-fuss', 'false');
+    }
+  };
 }
 
 export { aktiviere as activate };

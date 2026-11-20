@@ -331,6 +331,14 @@ export class SettingsManager {
         if (!this.isReady) return;
         this.settings.pluginGeschaeftsangaben = pluginGeschaeft.checked;
         this.updateSettings();
+        if (!pluginGeschaeft.checked) {
+          const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
+          if (fussSwitch?.checked) {
+            fussSwitch.checked = false;
+            document.documentElement.setAttribute('data-fuss', 'false');
+            eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+          }
+        }
         /* Addon über zentralen AddonManager aktivieren/deaktivieren */
         void toggleAddon('geschaeftsangaben', pluginGeschaeft.checked);
       });

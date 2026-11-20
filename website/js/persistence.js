@@ -17,6 +17,7 @@
 import { Constants, notify } from './core.js';
 import { Field } from './field.js';
 import { currentISODate } from './format.js';
+import { DOCUMENT_SCHEMA_V5 } from './schema.js';
 /* =========================================================================================
  * 2. STORAGE PRIMITIVES, CONSTANTS & MIGRATION
  * ========================================================================================= */
@@ -407,19 +408,12 @@ export const DINLETTER_FORMAT = 'dinletter';
  */
 
 /**
- * Kanonische Schema-Definition für Briefdokumente (Schema v4, Tuple-Format).
+ * Kanonische Schema-Definition für Briefdokumente (Schema v5, Tuple-Format).
  * Definiert die exakte Index-Reihenfolge aller Dokumentenfelder im serialisierten Array.
+ * Quelle ist `schema.js` (geteilt mit dem Sitzungszustand); Re-Export bleibt fuer
+ * alle bestehenden Importeure (`persistence.js` ist weiter der Speicher-Einstieg).
  */
-export const DOCUMENT_SCHEMA_V5 = [
-  'rucksendeangabe', 'vermerke',
-  'empfaenger-firma', 'empfaenger-name', 'empfaenger-strasse', 'empfaenger-ort',
-  'absender-name', 'absender-strasse', 'absender-ort', 'absender-tel', 'absender-mail',
-  'datum', 'spacer', 'betreff', 'anrede', 'text', 'grussformel', 'unterschrift',
-  'anlagen-angabe',
-  'fuss-firma', 'fuss-sitz', 'fuss-gericht', 'fuss-hrb', 'fuss-vorstand', 'fuss-gf',
-  'fuss-stnr', 'fuss-ustid', 'fuss-bank', 'fuss-iban', 'fuss-bic', 'fuss-anschrift',
-  'toggle-anlagen', 'toggle-fuss'
-];
+export { DOCUMENT_SCHEMA_V5 };
 
 /**
  * Bereinigt HTML-Strings (wie <li> in Listenfeldern) zu lesbarem Plaintext für den JSON-Export.

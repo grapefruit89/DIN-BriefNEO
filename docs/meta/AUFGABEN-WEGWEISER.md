@@ -109,6 +109,8 @@ website/js/boot.js               FOUC-Guard, blockierend im <head>, VOR dem DOM
 website/js/boot-state.js         UI-Zustand (Form, Postvermerk) am Body-Ende, VOR dem ersten Paint
 website/js/main.js               Orchestrator: bootStep()-Kette, verdrahtet alle Module
 website/js/core.js               EventBus + Hinweise + Constants. KEINE Fachlogik.
+website/js/schema.js             Kanonische Feld-Reihenfolge (Schema v5), reine Daten
+website/js/state.js              Briefzustand im RAM (werte/meta/rev/ids) + Patch-API
 website/js/document.js           contenteditable, Sanitizer, Caret, Feldlimits, collectDraft()
 website/js/persistence.js        localStorage, DIN-Letter-Schema, Metadaten, Export/Import
 website/js/draft-manager.js      Autosave, Undo/Redo, Mehr-Tab-Sync, Reset

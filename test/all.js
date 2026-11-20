@@ -15,6 +15,7 @@ import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
 import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
+import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire } from '../website/js/state.js';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
@@ -571,6 +572,120 @@ describe('Datum überlebt den Reload (F5, Batch 05)', () => {
     } finally {
       el.remove();
     }
+  });
+});
+
+describe('State: reine Funktionen & Wire-Roundtrip (D1 Stufe 1)', () => {
+  it('createState filtert die Allowlist und setzt Defaults', () => {
+    const s = createState({
+      betreff: 'Vertrag',
+      'bogus-id': 'fremd',
+      'betreff__quelle': 'manuell',
+      'datum__dirty': true,
+      'toggle-anlagen': 'true',
+      'toggle-fuss': 'false'
+    });
+    assertEqual(s.werte.betreff, 'Vertrag', 'bekanntes Feld übernommen');
+    assert(!('bogus-id' in s.werte), 'unbekannte ID verworfen');
+    assertEqual(s.meta.betreff?.herkunft, 'manuell', 'Herkunft wandert in meta');
+    assertEqual(s.meta.datum?.userSet, true, 'datum__dirty wird userSet');
+    assertEqual(s.werte['toggle-anlagen'], true, 'String "true" wird Boolean');
+    assertEqual(s.werte['toggle-fuss'], false, 'String "false" bleibt false');
+    assertEqual(s.werte.anrede, '', 'nicht gesetzte Schema-Felder sind leer');
+    assertEqual(s.werte.spacer, undefined, 'spacer ist kein Wert (reiner Layout-Platzhalter)');
+  });
+
+  it('createState verwirft kaputte Werte und fremde Herkünfte', () => {
+    const s = createState({ betreff: 42, anrede: null, 'anrede__quelle': 'hacker' });
+    assertEqual(s.werte.betreff, '', 'Nicht-String wird leer');
+    assertEqual(s.werte.anrede, '', 'null wird leer');
+    assertEqual(s.meta.anrede, undefined, 'fremde Herkunft wird verworfen');
+  });
+
+  it('toWire(createState(wire)) ist deckungsgleich mit dem gespeicherten Entwurf', () => {
+    const drafts = [
+      {},
+      { betreff: 'T', anrede: 'Sehr geehrte Damen und Herren,' },
+      {
+        betreff: 'T',
+        'empfaenger-ort': '53111 Bonn',
+        'empfaenger-ort__quelle': 'auto',
+        datum: '1. März 2020',
+        'datum__dirty': true,
+        'toggle-anlagen': true,
+        'toggle-fuss': false
+      }
+    ];
+    for (const draft of drafts) {
+      assertEqual(toWire(createState(draft)), draft, `Roundtrip ${JSON.stringify(draft)}`);
+    }
+  });
+
+  it('Roundtrip hält auch Felder, die nur im Dokument existieren (DOM-Feldsatz)', () => {
+    const draft = { brieftext: '<b>x</b>', 'anlagen-angabe': 'A\nB' };
+    assertEqual(toWire(createState(draft, ['brieftext'])), draft, 'DOM-Feld überlebt den Roundtrip');
+  });
+
+  it('setWert ist ein No-op bei gleichem Wert und setzt bei "user" die Herkunft', () => {
+    const s = createState({ betreff: 'A' });
+    assertEqual(setWert(s, 'betreff', 'A'), null, 'gleicher Wert -> kein Patch');
+    const patch = setWert(s, 'betreff', 'B', 'user');
+    assert(patch !== null, 'neuer Wert -> Patch');
+    if (patch) {
+      assertEqual(patch.prev.wert, 'A', 'prev hält den alten Wert');
+      assertEqual(patch.next.wert, 'B', 'next hält den neuen Wert');
+    }
+    assertEqual(s.meta.betreff?.herkunft, 'manuell', 'Nutzer-Eingabe markiert manuell');
+    assertEqual(setWert(s, 'gibt-es-nicht', 'X'), null, 'unbekannte ID -> kein Patch');
+  });
+
+  it('setMeta ist ein No-op ohne Änderung', () => {
+    const s = createState({ rucksendeangabe: 'R' });
+    const erst = setMeta(s, 'rucksendeangabe', { herkunft: 'auto' });
+    assert(erst !== null, 'erste Meta-Änderung erzeugt einen Patch');
+    assertEqual(setMeta(s, 'rucksendeangabe', { herkunft: 'auto' }), null, 'gleiches Meta -> kein Patch');
+  });
+
+  it('applyPatch(prev) invertiert applyPatch(next)', () => {
+    const s = createState({ betreff: 'A' });
+    const patch = setWert(s, 'betreff', 'B', 'user');
+    assert(patch !== null);
+    if (!patch) return;
+    assertEqual(s.werte.betreff, 'B');
+    applyPatch(s, [patch], 'prev');
+    assertEqual(s.werte.betreff, 'A', 'prev stellt den alten Wert her');
+    applyPatch(s, [patch], 'next');
+    assertEqual(s.werte.betreff, 'B', 'next stellt den neuen Wert her');
+  });
+
+  it('snapshot/replace tauschen den Zustand vollständig aus', () => {
+    const s = createState({ betreff: 'ALT' });
+    const alt = snapshot(s);
+    const next = createState({ betreff: 'NEU', 'toggle-fuss': true });
+    replace(s, next);
+    assertEqual(s.werte.betreff, 'NEU');
+    assertEqual(s.werte['toggle-fuss'], true);
+    replace(s, { werte: alt.werte, meta: alt.meta, rev: 0, ids: alt.ids });
+    assertEqual(s.werte.betreff, 'ALT', 'Snapshot stellt den Stand her');
+  });
+
+  it('bindIds ergänzt DOM-Felder ohne Schema-Eintrag', () => {
+    const s = createState({});
+    bindIds(s, ['brieftext', 'betreff']);
+    assertEqual(s.werte.brieftext, '', 'neues Feld leer angelegt');
+    assert(s.ids.has('brieftext'), 'Feld ist gebunden');
+    assert(s.ids.has('betreff'), 'Schema-Feld bleibt gebunden, wenn es im Entwurf steht');
+  });
+
+  it('resetState leert Werte und Meta, behält aber die Bindung', () => {
+    resetState();
+    bindIds(letterState, ['brieftext']);
+    setWert(letterState, 'brieftext', 'Inhalt');
+    setMeta(letterState, 'brieftext', { herkunft: 'manuell' });
+    resetState();
+    assertEqual(letterState.werte.brieftext, '', 'Wert zurückgesetzt');
+    assertEqual(letterState.meta.brieftext, undefined, 'Meta zurückgesetzt');
+    assertEqual(letterState.werte.betreff, '', 'Schema-Default steht');
   });
 });
 

@@ -13,6 +13,7 @@ tags:
 doc_links:
   - '[[BACKLOG-ARCHIV]]'
   - '[[BACKLOG]]'
+  - '[[BENCHMARK-GEOCODING-2026-11-20]]'
 code_links:
   - 'website/js/address.js'
   - 'website/js/main.js'
@@ -34,10 +35,12 @@ depends_on: []
    - Free Tier: 3.000 Requests/Tag (5 Req/s).
 2. **OSM Nominatim (Öffentliche Instanz):**
    - Endpunkt: `https://nominatim.openstreetmap.org/search?q={query}&countrycodes=de&format=json&addressdetails=1&limit=5`
-   - Policy: Max. 1 Req/s, strikter `User-Agent` erforderlich.
+   - Policy: Max. 1 Req/s. **Strikter User-Agent Pflicht** (Platzhalter wie `example.invalid` erzeugen sofort HTTP 403; erfordert echten Kontakt wie `mailto:user@domain.de`).
+   - **Wichtig:** Die OSM Usage Policy verbietet Autocomplete ausdrücklich (*„Auto-complete search … you must not implement such a service“* — Verstoß führt zum IP-Bann).
 3. **Komoot Photon:**
    - Endpunkt: `https://photon.komoot.io/api/?q={query}&lang=de&limit=5`
    - Basis: OSM-Daten via ElasticSearch.
+   - **Wichtig:** Öffentliche Instanz drosselt bei Last und sperrt IPs per TCP-RST / 503 nach kurzen Bursts (~25 Anfragen bei 5 Req/s).
 
 ---
 
@@ -57,6 +60,11 @@ Der Test muss jeweils 10 standardisierte Adress-Suchanfragen abdecken:
 | 8 | `Dorfstr 5 Hintertupf` | Ländliche Dorfstraße | Kleinstadt / Dorf |
 | 9 | `Friedrichstr 100` | Mehrdeutige Großstadt-Straße | Ohne Ortsangabe |
 | 10 | `Schillerweg 7a` | Hausnummer mit Buchstabe | Suffix |
+
+> **Hinweise zum Test-Korpus aus der Praxis:**
+> - Query 3 (`Hauptstr 42 Koeln`): Mehrdeutig, da Köln mehrere Hauptstraßen besitzt (z. B. Porz 51143, Sürth 50999).
+> - Query 5 (`Am Markt 3 Leipzig`): „Am Markt“ ist eine andere Straße als „Markt 3, 04109 Leipzig“.
+> - Query 7 (`Bahnhofstr 1 20095`): Nicht existent in Hamburg (Overpass findet 0 Treffer für Bahnhofstr. 1 in 20095).
 
 ---
 
@@ -84,3 +92,10 @@ Der Agent liefert die Ergebnisse als Markdown-Tabelle im Format:
 **Entscheidungsschwelle für DIN-BriefNEO:**
 - Ein Wechsel oder Fallback lohnt sich nur, wenn ein freier Provider median unter **150 ms** antwortet und bei 5 Requests/s stabil ohne HTTP 429 bleibt.
 - Bleiben Nominatim/Photon bei > 400 ms oder drosseln sie, bleibt Geoapify als alleiniger Provider bestätigt.
+
+---
+
+## 5. Durchgeführte Benchmarks
+
+- **2026-11-20:** Vollständiger Benchmark-Bericht siehe [[BENCHMARK-GEOCODING-2026-11-20]].
+  - *Ergebnis:* Kein Wechsel. Nominatim verbietet Autocomplete per Policy; Photon blockiert IP nach Last-Burst; Geoapify bleibt stabil und ist als einziger Anbieter vertraglich/technisch für clientseitiges Autocomplete tragfähig.

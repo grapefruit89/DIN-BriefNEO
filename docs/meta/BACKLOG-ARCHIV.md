@@ -54,7 +54,7 @@ Lebende Liste: [[BACKLOG]]. Nummern und Vergaberegeln: [[ID-REGISTER]].
 | B23 | Fitness Gate: 5 A-Gesetze ohne maschinelle Prüfung (`law_coverage`) | erledigt | 2026-11-14 | Historie |
 | B24 | Fitness Gate: `tooling-overview.md` überschreitet 400-Zeilen-Limit | erledigt | 2026-11-14 | Historie |
 | B27 | Mehrseitige DIN-5008-Briefe (Karussell, Folgeseiten-Kopf, Überlauf-Erkennung) | erledigt | — | Historie |
-| B28 | Multi-Provider Geocoding (Nominatim, Photon, BKG) | abgelehnt | 2026-11-20 | Historie |
+| B28 | Multi-Provider Geocoding (Nominatim, Photon, BKG) | abgelehnt | 2026-11-20 | [[BENCHMARK-GEOCODING-2026-11-20]] |
 | B29 | Geoapify Performance Tuning (Pre-Warming, Session-Debounce & LRU-Cache) | erledigt | 2026-11-15 | Historie |
 | B30 | Geoapify Region Bias & Multi-Cluster Failover (EU/Global Endpunkte) | erledigt | 2026-11-15 | Historie |
 | B34 | DIN-5008-Folgeseiten-Nummerierung (`<din-seitenangabe>`) | erledigt | 2026-11-14 | Historie |

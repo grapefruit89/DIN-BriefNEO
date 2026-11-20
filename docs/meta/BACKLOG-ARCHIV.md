@@ -57,6 +57,7 @@ Lebende Liste: [[BACKLOG]]. Nummern und Vergaberegeln: [[ID-REGISTER]].
 | B29 | Geoapify Performance Tuning (Pre-Warming, Session-Debounce & LRU-Cache) | erledigt | 2026-11-15 | Historie |
 | B30 | Geoapify Region Bias & Multi-Cluster Failover (EU/Global Endpunkte) | erledigt | 2026-11-15 | Historie |
 | B34 | DIN-5008-Folgeseiten-Nummerierung (`<din-seitenangabe>`) | erledigt | 2026-11-14 | Historie |
+| B35 | Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) | abgelehnt | 2026-11-15 | Historie |
 | B36 | Schema-Datei für v3 anlegen oder Verweis endgültig streichen | erledigt | 2026-11-15 | `186664c` |
 | B37 | View-Transition wirft `InvalidStateError` beim Seitenaufbau | erledigt | 2026-11-07 | Historie |
 | B39 | `mehrseiten-prototyp.html` einordnen | erledigt | 2026-11-08 | Historie |
@@ -95,6 +96,7 @@ Lebende Liste: [[BACKLOG]]. Nummern und Vergaberegeln: [[ID-REGISTER]].
 | B78 | `tools/paint-probe.mjs` überschreibt seine eigene Beweislage | erledigt | 2026-11-14 | Historie |
 | B79 | `doc-size`-Gate meldet einmalig 406 Zeilen für eine 405-Zeilen-Datei | erledigt | 2026-11-14 | Historie |
 | B82 | Toast: Auto-Dismiss in CSS statt JS-Timer | erledigt | 2026-11-15 | DECISION-LOG |
+| B83 | Signatur: globalen `pointerdown`-Listener durch `:focus-within` ersetzen | erledigt | 2026-11-07 | `286b5ea` |
 | B86 | Tote Einstellung `copyfit` entfernen oder implementieren | erledigt | 2026-11-15 | Historie |
 | B88 | Kaskade: 35 spiegelnde `!important` auflösen | erledigt | 2026-11-15 | `ce445dc` |
 | B89 | Chrome-157–160-Behauptungen prüfen, bevor sie ins Design gehen | erledigt | 2026-11-15 | Historie |

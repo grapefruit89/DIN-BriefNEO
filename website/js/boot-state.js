@@ -162,14 +162,6 @@
         .toLocaleString('de-DE', { dateStyle: 'long' });
     }
 
-    /* Einmal Style/Layout erzwingen, BEVOR die Sperre faellt. Sonst landen die
-       Attribut-Aenderungen und die Freigabe der Uebergaenge im selben Recalc -
-       CSS sieht "Wert neu + Uebergaenge an" und startet die Transition trotz
-       Sperre (gemessen 2026-11-12: #stil-select blendete von 0 bis 200 ms auf,
-       obwohl data-seeded erst am Ende gesetzt wird). Ein einzelner Read,
-       kein Polling (A49). */
-    void document.documentElement.offsetHeight;
-
     /* Signal fuer CSS: Zustand steht. Die Regler, deren Wert aus localStorage
        kommt, sind bis hierher unsichtbar (siehe sidebar.css). NICHT an
        data-ready haengen: das setzt main.js erst am Ende von initApp, also

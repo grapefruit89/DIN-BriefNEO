@@ -32,7 +32,6 @@ meinem Können, sondern daran, ob der Prompt ein Entscheidungskriterium
 enthielt.
 
 ---
-
 ## 1. Pflichtfelder
 
 | Feld | Ohne dieses Feld passiert |
@@ -231,7 +230,6 @@ bei visuellen Bugs docs/10-architecture/ADR-MESS-SCHLEIFE.md.
 ```
 
 ---
-
 ## 2. Aufgabentypen
 
 | Typ | Zusätzlich nötig | Beleg aus dieser Session |
@@ -256,7 +254,6 @@ bei visuellen Bugs docs/10-architecture/ADR-MESS-SCHLEIFE.md.
   fragen — der falsche Weg, aber der einzige, den der Prompt zuließ.
 
 ---
-
 ## 3. Anti-Patterns im Prompt
 
 | Anti-Pattern | Warum es ablenkt | Besser |
@@ -295,7 +292,6 @@ einem fragmentierten Block nur am Blockende. Erst `box-decoration-break: clone`
 wäre ein wirkungsloser Fix mit grünem Test in der Historie.
 
 ---
-
 ## 4. Positive Patterns
 
 | Pattern | Warum es hilft | Beleg |
@@ -315,7 +311,6 @@ aus „irgendwas hat sich geändert" ein „alles unterhalb 273,31 mm, Textbreit
 weiteren Messrunde.
 
 ---
-
 ## 5. Rückfragen
 
 **Wann fragen:**
@@ -343,7 +338,6 @@ Seiten erfüllt, kein Vertrag gebrochen.
 Bedingungen erfüllt. Frage erst, wenn du drei Optionen durchgerechnet hast.
 
 ---
-
 ## 6. Stoppen
 
 **Die drei Stopp-Signale:**
@@ -366,7 +360,6 @@ war Stoppen richtig, die dritte Option zu suchen war besser.
 dann im Output: was zurückgenommen wurde, wie das Gate aussah, nächster Schritt.
 
 ---
-
 ## 7. Output
 
 **Pflichtfelder je Antwort:** Ist-Zustand · Messung (Zahl + Einheit) · Bewertung
@@ -390,7 +383,6 @@ Alternativen.
 | „Der Test fängt den Bug" | Rot-Nachweis mit altem Stand |
 
 ---
-
 ## 8. Prompt-Checkliste (vor dem Absenden)
 
 - [ ] HEAD-Hash + Testzahl genannt?

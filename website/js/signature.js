@@ -239,6 +239,9 @@ export class SignatureFeature {
     if (this.imgElement) {
       this.imgElement.src = this.currentBlobUrl;
     }
+    if (this.container) {
+      this.container.dataset.hasImage = 'true';
+    }
   }
 
   /**
@@ -314,6 +317,10 @@ export class SignatureFeature {
 
     if (this.imgElement) {
       this.imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+    }
+
+    if (this.container) {
+      delete this.container.dataset.hasImage;
     }
 
     if (this.settings) {

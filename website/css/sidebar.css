@@ -1089,8 +1089,6 @@ input[type="checkbox"][switch] {
   max-height: min(400px, 45vh);
 }
 
-#anschriftfeld:has(#empfaenger-firma:focus) ~ #plz-suggestions-popover,
-:has(#empfaenger-firma:focus) #plz-suggestions-popover,
 body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
   position-anchor: --anchor-firma;
 }

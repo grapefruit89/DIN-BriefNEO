@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-25 offene Punkte. Details unterhalb, nach Art gruppiert.
+23 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -61,7 +61,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B31** | Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker | S | ⭐⭐ |
 | **B32** | Brief-Verlauf und zwei Adressbücher (Addon `verlauf`) | S | ⭐⭐⭐⭐ |
 | **B33** | DIN-5008-Telefonnummer-Formatierer (Expliziter Button) | S | ⭐⭐⭐ |
-| **B35** | Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) | S | ⭐⭐⭐ |
 | **B38** | Chromium klemmt Rahmenbreiten unter 1px auf 1px | N | ⭐ |
 | **B40** | Vier vorbestehende Testfehler dokumentieren | M | ⭐⭐ |
 | **B51** | Design-Tokens in `sidebar.css` durchziehen | M | ⭐⭐ |
@@ -71,7 +70,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
 | **B80** | Export als `.txt` und `.md` | S | ⭐⭐ |
 | **B81** | Multi-Tab: das Restrisiko benennen oder abschaffen | S | ⭐ |
-| **B83** | Signatur: globalen `pointerdown`-Listener durch `:hover`/`:focus-within` ersetzen | S | ⭐⭐ |
 | **B84** | `ClipboardAddressParser` bewerten: behalten oder aufteilen | M | ⭐⭐ |
 | **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
 | **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
@@ -133,58 +131,12 @@ dann als eigenes Experiment messen (LCP/FCP vorher/nachher), nicht als
 Voraussetzung für die Architekturarbeit.
 
 ### B59 · Kaskade über `@layer` statt `!important` · **M** · ⭐⭐
-Ist-Zustand (**gemessen 2026-11-15**, Kommentare nicht mitgezählt, nur die vier
-Dateien, die `index.html` wirklich lädt — `sheet.css` ist stillgelegt und zählt
-nicht):
+**Ist-Zustand (gemessen 2026-11-15):** 92 `!important` (55 Druck, 37 außerhalb) über 4 CSS-Dateien (`sheet-multipage.css`: 63, `base.css`: 25, `sidebar.css`: 3, `sheet-common.css`: 1), 295 ID-Selektoren, 0 `@layer`.
 
-| Datei | `!important` | Zeilen |
-|---|---:|---:|
-| `website/css/sheet-multipage.css` | 63 | 606 |
-| `website/css/base.css` | 25 | 368 |
-| `website/css/sidebar.css` | 3 | 1.282 |
-| `website/css/sheet-common.css` | 1 | 726 |
-| **Summe** | **92** | **2.982** |
-
-**Zählweise: Vorkommen, nicht Zeilen.** `base.css:332` trägt vier auf einer
-Zeile (`#app-shell { … }`), deshalb 25 statt 22. Wer Zeilen zählt, kommt auf
-89 und rechnet falsch. Aufteilung nach Kontext: **55 im Druck**
-(`@media print` + `@page`), **37 außerhalb**. Dazu **295
-ID-Selektor-Vorkommen** in 2.982 Zeilen, **0 `@layer`**.
-
-Der Sprung 91 → 92 kommt von B82: die Ausnahme für die Hinweis-Lebensdauer
-unter `prefers-reduced-motion` ist eine bewusste, begründete `!important`-Zeile.
-
-**Vorlage:** `batch/03-kaskade/prompt.md` ist der Neuschnitt nach B92 (Stand
-92). Der Review dazu ist gelaufen (GitHub #20 → B88 + B92); dieser Punkt ist
-der Umbau, nicht die Bestandsaufnahme.
-
-**Vorprobe 2026-11-15 (gemessen, siehe DECISION-LOG):** zwei Umbauten getestet.
-Erfolgreich: `#viewport` (Bildschirm) in `@layer screen`, 2 `!important`
-entfernt, 6 PDF-Seiten **0 Pixel**, 8 Geometrie-Zustände gleich. Gescheitert:
-`#kern` (Druck) ohne `!important` — **2.871.046 Pixel** Unterschied, sofort
-zurückgenommen; die Gegenregel ist `@scope (din-blatt) #kern` (Zeile 259), die
-auch im Druck gilt und deren Scoping-Nähe die Reihenfolge schlägt.
-
-**Damit ist die Reihenfolge klar:** erst `base.css` und die ungeschichtete
-Bildschirm-Sperre (`sheet-multipage.css:74/83/93`) in Schichten legen, dann
-können die Druck-`!important` fallen. Vorher nicht — sonst gewinnen die
-ungeschichteten Regeln.
-
-**Vollständiger Plan, Messprotokoll und Abbruchkriterium:**
-`docs/30-meta/B59-LAYER-PLAN.md`. Dort steht auch, was **nicht** geht (gemessen)
-— damit diese Untersuchung nicht ein zweites Mal gemacht wird. Die „billige"
-Ausbeute ist erschöpft: **2 von 90** (Test 1), der Rest braucht den Umbau.
-
-**Vorbedingung aus B92 (gemessen, nicht vermutet):** die 92 sind **nicht**
-pauschal ersetzbar. Von fünf geprüften Kandidaten waren **drei nicht tot**
-(`@top-left`/`@top-right` `content: none` und `#spacer { display: block }`
-tragen), einer ist wirkungslos (`@page :first`-Rand), einer ist tragend
-(`margin: 0 auto` + 8 Duelle — sie halten `data-seiten="2"` zusammen).
-Ein `@layer`-Umbau braucht deshalb **pro Etappe beide Messungen**: PDF-Pixel
-**und** Geometrie-Dump. Der PDF-Vergleich allein sieht `data-seiten="2"` nicht.
-Grenze: `!important` gegen **Inline-Style** (JS setzt `style=`) und der
-`*`-Kill-Switch in `@media (prefers-reduced-motion)` sind strukturell nicht
-durch `@layer` ersetzbar — dort bleibt `!important`.
+**Vollständiger Plan, Messprotokoll und Abbruchkriterium:** [[B59-LAYER-PLAN]].
+- **Vorprobe 2026-11-15:** Zwei Umbauten getestet. Erfolgreich: `#viewport` (Bildschirm) in `@layer screen`, 2 `!important` entfernt, 0 Pixel Diff. Gescheitert: `#kern` (Druck) ohne `!important` (2.871.046 Pixel Abweichung durch `@scope (din-blatt) #kern`).
+- **Reihenfolge:** Erst `base.css` und die Bildschirm-Sperre in Schichten legen, dann können Druck-`!important` fallen.
+- **Vorbedingung:** Pro Etappe PDF-Pixel (0 Diff) und Geometrie-Dump messen. `!important` gegen Inline-Styles und prefers-reduced-motion bleiben bestehen.
 
 ### B93 · `targetLock` wird viermal geleert — Redundanz **nicht** bewiesen · **S** · ⭐
 **Herkunft:** Batch 05 (`fakten.md` §2, gemessen 2026-11-15). **Zurückgestuft**
@@ -242,11 +194,6 @@ Tab hat den Fokus), mit zwei Fenstern auf zwei Monitoren aber möglich.
 beim Speichern vergleichen (dann: Konflikt statt Überschreiben). Empfehlung:
 akzeptieren — der Schaden ist ein verlorener Absatz, die Reparatur wäre ein
 zweiter Zustand in jeder Speicherung.
-
-### B83 · Signatur: globalen `pointerdown`-Listener durch `:hover`/`:focus-within` ersetzen · **S** · ⭐⭐
-**Herkunft:** `docs/90-archive/todo-2026-11/17-js-vs-css-rest.md` (Punkt 29), geprüft: `pointerdown` steht noch in `signature.js`.
-**Problem:** Ein `document`-Listener auf jeder Zeigerbewegung nur dafür, die Signatur-Box ein- und auszublenden.
-**Lösung:** CSS `:hover`/`:focus-within` auf dem Signatur-Bereich. Vorher messen, dass die Bbox im PDF unverändert bleibt (Geometrie!).
 
 ### B84 · `ClipboardAddressParser` bewerten: behalten oder aufteilen · **M** · ⭐⭐
 **Herkunft:** `docs/90-archive/todo-2026-11/done/18-overengineering-mass.md` (Punkt 35), geprüft: Modul lebt, 615 Zeilen.
@@ -313,14 +260,6 @@ solange Geoapify reicht.
 - **KISS-Bedienung:** Kein fehleranfälliges `oninput`- oder `onblur`-Auto-Formatting (verhindert Cursor-Jumping und Falschkorrekturen bei Sonderrufnummern).
 - **UI:** Expliziter Aktions-Button `#btn-format-tel` direkt am Telefonnummern-Eingabefeld.
 - **Defensives Parsing:** Kann eine Nummer nicht eindeutig zerlegt werden, bleibt der Originaltext unberührt und es wird ein dezenter Warnhinweis ausgegeben.
-
-### B35 · Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) · **S** · ⭐⭐⭐
-**Kontext:** DIN 5008 Kap. 20.3 (Falzmarken Form A/B und Lochmarke).
-**Ziel:** Höchste Präzision beim Drucken und PDF-Rendern:
-- **Problem:** CSS-Border (`border-top: 1px solid`) leidet bei 96/300 DPI unter Rundungsfehlern und treiberabhängigen Skalierungsunschärfen (Hairline-Problem).
-- **Lösung:** Vektorbasierte `<svg>`-Marken mit `stroke-width="0.25mm"` und `vector-effect="non-scaling-stroke"`.
-- **IMR-Invariante:** Koordinaten (`data-falz-1-y`, `data-falz-2-y`, `data-loch-y`) verbleiben als deklarative `data-*`-Attribute am HTML-Wurzelelement (SSoT).
-- **Print-Sicherheit:** Sicherstellen, dass `print.css` die SVG-Marken nicht versehentlich unterdrückt.
 
 ---
 
@@ -424,8 +363,8 @@ vorher; im Druck/PDF wirkt `0.5pt` (0,176 mm statt 0,282 mm). Die Änderung in
 `7e59132` ist die Angleichung an `print.css`/`print-multipage.css` (dort war 0.5pt
 schon immer gesetzt) — kein neuer Effekt, sondern Konsistenz.
 **Kein Fix über CSS-Rahmenbreiten möglich** (Chromium-Verhalten: Rahmen werden auf
-ganze Gerätepixel gerundet). Der einzige Weg zu echter Subpixel-Stärke ist der
-SVG-Ansatz aus **B35** (`stroke-width` in mm, `vector-effect="non-scaling-stroke"`).
+ganze Gerätepixel gerundet). Der einzige Weg zu echter Subpixel-Stärke wäre der
+archivierte SVG-Ansatz (ehem. B35, `stroke-width` in mm, `vector-effect="non-scaling-stroke"`).
 Bis dahin nur dokumentieren, damit niemand erwartet, dass 0.5pt auf dem Schirm
 sichtbar dünner ist.
 

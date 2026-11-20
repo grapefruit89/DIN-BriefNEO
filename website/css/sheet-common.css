@@ -485,7 +485,7 @@ din-anlagen-angabe {
   page-break-inside: avoid;
 }
 
-body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #unterschriftsbild-container { display: block; }
+#unterschriftsbild-container[data-has-image="true"] { display: block; }
 
 
 .unterschriftsbild-rahmen {

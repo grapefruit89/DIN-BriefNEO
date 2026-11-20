@@ -381,37 +381,49 @@ function istNamenslangform(kandidat, name) {
 }
 
 /* =========================================================================================
- * 2b. BRIEFKERN — FLOSKEL-BAUKASTEN & FÜNFZEHN SZENARIEN
+ * 2b. BRIEFKERN — FLOSKEL-BAUKASTEN & FÜNFZEHN SZENARIEN (NEUFASSUNG)
  * ========================================================================================= */
 
 /**
- * Modulare Textbausteine für formelle Einleitungen und Schlüsse.
+ * Erzeugt ein stabiles, absurdes Aktenzeichen aus dem Thema.
+ * Deterministisch (kein Math.random), damit derselbe Brief bei gleichem Thema
+ * dasselbe Aktenzeichen trägt – und der Textvergleich im Test hält.
+ * @param {string} thema
+ * @returns {string}
  */
+export function aktenzeichen(thema) {
+  const s = String(thema ?? '');
+  let h = 7;
+  for (const c of s) h = (h * 31 + (c.codePointAt(0) ?? 0)) % 10000;
+  const woerter = ['MORDOR', 'HANDTUCH', 'BANANE', 'TODESSTERN', 'AKTENORDNER', 'SONSTIGES'];
+  return `${String(h).padStart(4, '0')}-${woerter[h % woerter.length]}/${String((h * 7) % 1000).padStart(3, '0')}`;
+}
+
 export const FLOSKELN = {
   einleitung: [
-    'ich beziehe mich auf den bisherigen Schriftwechsel und darf Ihnen Folgendes mitteilen:',
-    'in vorbezeichneter Angelegenheit komme ich auf den Vorgang zurück.',
-    'unter Bezugnahme auf die jüngsten Entwicklungen wende ich mich an Sie.',
-    'namens und im Auftrag der Beteiligten nehme ich wie folgt Stellung:',
-    'zur Vermeidung weiterer Missverständnisse halte ich Folgendes fest:',
-    'nach eingehender Prüfung der Sach- und Rechtslage teile ich Ihnen mit:',
-    'in der vorbezeichneten Sache nehme ich Bezug auf die vorliegenden Unterlagen.'
+    'ich nehme Bezug auf Ihr Schreiben vom 3., Ihr Schreiben vom 4. sowie auf das Schreiben, das Sie mir versehentlich zweimal geschickt haben, und stelle fest:',
+    'in der vorbezeichneten Angelegenheit ist die Akte inzwischen so umfangreich, dass sie einen eigenen Aktenschrank benötigt; ich fasse daher zusammen:',
+    'nach Durchsicht aller 47 Seiten, von denen 46 Blankoseiten waren, teile ich Ihnen mit:',
+    'ich hatte gehofft, diese Angelegenheit erledige sich von selbst. Sie hat sich nicht erledigt. Daher:',
+    'unter Bezugnahme auf mein Schreiben, Ihr Schweigen und die daraus entstandene Rechtslage erkläre ich:',
+    'die zuständige Sachbearbeitung hat mir mitgeteilt, sie sei nicht zuständig, und mich an Sie verwiesen; Sie haben mich an sie zurückverwiesen. Ich wende mich daher an den verbleibenden Empfänger:',
+    'ich erlaube mir, den Vorgang in der gebotenen Kürze und der erforderlichen Ausführlichkeit zugleich darzustellen:'
   ],
   schluss: [
-    'Für eine zeitnahe Rückmeldung wäre ich Ihnen dankbar.',
-    'Ich sehe Ihrer geschätzten Rückäußerung mit Interesse entgegen.',
-    'Bitte bestätigen Sie mir den Eingang dieses Schreibens schriftlich.',
-    'Ich gehe davon aus, dass die Angelegenheit damit einvernehmlich geregelt ist.',
-    'Für Rückfragen stehe ich Ihnen jederzeit zur Verfügung.',
-    'Ich danke Ihnen vorab für Ihre Unterstützung in dieser Angelegenheit.',
-    'Bitte behandeln Sie diesen Vorgang mit der gebotenen Vertraulichkeit.'
+    'Ich bitte um Antwort innerhalb von zwei Wochen. Innerhalb von drei Wochen bitte ich um eine Erklärung, warum nicht innerhalb von zwei Wochen geantwortet wurde.',
+    'Für Rückfragen stehe ich zur Verfügung, allerdings nur schriftlich, nur dienstags und nur zu Fragen, die ich bereits beantwortet habe.',
+    'Sollte dieses Schreiben unbeantwortet bleiben, werde ich es als Zustimmung werten. Das ist rechtlich nicht haltbar, aber ich versuche es.',
+    'Ich verbleibe mit der Bitte um ordnungsgemäße Ablage in der dafür vorgesehenen, mir unbekannten Ablage.',
+    'Bitte bestätigen Sie den Eingang dieses Schreibens. Die Bestätigung der Bestätigung erhalten Sie selbstverständlich ebenfalls.',
+    'Ich danke für die zügige Erledigung und weise vorsorglich darauf hin, dass „zügig“ hier nicht als dehnbarer Begriff verstanden werden sollte.',
+    'Dieses Schreiben ergeht in dreifacher Ausfertigung: eine für Sie, eine für die Akte und eine für die Akte über die Akte.'
   ]
 };
 
 /**
- * Bindet Einleitungs- und/oder Schlussbausteine deterministisch ein.
+ * Reichert einen Text optional um Einleitungs- und/oder Schlussfloskel an.
  * @param {string} text
- * @param {{ einleitung?: boolean, schluss?: boolean } | string} [opt]
+ * @param {string | {einleitung?: boolean, schluss?: boolean}} [opt]
  * @param {() => number} [rnd]
  * @returns {string}
  */
@@ -442,18 +454,11 @@ export function floskele(text, opt = {}, rnd = Math.random) {
  */
 
 /**
- * @typedef {object} Szenario
- * @property {string} id
- * @property {string} kategorie
- * @property {(thema: string, rnd?: () => number) => string} betreff
- * @property {(k: BriefKontext) => string} text
- */
-
-/**
- * Hilfsfunktion zur Zufallsauswahl einer Betreff-Variante.
+ * Wählt eine Betreff-Variante.
  * @param {Array<(t: string) => string>} varianten
  * @param {string} thema
- * @param {() => number} rnd
+ * @param {string} [fallback]
+ * @param {() => number} [rnd]
  * @returns {string}
  */
 function waehleBetreff(varianten, thema, fallback = '', rnd = Math.random) {
@@ -464,9 +469,16 @@ function waehleBetreff(varianten, thema, fallback = '', rnd = Math.random) {
 }
 
 /**
- * Fünfzehn vielseitige Briefgattungen nach thematischen Kategorien.
- * Jede Stelle, an der der Hook steht, ist Doppelpunkt-Nachtrag.
- *
+ * @typedef {object} Szenario
+ * @property {string} id
+ * @property {string} kategorie
+ * @property {(thema: string, rnd?: () => number) => string} betreff
+ * @property {(k: BriefKontext) => string} text
+ */
+
+/**
+ * Fünfzehn Briefgattungen. Reihenfolge und Kategorien sind Vertragsbestandteil:
+ * `test/all.js` filtert mit rnd = 0 und erwartet bestimmte IDs.
  * @type {Szenario[]}
  */
 export const SZENARIEN = [
@@ -474,196 +486,196 @@ export const SZENARIEN = [
     id: 'kuendigung',
     kategorie: 'konfrontativ',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Kündigung der Verwahrungsvereinbarung für den Gegenstand „${th}“`,
-      (th) => `Beendigung der Vereinbarung zur Verwahrung des Gegenstands „${th}“`,
-      (th) => `Kündigung des Verwahrungsverhältnisses bezüglich ${th}`
-    ], t, 'Fristlose Kündigung des Vertragsverhältnisses', rnd),
+      (th) => `Außerordentliche Kündigung der Verwahrungsvereinbarung: ${th}`,
+      (th) => `Fristlose Beendigung des Verwahrungsverhältnisses – Vorgang: ${th}`,
+      (th) => `Kündigung, hilfsweise zum Monatsende, hauptsächlich sofort: ${th}`
+    ], t, 'Außerordentliche Kündigung der Verwahrungsvereinbarung', rnd),
     text: (k) =>
-      `hiermit kündige ich die zwischen uns bestehende Vereinbarung fristlos und mit sofortiger Wirkung.\n\n` +
-      `Gegenstand dieser Maßnahme ist die Verwahrung und Nutzung des Gegenstands „${k.thema}“. Trotz mehrfacher Aufforderung haben Sie es unterlassen, den ordnungsgemäßen Zustand herzustellen. Als ${k.sName} teile ich Ihnen von unserem Standort „${k.sOrt}“ aus mit, dass mir eine weitere Überlassung an Sie nicht zumutbar ist.\n\n` +
-      `Ich verlange die unverzügliche Rückgabe des Gegenstands binnen 14 Tagen sowie eine schriftliche Bestätigung der Vertragsauflösung.`
+      `hiermit kündige ich die zwischen uns bestehende Verwahrungsvereinbarung außerordentlich, fristlos und – damit keine Auslegungsspielräume bleiben – mit sofortiger Wirkung. Aktenzeichen: ${aktenzeichen(k.thema)}.\n\n` +
+      `Verwahrt wurde bislang der Gegenstand „${k.thema}“. Absender dieses Schreibens: ${k.sName}; Standort: ${k.sOrt}. Die Verwahrung war als Übergangslösung gedacht, nicht als Dauerzustand mit eigener Postanschrift. Auf drei Aufforderungen, den ordnungsgemäßen Zustand herzustellen, haben Sie mit insgesamt null Stellungnahmen reagiert; ich verweise auf § 12 Abs. 1 Gegenstandsverwahrungs- und Rückgabeverordnung (GegaRüV), die diesen Fall nicht regelt, aber vortrefflich klingt.\n\n` +
+      `Entgegengenommen wurde der Gegenstand seinerzeit unter der Anschrift „${k.rOrt}“; federführend war damals: ${k.rName}. Ich verlange die Rückgabe binnen 14 Tagen, montags zwischen 9:00 und 9:15 Uhr, mit Zustandsprotokoll in dreifacher Ausfertigung. Eine Rückgabe an einem anderen Wochentag gilt als nicht erfolgt.`
   },
   {
     id: 'beschwerde',
     kategorie: 'eskalierend',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Förmliche Rüge wegen unsachgemäßer Handhabung: ${th}`,
-      (th) => `Dienstaufsichtsbeschwerde zur Verwendung von ${th}`,
-      (th) => `Dringende Beschwerde über Pflichtverletzung bezüglich ${th}`
-    ], t, 'Dienstaufsichtsbeschwerde wegen grober Pflichtverletzung', rnd),
+      (th) => `Dienstaufsichtsbeschwerde wegen des Vorfalls: ${th}`,
+      (th) => `Förmliche Rüge – wiederholte Pflichtverletzung im Umgang mit ${th}`,
+      (th) => `Beschwerde, hiermit ernsthaft: ${th}`
+    ], t, 'Dienstaufsichtsbeschwerde wegen wiederholter Pflichtverletzung', rnd),
     text: (k) =>
-      `ich wende mich mit einer förmlichen Beschwerde an Sie.\n\n` +
-      `Der Vorfall bezüglich des Gegenstands „${k.thema}“ ist in einem Maße eskaliert, das jeder sachlichen Grundlage entbehrt. Ihre zuständige Stelle am Standort „${k.rOrt}“ hat es versäumt, die offensichtlichen Mängel zu beseitigen. Als ${k.sName} sehe ich mich gezwungen, die zuständige Aufsicht einzuschalten.\n\n` +
-      `Ich erwarte einen verbindlichen Maßnahmenkatalog bis zum Ende der laufenden Woche.`
+      `ich erhebe hiermit Beschwerde – nicht die kleine, die man nach drei Tagen vergisst, sondern die, die in der Akte bleibt.\n\n` +
+      `Anlass ist der Umgang Ihrer Dienststelle mit dem Gegenstand „${k.thema}“. Ich habe die Vorfälle nummeriert, weil man mir sonst nicht glaubt: Vorfall 1 war ärgerlich, Vorfall 2 war vermeidbar, Vorfall 3 wurde von Ihnen als „Vorfall 1“ bezeichnet. Sachbearbeitung: ${k.rName}; Dienstort: ${k.rOrt}. Absenderseitig: ${k.sName}; ansässig in ${k.sOrt}. Nach § 7 Abs. 4 Verwaltungsvereinfachungsverschlimmerungsgesetz (VVVG) ist eine Beschwerde erst zulässig, wenn sie zweimal nicht bearbeitet wurde – diese Voraussetzung ist erfüllt.\n\n` +
+      `Ich erwarte einen Maßnahmenkatalog bis Freitag, 12:00 Uhr, sowie die schriftliche Zusage, dass Vorfall 3 künftig als Vorfall 3 geführt wird.`
   },
   {
     id: 'schadensersatz',
     kategorie: 'semi-konfrontativ',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Schadensmeldung und Ersatzansprüche bezüglich ${th}`,
-      (th) => `Geltendmachung von Schadensersatz wegen Beschädigung: ${th}`,
-      (th) => `Zahlungsaufforderung zum Schadensfall an ${th}`
-    ], t, 'Geltendmachung von Ersatzansprüchen wegen Sachschaden', rnd),
+      (th) => `Schadensersatzforderung nach Beschädigung: ${th}`,
+      (th) => `Geltendmachung von Ersatzansprüchen – Schadensfall ${th}`,
+      (th) => `Zahlungsaufforderung mit Fristsetzung: ${th}`
+    ], t, 'Geltendmachung von Ersatzansprüchen wegen Sachschadens', rnd),
     text: (k) =>
-      `hiermit mache ich Schadensersatz wegen grober Fahrlässigkeit geltend.\n\n` +
-      `Im Zusammenhang mit der Beschädigung des Gegenstands „${k.thema}“ ist ein Schaden entstanden, der die zumutbare Bagatellgrenze um ein Vielfaches überschreitet. Die von Ihnen am Standort „${k.rOrt}“ zu verantwortenden Umstände sowie der detaillierte Schadensbericht sind diesem Schreiben als Anlage beigefügt.\n\n` +
-      `Ich fordere Sie zur Regulierung binnen 30 Tagen auf; andernfalls ergeht Mahnbescheid.`
+      `hiermit mache ich Schadensersatz geltend und bedaure, dass es so weit kommen musste.\n\n` +
+      `Beschädigt wurde der Gegenstand „${k.thema}“ – nicht unerheblich, sondern so, dass ein Gutachten erforderlich wurde. Das Gutachten liegt bei (Anlage 1), das Gutachten über das Gutachten ebenfalls (Anlage 2), nachdem die erste Begutachtung zu dem Ergebnis kam, dass begutachtet werden müsse. Zustellanschrift der Gegenseite: „${k.rOrt}“; Zeichnung: ${k.rName}. Meine Wenigkeit: ${k.sName}; mein Standort: ${k.sOrt}. Der Schaden liegt deutlich über der Bagatellgrenze nach § 5 Abs. 3 Verordnung über die Ordnung des Sonstigen (SonstV).\n\n` +
+      `Ich fordere Regulierung binnen 30 Tagen. Nach Ablauf dieser Frist ergeht Mahnbescheid, und ich verspreche Ihnen jetzt schon, dass er sorgfältig formatiert sein wird.`
   },
   {
     id: 'auskunft',
     kategorie: 'behoerdlich',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Auskunftsersuchen zum Verbleib von ${th}`,
-      (th) => `Antrag auf Akteneinsicht und Auskunft bezüglich ${th}`,
-      (th) => `Amtliches Ersuchen um Sachstandsmitteilung zu ${th}`
-    ], t, 'Antrag auf Akteneinsicht und Sachstandsmitteilung', rnd),
+      (th) => `Auskunftsersuchen zum Verbleib: ${th}`,
+      (th) => `Antrag auf Akteneinsicht und Sachstand – Vorgang ${th}`,
+      (th) => `Amtliches Ersuchen um Auskunft, letztmalig höflich: ${th}`
+    ], t, 'Auskunftsersuchen und Antrag auf Akteneinsicht', rnd),
     text: (k) =>
-      `ich bitte um vollumfängliche Auskunft zum Sachverhalt betreffend „${k.thema}“.\n\n` +
-      `Hinsichtlich des Verbleibs und der weiteren Nutzung seit dem Vorfall am Standort „${k.rOrt}“ sind bei mir als ${k.sName} erhebliche Rückfragen offen. Ich setze Ihnen hiermit eine Frist von zehn Werktagen zur schriftlichen Stellungnahme.\n\n` +
-      `Nach fruchtlosem Fristablauf behalte ich mir weitere rechtliche Schritte ausdrücklich vor.`
+      `ich bitte um Auskunft zum Verbleib des Gegenstands „${k.thema}“ – um eine vollständige, nicht um die übliche. Aktenzeichen: ${aktenzeichen(k.thema)}.\n\n` +
+      `Seit dem Vorfall fehlen Spur, Zwischenbericht und jeder Hinweis darauf, dass sich jemand zuständig gefühlt hätte. Auf Ihren Namen bin ich dabei gestoßen: ${k.rName}; Anschrift: ${k.rOrt}. Der Unterzeichnende – ${k.sName} – ist am Standort ${k.sOrt} erreichbar. Ich beantrage Akteneinsicht nach § 3 Abs. 11 Akteneinsichtsverwirrungsverordnung; die Verwaltungsgebühr von 12,50 € habe ich in Briefmarken beigelegt, da Ihr Formular keine anderen Zahlungswege vorsieht.\n\n` +
+      `Ich setze eine Frist von zehn Werktagen. Nach fruchtlosem Ablauf behalte ich mir vor, die Auskunft erneut zu beantragen, diesmal mit Anwalt und schlechter Laune.`
   },
   {
     id: 'abmahnung',
     kategorie: 'semi-konfrontativ',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Abmahnung und Unterlassungsaufforderung bezüglich ${th}`,
-      (th) => `Förmliche Abmahnung wegen unbefugter Nutzung: ${th}`,
-      (th) => `Dringende Aufforderung zur Unterlassung im Vorgang ${th}`
+      (th) => `Abmahnung und Unterlassungsaufforderung: ${th}`,
+      (th) => `Förmliche Abmahnung wegen unbefugter Verwendung: ${th}`,
+      (th) => `Letzte außergerichtliche Aufforderung – Vorgang: ${th}`
     ], t, 'Förmliche Abmahnung und Unterlassungsaufforderung', rnd),
     text: (k) =>
-      `hiermit mahne ich Sie im Vorgang bezüglich „${k.thema}“ ab.\n\n` +
-      `Die von Ihnen zu verantwortende unberechtigte Nutzung sowie die daraus entstandenen Schäden überschreiten jedes zumutbare Maß. Ich fordere Sie auf, bis spätestens Ende der Woche eine strafbewehrte Unterlassungserklärung abzugeben.\n\n` +
-      `Andernfalls werde ich die Angelegenheit ohne weitere Vorwarnung rechtlich eskalieren.`
+      `hiermit mahne ich Sie ab – förmlich, schriftlich und mit dem Bedauern, das die Form verlangt.\n\n` +
+      `Sie verwenden den Gegenstand „${k.thema}“ ohne Erlaubnis, ohne Anspruch und, soweit erkennbar, ohne Unrechtsbewusstsein. Festgestellt wurde das unter der Anschrift „${k.rOrt}“; verantwortlich zeichnet: ${k.rName}. Absender: ${k.sName}; Ort: ${k.sOrt}.\n\n` +
+      `Ich fordere Sie auf, bis Ende der Woche eine strafbewehrte Unterlassungserklärung zu unterzeichnen. Die Vertragsstrafe bemesse ich in Anlehnung an § 14 Abs. 2 Intergalaktische Lärmschutzverordnung (ILärmSchV) auf die durchschnittliche Monatsmiete eines Todessterns, zahlbar sofort und ohne Abzug. Kommen Sie der Aufforderung nicht nach, eskaliere ich ohne weitere Vorwarnung; Warnungen spreche ich grundsätzlich nur einmal aus, das ist für uns beide effizienter.`
   },
   {
     id: 'kooperation',
     kategorie: 'kooperativ',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Vorschlag zur kooperativen Abstimmung bezüglich ${th}`,
-      (th) => `Angebot einer gemeinsamen Klärung im Vorgang ${th}`,
-      (th) => `Initiative zur partnerschaftlichen Zusammenarbeit über ${th}`
-    ], t, 'Vorschlag zur kooperativen Abstimmung', rnd),
+      (th) => `Vorschlag einer gemeinsamen Klärung: ${th}`,
+      (th) => `Einladung zum Abstimmungsgespräch – Thema: ${th}`,
+      (th) => `Kooperation statt weiterer Schreiben: ${th}`
+    ], t, 'Vorschlag einer gemeinsamen Klärung', rnd),
     text: (k) =>
-      `ich wende mich in einer wenig alltäglichen Angelegenheit an Sie.\n\n` +
-      `Seit einiger Zeit beschäftigt mich der sachgerechte Einsatz bezüglich „${k.thema}“, und ich halte eine gemeinsame Klärung für den vernünftigsten Weg. Ich würde es als ${k.sName} sehr begrüßen, wenn wir die offenen Fragen in Ihrem Zuständigkeitsbereich am Standort „${k.rOrt}“ gemeinsam durchgehen könnten.\n\n` +
-      `Ich schlage einen Termin in den kommenden zwei Wochen vor und freue mich auf Ihre Rückmeldung.`
+      `ich wende mich mit einem Vorschlag an Sie, der für beide Seiten unangenehm, aber machbar ist.\n\n` +
+      `Seit geraumer Zeit beschäftigt uns der sachgerechte Umgang mit „${k.thema}“, und ich bin ehrlich genug zuzugeben, dass auch ich nicht mehr weiß, wer wem wann was zugesagt hat. Ihre Seite erreiche ich unter der Anschrift „${k.rOrt}“; als Zuständigen hat man mir dort genannt: ${k.rName}. Absender: ${k.sName}; Ort: ${k.sOrt}. Statt weiterer Schreiben schlage ich ein Gespräch vor: 45 Minuten, eine Tagesordnung, zwei Stühle, kein Beamer.\n\n` +
+      `Als Termin schlage ich einen Dienstag in den kommenden zwei Wochen vor. Sollten Sie an einem Dienstag verhindert sein, schlage ich einen anderen Dienstag vor.`
   },
   {
     id: 'angebot',
     kategorie: 'kooperativ',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Unverbindliches Angebot zur Bereitstellung von ${th}`,
-      (th) => `Konditionen und Leistungsumfang für ${th}`,
-      (th) => `Freibleibendes Projektangebot bezüglich ${th}`
+      (th) => `Unverbindliches Angebot zur Bereitstellung: ${th}`,
+      (th) => `Leistungsumfang und Konditionen – ${th}`,
+      (th) => `Angebot, freibleibend und ehrlich gemeint: ${th}`
     ], t, 'Unverbindliches Angebot über Dienstleistungen', rnd),
     text: (k) =>
-      `sehr gerne unterbreite ich Ihnen ein verbindliches Angebot bezüglich „${k.thema}“.\n\n` +
-      `Nach Auswertung der Gegebenheiten am Standort „${k.rOrt}“ habe ich als ${k.sName} ein maßgeschneidertes Konzept ausgearbeitet. Unser Leistungsspektrum garantiert Ihnen höchste Zuverlässigkeit und transparente Umsetzung.\n\n` +
-      `Dieses Angebot ist freibleibend gültig für vier Wochen ab Erhalt.`
+      `gerne unterbreite ich Ihnen ein Angebot, das ich vorsorglich als unverbindlich bezeichne, damit wir beide etwas haben, worauf wir uns später nicht berufen können.\n\n` +
+      `Gegenstand ist die Bereitstellung von „${k.thema}“ für Ihre Stelle unter der Anschrift „${k.rOrt}“, zu Händen von: ${k.rName}. Anbieter: ${k.sName}; Ort: ${k.sOrt}. Das Angebot umfasst drei Pakete: Paket A (Gegenstand, wie er ist), Paket B (Gegenstand, gereinigt) und Paket C (Gegenstand mit Bedienungsanleitung, die erfahrungsgemäß nicht gelesen wird). In allen drei Paketen ist eine Rechnung enthalten, die pünktlich kommt.\n\n` +
+      `Das Angebot gilt vier Wochen. Danach gilt es weiter, allerdings mit dem Gesichtsverlust, den eine Nachfrage mit sich bringt.`
   },
   {
     id: 'bestellung',
     kategorie: 'geschaeftlich',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Verbindliche Bestellung von ${th}`,
-      (th) => `Auftragserteilung gemäß Vereinbarung zu ${th}`,
-      (th) => `Bestellung zur unverzüglichen Lieferung von ${th}`
+      (th) => `Verbindliche Bestellung: ${th}`,
+      (th) => `Auftragserteilung gemäß Vereinbarung – Position: ${th}`,
+      (th) => `Bestellung, hiermit rechtsverbindlich: ${th}`
     ], t, 'Verbindliche Bestellung gemäß Vereinbarung', rnd),
     text: (k) =>
-      `hiermit erteile ich Ihnen verbindlich den Auftrag zur Lieferung bezüglich „${k.thema}“.\n\n` +
-      `Bitte veranlassen Sie die Bereitstellung des vorgenannten Artikels gemäß den vereinbarten Parametern. Die entsprechende Bestellspezifikation ist diesem Schreiben als Anlage beigefügt. Als ${k.sName} erwarte ich die Lieferung an unsere Anschrift am Standort „${k.sOrt}“.\n\n` +
-      `Ich bitte Sie daher um zeitnahe Zusendung einer Auftragsbestätigung.`
+      `hiermit bestelle ich verbindlich, unwiderruflich und in der Menge, die ich für angemessen halte.\n\n` +
+      `Bestellt wird: 1 × „${k.thema}“, Lieferung an meinen Standort ${k.sOrt}, Rechnung an dieselbe Anschrift. Besteller: ${k.sName}. Die Bestellspezifikation liegt als Anlage bei; sie umfasst vier Seiten, von denen drei die Verpackung betreffen. Ihre Niederlassung unter der Anschrift „${k.rOrt}“ – Sachbearbeitung: ${k.rName} – bestätigt bitte schriftlich, dass sie lieferfähig ist. Nicht, dass sie liefern wird; dass sie könnte.\n\n` +
+      `Ich erwarte eine Auftragsbestätigung binnen fünf Werktagen. Ohne Bestätigung gehe ich davon aus, dass die Bestellung erledigt ist – rechtlich falsch, praktisch bequem.`
   },
   {
     id: 'mahnung',
     kategorie: 'semi-konfrontativ',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Zahlungserinnerung und Mahnung zum Vorgang ${th}`,
-      (th) => `Erste Mahnung wegen Ausstands bezüglich ${th}`,
-      (th) => `Dringende Zahlungsaufforderung zum Posten ${th}`
+      (th) => `Erste Mahnung wegen Zahlungsverzugs: ${th}`,
+      (th) => `Zahlungserinnerung, Mahnstufe 1 von 14 – ${th}`,
+      (th) => `Letzte Zahlungsaufforderung vor der zweiten: ${th}`
     ], t, 'Erste Mahnung wegen Zahlungsverzugs', rnd),
     text: (k) =>
-      `bei Durchsicht meiner Unterlagen habe ich festgestellt, dass der Vorgang betreffend „${k.thema}“ noch offen ist.\n\n` +
-      `Trotz Fälligkeit der Vergütung für die Überlassung von „${k.thema}“ konnte bisher kein entsprechender Zahlungseingang verbucht werden. Ich darf Sie daher höflich an den offenen Betrag erinnern und bitte um Begleichung binnen zehn Tagen.\n\n` +
-      `Sollte sich diese Zahlungserinnerung mit Ihrer zwischenzeitlichen Anweisung überschnitten haben, betrachten Sie dieses Schreiben bitte als gegenstandslos.`
+      `bei Durchsicht meiner Unterlagen musste ich feststellen, dass ich die Unterlagen bereits dreimal durchgesehen habe und der Posten weiterhin offen ist.\n\n` +
+      `Offen ist die Vergütung für die Überlassung von „${k.thema}“. Die Rechnung ging an Ihre Stelle unter der Anschrift „${k.rOrt}“, Bearbeitung: ${k.rName}. Gläubiger: ${k.sName}; Ort: ${k.sOrt}. Ich habe die Buchhaltung eingeschaltet; sie hat den Vorgang geprüft, für korrekt befunden und anschließend vergessen. Ich bitte daher um Begleichung binnen zehn Tagen auf das bekannte Konto, dessen Nummer Sie besser kennen als ich.\n\n` +
+      `Sollte sich dieses Schreiben mit Ihrer Zahlung überschnitten haben, betrachten Sie es als gegenstandslos und mich als erleichtert.`
   },
   {
     id: 'widerspruch',
     kategorie: 'behoerdlich',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Förmlicher Widerspruch gegen die Verfügung zu ${th}`,
-      (th) => `Widerspruch gegen den Bescheid betreffend ${th}`,
-      (th) => `Rechtsbehelf und Antrag auf Aussetzung bezüglich ${th}`
+      (th) => `Förmlicher Widerspruch gegen den Bescheid: ${th}`,
+      (th) => `Widerspruch und Antrag auf Aussetzung – Vorgang ${th}`,
+      (th) => `Rechtsbehelf, form- und fristgerecht: ${th}`
     ], t, 'Förmlicher Widerspruch gegen den Bescheid', rnd),
     text: (k) =>
-      `gegen die getroffene Feststellung im Vorgang bezüglich „${k.thema}“ lege ich hiermit form- und fristgerecht Widerspruch ein.\n\n` +
-      `Die Begründung stützt sich auf unvollständige Ermittlungen hinsichtlich des vorgenannten Gegenstands. Als ${k.sName} mache ich von unserem Standort „${k.sOrt}“ aus geltend, dass wesentliche Umstände unberücksichtigt geblieben sind.\n\n` +
-      `Ich beantrage, die Vollziehung auszusetzen und den Bescheid Ihnen gegenüber vollumfänglich aufzuheben.`
+      `gegen den Bescheid im Vorgang „${k.thema}“ lege ich hiermit Widerspruch ein – formgerecht, fristgerecht und mit der gebotenen Missbilligung. Aktenzeichen: ${aktenzeichen(k.thema)}.\n\n` +
+      `Der Bescheid stützt sich auf Ermittlungen, die keine waren: Zeugen wurden nicht vernommen, Unterlagen nicht gelesen, Rückfragen nicht gestellt. Zwei der Zeugen sind im Übrigen Drachen und standen die ganze Zeit daneben. Erlassen wurde der Bescheid unter der Anschrift „${k.rOrt}“; gezeichnet: ${k.rName}. Widerspruchsführer: ${k.sName}; Ort: ${k.sOrt}. Ich berufe mich auf § 22 Abs. 9 Bürokratieabbau-Bürokratieverordnung (BBV), die zur Vereinfachung die Vorlage des Formulars 12 b verlangt – beiliegend.\n\n` +
+      `Ich beantrage die Aussetzung der Vollziehung und die Aufhebung des Bescheids. Hilfsweise beantrage ich einen verständlichen Bescheid; auch das wäre eine Verbesserung.`
   },
   {
     id: 'antrag',
     kategorie: 'behoerdlich',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Antrag auf behördliche Genehmigung für ${th}`,
-      (th) => `Förmlicher Antrag zur Zulassung von ${th}`,
-      (th) => `Genehmigungsantrag im Zusammenhang mit ${th}`
+      (th) => `Antrag auf behördliche Genehmigung: ${th}`,
+      (th) => `Genehmigungsantrag nebst Anlagen – ${th}`,
+      (th) => `Förmlicher Antrag, vollständig und hoffentlich ausreichend: ${th}`
     ], t, 'Antrag auf behördliche Genehmigung', rnd),
     text: (k) =>
-      `hiermit stelle ich förmlich Antrag auf behördliche Genehmigung bezüglich „${k.thema}“.\n\n` +
-      `Die gesetzlichen Voraussetzungen für die Zulassung von „${k.thema}“ sind nachweislich erfüllt. Als ${k.sName} habe ich alle erforderlichen Nachweise zusammengetragen und übermittle diese an Ihre Dienststelle am Standort „${k.rOrt}“. Die Unterlagen sind als Anlage beigefügt.\n\n` +
-      `Ich ersuche Sie daher um Ausstellung eines rechtsmittelfähigen Bescheids.`
+      `hiermit beantrage ich die behördliche Genehmigung für „${k.thema}“ und versichere, alle zumutbaren Anstrengungen unternommen zu haben, das richtige Formular zu finden.\n\n` +
+      `Antragsteller: ${k.sName}; Ort: ${k.sOrt}. Zuständig ist Ihre Stelle unter der Anschrift „${k.rOrt}“, nach eigener Auskunft: ${k.rName}. Die Unterlagen liegen bei: Anlage 1 bis 12; Anlage 13 fehlt, weil sie von Ihrer Stelle stammt; Anlage 14 ist ein Foto, das Anlage 13 zeigt, solange sie noch da war. Die gesetzlichen Voraussetzungen sind erfüllt – ich verweise auf § 19 Abs. 3 Zuständigkeitsvermutungsvermutung, wonach Zuständigkeit vermutet wird, solange sie nicht bestritten ist.\n\n` +
+      `Ich ersuche um einen rechtsmittelfähigen Bescheid binnen drei Monaten. Ich bin in der Lage, drei Monate zu warten – aber nicht gern.`
   },
   {
     id: 'bewerbung',
     kategorie: 'persoenlich',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Initiativbewerbung mit Schwerpunkt auf ${th}`,
-      (th) => `Bewerbung um Zusammenarbeit im Bereich ${th}`,
-      (th) => `Interessenbekundung zur Mitwirkung an ${th}`
+      (th) => `Initiativbewerbung mit Schwerpunkt: ${th}`,
+      (th) => `Bewerbung um Mitwirkung im Bereich ${th}`,
+      (th) => `Interessenbekundung, ernst gemeint: ${th}`
     ], t, 'Initiativbewerbung und Interessenbekundung', rnd),
     text: (k) =>
-      `mit großem Interesse habe ich Ihre Aktivitäten bezüglich „${k.thema}“ verfolgt.\n\n` +
-      `Als ${k.sName} verfüge ich über fundierte Erfahrungen und profunde Kenntnisse im Umgang mit „${k.thema}“, die ich gewinnbringend in Ihr Team am Standort „${k.rOrt}“ einbringen kann. Ein kollegialer Austausch mit Ihnen würde neue Perspektiven eröffnen.\n\n` +
-      `Über die Gelegenheit zu einem persönlichen Gespräch freue ich mich sehr.`
+      `mit großem Interesse verfolge ich seit einiger Zeit, wie Ihre Stelle mit „${k.thema}“ umgeht, und ich bin überzeugt: Es braucht jemanden, der das anders macht.\n\n` +
+      `Bewerber: ${k.sName}; Ort: ${k.sOrt}. Ich bringe Erfahrung im Umgang mit dem Gegenstand mit, Geduld im Umgang mit Formularen und die Bereitschaft, an Besprechungen teilzunehmen, deren Zweck sich erst in der vierten Stunde erschließt. Ihre Stelle unter der Anschrift „${k.rOrt}“ – Ansprechperson: ${k.rName} – würde von dieser Mischung profitieren, spätestens nach der Probezeit. Meine Gehaltsvorstellung orientiert sich an § 14 Abs. 2 Intergalaktische Lärmschutzverordnung, also an Ortsüblichkeit plus Zuschlag.\n\n` +
+      `Über ein Gespräch freue ich mich. Kommt keines zustande, betrachte ich diese Bewerbung als Aktenbestand und mich als weiterhin interessiert.`
   },
   {
     id: 'dankesschreiben',
     kategorie: 'positiv',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Herzlichen Dank für die Unterstützung bei ${th}`,
-      (th) => `Dank und Anerkennung im Zusammenhang mit ${th}`,
-      (th) => `Persönlicher Dank für Ihren Einsatz bezüglich ${th}`
+      (th) => `Herzlichen Dank für die Unterstützung: ${th}`,
+      (th) => `Dank und Anerkennung – Vorgang ${th}`,
+      (th) => `Ein Lob, das Sie sich verdient haben: ${th}`
     ], t, 'Herzlichen Dank für die angenehme Zusammenarbeit', rnd),
     text: (k) =>
-      `ich möchte die Gelegenheit nutzen, um mich herzlich für Ihren Einsatz zu bedanken.\n\n` +
-      `Ihr herausragendes Engagement bei der Handhabung bezüglich „${k.thema}“ hat maßgeblich zum erfolgreichen Abschluss beigetragen. Als ${k.sName} wissen wir die hervorragende Kooperation mit Ihrer Stelle am Standort „${k.rOrt}“ sehr zu schätzen.\n\n` +
-      `Für die zukünftigen Vorhaben wünsche ich Ihnen weiterhin viel Erfolg.`
+      `ich möchte die Gelegenheit nutzen, um mich zu bedanken – ausdrücklich, schriftlich und ohne Hintergedanken, was in dieser Korrespondenz eine Seltenheit ist.\n\n` +
+      `Ihr Umgang mit „${k.thema}“ war so sorgfältig, dass ich zunächst einen Fehler vermutete. Ihre Stelle unter der Anschrift „${k.rOrt}“ hat den Vorgang bearbeitet, ohne ihn zu verlegen, zu verlieren oder an jemand anderen abzugeben; dafür gebührt Lob, und zwar zu Protokoll. Dankender: ${k.sName}; Ort: ${k.sOrt}. Namentlich gilt der Dank: ${k.rName} – offenbar hat dort jemand die Sache nicht als Zuständigkeitsfrage verstanden, sondern als Aufgabe.\n\n` +
+      `Ich habe eine Urkunde in dreifacher Ausfertigung beigelegt: eine für Sie, eine für die Akte und eine für den Fall, dass die Akte verloren geht.`
   },
   {
     id: 'einladung',
     kategorie: 'positiv',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Einladung zum Fachsymposium über ${th}`,
-      (th) => `Förmliche Einladung zur Fachtagung bezüglich ${th}`,
-      (th) => `Einladung zum fachlichen Austausch über ${th}`
+      (th) => `Förmliche Einladung zum Fachsymposium: ${th}`,
+      (th) => `Einladung zur Fachtagung – Schwerpunktthema ${th}`,
+      (th) => `Sie sind eingeladen, und zwar persönlich: ${th}`
     ], t, 'Förmliche Einladung zur Fachtagung', rnd),
     text: (k) =>
-      `es ist mir eine besondere Freude, Sie zu unserer Veranstaltung einzuladen.\n\n` +
-      `Im Mittelpunkt der Tagung steht der zukunftsweisende Gegenstand „${k.thema}“. Als ${k.sName} würde ich mich freuen, Sie als geschätzten Gast bei uns am Standort „${k.sOrt}“ begrüßen zu dürfen.\n\n` +
-      `Bitte teilen Sie mir bis zum Monatsende mit, ob wir mit Ihrer Teilnahme rechnen dürfen.`
+      `es ist mir eine Freude, Sie einzuladen, und eine besondere Freude, Ihnen die Tagesordnung vorab zuzusenden.\n\n` +
+      `Die Tagung widmet sich dem Gegenstand „${k.thema}“ in ganzer Breite. Gastgeber: ${k.sName}; Tagungsort: ${k.sOrt}. Anmeldung bitte bei mir, nicht bei der Stelle unter der Anschrift „${k.rOrt}“, die erfahrungsgemäß weiterleitet; dort ist ${k.rName} für die Weiterleitung zuständig, was dort auch gern bestätigt wird. Tagesordnung: TOP 1 Begrüßung, TOP 2 Vortrag, TOP 3 Aussprache, TOP 4 Kaffeepause, TOP 5 Fortsetzung der Kaffeepause, TOP 6 Schlusswort.\n\n` +
+      `Bitte teilen Sie mir bis Monatsende mit, ob Sie teilnehmen. Wer nicht absagt, gilt als angemeldet; wer absagt, erhält die Unterlagen trotzdem.`
   },
   {
     id: 'beschwerde_aufsicht',
     kategorie: 'eskalierend',
     betreff: (t, rnd = Math.random) => waehleBetreff([
-      (th) => `Eskalationsanzeige an die Fachaufsicht wegen ${th}`,
-      (th) => `Beschwerde über Missstände im Vorgang ${th}`,
-      (th) => `Aufsichtsbeschwerde zur vorschriftswidrigen Nutzung: ${th}`
+      (th) => `Eskalationsanzeige an die Fachaufsicht: ${th}`,
+      (th) => `Aufsichtsbeschwerde wegen Untätigkeit – Vorgang ${th}`,
+      (th) => `Anzeige einer Anzeige: ${th}`
     ], t, 'Eskalationsanzeige an die zuständige Fachaufsicht', rnd),
     text: (k) =>
-      `hiermit zeige ich schwere Mängel in der Bearbeitung des Vorgangs betreffend „${k.thema}“ an.\n\n` +
-      `Wiederholte Hinweise bezüglich der vorschriftswidrigen Behandlung wurden von Ihrer Seite am Standort „${k.rOrt}“ ignoriert. Als ${k.sName} sehe ich mich gezwungen, das Fehlverhalten nunmehr unmittelbar der übergeordneten Aufsichtsbehörde vorzulegen.\n\n` +
-      `Ich fordere Sie ultimativ zur Abhilfe binnen fünf Werktagen auf.`
+      `hiermit zeige ich an, dass ich anzeige – und zwar aus einem Grund, der sich in einem Satz zusammenfassen lässt: Es passiert nichts. Aktenzeichen: ${aktenzeichen(k.thema)}.\n\n` +
+      `Im Vorgang „${k.thema}“ wurden drei Hinweise eingereicht, zweimal weitergeleitet und einmal als „erledigt“ vermerkt, ohne dass etwas erledigt worden wäre. Die Stelle unter der Anschrift „${k.rOrt}“ hat den Vorgang zuletzt an sich selbst verwiesen; gezeichnet: ${k.rName}. Anzeigender: ${k.sName}; Ort: ${k.sOrt}. Ich verweise auf § 88 Abs. 1 Satz 2 Formularvordruckverordnung (FVV), nach der ein Vorgang erst als ruhend gilt, wenn niemand mehr weiß, wo er liegt.\n\n` +
+      `Ich fordere Abhilfe binnen fünf Werktagen sowie eine schriftliche Mitteilung darüber, wer ab wann zuständig war. Bleibt beides aus, fasse ich das als Zuständigkeit auf.`
   }
 ];
 

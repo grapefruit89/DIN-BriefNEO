@@ -421,7 +421,6 @@ export class UIProtections {
     if (this.initialized) return;
     this.enforceLineLimits();
     this.setupPrintProtection();
-    this.setupOverflowDetector();
     this.initialized = true;
   }
 
@@ -789,81 +788,7 @@ export class UIProtections {
     }
   }
 
-  /**
-   * D1: Overflow-Erkennung im Briefkern (#kern).
-   * Dual-Check via CSSOM View APIs: scrollHeight + BoundingClientRect-Fallback.
-   * Setzt data-ueberlauf und data-ueberlauf-zeilen am din-blatt.
-   */
-  setupOverflowDetector() {
-    const blatt = document.querySelector('din-blatt');
-    const kern = document.getElementById('kern');
-    const text = document.getElementById('text');
-    if (!blatt || !kern) return;
-
-    /** @type {(cb: FrameRequestCallback) => number} */
-    const raf = typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function'
-      ? window.requestAnimationFrame.bind(window)
-      : (cb) => /** @type {number} */ (/** @type {unknown} */ (setTimeout(cb, 0)));
-
-    const checkOverflow = () => {
-      raf(() => {
-        if (!blatt || !kern) return;
-
-        // Gemessen (2026-11-08): mit `overflow: clip` meldet scrollHeight den
-        // Inhalt korrekt (238 -> 814 px bei 30 Absätzen); der frühere
-        // getBoundingClientRect-Fallback lag in jedem Fall gleichauf und
-        // erzwang nur einen zusätzlichen Layout-Read. Der ResizeObserver
-        // bleibt: das Blatt skaliert über cqw und #kern wächst mit
-        // (238 -> 358 px bei Viewport 900x700).
-        const hasOverflow = kern.scrollHeight > kern.clientHeight + 1;
-
-        if (hasOverflow) {
-          blatt.setAttribute('data-ueberlauf', 'true');
-          const computedLineHeight = text ? Number.parseFloat(window.getComputedStyle(text).lineHeight) : 18;
-          const lineHeight = Number.isFinite(computedLineHeight) && computedLineHeight > 0 ? computedLineHeight : 18;
-          const overflowPixels = Math.max(0, kern.scrollHeight - kern.clientHeight);
-          const estimatedLines = Math.max(1, Math.ceil(overflowPixels / lineHeight));
-          blatt.setAttribute('data-ueberlauf-zeilen', String(estimatedLines));
-        } else {
-          blatt.removeAttribute('data-ueberlauf');
-          blatt.removeAttribute('data-ueberlauf-zeilen');
-        }
-      });
-    };
-
-    // Debounced Trigger für Benutzereingaben im Text (200ms)
-    /** @type {ReturnType<typeof setTimeout> | null} */
-    let debounceTimer = null;
-    const debouncedCheck = () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(checkOverflow, 200);
-    };
-
-    if (text) {
-      text.addEventListener('input', debouncedCheck);
-    }
-
-    // ResizeObserver auf #kern für Viewport- und Zoomwechsel
-    if (typeof ResizeObserver !== 'undefined') {
-      if (this.resizeObserver) {
-        this.resizeObserver.disconnect();
-      }
-      this.resizeObserver = new ResizeObserver(() => {
-        checkOverflow();
-      });
-      this.resizeObserver.observe(kern);
-    }
-
-    // Initialer Check beim Start
-    checkOverflow();
-  }
-
-  destroy() {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-      this.resizeObserver = null;
-    }
-  }
+  destroy() {}
 }
 
 /* =========================================================================================

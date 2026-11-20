@@ -100,7 +100,7 @@ Die Stylesheets werden bewusst und ausschließlich über statische `<link rel="s
   - Form A: Faltmarke 1 bei 87 mm, Anschriftfeld 27 mm, Infoblock Y = 32 mm.
 - **Single Source of Truth im DOM:**
   - Die numerischen Maße stehen als HTML-Datenattribute am `<din-blatt>` (`data-falzmarke-1-y-b="105"`, `data-falzmarke-1-y-a="87"`).
-  - [`sheet-common.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet-common.css) transformiert diese Werte über `attr(... type(<number>))` und `@function --mm-y()` in relative Container-Units (`cqh`).
+  - [`sheet-common.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet-common.css) transformiert diese Werte über `attr(... type(<number>))` und `@function --mm-y()` in physische Millimeter bzw. Punkte.
   - Es existieren **keine Millimeter-Dubletten** in `sidebar.css` oder JavaScript.
 
 ### 4.4 Print- vs. Screen-Isolierung

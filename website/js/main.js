@@ -4,7 +4,6 @@
 
 import { initAddonDispatcher } from './addons.js';
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
-import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Events, eventBus, initToastSystem } from './core.js';
 import { collectDraft, initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';
@@ -162,7 +161,6 @@ function initApp() {
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());
   bootStep('Import/Export', () => initImportExport({ collectDraft }));
-  bootStep('Clipboard-Button', () => ClipboardAddressParser.wireSidebarButton());
   bootStep('Anrede', () => new SalutationFeature(settingsManager).init());
   bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
   bootStep('Schriftart', () => new FontFeature(settingsManager).init());

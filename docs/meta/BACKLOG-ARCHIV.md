@@ -51,6 +51,7 @@ Lebende Liste: [[BACKLOG]]. Nummern und Vergaberegeln: [[ID-REGISTER]].
 | B19 | Adaptive 3-Zonen-Logik + Zero-Click-Autofill | erledigt | 2026-10-02 | Historie |
 | B20 | `fetch()`-Zeitlimits in `43-geoapify.js` | erledigt | 2026-10-02 | DECISION-LOG |
 | B21 | Offene CSS-Features bewerten: `@page`-Seitenzahlen, `::highlight()`, `subgrid` | erledigt | 2026-10-02 | DECISION-LOG |
+| B22 | Automatisierter Guard gegen hartcodierte Geometriewerte | abgelehnt | 2026-11-20 | YAGNI; SSoT im HTML ist stabil und getestet |
 | B23 | Fitness Gate: 5 A-Gesetze ohne maschinelle Prüfung (`law_coverage`) | erledigt | 2026-11-14 | Historie |
 | B24 | Fitness Gate: `tooling-overview.md` überschreitet 400-Zeilen-Limit | erledigt | 2026-11-14 | Historie |
 | B27 | Mehrseitige DIN-5008-Briefe (Karussell, Folgeseiten-Kopf, Überlauf-Erkennung) | erledigt | — | Historie |
@@ -100,7 +101,9 @@ Lebende Liste: [[BACKLOG]]. Nummern und Vergaberegeln: [[ID-REGISTER]].
 | B79 | `doc-size`-Gate meldet einmalig 406 Zeilen für eine 405-Zeilen-Datei | erledigt | 2026-11-14 | Historie |
 | B82 | Toast: Auto-Dismiss in CSS statt JS-Timer | erledigt | 2026-11-15 | DECISION-LOG |
 | B83 | Signatur: globalen `pointerdown`-Listener durch `:focus-within` ersetzen | erledigt | 2026-11-07 | `286b5ea` |
+| B84 | ClipboardAddressParser als On-Demand-Addon aus Boot-Pfad ausgelagert | erledigt | 2026-11-20 | website/addons/clipboard-parser/ |
 | B86 | Tote Einstellung `copyfit` entfernen oder implementieren | erledigt | 2026-11-15 | Historie |
+| B87 | Text- und Adress-Parsing modernisieren | abgelehnt | 2026-11-20 | Kein Schaden, bestehende Regex-Heuristik stabil |
 | B88 | Kaskade: 35 spiegelnde `!important` auflösen | erledigt | 2026-11-15 | `ce445dc` |
 | B89 | Chrome-157–160-Behauptungen prüfen, bevor sie ins Design gehen | erledigt | 2026-11-15 | Historie |
 | B90 | `data-generated` ist tot, `--rand-u` könnte CSS lesen | erledigt | 2026-11-15 | Historie |

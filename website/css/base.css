@@ -254,14 +254,24 @@ body {
   result: calc(var(--points) * 0.3528 / var(--blatt-breite) * 100cqw);
 }
 
+@function --mm-abs-x(--mm) {
+  result: calc(var(--mm) * 1mm);
+}
+@function --mm-abs-y(--mm) {
+  result: calc(var(--mm) * 1mm);
+}
+@function --pt-abs(--points) {
+  result: calc(var(--points) * 1pt);
+}
+
 @function --mm-x(--mm) {
-  result: --mm-rel-x(var(--mm));
+  result: --mm-abs-x(var(--mm));
 }
 @function --mm-y(--mm) {
-  result: --mm-rel-y(var(--mm));
+  result: --mm-abs-y(var(--mm));
 }
 @function --pt(--points) {
-  result: --pt-rel(var(--points));
+  result: --pt-abs(var(--points));
 }
 
 :root[data-theme="light"],

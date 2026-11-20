@@ -54,7 +54,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
-| **B22** | Automatisierter Guard gegen hartcodierte Geometriewerte (`tools/check-geometry.js`) | M | ⭐⭐ |
 | **B25** | Vorkonfigurierte Brief-Vorlagen (JSON-Muster) | M | ⭐⭐⭐ |
 | **B26** | Optionale DIN-5008-Validatoren (Anschrift-Zeilenlimit & IBAN) | S | ⭐⭐ |
 | **B31** | Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker | S | ⭐⭐ |
@@ -67,9 +66,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
 | **B80** | Export als `.txt` und `.md` | S | ⭐⭐ |
 | **B81** | Multi-Tab: das Restrisiko benennen oder abschaffen | S | ⭐ |
-| **B84** | `ClipboardAddressParser` bewerten: behalten oder aufteilen | M | ⭐⭐ |
 | **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
-| **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
 | **B91** | BIC → Bankname als Erweiterung (Addon) | M | ⭐⭐ |
 | **B93** | `targetLock` wird viermal geleert — Redundanz **nicht** bewiesen | S | ⭐ |
 | **B94** | Batch 06 auswerten: Layer-Kaskade | S | ⭐⭐ |
@@ -77,18 +74,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
-
-### B22 · Automatisierter Guard gegen hartcodierte Geometriewerte (`tools/check-geometry.js`) · **M** · ⭐⭐
-**Kontext:** Nach der Geometrie-SSoT-Migration (Commit `1a6dba0`) leben alle statischen DIN-5008-Werte als `data-*`-Attribute im HTML.
-**Ziel:** Neues Tool `tools/check-geometry.js` als automatisierter Wächter:
-- Prüft in `website/css/sheet.css`:
-  - Keine numerischen Literale in `--mm-x()`, `--mm-y()`, `--pt()` (außer den 10 definierten Grauzonen-Literalen)
-  - Jedes `attr(data-X)` besitzt eine entsprechende HTML-Quelle am zugehörigen Element
-  - Keine Fallback-Zahlen in `attr()`
-  - Form-A/B-Paare sind vollständig vorhanden
-- CLI-Modi: Standard, `--json`, `--help`, `--version`
-- Exit-Code: 0 bei PASS, 1 bei FAIL
-- Bezug: Geometrie-SSoT-Migration (Commit `1a6dba0`)
 
 ### B40 · Vier vorbestehende Testfehler dokumentieren · **M** · ⭐⭐
 Gemessen am 2026-11-05 (Commit `aa4a39b`, reproduziert in eigenem Worktree):
@@ -177,11 +162,6 @@ beim Speichern vergleichen (dann: Konflikt statt Überschreiben). Empfehlung:
 akzeptieren — der Schaden ist ein verlorener Absatz, die Reparatur wäre ein
 zweiter Zustand in jeder Speicherung.
 
-### B84 · `ClipboardAddressParser` bewerten: behalten oder aufteilen · **M** · ⭐⭐
-**Herkunft:** `docs/90-archive/todo-2026-11/done/18-overengineering-mass.md` (Punkt 35), geprüft: Modul lebt, 615 Zeilen.
-**Problem:** Das Modul ist die größte Einzeldatei nach `address.js` und trägt Parsing, Normalisierung und UI-Anbindung. Ob das eine Verantwortung ist, wurde nie entschieden.
-**Lösung:** Eine Messung (wie viele Pfade, wie viele Tests) und dann eine Entscheidung: behalten mit Begründung oder in Parser + Anbindung teilen.
-
 ## ✨ Neue Features
 
 Produktideen. Sie ändern, **was** die App kann — nicht, wie sie gebaut ist.
@@ -228,13 +208,6 @@ angefasst, solange irgendetwas anderes offen ist.
 - **KISS-Bedienung:** Kein fehleranfälliges `oninput`- oder `onblur`-Auto-Formatting (verhindert Cursor-Jumping und Falschkorrekturen bei Sonderrufnummern).
 - **UI:** Expliziter Aktions-Button `#btn-format-tel` direkt am Telefonnummern-Eingabefeld.
 - **Defensives Parsing:** Kann eine Nummer nicht eindeutig zerlegt werden, bleibt der Originaltext unberührt und es wird ein dezenter Warnhinweis ausgegeben.
-
----
-
-### B87 · Text- und Adress-Parsing modernisieren (Konzept) · **M** · ⭐
-**Herkunft:** `docs/90-archive/todo-2026-11/09-text-parsing-modernization-plan.md`, geprüft: kein `Intl.Segmenter` und kein `RegExp`-`v`-Flag im Code.
-**Inhalt:** Dreistufige Pipeline für die Zwischenablage (Segmentierung via `Intl.Segmenter`, Muster via `RegExp` mit `v`-Flag, deterministische Adress-Zuordnung) statt der heutigen Kette aus `split`/Regex.
-**Warum ⭐:** Kein belegter Schaden, reine Modernisierung. Erst anfassen, wenn `clipboard-parser.js` ohnehin geändert wird (siehe B84).
 
 ## 🧩 Addons
 

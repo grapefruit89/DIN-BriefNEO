@@ -1235,7 +1235,7 @@ describe('Popover: geschlossene Overlays blockieren keine Klickfläche', () => {
   it('Puls beim Einfuegen kommt aus CSS und respektiert reduced-motion', async () => {
     const [css, js] = await Promise.all([
       fetch('/website/css/sheet-common.css').then((r) => r.text()),
-      fetch('/website/js/clipboard-parser.js').then((r) => r.text())
+      fetch('/website/addons/clipboard-parser/clipboard-parser.js').then((r) => r.text())
     ]);
     assert(/@keyframes\s+feld-puls/.test(css), '@keyframes feld-puls steht im Stylesheet');
     assert(

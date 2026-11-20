@@ -35,27 +35,6 @@ din-blatt {
   --spacer-hoehe: calc(var(--falz-oben-y) + 2mm - var(--rand-o));
 }
 
-/* Exakte physische Millimeter-Umrechnung für Mehrseiten-Layout (C1: explizit --mm-abs-*) */
-@function --mm-abs-x(--mm) {
-  result: calc(var(--mm) * 1mm);
-}
-@function --mm-abs-y(--mm) {
-  result: calc(var(--mm) * 1mm);
-}
-@function --pt-abs(--points) {
-  result: calc(var(--points) * 1pt);
-}
-
-@function --mm-x(--mm) {
-  result: --mm-abs-x(var(--mm));
-}
-@function --mm-y(--mm) {
-  result: --mm-abs-y(var(--mm));
-}
-@function --pt(--points) {
-  result: --pt-abs(var(--points));
-}
-
 /* Viewport-Scrolling für Mehrseiten (A43 Zero-Scroll Invariante)
    Explizit nur dann vertikales Scrollen im Viewport, wenn mehr als eine Seite beschrieben wird! */
 /* B59-Test 1: diese zwei !important waren gegen base.css:293 gerichtet, das

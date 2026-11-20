@@ -10,74 +10,21 @@
  *  3. DraftManager liegt seit 2026-11-08 in `draft-manager.js`.
  */
 
+import {
+  EDITABLE_FIELD_SELECTOR,
+  readField,
+  sanitizeRichText,
+  writeField,
+} from './draft-model.js';
 import { Field } from './field.js';
 import { applyMicroTypography } from './format.js';
-import { stripHtmlToPlaintext } from './persistence.js';
 import { letterState, setMeta } from './state.js';
 
-/* =========================================================================================
- * 0. RICH TEXT SANITIZER (Allowlist Guard)
- * ========================================================================================= */
-
-/**
- * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
- * Wird von DraftManager (Draft-Restore) und collectDraft genutzt.
- *
- * Bezug: Law Catalog H11 (PREFERRED) & Einleitung (FALLBACK-Klausel):
- * H11 setzt setHTML() als PREFERRED. sanitizeRichText bildet domänenspezifische
- * Anforderungen ab (vollständiges Strippen aller Inline-Attribute, Erhalt der
- * Spezialklasse <span class="brief-kommentar"> bei generischer SPAN-Entfernung,
- * Erzeugung eines DocumentFragment für replaceChildren/collectDraft), die natives
- * setHTML() nicht leistet.
- *
- * Extra-Tags (z. B. UL/LI für Listenfelder wie anlagen-angabe) ergänzen die
- * Basis-Allowlist (ohne Attribute).
- * @param {string} htmlString
- * @param {{ extraTags?: string[] }} [options]
- * @returns {DocumentFragment}
- */
-export function sanitizeRichText(htmlString, options = {}) {
-  const allowedTags = ['B', 'STRONG', 'S', 'BLOCKQUOTE', 'BR', 'DIV', 'P', 'I', 'EM', ...(options.extraTags || [])];
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlString || '', 'text/html');
-
-  /**
-   * @param {Node} node
-   * @returns {Node}
-   */
-  const sanitizeNode = (node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      return document.createTextNode(Field.getValue(node));
-    }
-    if (node.nodeType !== Node.ELEMENT_NODE) {
-      return document.createTextNode('');
-    }
-    const element = /** @type {Element} */ (node);
-    let newNode;
-    if (allowedTags.includes(element.nodeName)) {
-      newNode = document.createElement(element.nodeName.toLowerCase());
-    } else if (element.nodeName === 'SPAN' && element.classList.contains('brief-kommentar')) {
-      newNode = document.createElement('span');
-      newNode.className = 'brief-kommentar';
-    } else {
-      const frag = document.createDocumentFragment();
-      element.childNodes.forEach((child) => {
-        frag.appendChild(sanitizeNode(child));
-      });
-      return frag;
-    }
-    element.childNodes.forEach((child) => {
-      newNode.appendChild(sanitizeNode(child));
-    });
-    return newNode;
-  };
-
-  const frag = document.createDocumentFragment();
-  doc.body.childNodes.forEach((child) => {
-    frag.appendChild(sanitizeNode(child));
-  });
-  return frag;
-}
+/* Der Feld-Kern (Sanitizer, Selektor, readField/writeField, istAn) liegt seit
+ * D2 in `draft-model.js`, weil ihn auch der Boot-Pfad importieren muss. Die
+ * Namen bleiben hier re-exportiert, damit bestehende Importe unverändert
+ * funktionieren. */
+export { EDITABLE_FIELD_SELECTOR, readField, sanitizeRichText, writeField };
 
 /* =========================================================================================
  * 0.1 MIKRO-TYPOGRAFIE (DIN 5008 § 7.2 & § 8.2)
@@ -808,13 +755,6 @@ export class UIProtections {
  *    DraftManager selbst liegt in draft-manager.js.
  * ========================================================================================= */
 
-/* Komma ist CSS-Selektor-Listen-Vereinigung (ODER, nicht UND):
- * Matcht contenteditable-Blattfelder (#text), native Blattfelder
- * (input[data-atom], textarea[data-feldtyp]) und speicherbare Formular-Selects
- * (Postvermerk). Der Kommentar nannte frueher nur contenteditable (B12/S5). */
-export const EDITABLE_FIELD_SELECTOR =
-  '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-atom], select[data-speichern]';
-
 /**
  * Die IDs, die collectDraft() tatsächlich einsammelt (gleiche Allowlist:
  * contenteditable, textarea[data-feldtyp], input[data-atom]; Systemwerte nur
@@ -830,80 +770,6 @@ export function draftFieldIds(root = document) {
     ids.push(elem.id);
   });
   return ids;
-}
-
-/**
- * Liest den Wert genau eines Entwurfsfeldes.
- * Rich-Text-Felder werden vor der Ausgabe mit sanitizeRichText abgesichert
- * (A61: einzige Schreibgrenze). Gegenstück zu `writeField`.
- * @param {Element | HTMLElement | null} elem
- * @returns {string}
- */
-export function readField(elem) {
-  if (!elem) return '';
-  if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
-    const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
-    const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
-    const cleanFrag = sanitizeRichText(/** @type {HTMLElement} */ (elem).innerHTML, extra);
-    const container = document.createElement('div');
-    container.appendChild(cleanFrag);
-    return container.innerHTML;
-  }
-  return Field.getValue(elem);
-}
-
-/**
- * Schreibt einen Wert in genau ein Entwurfsfeld (Projektion des Zustands).
- * Die Allowlist-/Feldtyp-Prüfung bleibt beim Aufrufer (`render`).
- * @param {Element | HTMLElement | null} elem
- * @param {string | boolean} wert
- */
-export function writeField(elem, wert) {
-  if (!elem) return;
-  const text = typeof wert === 'string' ? wert : String(wert ?? '');
-
-  if (elem instanceof HTMLSelectElement) {
-    elem.value = text;
-    return;
-  }
-
-  if (Field.isNative(elem)) {
-    /* Migration alter Drafts: <li>-HTML -> \n-Text (einmalig). */
-    let val = text;
-    if (elem.id === 'anlagen-angabe' && val.includes('<')) {
-      val = stripHtmlToPlaintext(val);
-    }
-    Field.setValue(elem, val);
-    return;
-  }
-
-  // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
-  if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
-    const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
-    if (isListe && !text.includes('<li')) {
-      const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-      if (lines.length > 0) {
-        elem.replaceChildren(...lines.map((line) => {
-          const li = document.createElement('li');
-          Field.setValue(li, line);
-          return li;
-        }));
-      } else {
-        elem.replaceChildren();
-      }
-    } else {
-      const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
-      elem.replaceChildren(sanitizeRichText(text, extra));
-      if (isListe && elem.children.length === 0) {
-        elem.replaceChildren(document.createElement('li'));
-      }
-    }
-    return;
-  }
-
-  if (!elem.querySelector('select[data-speichern]')) {
-    Field.setValue(elem, text);
-  }
 }
 
 /**

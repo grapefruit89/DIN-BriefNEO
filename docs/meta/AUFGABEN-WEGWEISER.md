@@ -110,6 +110,7 @@ website/js/boot-state.js         UI-Zustand (Form, Postvermerk) am Body-Ende, VO
 website/js/main.js               Orchestrator: bootStep()-Kette, verdrahtet alle Module
 website/js/core.js               EventBus + Hinweise + Constants. KEINE Fachlogik.
 website/js/schema.js             Kanonische Feld-Reihenfolge (Schema v5), reine Daten
+website/js/draft-model.js        Gemeinsamer Feld-Kern: Selektor, Sanitizer, istAn, ein Wert-Schreiber
 website/js/state.js              Briefzustand im RAM (werte/meta/rev/ids) + Patch-API
 website/js/state-binding.js      Naht DOM↔Zustand: input/change-Listener, render(), Echo-Regel
 website/js/document.js           contenteditable, Sanitizer, Caret, Feldlimits, collectDraft()

@@ -29,6 +29,7 @@ code_links:
   - website/js/salutation.js
   - website/js/format.js
   - website/js/draft-manager.js
+  - website/js/draft-model.js
   - website/js/clipboard-parser.js
   - website/js/document.js
   - website/js/persistence.js

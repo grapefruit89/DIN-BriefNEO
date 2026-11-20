@@ -1844,10 +1844,16 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     /* Befund B11: die Migration suchte '#geschaeftsangaben > [contenteditable]'.
        Seit dem Fusszeilen-Umbau (2026-11-12) stehen dort <input>, some() war
        immer false und Alt-Entwuerfe ohne toggle-fuss verloren die Fusszeile.
-       Seit D1 laeuft die Migration ueber die gespeicherten fuss-* Felder. */
-    const src = await (await fetch('/website/js/draft-manager.js')).text();
-    assert(src.includes('fussFelder') && src.includes("'toggle-fuss' in draft"), 'Fußzeilen-Migration liest die fuss-*-Felder');
-    assert(!src.includes("'#geschaeftsangaben > [contenteditable]'"), 'alter DOM-Selektor ist entfernt');
+       Seit D2 liegt die Ableitung in draft-model.js (Boot und Restore teilen
+       sie); der Restore ruft sie ueber normalizeDraftWire auf. */
+    const [model, manager] = await Promise.all([
+      (await fetch('/website/js/draft-model.js')).text(),
+      (await fetch('/website/js/draft-manager.js')).text()
+    ]);
+    assert(model.includes('FUSS_FELDER') && model.includes("'toggle-fuss' in wire"), 'Fußzeilen-Migration liest die fuss-*-Felder');
+    assert(manager.includes('normalizeDraftWire'), 'Restore nutzt die geteilte Ableitung');
+    assert(!manager.includes('fussFelder'), 'keine zweite Kopie der Fußzeilen-Migration im Restore');
+    assert(!manager.includes("'#geschaeftsangaben > [contenteditable]'"), 'alter DOM-Selektor ist entfernt');
   });
 
   it('boot-state.js seedet alle gespeicherten Regler und das Datum', async () => {
@@ -5458,13 +5464,16 @@ describe('Ein/Aus-Schalter bleiben Haken, keine gestreckte Pille (2026-11-13)', 
 
 describe('Anlagen und Fusszeile als Root-Attribute (ADR-KISS-MINIMAL-JS, Weg 2)', () => {
   it('data-anlagen/data-fuss in JS gesetzt, CSS liest :root[data-...]', async () => {
-    /* D1: Schreiber sind boot.js (erster Frame) und state-binding.renderRootFlags();
-       draft-manager.js schreibt sie im Restore-Pfad (bis Stufe 4). */
-    for (const datei of ['/website/js/boot.js', '/website/js/state-binding.js']) {
+    /* D2: Die Wahrheit steht in draft-model.setRootFlags(); boot.js setzt die
+       Attribute vor dem ersten Frame selbst, state-binding.renderRootFlags()
+       delegiert an dieselbe Funktion. */
+    for (const datei of ['/website/js/boot.js', '/website/js/draft-model.js']) {
       const src = await (await fetch(datei)).text();
       assert(src.includes('data-anlagen'), `${datei} setzt data-anlagen`);
       assert(src.includes('data-fuss'), `${datei} setzt data-fuss`);
     }
+    const binder = await (await fetch('/website/js/state-binding.js')).text();
+    assert(binder.includes('setRootFlags'), 'Sitzungsschreiber delegiert an draft-model');
     const [common, multi] = await Promise.all([
       (await fetch('/website/css/sheet-common.css')).text(),
       (await fetch('/website/css/sheet-multipage.css')).text()

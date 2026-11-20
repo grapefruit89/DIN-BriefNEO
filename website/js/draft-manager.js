@@ -13,6 +13,7 @@
 import { AddressIntelligence } from './address.js';
 import { Constants, Events, eventBus } from './core.js';
 import { draftFieldIds, getCaretCharacterOffset, setCaretCharacterOffset } from './document.js';
+import { normalizeDraftWire } from './draft-model.js';
 import { Field } from './field.js';
 import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, takeJournal, toWire } from './state.js';
@@ -330,17 +331,9 @@ export class DraftManager {
    */
   #loadWire(draft) {
     const feldIds = draftFieldIds(document);
-    const next = createState(draft, feldIds);
-
-    /* Migration: alte Drafts kennen `toggle-fuss` nicht. Vorhandener Text in
-       den Fußzeilenfeldern bedeutet "Fußzeile war an" — sonst wäre er
-       unsichtbar (Befund B11). */
-    if (!('toggle-fuss' in draft)) {
-      const fussFelder = ['fuss-firma', 'fuss-sitz', 'fuss-gericht', 'fuss-hrb', 'fuss-vorstand', 'fuss-gf',
-        'fuss-stnr', 'fuss-ustid', 'fuss-bank', 'fuss-iban', 'fuss-bic', 'fuss-anschrift'];
-      next.werte['toggle-fuss'] = fussFelder.some((id) => String(next.werte[id] ?? '').trim() !== '');
-      next.ids.add('toggle-fuss');
-    }
+    /* Migration (Alt-Entwürfe ohne `toggle-fuss`) liegt seit D2 in
+       draft-model.js — Boot und Restore leiten sie damit identisch ab. */
+    const next = createState(normalizeDraftWire(draft), feldIds);
 
     replace(letterState, next);
     bindIds(letterState, feldIds);

@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 /**
- * tools/paint-probe.mjs — beantwortet: steht der Zustand VOR dem ersten Paint?
+ * tools/paint-probe.mjs — beantwortet: wann ist die Seite sichtbar (TTC)?
  *
- * Anlass (B72): Die frühere Prüfung las den Zustand *nach* dem `firstPaint`-
- * Event und war damit racy — `initApp` kann zwischen Paint und Auswertung
- * laufen. Hier werden stattdessen Zeitstempel verglichen:
+ * Seit D2 gibt es EINEN Lifecycle-Token (`data-booting`). Leitkennzahl ist
+ * TTC (time to content): Zeit bis `performance.mark('applied')`, also bis der
+ * Wert-Writer fertig ist und die Maske entfernt wird. Die fruehere Frage
+ * "steht der Zustand vor dem Paint?" ist damit ersetzt — die Maske macht sie
+ * gegenstandslos.
  *
- *   performance.getEntriesByName('seeder-start' | 'seeded' | 'ready')
- *   performance.getEntriesByType('paint')[0].startTime        // first-paint
- *   performance.getEntriesByType('paint')[1].startTime        // first-contentful-paint
- *
- * Die Marken setzt der Code selbst: `seeder-start` und `seeded` in
- * `website/js/boot-state.js`, `ready` am Ende von `initApp` in
- * `website/js/main.js`.
+ *   performance.getEntriesByName('seeder-start')  // Start des Wert-Writers
+ *   performance.getEntriesByName('applied')       // Werte stehen, Maske weg
+ *   performance.getEntriesByName('ready')         // initApp fertig
+ *   performance.getEntriesByType('paint')[0]      // first-paint
  *
  * Profile:
  *   local  keine Drosselung
@@ -90,7 +89,7 @@ const messung = `(() => {
   const fcp = paints.find((p) => p.name === 'first-contentful-paint')?.startTime ?? null;
   const nav = performance.getEntriesByType('navigation')[0];
   return JSON.stringify({
-    seederStart: mark('seeder-start'), seeded: mark('seeded'), ready: mark('ready'),
+    bootStart: mark('seeder-start'), applied: mark('applied'), ready: mark('ready'),
     fp, fcp, domContentLoaded: nav?.domContentLoadedEventEnd ?? null
   });
 })()`;
@@ -119,27 +118,30 @@ for (const name of ziele) {
     laeufe.push(r);
   }
   const vor = (a, b) => a !== null && b !== null && a <= b;
+  const zahlen = (werte) => {
+    const s = [...werte].sort((x, y) => x - y);
+    return {
+      min: Math.round(s[0]),
+      median: Math.round(s[Math.floor(s.length / 2)]),
+      max: Math.round(s[s.length - 1]),
+    };
+  };
+  const ttc = laeufe.map((r) => r.applied ?? 0);
   ergebnis[name] = {
     laeufe: laeufe.length,
-    seededVorFirstPaint: laeufe.filter((r) => vor(r.seeded, r.fp)).length,
+    /* Neue Leitkennzahl (D2): TTC = Zeit bis `applied` (data-booting weg). */
+    ttcMs: zahlen(ttc),
+    sichtbarUnter2000ms: laeufe.filter((r) => (r.applied ?? Infinity) <= 2000).length,
+    appliedVorFirstPaint: laeufe.filter((r) => vor(r.applied, r.fp)).length,
     readyVorFirstPaint: laeufe.filter((r) => vor(r.ready, r.fp)).length,
     readyVorFcp: laeufe.filter((r) => vor(r.ready, r.fcp)).length,
-    seederFensterMs: {
-      min: Math.round(Math.min(...laeufe.map((r) => (r.seeded ?? 0) - (r.seederStart ?? 0)))),
-      max: Math.round(Math.max(...laeufe.map((r) => (r.seeded ?? 0) - (r.seederStart ?? 0)))),
-    },
-    abstandReadyZuFpMs: {
-      min: Math.round(Math.min(...laeufe.map((r) => (r.fp ?? 0) - (r.ready ?? 0)))),
-      max: Math.round(Math.max(...laeufe.map((r) => (r.fp ?? 0) - (r.ready ?? 0)))),
-    },
-    firstPaintMs: {
-      min: Math.round(Math.min(...laeufe.map((r) => r.fp ?? 0))),
-      max: Math.round(Math.max(...laeufe.map((r) => r.fp ?? 0))),
-    },
+    bootFensterMs: zahlen(laeufe.map((r) => (r.applied ?? 0) - (r.bootStart ?? 0))),
+    abstandReadyZuFpMs: zahlen(laeufe.map((r) => (r.fp ?? 0) - (r.ready ?? 0))),
+    firstPaintMs: zahlen(laeufe.map((r) => r.fp ?? 0)),
     roh: laeufe,
   };
   const e = ergebnis[name];
-  console.log(`${name.padEnd(6)} ${RUNS} Läufe | seeded vor Paint: ${e.seededVorFirstPaint}/${RUNS} | ready vor Paint: ${e.readyVorFirstPaint}/${RUNS} | Paint ${e.firstPaintMs.min}-${e.firstPaintMs.max} ms`);
+  console.log(`${name.padEnd(6)} ${RUNS} Läufe | TTC ${e.ttcMs.min}/${e.ttcMs.median}/${e.ttcMs.max} ms (min/median/max) | sichtbar < 2 s: ${e.sichtbarUnter2000ms}/${RUNS} | Paint ${e.firstPaintMs.min}-${e.firstPaintMs.max} ms`);
 }
 
 await send('Emulation.setCPUThrottlingRate', { rate: 1 });

@@ -180,9 +180,9 @@
        entfernt denselben Marker spaeter nur noch idempotent als Netz. NICHT
        an einen zweiten Marker haengen: genau das war das Zwei-Marker-Modell,
        das D2 ersetzt. */
-    /* Messmarke fuer tools/paint-probe.mjs: erlaubt den Zeitvergleich mit
-       firstPaint (B72). Kostet nichts und laeuft nur einmal. */
-    if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');
+    /* Messmarke fuer tools/paint-probe.mjs: `applied` ist der Zeitpunkt, an
+       dem der Wert-Writer fertig ist (= TTC). Kostet nichts, laeuft einmal. */
+    if (typeof performance !== 'undefined' && performance.mark) performance.mark('applied');
     document.documentElement.removeAttribute('data-booting');
   } catch (e) {
     /* Kein Blocker: main.js stellt denselben Zustand gleich noch einmal her.

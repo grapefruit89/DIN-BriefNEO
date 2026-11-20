@@ -9,7 +9,7 @@ import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js'
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
-import { clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
+import { applyDraftValues, clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
 import { Field } from '../website/js/field.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
@@ -5759,12 +5759,32 @@ describe('Schalter-Semantik: eine Regel statt drei (B65)', () => {
     assertEqual(geprueft, 9);
   });
 
-  it('boot.js und boot-state.js tragen dieselbe Zeile (Ratsche)', async () => {
-    const zeile = 'const istAn = (v) => v !== false && v !== \'false\';';
-    const boot = await (await fetch('/website/js/boot.js')).text();
-    const seeder = await (await fetch('/website/js/boot-state.js')).text();
-    assert(boot.includes(zeile), 'boot.js: istAn-Zeile');
-    assert(seeder.includes(zeile), 'boot-state.js: istAn-Zeile');
+  it('istAn-Verhalten ist in jedem Boot-Schreiber identisch (kein Zeilenvergleich)', async () => {
+    /* Ersetzt die alte Ratsche „boot.js und boot-state.js tragen dieselbe
+       Zeile". Eine Ratsche auf Zeilengleichheit verhindert die Zusammenlegung;
+       geprueft wird stattdessen das Verhalten beider Fassungen gegen dieselbe
+       Wertematrix. Dateien ohne lokale Definition (Modul-Import) werden
+       uebersprungen — so ueberlebt der Test auch die Abloesung durch
+       boot-values.js. */
+    const matrix = [
+      [true, true], [false, false], [null, true], [undefined, true],
+      [0, true], [1, true], ['', true], ['true', true], ['false', false],
+    ];
+    for (const datei of ['/website/js/boot.js', '/website/js/boot-state.js']) {
+      const res = await fetch(datei);
+      if (!res.ok) continue;
+      const src = await res.text();
+      const treffer = src.match(/const istAn = \(v\) => ([^;]+);/);
+      if (!treffer) continue;
+      const fn = new Function('v', `return ${treffer[1]};`);
+      for (const [eingabe, erwartet] of matrix) {
+        assertEqual(fn(eingabe), erwartet, `${datei}: istAn(${JSON.stringify(eingabe)})`);
+      }
+    }
+    /* Kanonische Fassung bleibt die Referenz. */
+    assertEqual(istAn(false), false);
+    assertEqual(istAn('false'), false);
+    assertEqual(istAn(undefined), true);
   });
 
   it('settings.js benutzt istAn statt Boolean()/!== false', async () => {
@@ -5775,19 +5795,68 @@ describe('Schalter-Semantik: eine Regel statt drei (B65)', () => {
   });
 });
 
-describe('Draft-Feld-Selektor bleibt deckungsgleich (B69)', () => {
-  it('boot-state.js FELD_SELECTOR == document.js EDITABLE_FIELD_SELECTOR', async () => {
-    const src = await (await fetch('/website/js/boot-state.js')).text();
-    const treffer = src.match(/const FELD_SELECTOR =\s*'([^']+)'/);
-    assert(treffer !== null, 'FELD_SELECTOR in boot-state.js gefunden');
-    if (!treffer) return;
-    assertEqual(treffer[1], EDITABLE_FIELD_SELECTOR, 'Selektor identisch');
+describe('D2: ein Wert-Schreiber, eine Allowlist (ersetzt B69-Selektor-Ratsche)', () => {
+  it('applyDraftValues beschreibt nur Allowlist-Felder', () => {
+    /* Angriffs-Test statt Quelltext-Grep: ein manipulierter oder veralteter
+       Entwurf darf kein beliebiges Control beschreiben (B69). */
+    const ort = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const fremd = document.createElement('div');
+    fremd.id = 'kein-entwurfsfeld';
+    document.body.appendChild(fremd);
+    const knopf = /** @type {HTMLElement} */ (document.getElementById('btn-undo-reset'));
+    const knopfVorher = knopf.textContent;
+
+    applyDraftValues({
+      'empfaenger-ort': 'ERLAUBT',
+      'kein-entwurfsfeld': 'NICHT',
+      'btn-undo-reset': 'NICHT',
+      constructor: 'NICHT',
+      html: 'NICHT',
+    });
+
+    assertEqual(ort.textContent, 'ERLAUBT', 'Allowlist-Feld wird geschrieben');
+    assertEqual(fremd.textContent, '', 'fremdes div bleibt leer');
+    assertEqual(knopf.textContent, knopfVorher, 'Button bleibt unberuehrt');
+    ort.textContent = '';
+    fremd.remove();
   });
 
-  it('Seeder schreibt nur in Felder, die den Selektor matchen', async () => {
-    const src = await (await fetch('/website/js/boot-state.js')).text();
-    assert(src.includes('matches(FELD_SELECTOR)'), 'Allowlist im Schreibpfad');
-    assert(!src.includes('if (!el) continue;'), 'kein blanker getElementById-Pfad mehr');
+  it('applyDraftValues sanitizt Rich-Text (Allowlist statt CSP-Vertrauen)', () => {
+    const text = /** @type {HTMLElement} */ (document.getElementById('brieftext'));
+    applyDraftValues({
+      brieftext: '<img src=x onerror="alert(1)"><b>fett</b><script>alert(2)</script>',
+    });
+    assertEqual(text.querySelector('img'), null, 'img wird entfernt');
+    assertEqual(text.querySelector('script'), null, 'script wird entfernt');
+    assert(text.innerHTML.includes('<b>fett</b>'), 'erlaubtes <b> bleibt');
+    assert(!text.innerHTML.includes('onerror'), 'kein Event-Handler');
+    text.replaceChildren();
+  });
+
+  it('boot.js setzt den Marker vor jedem Speicherzugriff und haelt das 1800-ms-Netz', async () => {
+    const src = await (await fetch('/website/js/boot.js')).text();
+    const marker = src.indexOf("setAttribute('data-booting'");
+    const speicher = src.indexOf('localStorage.getItem');
+    assert(marker > -1, 'boot.js setzt data-booting');
+    assert(speicher > -1 && marker < speicher, 'Marker steht vor dem ersten localStorage-Zugriff');
+    assert(/1800/.test(src), 'Netz laeuft nach 1800 ms');
+    assert(/removeAttribute\('data-booting'\)/.test(src), 'Netz entfernt denselben Marker');
+  });
+
+  it('kein zweiter Lifecycle-Marker in website/ (Ein-Token-Regel)', async () => {
+    const dateien = [
+      '/website/index.html',
+      '/website/css/base.css', '/website/css/sidebar.css', '/website/css/sheet-common.css',
+      '/website/js/boot.js', '/website/js/boot-state.js', '/website/js/boot-values.js',
+      '/website/js/main.js',
+    ];
+    for (const datei of dateien) {
+      const res = await fetch(datei);
+      if (!res.ok) continue; // boot-values.js existiert erst ab Phase 5
+      const src = await res.text();
+      assert(!src.includes('data-seeded'), `${datei}: kein data-seeded`);
+      assert(!src.includes('data-ready'), `${datei}: kein data-ready`);
+    }
   });
 });
 

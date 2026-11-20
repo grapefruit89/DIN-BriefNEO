@@ -1,0 +1,209 @@
+{
+  "local": {
+    "laeufe": 5,
+    "ttcMs": {
+      "min": 19,
+      "median": 49,
+      "max": 56
+    },
+    "sichtbarUnter2000ms": 5,
+    "appliedVorFirstPaint": 5,
+    "readyVorFirstPaint": 2,
+    "readyVorFcp": 5,
+    "bootFensterMs": {
+      "min": 0,
+      "median": 1,
+      "max": 1
+    },
+    "abstandReadyZuFpMs": {
+      "min": -26,
+      "median": -3,
+      "max": 11
+    },
+    "firstPaintMs": {
+      "min": 52,
+      "median": 60,
+      "max": 80
+    },
+    "roh": [
+      {
+        "bootStart": 18.90000000037253,
+        "applied": 19.40000000037253,
+        "ready": 49.100000001490116,
+        "fp": 60,
+        "fcp": 60,
+        "domContentLoaded": 49.40000000037253
+      },
+      {
+        "bootStart": 50.20000000111759,
+        "applied": 51,
+        "ready": 71.30000000074506,
+        "fp": 80,
+        "fcp": 80,
+        "domContentLoaded": 71.60000000149012
+      },
+      {
+        "bootStart": 48,
+        "applied": 48.5,
+        "ready": 77.59999999962747,
+        "fp": 52,
+        "fcp": 88,
+        "domContentLoaded": 77.79999999888241
+      },
+      {
+        "bootStart": 30.300000000745058,
+        "applied": 30.90000000037253,
+        "ready": 54.90000000037253,
+        "fp": 52,
+        "fcp": 64,
+        "domContentLoaded": 55.09999999962747
+      },
+      {
+        "bootStart": 55.90000000037253,
+        "applied": 56.29999999888241,
+        "ready": 85.40000000037253,
+        "fp": 60,
+        "fcp": 92,
+        "domContentLoaded": 85.59999999962747
+      }
+    ]
+  },
+  "cpu6": {
+    "laeufe": 5,
+    "ttcMs": {
+      "min": 66,
+      "median": 74,
+      "max": 112
+    },
+    "sichtbarUnter2000ms": 5,
+    "appliedVorFirstPaint": 5,
+    "readyVorFirstPaint": 0,
+    "readyVorFcp": 0,
+    "bootFensterMs": {
+      "min": 2,
+      "median": 3,
+      "max": 3
+    },
+    "abstandReadyZuFpMs": {
+      "min": -59,
+      "median": -20,
+      "max": -16
+    },
+    "firstPaintMs": {
+      "min": 92,
+      "median": 120,
+      "max": 124
+    },
+    "roh": [
+      {
+        "bootStart": 109.59999999962747,
+        "applied": 112.40000000037253,
+        "ready": 175.5,
+        "fp": 124,
+        "fcp": 160,
+        "domContentLoaded": 175.69999999925494
+      },
+      {
+        "bootStart": 63.59999999962747,
+        "applied": 65.90000000037253,
+        "ready": 139.90000000037253,
+        "fp": 120,
+        "fcp": 120,
+        "domContentLoaded": 140.2000000011176
+      },
+      {
+        "bootStart": 89.09999999962747,
+        "applied": 91.69999999925494,
+        "ready": 150.80000000074506,
+        "fp": 92,
+        "fcp": 132,
+        "domContentLoaded": 152.5
+      },
+      {
+        "bootStart": 70.39999999850988,
+        "applied": 73.79999999888241,
+        "ready": 140.2999999988824,
+        "fp": 124,
+        "fcp": 124,
+        "domContentLoaded": 141.89999999850988
+      },
+      {
+        "bootStart": 63.29999999888241,
+        "applied": 66,
+        "ready": 139.19999999925494,
+        "fp": 120,
+        "fcp": 120,
+        "domContentLoaded": 140.2999999988824
+      }
+    ]
+  },
+  "slow": {
+    "laeufe": 5,
+    "ttcMs": {
+      "min": 1206,
+      "median": 1222,
+      "max": 1230
+    },
+    "sichtbarUnter2000ms": 5,
+    "appliedVorFirstPaint": 0,
+    "readyVorFirstPaint": 0,
+    "readyVorFcp": 0,
+    "bootFensterMs": {
+      "min": 0,
+      "median": 2,
+      "max": 2
+    },
+    "abstandReadyZuFpMs": {
+      "min": -2203,
+      "median": -2192,
+      "max": -2187
+    },
+    "firstPaintMs": {
+      "min": 948,
+      "median": 968,
+      "max": 968
+    },
+    "roh": [
+      {
+        "bootStart": 1205.5,
+        "applied": 1205.8999999985099,
+        "ready": 3139.2999999988824,
+        "fp": 948,
+        "fcp": 1224,
+        "domContentLoaded": 3140.199999999255
+      },
+      {
+        "bootStart": 1229.3999999985099,
+        "applied": 1230,
+        "ready": 3165.199999999255,
+        "fp": 968,
+        "fcp": 1264,
+        "domContentLoaded": 3165.89999999851
+      },
+      {
+        "bootStart": 1217,
+        "applied": 1218.8999999985099,
+        "ready": 3155.5,
+        "fp": 968,
+        "fcp": 1252,
+        "domContentLoaded": 3156.5
+      },
+      {
+        "bootStart": 1220.4000000003725,
+        "applied": 1222.300000000745,
+        "ready": 3160.4000000003725,
+        "fp": 968,
+        "fcp": 1268,
+        "domContentLoaded": 3161.0999999996275
+      },
+      {
+        "bootStart": 1221.4000000003725,
+        "applied": 1223.1000000014901,
+        "ready": 3167,
+        "fp": 964,
+        "fcp": 1272,
+        "domContentLoaded": 3167.7000000011176
+      }
+    ]
+  }
+}

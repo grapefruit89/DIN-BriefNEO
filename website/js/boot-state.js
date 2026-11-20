@@ -162,6 +162,19 @@
         .toLocaleString('de-DE', { dateStyle: 'long' });
     }
 
+    /* D2 Stufe 3: Fingerprint nur, wenn dieser Schreiber das Ergebnis von
+       applyDraftValues EXAKT hergestellt hat. Solange Rich-Text hier roh
+       eingehängt wird (Phase 5 ersetzt diesen Pfad durch boot-values.js),
+       gilt das nur für Entwürfe ohne Markup in Feldwerten und ohne
+       Fußzeilen-Migration. Alles andere schreibt der Restore nach — lieber
+       ein zweiter (sanitizender) Lauf als ein falsches „steht schon". */
+    const ohneMarkup = Object.values(draft).every((v) => typeof v !== 'string' || !v.includes('<'));
+    if (ohneMarkup && 'toggle-fuss' in draft) {
+      /** @type {Record<string, string>} */
+      const bootStore = /** @type {any} */ (globalThis);
+      bootStore.__dinBootFingerprint = JSON.stringify(draft);
+    }
+
     /* Signal fuer CSS: der Wert-Writer ist fertig, die Maske darf weg. EIN
        Token (data-booting), EIN Entferner zu diesem Zeitpunkt; main.js
        entfernt denselben Marker spaeter nur noch idempotent als Netz. NICHT

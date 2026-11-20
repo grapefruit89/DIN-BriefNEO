@@ -9,6 +9,7 @@ import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js'
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
+import { clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
 import { Field } from '../website/js/field.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
@@ -5111,6 +5112,43 @@ describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
       const el = doc.getElementById(id);
       assertEqual(el?.getAttribute('maxlength'), String(max), `${id}: maxlength ${max}`);
     }
+  });
+});
+
+describe('D2: Fingerprint verhindert den zweiten Boot-Schreibvorgang', () => {
+  it('loadDraft schreibt den DOM nicht, wenn der Boot denselben Stand gemeldet hat', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const wire = { 'empfaenger-ort': 'BOOT-STAND' };
+    saveJSON(STORAGE_KEYS.draft, wire);
+    publishBootFingerprint(wire);
+
+    /* Der Boot hat den Wert gesetzt; wir stellen den DOM absichtlich auf einen
+       anderen Wert. Ohne Fingerprint wuerde loadDraft ihn ueberschreiben. */
+    el.textContent = 'DOM-BLEIBT';
+    const dm = new DraftManager();
+    assert(dm.loadDraft(), 'Entwurf geladen');
+    assertEqual(el.textContent, 'DOM-BLEIBT', 'kein zweiter DOM-Schreibvorgang');
+    assertEqual(letterState.werte['empfaenger-ort'], 'BOOT-STAND', 'Zustand ist trotzdem der Entwurf');
+    assertEqual(readBootFingerprint(), null, 'Fingerprint ist einmalig verbraucht');
+
+    /* Zweiter Load (Multi-Tab) schreibt wieder — der Fingerprint gilt nur fuer
+       den einen Boot. */
+    dm.loadDraft();
+    assertEqual(el.textContent, 'BOOT-STAND', 'zweiter Load projiziert in den DOM');
+    el.textContent = '';
+    dm.destroy();
+  });
+
+  it('ohne Fingerprint schreibt loadDraft den Entwurf in den DOM', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    saveJSON(STORAGE_KEYS.draft, { 'empfaenger-ort': 'AUS-DRAFT' });
+    clearBootFingerprint();
+    el.textContent = '';
+    const dm = new DraftManager();
+    dm.loadDraft();
+    assertEqual(el.textContent, 'AUS-DRAFT', 'ohne Fingerprint wird projiziert');
+    el.textContent = '';
+    dm.destroy();
   });
 });
 

@@ -233,6 +233,59 @@ export function normalizeDraftWire(draft) {
 }
 
 /**
+ * Fingerprint eines Wire-Entwurfs: exakter `JSON.stringify` des normalisierten
+ * Stands (R3 im D2-Konzept — kein Hash, damit eine Kollision nicht zum
+ * übersprungenen Schreibvorgang wird).
+ * @param {Record<string, any>} draft
+ * @returns {string}
+ */
+export function draftFingerprint(draft) {
+  return JSON.stringify(normalizeDraftWire(draft));
+}
+
+/* Der Boot-Writer ist ein klassisches Skript und kann dieses Modul nicht
+ * importieren. Er veröffentlicht seinen Fingerprint deshalb auf `globalThis`;
+ * der DraftManager liest ihn genau einmal. Das ist die einzige Naht zwischen
+ * den beiden Welten, und sie verschwindet mit `boot-values.js` (Phase 5). */
+const BOOT_FINGERPRINT = '__dinBootFingerprint';
+/** @type {Record<string, unknown>} */
+const bootStore = /** @type {any} */ (globalThis);
+
+/**
+ * Meldet, welchen Entwurf der Boot-Writer tatsächlich in den DOM geschrieben
+ * hat. Nur aufrufen, wenn das Ergebnis exakt `applyDraftValues` entspricht —
+ * sonst wäre der Fingerprint eine Lüge und der Restore würde einen Sprung
+ * überspringen, statt ihn zu korrigieren.
+ * @param {Record<string, any>} draft
+ */
+export function publishBootFingerprint(draft) {
+  try {
+    bootStore[BOOT_FINGERPRINT] = draftFingerprint(draft);
+  } catch {
+    /* Kein Blocker: ohne Fingerprint schreibt der Restore wie bisher. */
+  }
+}
+
+/** @returns {string | null} */
+export function readBootFingerprint() {
+  try {
+    const wert = bootStore[BOOT_FINGERPRINT];
+    return typeof wert === 'string' ? wert : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Einmalig nach dem ersten `loadDraft`: spätere Ladepfade schreiben wieder. */
+export function clearBootFingerprint() {
+  try {
+    delete bootStore[BOOT_FINGERPRINT];
+  } catch {
+    /* egal */
+  }
+}
+
+/**
  * Die eine Quelle der CSS-Wahrheit für Anlagen und Fußzeile.
  * `applyDraftValues` (Boot) und `state-binding.renderRootFlags` (Sitzung)
  * schreiben damit denselben Wert auf dieselbe Weise.

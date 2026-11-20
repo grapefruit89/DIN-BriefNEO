@@ -134,7 +134,7 @@ export function toWire(state) {
       toggles.push(id);
       continue;
     }
-    out[id] = state.werte[id];
+    out[id] = state.werte[id] ?? '';
     const herkunft = state.meta[id]?.herkunft;
     if (herkunft) out[`${id}__quelle`] = herkunft;
   }
@@ -285,7 +285,7 @@ export const letterState = createState();
 /**
  * Setzt Werte und Meta auf die Schema-Defaults zurück und behält die
  * gebundenen IDs (DOM-Feldsatz). Für resetDraft() und Tests.
- * Der Difft wird als Patches journaliert, damit ein Reset per Undo
+ * Der Diff wird als Patches journaliert, damit ein Reset per Undo
  * zurückholbar bleibt.
  */
 export function resetState() {

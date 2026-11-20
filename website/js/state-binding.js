@@ -139,7 +139,7 @@ export function renderRootFlags() {
 
 /**
  * Hydratisiert den Zustand aus dem Live-DOM. Nur für Pfade, in denen der DOM
- * die Quelle ist: Kaltstart-Restore, Migration alter Entwürfe, Reset.
+ * die Quelle ist: Tests, Diagnose-Werkzeuge und der Erststart ohne Entwurf.
  * @returns {string[]} die gebundenen IDs
  */
 export function hydrateStateFromDom() {

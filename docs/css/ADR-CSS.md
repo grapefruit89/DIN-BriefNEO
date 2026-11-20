@@ -146,9 +146,9 @@ Bündelt Reset, mathematische `@function`-Definitionen, Design-Tokens und das gl
 ### 2. `sheet-common.css` (Gemeinsame DIN-5008-Geometrien, Faltmarken & Briefzonen)
 
 Bündelt alle geteilten Geometriedefinitionen, Form-A/B-Umschaltung und Zonen der DIN 5008:
-* **HTML Attribute Parsing via CSS `attr()` (Single Source of Truth):**
-  * `din-blatt` liest DIN-Koordinaten direkt aus HTML-Attributen: `attr(data-width-mm type(<number>))` und `attr(data-height-mm type(<number>))`.
-  * Form A / Form B Reaktivität: `:root[data-layout="form-a"] din-blatt` bzw. `body:has(#btn-form-a:checked) din-blatt` schaltet Faltmarken (`--falzmarke-1-y`, etc.) und Briefkernstart dynamisch um.
+* **CSS-Tokens als Single Source of Truth (seit 2026-11-20):**
+  * Die DIN-Koordinaten stehen als dimensionslose mm-Tokens in `base.css` („2a. DIN-5008-GEOMETRIE"). `sheet-common.css` liest sie per `--mm-y(var(--geometrie-…))`; `attr(data-*)` ist dort verboten.
+  * Form A / Form B Reaktivität: `:root[data-layout="form-a"] din-blatt` schaltet Faltmarken (`--falz-oben-y`, etc.) und Briefkernstart um.
 * **DIN-5008 Briefzonen:**
   * `#rucksendezeile` (Rücksendeangabe 5 mm Höhe, 8pt Schrift, mit Trennlinie im Druck).
   * `#anschriftfeld` (85 × 45 mm, 10pt Schrift).

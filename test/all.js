@@ -1726,9 +1726,12 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
   });
 
   it('Blockkante liegt 5,0mm ueber der ersten Schreibzeile', async () => {
-    const html = await (await fetch('/website/index.html')).text();
-    const b = Number((html.match(/data-anschriftfeld-y-b="([\d.]+)"/) || [])[1]);
-    const a = Number((html.match(/data-anschriftfeld-y-a="([\d.]+)"/) || [])[1]);
+    /* SSoT seit 2026-11-20: Tokens in base.css, nicht mehr data-* am <din-blatt>. */
+    const css = await (await fetch('/website/css/base.css')).text();
+    /** @param {string} name */
+    const token = (name) => Number((css.match(new RegExp(`${name}:\\s*([\\d.]+)`)) || [])[1]);
+    const b = token('--geometrie-anschriftfeld-y-b-mm');
+    const a = token('--geometrie-anschriftfeld-y-a-mm');
     assertEqual(+b.toFixed(2), 45.8, 'Form B: 50,8 - 5,0');
     assertEqual(+a.toFixed(2), 28.9, 'Form A: 33,9 - 5,0');
   });
@@ -1803,12 +1806,15 @@ describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
 
   /* Vertrag 2026-11-12: der Spacer leitet sich aus Falzmarke 1 ab (+2mm), statt
      107/89mm doppelt zu pflegen. Geprueft wird beides: der Ausdruck und die
-     Zahl, die aus dem HTML-Attribut folgt. */
+     Zahl aus dem Geometrie-Token in base.css (SSoT seit 2026-11-20). */
+  /** @param {string} name @param {string} css */
+  const mmToken = (name, css) => zahl((css.match(new RegExp(`${name}:\\s*([\\d.]+)`)) || [])[1]);
+
   it('Form B: Spacer = Falzmarke 1 (105mm) + 2mm = 107mm', async () => {
     const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
-    const html = await (await fetch('/website/index.html')).text();
+    const basis = await (await fetch('/website/css/base.css')).text();
     const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)(?:mm)?/) || [])[1]);
-    const falzB = zahl((html.match(/data-falzmarke-1-y-b="([\d.]+)"/) || [])[1]);
+    const falzB = mmToken('--geometrie-falzmarke-1-y-b-mm', basis);
     assertEqual(margin, 0, 'kein eigener Zuschlag am Betreff');
     assert(SPACER.test(css), 'Spacer liest --falz-oben-y + 2mm');
     assertEqual(falzB + 2, 107, 'Falzmarke 1 (Form B) + 2mm = 107mm');
@@ -1816,8 +1822,8 @@ describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
 
   it('Form A: derselbe Ausdruck, Falzmarke schaltet sich um (87 + 2 = 89mm)', async () => {
     const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
-    const html = await (await fetch('/website/index.html')).text();
-    const falzA = zahl((html.match(/data-falzmarke-1-y-a="([\d.]+)"/) || [])[1]);
+    const basis = await (await fetch('/website/css/base.css')).text();
+    const falzA = mmToken('--geometrie-falzmarke-1-y-a-mm', basis);
     assertEqual(falzA + 2, 89, 'Falzmarke 1 (Form A) + 2mm = 89mm');
 
     /* Nur EINE Spacer-Definition: die Form-Variante steckt in --falz-oben-y,

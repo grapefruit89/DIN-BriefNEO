@@ -10,9 +10,9 @@
 
 | Datei | Zeilen | Regeln | Bytes | Primäre Rolle | Zuständigkeit |
 |---|:---:|:---:|:---:|---|---|
-| [`base.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/base.css) | 351 | 44 | 10,8 KB | Reset, Tokens, Mathematik | Design-Tokens (OKLCH), Typografie-Stacks, relative `@function` (`--mm-rel-x`, `--mm-rel-y`, `--pt-rel`), App-Shell-Grid & gemeinsame Print-Resets |
-| [`sheet-common.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet-common.css) | 426 | 68 | 11,1 KB | DIN-5008-Geometrie (Gemeinsam) | Deklaratives Attribut-Mapping (`din-blatt { --blatt-breite: attr(...) }`), Falz- & Lochmarken, Anschriftfeld, Infoblock, Hilfslinien, Unterschrift |
-| [`sheet.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet.css) | 299 | 33 | 9,4 KB | Einseiten-Layout (Screen/Print) | Viewport-Container, Einseiten-Briefkern, Skalierungs-Container, Paged Media `@page` & Einzelseiten-Druck |
+| [`base.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/base.css) | 449 | 44 | 16,3 KB | Reset, Tokens, Mathematik | Design-Tokens (OKLCH), Typografie-Stacks, relative `@function` (`--mm-rel-x`, `--mm-rel-y`, `--pt-rel`), App-Shell-Grid & gemeinsame Print-Resets |
+| [`sheet-common.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet-common.css) | 771 | 68 | 24,1 KB | DIN-5008-Geometrie (Gemeinsam) | Token-Mapping (`din-blatt { --briefkopf-y: --mm-y(var(--geometrie-…)) }`), Falz- & Lochmarken, Anschriftfeld, Infoblock, Hilfslinien, Unterschrift |
+| [`sheet.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet.css) | 354 | 33 | 12,4 KB | Einseiten-Layout (Screen/Print) | Viewport-Container, Einseiten-Briefkern, Skalierungs-Container, Paged Media `@page` & Einzelseiten-Druck |
 | [`sheet-multipage.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet-multipage.css) | 541 | 61 | 14,3 KB | Mehrseiten-Layout (Screen/Print) | Absolute `@function` (`--mm-abs-x`, `--mm-abs-y`, `--pt-abs`), CSS Multicol Level 2 Spaltenfluss, Paged Media `@page` & dynamische Folgeköpfe |
 | [`sidebar.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sidebar.css) | 1.260 | 187 | 33,7 KB | App-Shell & UI-Komponenten | Werkzeugleiste, Form A/B Umschalter, Drag&Drop, Toasts (`#hinweis-v4`), Popovers, Adress-Vorschläge, Badges |
 
@@ -86,8 +86,8 @@ Die Stylesheets werden bewusst und ausschließlich über statische `<link rel="s
 
 ### 4.2 Custom Properties Single Source of Truth (SSoT)
 - **Root-Definitionen:**
-  - Alle 87 globalen Variablen sind auf `:root` bzw. `:root[data-theme]` in `base.css` deklariert (OKLCH Farbräume, Typografie, Schattierungen).
-  - Variablen für die DIN-Geometrie (`--blatt-breite`, `--blatt-hoehe`, `--falzmarke-1-y`, `--infoblock-y`, etc.) werden exklusiv am Custom Element `din-blatt` gebunden.
+  - Alle globalen Variablen sind auf `:root` bzw. `:root[data-theme]` in `base.css` deklariert (OKLCH Farbräume, Typografie, Schattierungen).
+  - Die statische DIN-Geometrie steht ebenfalls auf `:root` (`base.css`, „2a. DIN-5008-GEOMETRIE": `--blatt-breite`, `--blatt-hoehe`, `--geometrie-*-y-*-mm`). `din-blatt` formt sie in Positions-Tokens (`--briefkopf-y`, `--falz-oben-y`, `--infoblock-y`, …) um — das HTML trägt keine Geometrie mehr.
 - **Undeclared Variables Check:**
   - Alle Parameter (`--mm`, `--points`) sind Argumente nativer `@function`-Deklarationen.
   - Dynamische Variablen (`--sig-x`, `--sig-y`, `--sig-scale`, `--sig-rot`, `--i`) besitzen konsistente Fallback-Defaults (`var(--sig-x, 11.9cqw)`).
@@ -98,10 +98,10 @@ Die Stylesheets werden bewusst und ausschließlich über statische `<link rel="s
 - **Zentrale Maße Form A vs. Form B:**
   - Form B (Standard): Faltmarke 1 bei 105 mm, Anschriftfeld 45 mm, Infoblock Y = 40 mm.
   - Form A: Faltmarke 1 bei 87 mm, Anschriftfeld 27 mm, Infoblock Y = 32 mm.
-- **Single Source of Truth im DOM:**
-  - Die numerischen Maße stehen als HTML-Datenattribute am `<din-blatt>` (`data-falzmarke-1-y-b="105"`, `data-falzmarke-1-y-a="87"`).
-  - [`sheet-common.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet-common.css) transformiert diese Werte über `attr(... type(<number>))` und `@function --mm-y()` in physische Millimeter bzw. Punkte.
-  - Es existieren **keine Millimeter-Dubletten** in `sidebar.css` oder JavaScript.
+- **Single Source of Truth im CSS:**
+  - Die numerischen Maße stehen als Tokens in [`base.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/base.css) (`--geometrie-falzmarke-1-y-b-mm: 105`, `--geometrie-falzmarke-1-y-a-mm: 87`).
+  - [`sheet-common.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/sheet-common.css) transformiert diese Werte über `var(...)` und `@function --mm-y()` in physische Millimeter bzw. Punkte.
+  - Das `<din-blatt>` trägt keine `data-*`-Geometrie mehr; `tools/imr.js` prüft Tokens und HTML-Freiheit.
 
 ### 4.4 Print- vs. Screen-Isolierung
 - **Druck-Resets:**

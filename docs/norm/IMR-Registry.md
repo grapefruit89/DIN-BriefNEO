@@ -4,7 +4,7 @@ title: 'IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-11-12'
+updated: '2026-11-20'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -18,6 +18,7 @@ doc_links:
   - ADR-CSS
 code_links:
   - website/index.html
+  - website/css/base.css
 error_patterns:
   - imr registry
   - din tags
@@ -61,8 +62,8 @@ Diese Registry ist die **einzige normative Quelle** für: kanonische Tags, Atom-
 2. MUST-NOT: ein `din-*` ohne Registry-Eintrag verwenden (siehe Namespace).
 3. MUST-NOT: Synonyme, Kompositionen, Satelliten, Zonen oder Rendering-Bezeichner als Atom zählen.
 4. MUST-NOT: eine zweite Form oder den Dokumentrahmen als eigenes Atom-Inventar behandeln.
-5. MUST-NOT: normative Geometrie in CSS oder JavaScript duplizieren.
-6. MUST-NOT: `data-*`-Werte abweichend von dieser Registry pflegen (sie sind generiert, siehe „Maschinenlesbares Inventar").
+5. MUST-NOT: normative Geometrie in HTML, CSS oder JavaScript duplizieren außerhalb der dafür deklarierten Token-Liste (§ „Maschinenlesbares Inventar").
+6. MUST-NOT: die Geometrie-Tokens in `website/css/base.css` abweichend von dieser Registry pflegen (ihr Wert ist aus dem Inventar abgeleitet und wird geprüft).
 7. MUST-NOT: nicht belegte X/Y/W/H-Werte rechnerisch als normativ deklarieren.
 8. MUST-NOT: einen Alias oder eine Komposition ohne kanonischen Registry-Bezug verwenden.
 
@@ -310,14 +311,14 @@ Gemessen im PDF (`pdftotext -bbox`, erster Buchstabe der jeweiligen Zeile), nich
 
 ¹ Form A nicht neu gemessen: Feldkante 28,9 mm + 17,7 mm Zusatzzone = 46,6 mm (Empfänger), Rücksendezeile eine Rasterzeile darüber = 42,3 mm. Form B ist gemessen.
 
-**Zuordnung.** Die `data-*`-Attribute sind DIN-konform und werden so gelesen,
-wie sie benannt sind:
+**Zuordnung.** Die Geometrie-Tokens in `website/css/base.css` sind DIN-konform und
+werden so gelesen, wie sie benannt sind:
 
-| Attribut | Wert A/B | DIN Tab. B.1 | Δ | Wird im CSS verwendet als |
+| Token (base.css) | Wert A/B | DIN Tab. B.1 | Δ | Wird im CSS verwendet als |
 |---|---:|---:|---:|---|
-| `data-anschriftfeld-y` | 28,9 / 45,8 | Feldoberkante (5,0 mm über Zeile 13) | ±0,0 | Oberkante des Feldes; die Zonen tragen 17,7 + 27,3 mm |
-| `+ 12,7 mm` = 3 Schreibzeilen (Tab. B.1: 50,8 / 59,2 / 63,5) | 46,7 / 63,7 | Empfängeranschrift 46,6 / 63,5 | +0,1 / +0,2 | `padding-top` der Zone (`sheet-multipage.css:190`) |
-| `data-briefkopf-y` | 27 / 45 | (19.4.2 nennt nur die Feldhöhe) | — | nur im stillgelegten `sheet.css` |
+| `--geometrie-anschriftfeld-y-a-mm` / `-b-mm` | 28,9 / 45,8 | Feldoberkante (5,0 mm über Zeile 13) | ±0,0 | Oberkante des Feldes; die Zonen tragen 17,7 + 27,3 mm |
+| `+ 12,7 mm` = 3 Schreibzeilen (Tab. B.1: 50,8 / 59,2 / 63,5) | 46,7 / 63,7 | Empfängeranschrift 46,6 / 63,5 | +0,1 / +0,2 | Zonengrenze `#anschriftzone` (`sheet-multipage.css`) |
+| `--geometrie-briefkopf-y-a-mm` / `-b-mm` | 27 / 45 | (19.4.2 nennt nur die Feldhöhe) | — | nur im stillgelegten `sheet.css` |
 
 Die Anschriftzone liegt 12,7 mm unter der Blockoberkante — genau drei
 Schreibzeilen, die Tab. B.1 zwischen Zeile 13 und Zeile 16 ansetzt. Die
@@ -430,9 +431,16 @@ Eine optionale visuelle Hilfsebene für Layout-Kontrolle. Sie gehört zu keinem 
 
 Der Präfix `din-` ist reserviert für Atome, Zonen und den Dokumentrahmen (`din-blatt`). Alles andere trägt keinen `din-`-Präfix.
 
-### Y-Geometrie (Datenschicht am `<din-blatt>`)
+### Y-Geometrie (CSS-Tokens in `website/css/base.css`)
 
-Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und `data-<atom|zone>-y-b` (Form B). Beispiele: `data-kern-y-a`, `data-falz-oben-y-a`, `data-lochmarke-y`. CSS liest sie per `attr()` **ohne** Fallback-Argument (`sheet-common.css:29–46`): fehlt ein Attribut, ist die Deklaration ungültig und die Position fällt auf `auto` zurück.
+Die Y-Koordinaten stehen als dimensionslose mm-Tokens in `website/css/base.css`
+(Abschnitt „2a. DIN-5008-GEOMETRIE") — Form A mit Suffix `-y-a-mm`, Form B mit
+`-y-b-mm`. Beispiele: `--geometrie-kern-y-a-mm`, `--geometrie-falzmarke-1-y-b-mm`,
+`--geometrie-lochmarke-y-mm`. `sheet-common.css` formt sie per
+`--mm-y(var(--…))` in Positionen um und schaltet Form A über
+`:root[data-layout="form-a"] din-blatt`. Das `<din-blatt>` trägt seit 2026-11-20
+**keine** `data-*`-Geometrie mehr; `tools/imr.js` prüft Tokens, HTML-Freiheit
+und verbietet `attr(data-…)` im CSS.
 
 ### Rendering- und Kompositions-Bezeichner
 
@@ -440,7 +448,7 @@ Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und
 |---|---|
 | `brief-ansicht` | Viewport-/Scroll-Wrapper des Blattes |
 | `brief-kommentar` | Inline-Kommentar-Markierung im Text (kein Atom) |
-| `--blatt-breite`, `--blatt-hoehe` | Blattmaße aus `data-width-mm`/`data-height-mm` |
+| `--blatt-breite`, `--blatt-hoehe` | Blattmaße als dimensionslose Tokens (`base.css`); Divisor der `@function --mm-rel-*` |
 | `unterschriftsbild-*` | Satellit von `din-unterschrift` (Bild, Rahmen, Griffe) |
 | `din-info-*` | UI-Modal für DIN 5008 Leitfaden (Dialog, Titel, Content) |
 
@@ -452,7 +460,7 @@ Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und
 
 ## Maschinenlesbares Inventar
 
-Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Kompositionen. Dieser Block ist die normative Quelle für Atome, Zonen, `dinSection`, Geometrie und Beziehungen; die Tabellen oben sind seine lesbare Fassung. `tools/imr.js` validiert das Inventar und leitet daraus die `data-*`-Werte des `<din-blatt>` ab.
+Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Kompositionen. Dieser Block ist die normative Quelle für Atome, Zonen, `dinSection`, Geometrie und Beziehungen; die Tabellen oben sind seine lesbare Fassung. `tools/imr.js` validiert das Inventar, leitet daraus die Geometrie-Tokens in `website/css/base.css` ab und prüft sie gegen die Datei.
 
 <!-- IMR-INVENTORY:START -->
 ```json
@@ -1107,6 +1115,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
 
 | Datum | Änderung |
 |---|---|
+| 2026-11-20 | Geometrie-SSoT von `data-*` am `<din-blatt>` zu CSS-Tokens (`website/css/base.css`, Abschnitt „2a") verschoben; `tools/imr.js` prüft Tokens + verbietet `attr(data-…)` |
 | 2026-09-30 | Case Contract (kebab HTML/CSS, camelCase/PascalCase/UPPER_SNAKE JS, Docs-`id` kebab) + Case-Gate in `tools/imr.js` |
 | 2026-09-30 | Kanonisches Vokabular (`vocabulary`) ins Inventar + Gate-Prüfung in `tools/imr.js` |
 | 2026-09-30 | Formalisiert: Registry Contract + MUST-NOT, Namespace-Kategorien, Alias-Registry, Authority-Klassen, maschinenlesbares JSON-Inventar |

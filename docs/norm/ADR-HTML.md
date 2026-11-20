@@ -90,8 +90,8 @@ In DIN-Brief Neo ist die HTML-Architektur als **minimalistischer, semantischer D
    Aktionen zum Öffnen des Zurücksetzen-Dialogs und Formatier-Befehle nutzen native HTML Command Invokers (`commandfor="reset-dialog" command="show-modal"`).
 8. **Semantische Schalter (`<input type="checkbox" switch>`):**
    Der Hilfslinien-Schalter nutzt das native HTML-Attribut `switch` für ein barrierefreies, betriebssystemnahes Toggle-Bedienelement ohne redundante Radio-Container.
-9. **HTML-Attribute als Single Source of Truth für DIN-Geometrie:**
-   Die millimetergenauen Normkoordinaten für Form A und Form B sind als `data-*`-Attribute direkt am `<din-blatt>`-Element hinterlegt und werden vom CSS über `attr(data-* type(<number>))` ausgelesen.
+9. **CSS Custom Properties als Single Source of Truth für DIN-Geometrie:**
+   Die millimetergenauen Normkoordinaten für Form A und Form B stehen als dimensionslose Tokens in `website/css/base.css` (Abschnitt „2a. DIN-5008-GEOMETRIE"). Das `<din-blatt>` trägt keine Geometrie-Attribute mehr; `sheet-common.css` formt die Tokens per `--mm-y(var(--…))`.
 
 ---
 
@@ -164,11 +164,12 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
 
 Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-blatt class="blatt-theme seite-1" role="article" aria-label="DIN 5008 Brief">`.
 
-#### DIN-Geometrie Data-Attribute (SSOT)
-* `data-width-mm="210"` & `data-height-mm="297"`: DIN A4 Blattgröße.
-* `data-lochmarke-y="148.5"`: Lochmarke zentriert auf Blatthälfte.
-* **Form B (Default):** `data-briefkopf-y-b="45"`, `data-anschriftfeld-y-b="51"`, `data-infoblock-y-b="51"`, `data-kern-y-b="109"`, `data-falzmarke-1-y-b="105"`, `data-falzmarke-2-y-b="210"`.
-* **Form A:** `data-briefkopf-y-a="27"`, `data-anschriftfeld-y-a="34"`, `data-infoblock-y-a="34"`, `data-kern-y-a="91"`, `data-falzmarke-1-y-a="87"`, `data-falzmarke-2-y-a="192"`.
+#### DIN-Geometrie-Tokens (SSOT in `website/css/base.css`)
+Das Element selbst ist attributfrei; die Werte kommen aus CSS Custom Properties.
+* `--blatt-breite: 210` & `--blatt-hoehe: 297`: DIN A4 Blattgröße (dimensionslos).
+* `--geometrie-lochmarke-y-mm: 148.5`: Lochmarke zentriert auf Blatthälfte.
+* **Form B (Default):** `--geometrie-briefkopf-y-b-mm: 45`, `--geometrie-anschriftfeld-y-b-mm: 45.8`, `--geometrie-infoblock-y-b-mm: 51`, `--geometrie-kern-y-b-mm: 109`, `--geometrie-falzmarke-1-y-b-mm: 105`, `--geometrie-falzmarke-2-y-b-mm: 210`.
+* **Form A:** `--geometrie-briefkopf-y-a-mm: 27`, `--geometrie-anschriftfeld-y-a-mm: 28.9`, `--geometrie-infoblock-y-a-mm: 34`, `--geometrie-kern-y-a-mm: 91`, `--geometrie-falzmarke-1-y-a-mm: 87`, `--geometrie-falzmarke-2-y-a-mm: 192`.
 
 #### Die 24 Custom Elements & 18 ContentEditable-Felder
 1. `<din-falzmarke-1>`: Obere Faltmarke (auf 8 mm Randbreite begrenzt).

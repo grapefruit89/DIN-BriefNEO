@@ -331,8 +331,8 @@ din-blatt[data-ueberlauf="true"]::after {
       box-shadow: none !important; 
       margin: 0 !important; 
       page-break-after: avoid; 
-      width: calc(attr(data-width-mm type(<number>)) * 1mm) !important;
-      height: calc(attr(data-height-mm type(<number>)) * 1mm) !important; 
+      width: calc(var(--blatt-breite) * 1mm) !important;
+      height: calc(var(--blatt-hoehe) * 1mm) !important; 
   }
 
   #text {

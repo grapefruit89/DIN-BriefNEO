@@ -3,8 +3,8 @@
  * tools/imr.js — IMR-Registry als maschinenlesbare SSOT.
  *
  * Liest docs/norm/IMR-Registry.md (normatives Modell + JSON-Inventar),
- * prueft die Registry-Invarianten und dass der Website-Code + die `data-*`-Geometrie
- * exakt der Registry entsprechen. Kein Dependency, kein Build-Step.
+ * prueft die Registry-Invarianten und dass der Website-Code + die CSS-Geometrie
+ * (Tokens in website/css/base.css) exakt der Registry entsprechen. Kein Dependency, kein Build-Step.
  *
  *   const { checkImr } = require('./tools/imr.js');
  *   const { violations } = checkImr('/pfad/zum/repo');
@@ -22,18 +22,18 @@ function readRegistry(targetDir) {
   return { md, tags, inventory };
 }
 
-/** Erwartete `data-*`-Geometrie aus dem Inventar (Reihenfolge egal). */
-function expectedDataAttrs(inventory) {
+/** Erwartete CSS-Geometrie-Tokens in website/css/base.css (Reihenfolge egal). */
+function expectedCssTokens(inventory) {
   const out = {
-    'data-width-mm': inventory.sheet.width,
-    'data-height-mm': inventory.sheet.height,
+    '--blatt-breite': inventory.sheet.width,
+    '--blatt-hoehe': inventory.sheet.height,
   };
   for (const [id, spec] of Object.entries(inventory.geometry || {})) {
     const base = id.replace(/^din-/, '');
     const y = spec.y || {};
-    if ('Y' in y) out[`data-${base}-y`] = y.Y;
-    if ('A' in y) out[`data-${base}-y-a`] = y.A;
-    if ('B' in y) out[`data-${base}-y-b`] = y.B;
+    if ('Y' in y) out[`--geometrie-${base}-y-mm`] = y.Y;
+    if ('A' in y) out[`--geometrie-${base}-y-a-mm`] = y.A;
+    if ('B' in y) out[`--geometrie-${base}-y-b-mm`] = y.B;
   }
   return out;
 }
@@ -276,19 +276,33 @@ function checkImr(targetDir) {
     }
   }
 
-  // 2) data-* des <din-blatt> muss exakt der Registry-Geometrie entsprechen.
+  // 2) DIN-Geometrie ist SSoT in website/css/base.css ("2a. DIN-5008-GEOMETRIE").
+  //    Das <din-blatt> traegt seit 2026-11-20 keine data-*-Geometrie mehr.
+  const cssRel = 'website/css/base.css';
+  const cssSrc = fs.readFileSync(path.join(targetDir, cssRel), 'utf-8');
+  const cssTokens = Object.fromEntries(
+    [...cssSrc.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;{}]+);/g)].map((x) => [x[1], x[2].trim()])
+  );
+  for (const [k, v] of Object.entries(expectedCssTokens(inventory))) {
+    if (!(k in cssTokens)) add(cssRel, `Geometrie-Token fehlt (aus Registry): ${k}`);
+    else if (Number(cssTokens[k]) !== Number(v)) add(cssRel, `${k}: ${cssTokens[k]} weicht von Registry (${v}) ab`);
+  }
   const htmlPath = path.join(targetDir, 'website/index.html');
   const htmlMain = fs.readFileSync(htmlPath, 'utf-8');
   const blatt = htmlMain.match(/<(din-blatt|din-a4)\b[^>]*>/);
   if (!blatt) add('website/index.html', `<${documentTag}> nicht gefunden`);
   else {
-    const present = Object.fromEntries(
-      [...blatt[0].matchAll(/data-[a-z0-9-]+="([^"]+)"/g)].map((x) => [x[0].split('=')[0], x[1]])
-    );
-    for (const [k, v] of Object.entries(expectedDataAttrs(inventory))) {
-      if (!(k in present)) add('website/index.html', `data-Attribut fehlt (aus Registry): ${k}`);
-      else if (present[k] !== String(v)) add('website/index.html', `${k}="${present[k]}" weicht von Registry (${v}) ab`);
+    const alteGeometrie = /\sdata-(?:width-mm|height-mm|lochmarke-y|(?:briefkopf|anschriftfeld|infoblock|kern)-y-[ab]|falzmarke-[12]-y-[ab])\s*=/;
+    if (alteGeometrie.test(blatt[0])) {
+      add('website/index.html', 'data-*-Geometrie am <din-blatt> ist verboten — SSoT sind die Tokens in website/css/base.css');
     }
+  }
+
+  // 2b) CSS darf die Geometrie nicht zurueck an HTML-Attribute binden.
+  const attrGeometrie = /attr\(\s*data-(?:width-mm|height-mm|lochmarke-y|(?:briefkopf|anschriftfeld|infoblock|kern)-y-[ab]|falzmarke-[12]-y-[ab])/;
+  for (const f of ['website/css/sheet-common.css', 'website/css/sheet.css', 'website/css/sheet-multipage.css']) {
+    const src = fs.readFileSync(path.join(targetDir, f), 'utf-8');
+    if (attrGeometrie.test(src)) add(f, 'attr(data-…)-Geometrie verboten — Tokens aus base.css lesen');
   }
 
   // 3) Kanonisches Vokabular (IMR vocabulary-Block)
@@ -300,7 +314,7 @@ function checkImr(targetDir) {
   return { violations, tags: [...registered], inventory };
 }
 
-module.exports = { checkImr, checkVocabulary, checkCase, expectedDataAttrs, REGISTRY_REL };
+module.exports = { checkImr, checkVocabulary, checkCase, expectedCssTokens, REGISTRY_REL };
 
 if (require.main === module) {
   const r = checkImr(path.resolve(__dirname, '..'));

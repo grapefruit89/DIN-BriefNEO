@@ -334,22 +334,10 @@
       <main id="viewport">
         <h1 class="sr-only">DIN-BriefNEO – Brief-Editor nach DIN 5008</h1>
         <div id="brief-ansicht">
+          <!-- Geometrie (210x297, Form A/B-Y, Falz/Loch) steht als SSoT in
+               website/css/base.css, Abschnitt "2a. DIN-5008-GEOMETRIE".
+               Keine data-*-Geometrie mehr hier (tools/imr.js prueft das). -->
           <din-blatt class="blatt-theme seite-1"
-            data-width-mm="210"
-            data-height-mm="297"
-            data-lochmarke-y="148.5"
-            data-briefkopf-y-b="45"
-            data-anschriftfeld-y-b="45.8"
-            data-infoblock-y-b="51"
-            data-kern-y-b="109"
-            data-falzmarke-1-y-b="105"
-            data-falzmarke-2-y-b="210"
-            data-briefkopf-y-a="27"
-            data-anschriftfeld-y-a="28.9"
-            data-infoblock-y-a="34"
-            data-kern-y-a="91"
-            data-falzmarke-1-y-a="87"
-            data-falzmarke-2-y-a="192"
             role="article"
             writingsuggestions="false"
             aria-label="DIN 5008 Brief">

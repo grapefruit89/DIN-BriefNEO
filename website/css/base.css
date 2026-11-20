@@ -243,6 +243,37 @@ body {
   --seitenleiste-breite: clamp(15rem, 20vw, 18.75rem);
 }
 
+/* --- 2a. DIN-5008-GEOMETRIE (Single Source of Truth, statisch) ---
+ * Diese Zahlen stehen NUR hier. Die Registry (`docs/norm/IMR-Registry.md`)
+ * fuehrt dieselben Werte im Inventar, und `tools/imr.js` prueft beide
+ * Richtungen (Registry <-> diese Datei).
+ * Koordinatensystem: DIN A4, Ursprung oben links, Einheit Millimeter.
+ * Form A und Form B sind reine Y-Varianten desselben Blattes.
+ * Verbraucher: sheet-common.css (--mm-y(...)) und sheet.css (Seitenverhaeltnis).
+ * Das <din-blatt> traegt seit 2026-11-20 keine data-*-Geometrie mehr. */
+:root {
+  /* Blattmasse — zugleich Divisor der @function --mm-rel-* (dimensionslos) */
+  --blatt-breite: 210;
+  --blatt-hoehe: 297;
+
+  /* System-Atome: Lochmarke, Falzmarken (DIN 19.8) */
+  --geometrie-lochmarke-y-mm: 148.5;
+  --geometrie-falzmarke-1-y-a-mm: 87;
+  --geometrie-falzmarke-1-y-b-mm: 105;
+  --geometrie-falzmarke-2-y-a-mm: 192;
+  --geometrie-falzmarke-2-y-b-mm: 210;
+
+  /* Zonen (DIN 19.4.2 / 19.4.3 / 19.5) */
+  --geometrie-briefkopf-y-a-mm: 27;
+  --geometrie-briefkopf-y-b-mm: 45;
+  --geometrie-anschriftfeld-y-a-mm: 28.9;
+  --geometrie-anschriftfeld-y-b-mm: 45.8;
+  --geometrie-infoblock-y-a-mm: 34;
+  --geometrie-infoblock-y-b-mm: 51;
+  --geometrie-kern-y-a-mm: 91;
+  --geometrie-kern-y-b-mm: 109;
+}
+
 /* --- 3. DIN-MATHEMATIK (@function) --- */
 @function --mm-rel-x(--mm) {
   result: calc(var(--mm) / var(--blatt-breite) * 100cqw);

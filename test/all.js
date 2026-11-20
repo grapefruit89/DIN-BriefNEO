@@ -704,6 +704,70 @@ describe('DraftManager: localStorage-Roundtrip', () => {
   });
 });
 
+describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
+  it('localStorage-String entspricht exakt JSON.stringify(collectDraft())', () => {
+    seed();
+    setField('Byte-gleich');
+    const anlagen = /** @type {HTMLTextAreaElement} */ (document.getElementById('anlagen-angabe'));
+    const vorher = anlagen.value;
+    const dm = new DraftManager(createEventBus());
+    try {
+      anlagen.value = 'Anlage A\nAnlage B';
+      dm.saveDraft();
+      assertEqual(
+        localStorage.getItem(DRAFT_KEY),
+        JSON.stringify(collectDraft()),
+        'Shadow-State verändert das gespeicherte Byte nicht'
+      );
+    } finally {
+      dm.destroy();
+      anlagen.value = vorher;
+      seed();
+    }
+  });
+
+  it('hält __quelle, datum__dirty und Toggles byte-gleich', () => {
+    const ort = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    ort.textContent = '53111 Bonn';
+    ort.dataset.quelle = 'auto';
+
+    const datum = document.createElement('input');
+    datum.id = 'datum';
+    datum.setAttribute('data-atom', '');
+    datum.setAttribute('data-feldtyp', 'systemwert');
+    datum.value = '1. März 2020';
+    datum.dataset.dirty = 'true';
+    document.body.append(datum);
+
+    const anlagen = document.createElement('input');
+    anlagen.type = 'checkbox';
+    anlagen.id = 'toggle-anlagen';
+    anlagen.checked = true;
+    document.body.append(anlagen);
+
+    const fuss = document.createElement('input');
+    fuss.type = 'checkbox';
+    fuss.id = 'toggle-fuss';
+    fuss.checked = false;
+    document.body.append(fuss);
+
+    const dm = new DraftManager(createEventBus());
+    try {
+      dm.saveDraft();
+      const erwartet = JSON.stringify(collectDraft());
+      assertEqual(localStorage.getItem(DRAFT_KEY), erwartet, 'alle Pseudo-Keys byte-gleich');
+      assert(erwartet.includes('"datum__dirty":true'), 'Fixture deckt die Datums-Absicht ab');
+    } finally {
+      dm.destroy();
+      datum.remove();
+      anlagen.remove();
+      fuss.remove();
+      delete ort.dataset.quelle;
+      ort.textContent = '';
+    }
+  });
+});
+
 describe('DraftManager: Undo/Redo', () => {
   it('undo() stellt vorherigen Stand wieder her, redo() stützt ihn wieder vor', () => {
     seed();

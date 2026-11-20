@@ -15,6 +15,7 @@ import { Constants, Events, eventBus } from './core.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, setCaretCharacterOffset, writeField } from './document.js';
 import { Field } from './field.js';
 import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
+import { createState, toWire } from './state.js';
 
 export class DraftManager {
   /* Undo/Redo liegt bewusst NUR im RAM (entschieden 2026-11-13, B13).
@@ -41,6 +42,10 @@ export class DraftManager {
    * @type {'pending' | 'synced' | 'error'}
    */
   #saveState = 'synced';
+  /* Schatten-Zustand (D1 Stufe 2): wird beim Speichern aus dem DOM gebaut und
+     über toWire serialisiert. Noch keine Quelle für den Schreibpfad. */
+  /** @type {import('./state.js').LetterState | null} */
+  #state = null;
 
   /**
    * @param {ReturnType<typeof import('./core.js').createEventBus> | null} [bus]
@@ -175,7 +180,11 @@ export class DraftManager {
     let draftStr = '';
     try {
       draft = collectDraft();
-      draftStr = JSON.stringify(draft);
+      /* D1 Stufe 2: Der Shadow-State wird aus dem DOM gebaut, aber das
+         Wire-Format kommt aus toWire(). Das Ergebnis ist byte-gleich zu
+         JSON.stringify(collectDraft()) — deshalb bleibt hier alles beim Alten. */
+      this.#state = createState(draft, Object.keys(draft).filter((k) => !k.endsWith('__quelle') && k !== 'datum__dirty'));
+      draftStr = JSON.stringify(toWire(this.#state));
     } catch (fehler) {
       /* NICHT speichern: fruehere Fassung schrieb '{}' und meldete Erfolg —
          der letzte gute Entwurf war damit weg, obwohl ein Fehler vorlag

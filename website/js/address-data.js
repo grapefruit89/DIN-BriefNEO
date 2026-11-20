@@ -983,33 +983,37 @@ export class AddressIntelligence {
    * Erzwingt strikte Trennung:
    * - Stadt: füllt NUR das Ort-Feld, Firma-Feld bleibt unberührt!
    * - Firma/Behörde: Doppel-Fill (Ort-Feld = "PLZ City", Firma-Feld = Name).
+   * Die Herkunft ("auto") meldet die Funktion als ID-Liste zurück; der
+   * Aufrufer schreibt sie in den Zustand (dieses Modul bleibt DOM-frei).
    * @param {any} item
    * @param {{ textContent: string | null, setAttribute?: (k: string, v: string) => void }} ortEl
    * @param {{ textContent: string | null, setAttribute?: (k: string, v: string) => void } | null} [firmaEl]
    * @param {{ textContent: string | null, setAttribute?: (k: string, v: string) => void } | null} [strasseEl]
-   * @returns {{ note?: string }}
+   * @returns {{ note?: string, auto: string[] }}
    */
   static applySelection(item, ortEl, firmaEl = null, strasseEl = null) {
-    if (!item) return {};
+    /** @type {string[]} */
+    const auto = [];
+    if (!item) return { auto };
 
     if (item.typ === 'Stadt') {
       schreibeFeld(ortEl, item.plz ? `${item.plz} ${item.city}` : item.city);
-      ortEl.setAttribute?.('data-autofilled', 'true');
-      return {};
+      auto.push('empfaenger-ort');
+      return { auto };
     }
 
     if (item.plz && item.city) {
       schreibeFeld(ortEl, `${item.plz} ${item.city}`);
-      ortEl.setAttribute?.('data-autofilled', 'true');
+      auto.push('empfaenger-ort');
     }
     if (firmaEl) {
       schreibeFeld(firmaEl, item.name);
-      firmaEl.setAttribute?.('data-autofilled', 'true');
+      auto.push('empfaenger-firma');
     }
     if (strasseEl && !feldWert(strasseEl)) {
       strasseEl.setAttribute?.('data-placeholder', '(Großempfänger – Straße entfällt)');
     }
-    return {};
+    return { auto };
   }
 
   /**

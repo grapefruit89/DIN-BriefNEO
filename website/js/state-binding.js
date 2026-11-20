@@ -20,7 +20,7 @@
 
 import { Events, eventBus } from './core.js';
 import { collectDraft, draftFieldIds, EDITABLE_FIELD_SELECTOR, readField, writeField } from './document.js';
-import { bindIds, createState, letterState, replace, setMeta, setWert } from './state.js';
+import { bindIds, createState, letterState, replace, setWert } from './state.js';
 
 const TOGGLE_IDS = new Set(['toggle-anlagen', 'toggle-fuss']);
 
@@ -68,7 +68,7 @@ export function initStateBinding(root = document, { bus = eventBus } = {}) {
 /**
  * Übernimmt den Wert eines Feldes in den Zustand (ohne Save-Impuls).
  * @param {Element | null} el
- * @param {'user'|'logic'} [origin]
+ * @param {'user'|'logic'|'auto'} [origin]
  * @param {{ renderIt?: boolean }} [opts]
  * @returns {import('./state.js').PatchEntry | null}
  */
@@ -84,12 +84,6 @@ export function commitElement(el, origin = 'user', { renderIt = true } = {}) {
     : readField(el);
   const patch = setWert(letterState, el.id, wert, origin);
   if (!patch) return null;
-
-  /* Brücke bis Stufe 5: die bestehenden Herkunfts-/Absichts-Attribute haben
-     Vorrang vor der aus dem origin abgeleiteten Herkunft. */
-  const quelle = el.getAttribute('data-quelle');
-  if (quelle === 'auto' || quelle === 'manuell') setMeta(letterState, el.id, { herkunft: quelle });
-  if (el.id === 'datum' && el.dataset.dirty === 'true') setMeta(letterState, 'datum', { userSet: true });
 
   if (renderIt) render([el.id], origin);
   return patch;
@@ -131,19 +125,6 @@ export function render(ids, origin = 'logic') {
     if (!el.matches(EDITABLE_FIELD_SELECTOR)) continue;
     if (el.getAttribute('data-feldtyp') === 'systemwert' && el.id !== 'datum') continue;
     writeField(el, letterState.werte[id]);
-
-    /* Bis Stufe 5 bleiben die bestehenden DOM-Attribute die Projektion des
-       Metas: sonst driften Zustand (herkunft/userSet) und DOM (data-quelle/
-       data-dirty) auseinander und der Drift-Wächter schlägt zu Recht an. */
-    if (el instanceof HTMLElement) {
-      const herkunft = letterState.meta[id]?.herkunft;
-      if (herkunft) el.dataset.quelle = herkunft;
-      else el.removeAttribute('data-quelle');
-      if (id === 'datum') {
-        if (letterState.meta.datum?.userSet) el.dataset.dirty = 'true';
-        else el.removeAttribute('data-dirty');
-      }
-    }
   }
   renderRootFlags();
 }

@@ -194,6 +194,31 @@ export function setMeta(state, id, metaPatch) {
 }
 
 /**
+ * Entfernt einen Meta-Schlüssel (z. B. „Herkunft wieder offen").
+ * @param {LetterState} state
+ * @param {string} id
+ * @param {keyof FeldMeta} key
+ * @returns {PatchEntry|null}
+ */
+export function unsetMeta(state, id, key) {
+  if (!(id in state.werte)) return null;
+  const prevMeta = state.meta[id] ?? null;
+  if (!prevMeta || !(key in prevMeta)) return null;
+  const nextMeta = { ...prevMeta };
+  delete nextMeta[key];
+  const hatRest = Object.keys(nextMeta).length > 0;
+  if (hatRest) state.meta[id] = nextMeta; else delete state.meta[id];
+  state.rev++;
+  const patch = {
+    id,
+    prev: { wert: state.werte[id], meta: prevMeta },
+    next: { wert: state.werte[id], meta: hatRest ? nextMeta : null }
+  };
+  state.journal.push(patch);
+  return patch;
+}
+
+/**
  * Wendet Patches an — Richtung 'prev' = Undo, 'next' = Redo.
  * @param {LetterState} state
  * @param {PatchEntry[]} entries

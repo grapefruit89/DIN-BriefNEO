@@ -205,10 +205,11 @@ try {
       }
       const datum = document.getElementById('datum');
       if (datum) {
-        /* Vertrag von format.js:applyLetterDate() — ein per data-dirty
-         * markiertes Datum gilt als bewusst gesetzt und bleibt stehen. */
-        datum.dataset.dirty = 'true';
-        datum.textContent = brief.datum;
+        /* Vertrag von format.js:applyLetterDate() — ein Nutzer-Datum
+         * (meta.userSet) bleibt stehen. Der input-Event ist der öffentliche
+         * Weg dorthin (kein data-dirty-Attribut mehr, D1 Stufe 5). */
+        datum.value = brief.datum;
+        datum.dispatchEvent(new Event('input', { bubbles: true }));
       }
       return fehlend;
     })()`);
@@ -226,9 +227,18 @@ try {
     await sleep(800);
   }
 
+  /* Die Felder wurden per textContent gefüllt (bewusst ohne Events, damit
+   * initSenderSync nicht dazwischenfunkt). Seit D1 speichert der Zustand,
+   * nicht der DOM — deshalb den Zustand einmal aus dem DOM hydratisieren. */
+  await ev(`(async () => {
+    const m = await import('/website/js/state-binding.js');
+    m.hydrateStateFromDom();
+    return true;
+  })()`);
+
   const stand = JSON.parse(
     await ev(`(() => JSON.stringify({
-      datum: (document.getElementById('datum') || {}).textContent || '',
+      datum: (document.getElementById('datum') || {}).value || '',
       text: ((document.getElementById('text') || {}).textContent || '').slice(0, 24)
     }))()`)
   );

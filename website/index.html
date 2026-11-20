@@ -354,6 +354,11 @@
                  (SSoT). -->
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld"
               data-x="25" data-w="85" data-h="45" data-font="10">
+              <!-- data-autofill-aus: Feld-Fähigkeit, kein Feldzustand. Wird vom
+                   Testbrief-Addon und vom OG-Image-Werkzeug gesetzt; ein echtes
+                   Nutzereingreifen (isTrusted) hebt die Sperre wieder auf.
+                   Herkunft/„vom Nutzer gesetzt" stehen dagegen im Zustand
+                   (letterState.meta), nicht als Attribut im DOM. -->
               <div id="zusatzzone" role="group" aria-label="Zusatz- und Vermerkzone">
                 <input type="text" id="rucksendeangabe" data-font="7" data-atom placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="120">
                 <input type="text" id="vermerke" data-atom data-font="8" placeholder="Postvermerk" aria-label="Postvermerk" autocomplete="off" spellcheck="false" autocapitalize="words" maxlength="80">

@@ -13,6 +13,7 @@
 import { Field } from './field.js';
 import { applyMicroTypography } from './format.js';
 import { stripHtmlToPlaintext } from './persistence.js';
+import { letterState, setMeta } from './state.js';
 
 /* =========================================================================================
  * 0. RICH TEXT SANITIZER (Allowlist Guard)
@@ -766,7 +767,9 @@ export class UIProtections {
       : null;
     if (!target || !(target instanceof HTMLElement)) return;
     if (target.id === 'text') return; // Haupttext bleibt flexibel
-    if (target.id === 'datum') target.dataset.dirty = 'true';
+    /* Absicht statt Wert: der Nutzer setzt das Datum selbst (ersetzt
+       data-dirty; Persistenz bleibt `datum__dirty`, s. state.toWire). */
+    if (target.id === 'datum') setMeta(letterState, 'datum', { userSet: true });
 
     const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
 
@@ -922,10 +925,9 @@ export function collectDraft() {
     draft[elem.id] = readField(elem);
 
     /* Herkunft eines gespiegelten Feldes ("auto"/"manuell") mitnehmen, damit
-     * sie Undo/Redo und den Draft-Reload ueberlebt (E1, 2026-11-12). Ohne sie
-     * ist nach dem Laden nicht mehr entscheidbar, ob eine Rücksendezeile vom
-     * Helfer stammt oder vom Nutzer. */
-    const quelle = elem.getAttribute('data-quelle');
+     * sie Undo/Redo und den Draft-Reload ueberlebt (E1, 2026-11-12). Seit D1
+     * liegt sie im Zustand- Meta, nicht mehr in einem DOM-Attribut. */
+    const quelle = letterState.meta[elem.id]?.herkunft;
     if (quelle) draft[`${elem.id}__quelle`] = quelle;
   });
 
@@ -934,13 +936,12 @@ export function collectDraft() {
     if (sel.id) draft[sel.id] = sel.value;
   });
 
-  /* Absicht statt Wert: `data-dirty` am Datum sagt „der Nutzer hat das Datum
+  /* Absicht statt Wert: `meta.datum.userSet` sagt „der Nutzer hat das Datum
    * gesetzt". Ohne diesen Schluessel ist nach dem Reload nicht mehr
    * entscheidbar, ob "1. März 2020" getippt wurde oder ob dort noch der
    * Tagesstand vom letzten Speichern steht (F5, Batch 05). Additiv: alte
    * Entwuerfe ohne den Schluessel verhalten sich wie bisher. */
-  const datumFeld = document.getElementById('datum');
-  if (datumFeld?.dataset.dirty === 'true') draft['datum__dirty'] = true;
+  if (letterState.meta.datum?.userSet) draft['datum__dirty'] = true;
 
   const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
   if (anlagenSwitch) {

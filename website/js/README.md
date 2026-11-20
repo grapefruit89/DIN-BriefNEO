@@ -17,6 +17,9 @@
 | [`addons.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/addons.js) | 185 | Controller | Addon-Manager & Plugin-Punkt (B52, On-Demand-Loader) | `core` |
 | [`multipage-controller.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/multipage-controller.js) | 149 | Layout-Engine | Mehrseiten-Brief (CSSStyleSheet-Injektion, Folgeköpfe) | *keine* (DOM/CSSOM) |
 | [`core.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/core.js) | 266 | Foundation | EventBus (`Events`), Popover-Toast-System (`#hinweis-v4`), Guards | *keine* (autark) |
+| [`schema.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/schema.js) | 28 | Daten | Kanonische Feld-Reihenfolge (Schema v5), geteilt von Export & Zustand | *keine* (reine Daten) |
+| [`state.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/state.js) | 250 | State | Briefzustand im RAM (`werte`/`meta`/`rev`/`ids`) + Patch-API | `schema` |
+| [`state-binding.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/state-binding.js) | 175 | Binding | DOM↔Zustand: ein input/change-Listener, `render()`, Echo-Regel | `core`, `document`, `state` |
 | [`font-feature.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/font-feature.js) | 283 | Feature | Preset-Auswahl, Custom-Font-Upload (WOFF2/TTF/OTF), CSS Font Loading API | `binary-storage`, `core`, `persistence` |
 | [`signature.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/signature.js) | 310 | Feature | Unterschrift & Stempel (Upload, Canvas-Kompression, Drag/Rotate) | `binary-storage`, `core` |
 | [`settings.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/settings.js) | 324 | Feature / UI | Einstellungs-Panel, Form A/B, Theme-Switch, Quota-Visualisierung | `core`, `persistence`, `font-feature` |
@@ -116,7 +119,7 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
   - KISS-Architektur: Reines Regelwerk ohne Regex-Overengineering.
   - Strikter DIN-5008-Fallback: Fehlt `Herr`/`Frau`, wird neutral angesprochen (`Sehr geehrte Damen und Herren,`).
   - Erkennt Namenspartikel (`von`, `van der`), dreht Komma-Notation (`Müller, Hans`) und übernimmt akademische Grade (`Dr.`, `Prof.`).
-  - Synchronisiert `dataset.dirty` sauber nach Undo/Redo-Aktionen.
+  - Synchronisiert `meta.userSet` sauber nach Undo/Redo-Aktionen.
 
 #### [`document.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/document.js) (680 Zeilen)
 * **Zweck:** DOM-Operationen im Briefblatt, Rich-Text-Schutz, Caret-Steuerung und Mikro-Typografie.

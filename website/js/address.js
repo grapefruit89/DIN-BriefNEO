@@ -32,7 +32,8 @@ import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe }
 import { setCaretToEnd } from './document.js';
 import { Field } from './field.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
-import { applyValue } from './state-binding.js';
+import { letterState, setMeta, unsetMeta } from './state.js';
+import { applyValue, commitElement } from './state-binding.js';
 
 export {
   AddressData,
@@ -139,8 +140,11 @@ export function bindListSelection(popoverEl, items, select) {
  * Die Zahl ist Datenlogik (wie viele Treffer die Liste aufnimmt), keine Layout-Regel —
  * deshalb hier zentral und nicht im CSS.
  */
-const SUGGESTION_BREAKPOINT_PX = 600;
+  const SUGGESTION_BREAKPOINT_PX = 600;
 const maxSuggestions = () => (window.innerWidth < SUGGESTION_BREAKPOINT_PX ? 8 : 12);
+
+/** Listener-Register (ersetzt data-wired am Ort-Feld). */
+let adressfelderVerdrahtet = false;
 
 /**
  * Wires the recipient address block in the DOM for instant offline autocomplete.
@@ -151,8 +155,8 @@ AddressIntelligence.wireDOM = function wireDOM() {
   const empfStrasseEl = feld('empfaenger-strasse');
 
   if (!empfOrtEl) return;
-  if (empfOrtEl.dataset.wired === 'true') return;
-  empfOrtEl.dataset.wired = 'true';
+  if (adressfelderVerdrahtet) return;
+  adressfelderVerdrahtet = true;
 
   // Popover suggestions container
   const suggestionsPopover = feld('plz-suggestions-popover');
@@ -184,13 +188,12 @@ AddressIntelligence.wireDOM = function wireDOM() {
     userEditing = false;
   });
 
-  // Schutz vor Überschreiben: Manuelle Tastatureingaben entfernen data-autofilled
+  // Schutz vor Überschreiben: Manuelle Tastatureingaben entwerten den Auto-Ursprung
   /** @param {HTMLElement} el */
   const trackManualInput = (el) => {
     el.addEventListener('input', (/** @type {Event} */ e) => {
       const ev = /** @type {InputEvent} */ (e);
       if (!ev.isComposing) {
-        el.removeAttribute('data-autofilled');
         /* Nur ein echtes Nutzereingreifen raeumt die Ziel-Sperre ab und hebt
          * data-autofill-aus auf. Sonst loescht ein programmatisch gefuelltes
          * Feld seine eigene Sperre: der Clipboard-Import setzt targetLock und
@@ -199,6 +202,8 @@ AddressIntelligence.wireDOM = function wireDOM() {
         if (ev.isTrusted) {
           if (el === empfOrtEl) AddressIntelligence.targetLock = null;
           el.removeAttribute('data-autofill-aus');
+          /* Herkunft ist jetzt Nutzertext: ersetzt data-autofilled. */
+          setMeta(letterState, el.id, { herkunft: 'manuell' });
         }
       }
     });
@@ -249,16 +254,14 @@ AddressIntelligence.wireDOM = function wireDOM() {
         }
 
         const completed = `${res.plz} ${res.city}`;
-        applyValue('empfaenger-ort', completed, 'logic');
-        empfOrtEl.setAttribute('data-autofilled', 'true');
+        applyValue('empfaenger-ort', completed, 'auto');
 
         AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
 
         // Großkunde / Behörde Automatik
         if (res.isGrosskunde && res.grosskunde) {
-          if (empfFirmaEl && (!Field.getValue(empfFirmaEl).trim() || empfFirmaEl.getAttribute('data-autofilled') === 'true')) {
-            applyValue('empfaenger-firma', res.grosskunde.name, 'logic');
-            empfFirmaEl.setAttribute('data-autofilled', 'true');
+          if (empfFirmaEl && (!Field.getValue(empfFirmaEl).trim() || letterState.meta['empfaenger-firma']?.herkunft === 'auto')) {
+            applyValue('empfaenger-firma', res.grosskunde.name, 'auto');
           }
           if (empfStrasseEl && !Field.getValue(empfStrasseEl).trim()) {
             empfStrasseEl.setAttribute('data-placeholder', '(Großempfänger – Straße entfällt)');
@@ -296,8 +299,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
       const res = AddressIntelligence.resolveCityInput(rawText, maxItems);
       if (res.mode === 'single_fill' && res.plz && res.city && !userEditing) {
         const completed = `${res.plz} ${res.city}`;
-        Field.setValue(empfOrtEl, completed);
-        empfOrtEl.setAttribute('data-autofilled', 'true');
+        applyValue('empfaenger-ort', completed, 'auto');
         AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
         setCaretToEnd(empfOrtEl);
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
@@ -475,7 +477,11 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
         return;
       }
 
-      AddressIntelligence.applySelection(item, ortEl, firmaEl, strasseEl);
+      const auswahl = AddressIntelligence.applySelection(item, ortEl, firmaEl, strasseEl);
+      for (const id of auswahl.auto) {
+        const el = document.getElementById(id);
+        if (el) commitElement(el, 'auto', { renderIt: false });
+      }
       AddressIntelligence.targetLock = { city: item.city, plz: item.plz };
       setCaretToEnd(anchorEl || ortEl);
       eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
@@ -691,7 +697,7 @@ export function initSenderSync() {
       if (schreibeGerade) return; // eigener Schreibvorgang, kein Nutzer
       if (el === absender) {
         rueckModus = 'manuell';
-        absender.dataset.quelle = 'manuell';
+        setMeta(letterState, 'rucksendeangabe', { herkunft: 'manuell' });
       } else unterschriftModus = 'manuell';
     });
   }
@@ -713,11 +719,11 @@ export function initSenderSync() {
       city
     });
     rueckModus = entscheidung.modus;
-    /* Herkunft am Feld markieren: collectDraft() nimmt sie als
-       `<id>__quelle` in den Entwurf, #restoreState() setzt sie zurueck. */
+    /* Herkunft am Feld markieren (Zustand-Meta): toWire() nimmt sie als
+       `<id>__quelle` in den Entwurf, der Ladepfad setzt sie zurück. */
     if (absender) {
-      if (rueckModus === 'unklar') absender.removeAttribute('data-quelle');
-      else absender.dataset.quelle = rueckModus;
+      if (rueckModus === 'unklar') unsetMeta(letterState, 'rucksendeangabe', 'herkunft');
+      else setMeta(letterState, 'rucksendeangabe', { herkunft: rueckModus });
     }
     letzterAutowert = entscheidung.letzterAutowert;
     if (entscheidung.schreiben) schreibe(absender, auto);
@@ -741,9 +747,9 @@ export function initSenderSync() {
        fremden Stand zurueckbekommen. Die Maschinenschrift bleibt eine reine
        Spiegelung des Namens (Test: "Maschinenschrift folgt weiterhin dem
        Namen"). */
-    /* Die Herkunft steht im Entwurf (`data-quelle`), also nicht raten: nur
+    /* Die Herkunft steht im Zustand (`meta.herkunft`), also nicht raten: nur
      * wenn sie fehlt (Altbestand, Reset), bleibt der Modus offen. */
-    const gespeichert = absender?.getAttribute('data-quelle');
+    const gespeichert = letterState.meta['rucksendeangabe']?.herkunft;
     rueckModus = gespeichert === 'auto' || gespeichert === 'manuell' ? gespeichert : 'unklar';
     letzterAutowert = null;
   });
@@ -1318,10 +1324,10 @@ export function initAddressServices() {
     /* Nur fuellen, was der Treffer wirklich hat: ein Stadt-/PLZ-Treffer hat
        keine Strasse und darf das Empfaengerfeld nicht leeren. */
     if (empfStrasse && item.street) {
-      applyValue('empfaenger-strasse', item.street, 'logic');
+      applyValue('empfaenger-strasse', item.street, 'auto');
     }
     if (empfOrt && (item.postcode || item.city)) {
-      applyValue('empfaenger-ort', `${item.postcode} ${item.city}`.trim(), 'logic');
+      applyValue('empfaenger-ort', `${item.postcode} ${item.city}`.trim(), 'auto');
     }
 
     hidePopoverSafe(addressSuggestions);

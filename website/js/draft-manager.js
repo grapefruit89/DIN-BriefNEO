@@ -12,11 +12,11 @@
 
 import { AddressIntelligence } from './address.js';
 import { Constants, Events, eventBus } from './core.js';
-import { EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, setCaretCharacterOffset, writeField } from './document.js';
+import { draftFieldIds, getCaretCharacterOffset, setCaretCharacterOffset } from './document.js';
 import { Field } from './field.js';
 import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
-import { applyPatch, letterState, resetState, takeJournal, toWire } from './state.js';
-import { hydrateStateFromDom, render } from './state-binding.js';
+import { applyPatch, bindIds, createState, letterState, replace, resetState, takeJournal, toWire } from './state.js';
+import { render } from './state-binding.js';
 
 export class DraftManager {
   /* Undo/Redo liegt bewusst NUR im RAM (entschieden 2026-11-13, B13).
@@ -32,8 +32,6 @@ export class DraftManager {
   #letzterCaret = null;
   /** true, sobald ein Ausgangsstand feststeht (Ladepfad oder erster Save). */
   #hatBasis = false;
-  /** @type {boolean} */
-  #isRestoring = false;
   /** @type {(() => void) | null} */
   #unsubSaveRequested = null;
   /** @type {(() => void) | null} */
@@ -220,7 +218,6 @@ export class DraftManager {
       }
     }
 
-    if (this.#isRestoring) return saved;
     this.#commitHistory(this.#caret());
 
     return saved;
@@ -312,103 +309,51 @@ export class DraftManager {
     this.#redoStack = [];
     this.#letzterCaret = null;
     this.#hatBasis = true;
-    this.#restoreState(draft);
-    hydrateStateFromDom();
+    this.#loadWire(draft);
     return true;
   }
 
   /**
-   * Stellt einen Snapshot (z. B. aus Undo nach Reset) im DOM wieder her und persistiert ihn.
+   * Stellt einen Wire-Snapshot im DOM wieder her und persistiert ihn.
    * @param {Record<string, string | boolean>} draft
    */
   restoreDraft(draft) {
     if (!draft || typeof draft !== 'object') return;
-    this.#restoreState(draft);
-    hydrateStateFromDom();
+    this.#loadWire(draft);
     this.saveDraft();
   }
 
   /**
+   * Setzt den Zustand aus einem Wire-Objekt und projiziert ihn in den DOM.
+   * Enthält die beiden Daten-Migrationen, die vorher im DOM-Restore steckten.
    * @param {Record<string, string | boolean>} draft
    */
-  #restoreState(draft) {
-    this.#isRestoring = true;
-    AddressIntelligence.targetLock = null;
-    /* Herkunftsmarker haengen an der Entwurfsdatei, nicht am Feldwert. Erst
-     * alle loeschen: sonst bliebe nach einem Reset die alte Herkunft stehen
-     * und die Rücksendezeile bliebe faelschlich gesperrt (E1, 2026-11-12). */
-    document.querySelectorAll('[data-quelle]').forEach(el => {
-      el.removeAttribute('data-quelle');
-    });
-    Object.keys(draft).forEach(id => {
-      if (id.endsWith('__quelle')) {
-        const ziel = document.getElementById(id.slice(0, -'__quelle'.length));
-        /* Whitelist: der Wert kommt aus localStorage und landet in einem
-           Attribut. Nur die zwei erlaubten Herkuenfte durchlassen (A61-Naehe:
-           nichts Ungeprueftes aus dem Speicher ins DOM). */
-        const ERLAUBTE_QUELLEN = new Set(['auto', 'manuell']);
-        if (ziel && typeof draft[id] === 'string' && ERLAUBTE_QUELLEN.has(draft[id])) {
-          ziel.dataset.quelle = draft[id];
-        }
-        return;
-      }
-      const elem = document.getElementById(id);
-      /* Schutz vor UI-Zerstörung durch fremde/manipulierte IDs: nur editierbare Felder beschreiben */
-      if (!elem?.matches(EDITABLE_FIELD_SELECTOR)) return;
-      if (elem.dataset.feldtyp === 'systemwert' && elem.id !== 'datum') return;
-      // Boolean-Werte sind Toggle-Zustaende; sie werden weiter unten als `checked` gesetzt.
-      if (typeof draft[id] !== 'string') return;
+  #loadWire(draft) {
+    const feldIds = draftFieldIds(document);
+    const next = createState(draft, feldIds);
 
-      writeField(elem, draft[id]);
-    });
-
-    /* Das Datum traegt den Nutzerwunsch, nicht den Tagesstand: `applyLetterDate`
-     * (format.js:404) ueberschreibt nur, wenn `data-dirty` fehlt. Die Markierung
-     * stand vorher im `else`-Zweig fuer NICHT-native Felder — #datum ist aber
-     * ein <input>, also lief sie nie, und jeder Reload setzte „heute"
-     * (gemessen 2026-11-15: Entwurf "1. März 2020" -> "15. November 2026").
-     * Jetzt entscheidet die gespeicherte Absicht (`datum__dirty`), nicht das
-     * blosse Vorhandensein eines Werts — sonst bliebe das Datum fuer immer
-     * stehen, auch wenn der Nutzer es nie angefasst hat. */
-    if (draft['datum__dirty'] === true) {
-      const datumEl = document.getElementById('datum');
-      if (datumEl) datumEl.dataset.dirty = 'true';
+    /* Migration: alte Drafts kennen `toggle-fuss` nicht. Vorhandener Text in
+       den Fußzeilenfeldern bedeutet "Fußzeile war an" — sonst wäre er
+       unsichtbar (Befund B11). */
+    if (!('toggle-fuss' in draft)) {
+      const fussFelder = ['fuss-firma', 'fuss-sitz', 'fuss-gericht', 'fuss-hrb', 'fuss-vorstand', 'fuss-gf',
+        'fuss-stnr', 'fuss-ustid', 'fuss-bank', 'fuss-iban', 'fuss-bic', 'fuss-anschrift'];
+      next.werte['toggle-fuss'] = fussFelder.some((id) => String(next.werte[id] ?? '').trim() !== '');
+      next.ids.add('toggle-fuss');
     }
 
-    const postvermerk = document.getElementById('vermerke');
+    replace(letterState, next);
+    bindIds(letterState, feldIds);
+    AddressIntelligence.targetLock = null;
+    render([...letterState.ids], 'logic');
+
     const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
     if (pvSelect) {
       // Auswahlliste folgt dem Feld — sonst zeigt sie nach einem Restore „kein“,
       // während der Vermerk im Brief steht.
-      pvSelect.value = Field.getValue(postvermerk).trim();
+      pvSelect.value = String(letterState.werte.vermerke ?? '').trim();
       if (pvSelect.selectedIndex === -1) pvSelect.selectedIndex = 0;
     }
-
-    const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
-    if (anlagenSwitch && 'toggle-anlagen' in draft) {
-      anlagenSwitch.checked = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
-    }
-    document.documentElement.setAttribute('data-anlagen', anlagenSwitch?.checked ? 'true' : 'false');
-
-    const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
-    if (fussSwitch) {
-      if ('toggle-fuss' in draft) {
-        fussSwitch.checked = draft['toggle-fuss'] === true || draft['toggle-fuss'] === 'true';
-      } else {
-        // Migration: alte Drafts kennen den Toggle nicht. Vorhandener Text
-        // bedeutet "Fusszeile war an" - sonst waere er unsichtbar.
-        /* `#geschaeftsangaben` enthaelt seit 2026-11-12 native <input>
-           (fuss-*), keine contenteditable-Felder mehr. Der alte Selektor fand
-           nichts, `some()` war immer false und Alt-Entwuerfe ohne
-           `toggle-fuss` verloren ihre Fusszeile (Befund B11). */
-        fussSwitch.checked = Array.from(
-          document.querySelectorAll('#geschaeftsangaben > input, #geschaeftsangaben > [contenteditable]')
-        ).some((sp) => Field.getValue(sp).trim() !== '');
-      }
-    }
-    document.documentElement.setAttribute('data-fuss', fussSwitch?.checked ? 'true' : 'false');
-
-    this.#isRestoring = false;
     this.#setSaveStatus('saved');
   }
 

@@ -16,6 +16,8 @@ import { Events, eventBus } from '../../js/core.js';
 import { Field } from '../../js/field.js';
 import { applyLetterDate } from '../../js/format.js';
 import { SalutationEngine } from '../../js/salutation.js';
+import { letterState, unsetMeta } from '../../js/state.js';
+import { applyValue } from '../../js/state-binding.js';
 
 /* =========================================================================================
  * 1. REGELN & HEURISTIKEN (ADRESS- & ANKERLEITER)
@@ -1332,9 +1334,9 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
      erst danach die Absenderfelder schreiben, damit sync() sie fuellt. */
   const ruecksende = document.getElementById('rucksendeangabe');
   if (ruecksende) {
-    ruecksende.removeAttribute('data-quelle');
-    Field.setValue(ruecksende, '');
-    eventBus.publish(Events.DOCUMENT_CHANGED);
+    unsetMeta(letterState, 'rucksendeangabe', 'herkunft');
+    applyValue('rucksendeangabe', '', 'logic');
+    eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'reset' });
   }
 
   // Kontakt-Immersion: Synthetische T9-Vanity-Rufnummer & Popkultur-Mail
@@ -1370,14 +1372,8 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   applyLetterDate();
 
   // Auto-Text-Status für SalutationFeature sichern (kein fälschlicher dirty-Lock)
-  const anredeEl = document.getElementById('anrede');
-  if (anredeEl) {
-    delete anredeEl.dataset.dirty;
-  }
-  const grussEl = document.getElementById('grussformel');
-  if (grussEl) {
-    delete grussEl.dataset.dirty;
-  }
+  unsetMeta(letterState, 'anrede', 'userSet');
+  unsetMeta(letterState, 'grussformel', 'userSet');
 
   // Zusatzblöcke: Anlagen dynamisch steuern
   const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));

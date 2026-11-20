@@ -16,6 +16,7 @@
 import { Constants, Events, eventBus } from './core.js';
 import { Field } from './field.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+import { letterState, setMeta, unsetMeta } from './state.js';
 import { applyValue } from './state-binding.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
@@ -203,9 +204,9 @@ export class SalutationFeature {
       el.addEventListener('input', () => {
         const text = Field.getValue(el).trim();
         if (text && text !== this.#auto[kind]) {
-          el.dataset.dirty = 'true';
+          setMeta(letterState, kind, { userSet: true });
         } else {
-          delete el.dataset.dirty;
+          unsetMeta(letterState, kind, 'userSet');
         }
       });
       el.addEventListener('blur', () => this.#hint(kind, el));
@@ -264,9 +265,7 @@ export class SalutationFeature {
       const isAutoAnrede = FALLBACK_SET.has(/** @type {any} */ (anrede))
         || STYLES.some((s) => SalutationEngine.derive({ rawName: name, formality: s }) === anrede);
       if (isAutoAnrede && anredeEl) {
-        if (anredeEl.dataset.dirty === 'true') {
-          delete anredeEl.dataset.dirty;
-        }
+        unsetMeta(letterState, 'anrede', 'userSet');
         this.#auto.anrede = anrede;
       }
     }
@@ -275,9 +274,7 @@ export class SalutationFeature {
     if (gruss) {
       const isAutoGruss = CLOSINGS_SET.has(/** @type {any} */ (gruss));
       if (isAutoGruss && grussEl) {
-        if (grussEl.dataset.dirty === 'true') {
-          delete grussEl.dataset.dirty;
-        }
+        unsetMeta(letterState, 'grussformel', 'userSet');
         this.#auto.grussformel = gruss;
       }
     }
@@ -304,10 +301,10 @@ export class SalutationFeature {
 
     const current = Field.getValue(el).trim();
     if (!current) {
-      delete el.dataset.dirty;
+      unsetMeta(letterState, kind, 'userSet');
     }
     // Nutzer-Text respektieren: wenn explizit vom Nutzer manuell editiert
-    if (el.dataset.dirty === 'true' && current) return;
+    if (letterState.meta[kind]?.userSet === true && current) return;
     if (current && onlyIfEmpty) return;
 
     const style = this.settings.formality;
@@ -320,7 +317,7 @@ export class SalutationFeature {
       return;
     }
     applyValue(kind, value, 'logic');
-    delete el.dataset.dirty;
+    unsetMeta(letterState, kind, 'userSet');
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
   }
 

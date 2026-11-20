@@ -6,6 +6,7 @@
  * @file format.js — Reine Formatierungsfunktionen nach DIN 5008 (Telefonnummern, Text-Formatierung).
  */
 import { Field } from './field.js';
+import { letterState } from './state.js';
 import { applyValue } from './state-binding.js';
 
 /**
@@ -402,7 +403,7 @@ export function applyLetterDate() {
   /* Field.getValue/setValue statt textContent: #datum ist seit 2026-11-12 ein
      <input>, dort ist textContent immer leer und ein Schreibversuch wirkungslos
      (gemessen: Datum blieb leer). */
-  const manuallySet = el.dataset.dirty === 'true' && Field.getValue(el).trim() !== '';
+  const manuallySet = letterState.meta.datum?.userSet === true && Field.getValue(el).trim() !== '';
   if (manuallySet) return;
   const formatted = formatLetterDate();
   if (formatted) {

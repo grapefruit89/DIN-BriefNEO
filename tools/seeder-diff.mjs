@@ -148,8 +148,9 @@ await send('Page.addScriptToEvaluateOnNewDocument', {
           const el = document.getElementById(s);
           if (el) out[s] = el.checked;
         }
-        const d = document.getElementById('datum');
-        if (d) out.__datumDirty = d.dataset.dirty ?? null;
+        /* Die Datums-Absicht lebt seit D1 im Zustand (meta.datum.userSet),
+           nicht mehr in einem DOM-Attribut; der Datumswert selbst bleibt im
+           Snapshot und zeigt die Wirkung. */
         return out;
       };
       window.__snap = { seeded: null, ready: null, attach: null, marks: [] };

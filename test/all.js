@@ -15,7 +15,7 @@ import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
 import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
-import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire } from '../website/js/state.js';
+import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire, unsetMeta } from '../website/js/state.js';
 import { applyValue, commitElement, hydrateStateFromDom, initStateBinding, render } from '../website/js/state-binding.js';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
@@ -550,7 +550,7 @@ describe('Datum überlebt den Reload (F5, Batch 05)', () => {
   it('ein vom Nutzer gesetztes Datum überlebt den Reload (datum__dirty)', async () => {
     await mitDatum({ datum: '1. März 2020', 'datum__dirty': true }, (el, applyLetterDate) => {
       assertEqual(el.value, '1. März 2020', 'Restore setzt den gespeicherten Wert');
-      assertEqual(el.dataset.dirty, 'true', 'data-dirty kommt aus der gespeicherten Absicht');
+      assertEqual(letterState.meta.datum?.userSet, true, 'userSet kommt aus der gespeicherten Absicht');
       applyLetterDate();
       assertEqual(el.value, '1. März 2020', 'applyLetterDate laesst ihn stehen');
     });
@@ -560,10 +560,10 @@ describe('Datum überlebt den Reload (F5, Batch 05)', () => {
     /* Genau der Unterschied: ein Wert im Entwurf heisst NICHT "vom Nutzer".
      * Sonst bliebe das Datum fuer immer auf dem Tag des letzten Speicherns. */
     await mitDatum({ datum: '1. März 2020' }, (el, applyLetterDate) => {
-      assert(el.dataset.dirty === undefined, 'ohne Absicht keine Markierung');
+      assert(letterState.meta.datum?.userSet !== true, 'ohne Absicht keine Markierung');
       assertEqual(el.value, '1. März 2020', 'Restore setzt den gespeicherten Wert');
       applyLetterDate();
-      assert(el.dataset.dirty === undefined, 'applyLetterDate setzt keine Markierung');
+      assert(letterState.meta.datum?.userSet !== true, 'applyLetterDate setzt keine Markierung');
       assert(el.value.trim() !== '', 'Datum bleibt gefuellt');
       assert(el.value !== '1. März 2020', 'ohne Absicht rollt es auf den Tagesstand');
     });
@@ -577,13 +577,15 @@ describe('Datum überlebt den Reload (F5, Batch 05)', () => {
     el.value = '1. März 2020';
     document.body.append(el);
     try {
+      unsetMeta(letterState, 'datum', 'userSet');
       const ohne = collectDraft();
-      assert(ohne['datum__dirty'] === undefined, 'ohne data-dirty kein Schluessel');
-      el.dataset.dirty = 'true';
+      assert(ohne['datum__dirty'] === undefined, 'ohne Absicht kein Schluessel');
+      setMeta(letterState, 'datum', { userSet: true });
       const mit = collectDraft();
-      assertEqual(mit['datum__dirty'], true, 'mit data-dirty wird die Absicht gespeichert');
+      assertEqual(mit['datum__dirty'], true, 'mit userSet wird die Absicht gespeichert');
     } finally {
       el.remove();
+      unsetMeta(letterState, 'datum', 'userSet');
     }
   });
 });
@@ -728,6 +730,7 @@ describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
   };
 
   it('localStorage-String entspricht exakt JSON.stringify(collectDraft())', () => {
+    hydrateStateFromDom();
     seed();
     setField('Byte-gleich');
     const anlagen = /** @type {HTMLTextAreaElement} */ (document.getElementById('anlagen-angabe'));
@@ -751,21 +754,22 @@ describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
   });
 
   it('hält __quelle, datum__dirty und Toggles byte-gleich', () => {
+    hydrateStateFromDom();
     seed();
     mustField().dispatchEvent(new Event('input', { bubbles: true }));
     const ort = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
     ort.textContent = '53111 Bonn';
-    ort.dataset.quelle = 'auto';
     ort.dispatchEvent(new Event('input', { bubbles: true }));
+    setMeta(letterState, 'empfaenger-ort', { herkunft: 'auto' });
 
     const datum = document.createElement('input');
     datum.id = 'datum';
     datum.setAttribute('data-atom', '');
     datum.setAttribute('data-feldtyp', 'systemwert');
     datum.value = '1. März 2020';
-    datum.dataset.dirty = 'true';
     document.body.append(datum);
     datum.dispatchEvent(new Event('input', { bubbles: true }));
+    setMeta(letterState, 'datum', { userSet: true });
 
     const anlagen = document.createElement('input');
     anlagen.type = 'checkbox';
@@ -792,7 +796,8 @@ describe('D1 Stufe 2: Save-Pfad über toWire ist byte-gleich', () => {
       datum.remove();
       anlagen.remove();
       fuss.remove();
-      delete ort.dataset.quelle;
+      unsetMeta(letterState, 'empfaenger-ort', 'herkunft');
+      unsetMeta(letterState, 'datum', 'userSet');
       ort.textContent = '';
       ort.dispatchEvent(new Event('input', { bubbles: true }));
     }
@@ -1771,13 +1776,14 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     assertEqual(treffer.length, 0, `noch offen: ${treffer.length}`);
   });
 
-  it('Draft-Migration prueft die input-Felder der Fusszeile (Regressionsschutz)', async () => {
+  it('Draft-Migration prueft die gespeicherten Fusszeilenfelder (Regressionsschutz)', async () => {
     /* Befund B11: die Migration suchte '#geschaeftsangaben > [contenteditable]'.
        Seit dem Fusszeilen-Umbau (2026-11-12) stehen dort <input>, some() war
-       immer false und Alt-Entwuerfe ohne toggle-fuss verloren die Fusszeile. */
+       immer false und Alt-Entwuerfe ohne toggle-fuss verloren die Fusszeile.
+       Seit D1 laeuft die Migration ueber die gespeicherten fuss-* Felder. */
     const src = await (await fetch('/website/js/draft-manager.js')).text();
-    assert(src.includes('#geschaeftsangaben > input'), 'input-Felder im Migrations-Selektor');
-    assert(!src.includes("'#geschaeftsangaben > [contenteditable]'"), 'alter Selektor ist entfernt');
+    assert(src.includes('fussFelder') && src.includes("'toggle-fuss' in draft"), 'Fußzeilen-Migration liest die fuss-*-Felder');
+    assert(!src.includes("'#geschaeftsangaben > [contenteditable]'"), 'alter DOM-Selektor ist entfernt');
   });
 
   it('boot-state.js seedet alle gespeicherten Regler und das Datum', async () => {
@@ -2794,11 +2800,14 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assertEqual(res, null);
   });
 
-  it('Test 5: Manuelle Eingabe im Ort-Feld wird durch fremde PLZ nicht überschrieben', () => {
-    const ortEl = document.createElement('div');
-    ortEl.textContent = 'Berlin';
-    // Nicht auto-filled: manueller Wert bleibt geschützt
-    assert(!ortEl.hasAttribute('data-autofilled') || ortEl.getAttribute('data-autofilled') === 'false', 'Manuell');
+  it('Test 5: applySelection meldet nur die tatsächlich gefüllten Felder als "auto"', () => {
+    const fakeOrt = { textContent: 'Berlin', setAttribute: () => {} };
+    const res = AddressIntelligence.applySelection(
+      { typ: 'Stadt', city: 'Bonn', plz: '53111', isSinglePlz: true },
+      fakeOrt
+    );
+    assert(res.auto.includes('empfaenger-ort'), 'Ort wird als Auto-Füllung gemeldet');
+    assert(!res.auto.includes('empfaenger-firma'), 'Firma bleibt unberührt');
   });
 
   // Case B (Ort-Eingabe Reverse)
@@ -3504,8 +3513,8 @@ describe('SalutationEngine: Anrede-Ableitung (pure Funktion & KISS)', () => {
   });
 });
 
-describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronisation)', () => {
-  it('synchronisiert dataset.dirty und auto-State bei Wiederherstellung eines Auto-Wertes', () => {
+describe('SalutationFeature: Auto-Seed & Undo-Härtung (meta.userSet Synchronisation)', () => {
+  it('synchronisiert meta.userSet und auto-State bei Wiederherstellung eines Auto-Wertes', () => {
     let nameEl = document.getElementById('empfaenger-name');
     if (!nameEl) {
       nameEl = document.createElement('div');
@@ -3528,28 +3537,28 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
 
     nameEl.textContent = 'Herr Dr. Müller';
     anredeEl.textContent = 'Manuelle Anrede';
-    anredeEl.dataset.dirty = 'true';
+    setMeta(letterState, 'anrede', { userSet: true });
 
     const feature = new SalutationFeature();
     feature.init();
 
     // Vor Undo: Text ist manuell und dirty
-    assertEqual(anredeEl.dataset.dirty, 'true');
+    assertEqual(letterState.meta.anrede?.userSet, true);
 
     // Simuliere Undo zu automatisch abgeleiteter Anrede
     anredeEl.textContent = 'Sehr geehrter Herr Dr. Müller,';
     eventBus.publish(Events.DOCUMENT_CHANGED);
 
-    assertEqual(anredeEl.dataset.dirty, undefined, 'dirty-Flag wird nach Undo gelöscht');
+    assertEqual(letterState.meta.anrede?.userSet, undefined, 'userSet wird nach Undo gelöscht');
 
     // Simuliere auch Undo für Grußformel
     grussEl.textContent = 'Beste Grüße vorab';
-    grussEl.dataset.dirty = 'true';
+    setMeta(letterState, 'grussformel', { userSet: true });
 
     grussEl.textContent = 'Mit freundlichen Grüßen';
     eventBus.publish(Events.DOCUMENT_CHANGED);
 
-    assertEqual(grussEl.dataset.dirty, undefined, 'dirty-Flag der Grußformel wird nach Undo gelöscht');
+    assertEqual(letterState.meta.grussformel?.userSet, undefined, 'userSet der Grußformel wird nach Undo gelöscht');
 
     feature.destroy();
   });
@@ -3574,7 +3583,7 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
     anredeEl.textContent = '';
     grussEl.textContent = '';
     for (const el of [anredeEl, grussEl]) {
-      delete el.dataset.dirty;
+      unsetMeta(letterState, el.id, 'userSet');
     }
     /* Zustand auf den geleerten DOM bringen: sonst hielte er einen Wert aus
        einem früheren Test und der Seed wäre ein No-op. */
@@ -5056,22 +5065,22 @@ describe('B4: Undo-Historie nach fremdem Entwurf', () => {
 });
 
 describe('E1: Herkunft der Rücksendezeile gehört in den Entwurf', () => {
-  it('collectDraft nimmt data-quelle mit, loadDraft setzt sie zurueck', () => {
-    /* Der Traeger ist beliebig - der Mechanismus ist generisch (data-quelle
-       an einem editierbaren Feld). Das Fixture hat kein #rucksendeangabe. */
+  it('meta.herkunft wandert als __quelle in den Entwurf und überlebt loadDraft', () => {
+    /* Der Träger ist beliebig - der Mechanismus ist generisch (Herkunft an
+       einem editierbaren Feld). Das Fixture hat kein #rucksendeangabe. */
     const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
-    el.dataset.quelle = 'manuell';
+    setMeta(letterState, 'empfaenger-ort', { herkunft: 'manuell' });
 
     const draft = collectDraft();
     assertEqual(draft['empfaenger-ort__quelle'], 'manuell', 'Herkunft steht im Entwurf');
 
     /* Zuruecksetzen und aus dem Entwurf laden: die Herkunft muss wiederkommen. */
-    el.removeAttribute('data-quelle');
+    unsetMeta(letterState, 'empfaenger-ort', 'herkunft');
     saveJSON(STORAGE_KEYS.draft, draft);
     new DraftManager().loadDraft();
-    assertEqual(el.dataset.quelle, 'manuell', 'Herkunft nach loadDraft wieder da');
+    assertEqual(letterState.meta['empfaenger-ort']?.herkunft, 'manuell', 'Herkunft nach loadDraft wieder da');
 
-    el.removeAttribute('data-quelle');
+    unsetMeta(letterState, 'empfaenger-ort', 'herkunft');
   });
 });
 

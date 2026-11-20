@@ -220,7 +220,7 @@
           <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
           <input type="file" id="dinletter-uploader" accept=".json,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">
 
-          <button type="button" id="btn-testbrief" class="btn btn-ghost w-full" title="Zufälligen Testbrief mit zwei Figuren generieren">
+          <button type="button" id="btn-testbrief" class="btn btn-ghost w-full" data-addon="testbrief" data-addon-action="start" title="Zufälligen Testbrief mit zwei Figuren generieren">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg> Testbrief
           </button>
           <button type="button" id="btn-copy-dinletter" class="btn w-full" title="Kopiert das vollständige Brief-JSON direkt in die Zwischenablage">📋 In Zwischenablage (.json)</button>
@@ -297,11 +297,11 @@
               <h3 class="seitenleiste-label">Erweiterungen (Plugins)</h3>
               <div class="seitenleiste-switch-row">
                 <label for="plugin-testbrief" class="seitenleiste-label">Testdaten-Generator</label>
-                <input type="checkbox" switch id="plugin-testbrief" checked>
+                <input type="checkbox" switch id="plugin-testbrief" checked data-addon-toggle="testbrief">
               </div>
               <div class="seitenleiste-switch-row">
                 <label for="plugin-geschaeftsangaben" class="seitenleiste-label">Geschäftsangaben (§ 35a)</label>
-                <input type="checkbox" switch id="plugin-geschaeftsangaben">
+                <input type="checkbox" switch id="plugin-geschaeftsangaben" data-addon-toggle="geschaeftsangaben">
               </div>
               <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
                    stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
@@ -311,8 +311,8 @@
                   <span id="seiten-status" class="workbench-status">Seite 1 von 1</span>
                 </div>
                 <div class="workbench-actions">
-                  <button type="button" id="btn-demo-lang" class="btn" title="Fügt langen 2-3 Seiten Fließtext ein">📝 Langer Text</button>
-                  <button type="button" id="btn-demo-kurz" class="btn" title="Setzt auf kurzen 1-Seiten-Text zurück">↩️ 1 Seite</button>
+                  <button type="button" id="btn-demo-lang" class="btn" data-addon="testbrief" data-addon-action="demo" data-addon-arg="lang" title="Fügt langen 2-3 Seiten Fließtext ein">📝 Langer Text</button>
+                  <button type="button" id="btn-demo-kurz" class="btn" data-addon="testbrief" data-addon-action="demo" data-addon-arg="kurz" title="Setzt auf kurzen 1-Seiten-Text zurück">↩️ 1 Seite</button>
                 </div>
               </div>
             </div>

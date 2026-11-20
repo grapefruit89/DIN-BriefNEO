@@ -135,3 +135,5 @@ export function aktiviere() {
    * den, der es sucht, ohne den Brief anzufassen. */
   console.info('[Geschäftsangaben] Prüfung:', pruefungen);
 }
+
+export { aktiviere as activate };

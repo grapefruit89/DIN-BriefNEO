@@ -8,6 +8,7 @@
  * Die Signatur-Engine liegt in `signature.js`, das Font-Management in `font-feature.js`.
  */
 
+import { toggleAddon } from './addons.js';
 import { Events, eventBus, transitionOn } from './core.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 
@@ -330,12 +331,8 @@ export class SettingsManager {
         if (!this.isReady) return;
         this.settings.pluginGeschaeftsangaben = pluginGeschaeft.checked;
         this.updateSettings();
-        /* Addon erst beim Einschalten laden — der Boot-Pfad bleibt frei. */
-        if (pluginGeschaeft.checked) {
-          import('../addons/geschaeftsangaben/geschaeftsangaben.js')
-            .then((m) => m.aktiviere())
-            .catch((err) => console.error('[Geschaeftsangaben] Start fehlgeschlagen:', err));
-        }
+        /* Addon über zentralen AddonManager aktivieren/deaktivieren */
+        void toggleAddon('geschaeftsangaben', pluginGeschaeft.checked);
       });
     }
 

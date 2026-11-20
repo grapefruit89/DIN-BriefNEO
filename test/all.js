@@ -5316,6 +5316,42 @@ describe('Draft-Feld-Selektor bleibt deckungsgleich (B69)', () => {
   });
 });
 
+describe('B52 Addon-Plugin-Vertrag (Poka-Yoke)', () => {
+  it('alle data-addon und data-addon-toggle im HTML existieren in der ADDON_REGISTRY', async () => {
+    const { ADDON_REGISTRY } = await import('../website/js/addons.js');
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    const addonElements = [...doc.querySelectorAll('[data-addon]')];
+    assert(addonElements.length > 0, 'mindestens ein data-addon im HTML');
+    for (const el of addonElements) {
+      const id = el.getAttribute('data-addon');
+      assert(id && id in ADDON_REGISTRY, `data-addon="${id}" in ADDON_REGISTRY registriert`);
+    }
+
+    const toggleElements = [...doc.querySelectorAll('[data-addon-toggle]')];
+    assert(toggleElements.length > 0, 'mindestens ein data-addon-toggle im HTML');
+    for (const el of toggleElements) {
+      const id = el.getAttribute('data-addon-toggle');
+      assert(id && id in ADDON_REGISTRY, `data-addon-toggle="${id}" in ADDON_REGISTRY registriert`);
+    }
+  });
+
+  it('alle registrierten Addons exportieren einen gültigen Vertrag (run oder activate)', async () => {
+    const { ADDON_REGISTRY, loadAddon } = await import('../website/js/addons.js');
+    for (const id of Object.keys(ADDON_REGISTRY)) {
+      const mod = await loadAddon(id);
+      assert(mod !== null && typeof mod === 'object', `Addon "${id}" liefert Modul-Objekt`);
+      const hatVertrag = typeof mod.run === 'function' ||
+                         typeof mod.activate === 'function' ||
+                         typeof mod.aktiviere === 'function' ||
+                         typeof mod.starteTestbrief === 'function' ||
+                         typeof mod.saveToHistory === 'function';
+      assert(hatVertrag, `Addon "${id}" erfüllt Addon-Vertrag`);
+    }
+  });
+});
+
 run().then((ok) => {
   /** @type {any} */ (window).__TESTS_PASSED = ok;
   console.log(ok ? '✓ Alle Tests bestanden' : '✗ FEHLER: Tests fehlgeschlagen');

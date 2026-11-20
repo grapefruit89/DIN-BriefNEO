@@ -50,20 +50,18 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-22 offene Punkte. Details unterhalb, nach Art gruppiert.
+20 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
 | **B22** | Automatisierter Guard gegen hartcodierte Geometriewerte (`tools/check-geometry.js`) | M | ⭐⭐ |
 | **B25** | Vorkonfigurierte Brief-Vorlagen (JSON-Muster) | M | ⭐⭐⭐ |
 | **B26** | Optionale DIN-5008-Validatoren (Anschrift-Zeilenlimit & IBAN) | S | ⭐⭐ |
-| **B28** | Multi-Provider Geocoding Abstraktionsschicht (Nominatim, Photon, BKG) | M | ⭐⭐⭐ |
 | **B31** | Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker | S | ⭐⭐ |
 | **B32** | Brief-Verlauf und zwei Adressbücher (Addon `verlauf`) | S | ⭐⭐⭐⭐ |
 | **B33** | DIN-5008-Telefonnummer-Formatierer (Expliziter Button) | S | ⭐⭐⭐ |
 | **B38** | Chromium klemmt Rahmenbreiten unter 1px auf 1px | N | ⭐ |
 | **B40** | Vier vorbestehende Testfehler dokumentieren | M | ⭐⭐ |
-| **B52** | Plugin-Punkt für `website/addons/` | L | ⭐⭐ |
 | **B58** | Gzip/Minify als Abschluss-Option | S | ⭐ |
 | **B59** | Kaskade über `@layer` statt `!important` | M | ⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
@@ -105,17 +103,6 @@ bestanden**, dieselben vier rot.
 
 Zu entscheiden: fixen oder als akzeptiert markieren. Betrifft Adress-Parser und
 UI-Policy, nicht den Kern. Siehe [[ARCHITECTURE-MAP]] und `befundpruefung-2026-11-05` (archiviert).
-
-### B52 · Plugin-Punkt für `website/addons/` · **L** · ⭐⭐
-`website/addons/` kennt nur `testbrief` und `webmcp-bridge` — es gibt keinen
-Plugin-Punkt, über den ein Addon sich registriert. `testbrief` wird direkt per
-`import()` in `main.js` geladen (drei Stellen), `webmcp-bridge.js` ist bewusst
-**geparkt und nicht geladen** (Statuskopf in der Datei).
-
-Derselbe Andockpunkt würde drei Dinge tragen, die heute einzeln gelöst sind:
-austauschbares Theme-CSS, PDF-Export (siehe DeepSeek-Mitschrift 2026-11-14)
-und die WebMCP-Bridge. Bedingung: ein Addon darf den Boot-Pfad nicht belasten,
-also Registrierung nach `data-ready` und Code erst beim Aufruf.
 
 ### B58 · Gzip/Minify als Abschluss-Option · **S** · ⭐
 Nicht jetzt. Gemessen am 2026-11-14: JS 314 KB roh → 134 KB minifiziert (gzip
@@ -224,20 +211,6 @@ angefasst, solange irgendetwas anderes offen ist.
 - **IBAN prüfen** ist Modulo-97 über BigInt, ein paar Zeilen — das ist der Kern dieses Eintrags.
 - **BIC formal prüfen** ist ein Regex (`^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$`), 0 Byte Daten — passt dazu, gleicher Aufwand.
 - **Bankname zu BIC** ist ein eigenes Vorhaben und steht als B91 im Abschnitt „Neue Features" — eine Datenquelle ist ein Pflegeversprechen, keine Zeile Code.
-
-### B28 · Multi-Provider Geocoding Abstraktionsschicht (Nominatim, Photon, BKG) · **M** · ⭐⭐⭐
-**Kontext:** Konsolidiert aus `MULTI_PROVIDER_INTEGRATION_BLUEPRINT.md`.
-**Ziel:** Provider-unabhängiges Interface für Straßen- und Adress-Lookups als Fallback oder datensparsame Offline/Selbsthost-Option neben Geoapify (z. B. Nominatim, Komoot Photon, BKG Bund). Konsistente Datenstruktur `{ plz, city, street, state }` ohne Vendor-Lock-in.
-
----
-
-**Zurückgestellt (2026-11-15, Nutzerentscheidung: „auf Eis").** Kein
-Multi-Provider (Nominatim, Photon, BKG). Grund: der Ausfall ist heute schon
-abgedeckt (B30: Failover auf den zweiten Geoapify-Host), und jeder weitere
-Anbieter bringt eigene Nutzungsbedingungen, eigene Grenzen und eigene
-Datenqualität — drei Adressen, die sich unterschiedlich verhalten, sind
-schlechter als eine, die ausfällt und zurückkommt. Wird nicht angefasst,
-solange Geoapify reicht.
 
 ### B31 · Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker · **S** · ⭐⭐
 **Kontext:** Konsolidiert aus `CHROME_METRICS_HIDDEN_GEMS.md` (Chromium Web Features UseCounter Telemetrie).

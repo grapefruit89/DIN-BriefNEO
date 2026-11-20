@@ -52,6 +52,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/addons/testbrief-generator.md` | `node tools/testbrief-messung.mjs` | Messgate |
 | Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/testbrief-messung.mjs` | Messgate |
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
+| Addons, Plugins, Erweiterungen | `website/js/addons.js`, `website/addons/` | `--filter="Addon"` | test-runner |
 | Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/boot-state.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
 | Dev-Server + Debug-Browser | `tools/dev.sh` (= `din-dev`) | `din-dev --status`, Tabs via CDP `:9222` | — |
 | Messen am Bildschirm (ohne Bild) | `tools/mess.js` | MCP `evaluate_script` mit `sourcePath`, `format:"function"` | — |
@@ -122,6 +123,7 @@ website/js/font-feature.js       Font-Presets, Upload, FontFace + IndexedDB
 website/js/settings.js           Layout, Theme, Hilfslinien, Plugin-Schalter
 website/js/binary-storage.js     Einziger IndexedDB-Speicher (Schrift, Unterschrift)
 website/js/multipage-controller.js  CSS-Multicol-Mehrseiten, per import() gemountet
+website/js/addons.js                Addon-Manager & Plugin-Punkt (B52), laedt Erweiterungen on-demand
 website/js/webapi.d.ts          Ambient-Types (ariaNotify, CloseWatcher) — kein Laufzeitcode
 ```
 

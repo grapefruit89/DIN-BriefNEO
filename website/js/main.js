@@ -2,6 +2,7 @@
 // @adr [[ADR-JS]] 
 // @guide [[no-scroll-techniques]] 
 
+import { initAddonDispatcher } from './addons.js';
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
 import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Events, eventBus, initToastSystem } from './core.js';
@@ -165,7 +166,7 @@ function initApp() {
   bootStep('Anrede', () => new SalutationFeature(settingsManager).init());
   bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
   bootStep('Schriftart', () => new FontFeature(settingsManager).init());
-  bootStep('Testdaten', () => initTestData());
+  bootStep('Addons', () => initAddonDispatcher());
 
   bootStep('Darstellung freigeben', () => {
     // data-ready schaltet die Platzhalter frei (siehe sheet-common.css).
@@ -271,50 +272,6 @@ function initApp() {
       initFormatSync();
     }
   }
-
-/**
- * Verdrahtet die Testdaten- & Demo-Buttons. Das Plugin wird erst beim Klick geladen,
- * damit weder Figurendaten noch Demo-Texte im Startpfad liegen.
- */
-function initTestData() {
-  const btnTestbrief = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-testbrief'));
-  if (btnTestbrief) {
-    btnTestbrief.addEventListener('click', async () => {
-      try {
-        const plugin = await import('../addons/testbrief/testbrief.js');
-        await plugin.starteTestbrief();
-      } catch (error) {
-        console.warn('[Testbrief] Plugin nicht verfügbar:', error);
-        btnTestbrief.disabled = true;
-        btnTestbrief.title = 'Testbrief-Plugin nicht gefunden';
-      }
-    });
-  }
-
-  const btnDemoLang = document.getElementById('btn-demo-lang');
-  if (btnDemoLang) {
-    btnDemoLang.addEventListener('click', async () => {
-      try {
-        const { fuelleDemoText } = await import('../addons/testbrief/testbrief.js');
-        fuelleDemoText('lang');
-      } catch (error) {
-        console.warn('[Testbrief] Demo-Text nicht verfügbar:', error);
-      }
-    });
-  }
-
-  const btnDemoKurz = document.getElementById('btn-demo-kurz');
-  if (btnDemoKurz) {
-    btnDemoKurz.addEventListener('click', async () => {
-      try {
-        const { fuelleDemoText } = await import('../addons/testbrief/testbrief.js');
-        fuelleDemoText('kurz');
-      } catch (error) {
-        console.warn('[Testbrief] Demo-Text nicht verfügbar:', error);
-      }
-    });
-  }
-}
 
 /**
  * DIN 5008 11.3.2: Formatierung deutscher Rufnummern beim Verlassen des Telefonfeldes.

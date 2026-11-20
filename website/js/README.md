@@ -14,6 +14,7 @@
 | [`boot-state.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/boot-state.js) | 67 | Script / Body | Setzt den gespeicherten UI-Zustand (Form, Postvermerk, Schalter) vor dem ersten Paint | *keine* (synchron, liest localStorage) |
 | [`webapi.d.ts`](file:///home/moritz/repos/DIN-BriefNEO/website/js/webapi.d.ts) | 47 | Typisierung | Ambient Types für Bleeding-Edge-APIs (`Temporal`, `ariaNotify`) | *keine* |
 | [`binary-storage.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/binary-storage.js) | 129 | Service | IndexedDB-Speicher für Blobs (Custom Fonts, Unterschriften) | *keine* (autark) |
+| [`addons.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/addons.js) | 185 | Controller | Addon-Manager & Plugin-Punkt (B52, On-Demand-Loader) | `core` |
 | [`multipage-controller.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/multipage-controller.js) | 149 | Layout-Engine | Mehrseiten-Brief (CSSStyleSheet-Injektion, Folgeköpfe) | *keine* (DOM/CSSOM) |
 | [`core.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/core.js) | 266 | Foundation | EventBus (`Events`), Popover-Toast-System (`#hinweis-v4`), Guards | *keine* (autark) |
 | [`font-feature.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/font-feature.js) | 283 | Feature | Preset-Auswahl, Custom-Font-Upload (WOFF2/TTF/OTF), CSS Font Loading API | `binary-storage`, `core`, `persistence` |

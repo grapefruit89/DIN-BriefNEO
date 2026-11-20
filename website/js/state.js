@@ -25,7 +25,7 @@ import { DOCUMENT_SCHEMA_V5 } from './schema.js';
 
 /**
  * @typedef {'auto' | 'manuell'} Herkunft
- * @typedef {'user'|'logic'|'auto'|'undo'|'import'|'remote'|'reset'} Origin
+ * @typedef {'user'|'logic'|'auto'|'undo'|'redo'|'import'|'remote'|'reset'} Origin
  */
 
 /**
@@ -43,6 +43,7 @@ import { DOCUMENT_SCHEMA_V5 } from './schema.js';
  * @property {Record<string, FeldMeta>} meta
  * @property {number} rev                            // monoton, für "hat sich was geändert?"
  * @property {Set<string>} ids                       // gebundene Felder (DOM-Feldsatz)
+ * @property {PatchEntry[]} journal                  // Patches seit dem letzten Schnitt (Undo)
  */
 
 /**
@@ -100,7 +101,7 @@ export function createState(wire = {}, knownIds = []) {
       : (typeof roh === 'string' ? roh : '');
     ids.add(key);
   }
-  return { werte, meta, rev: 0, ids };
+  return { werte, meta, rev: 0, ids, journal: [] };
 }
 
 /**
@@ -168,24 +169,28 @@ export function setWert(state, id, wert, origin = 'logic') {
     m.herkunft = 'auto';
     state.meta[id] = m;
   }
-  return { id, prev: { wert: prevWert, meta: prevMeta }, next: { wert, meta: state.meta[id] ?? null } };
+  const patch = { id, prev: { wert: prevWert, meta: prevMeta }, next: { wert, meta: state.meta[id] ?? null } };
+  state.journal.push(patch);
+  return patch;
 }
 
 /**
  * Einziger Schreibpfad für Feld-Meta (Herkunft, Absicht, Sperre).
  * @param {LetterState} state
  * @param {string} id
- * @param {FeldMeta} patch
+ * @param {FeldMeta} metaPatch
  * @returns {PatchEntry|null}
  */
-export function setMeta(state, id, patch) {
+export function setMeta(state, id, metaPatch) {
   if (!(id in state.werte)) return null;
   const prevMeta = state.meta[id] ?? null;
-  const nextMeta = { ...(prevMeta ?? {}), ...patch };
+  const nextMeta = { ...(prevMeta ?? {}), ...metaPatch };
   if (JSON.stringify(prevMeta) === JSON.stringify(nextMeta)) return null;
   state.meta[id] = nextMeta;
   state.rev++;
-  return { id, prev: { wert: state.werte[id], meta: prevMeta }, next: { wert: state.werte[id], meta: nextMeta } };
+  const patch = { id, prev: { wert: state.werte[id], meta: prevMeta }, next: { wert: state.werte[id], meta: nextMeta } };
+  state.journal.push(patch);
+  return patch;
 }
 
 /**
@@ -219,8 +224,24 @@ export function replace(state, next) {
   state.werte = next.werte;
   state.meta = next.meta;
   state.ids = next.ids;
+  /* Ein fremder Stand (Ladepfad, Import) entwertet anstehende Patches: sie
+     gehörten zu einem anderen Dokument und dürfen nicht als Undo-Schritt in
+     das neue hineinragen. */
+  state.journal = [];
   state.rev++;
   return [...next.ids];
+}
+
+/**
+ * Schneidet das Journal: liefert alle Patches seit dem letzten Schnitt und
+ * leert es. Der Aufrufer (DraftManager) macht daraus einen Undo-Eintrag.
+ * @param {LetterState} state
+ * @returns {PatchEntry[]}
+ */
+export function takeJournal(state) {
+  const journal = state.journal;
+  state.journal = [];
+  return journal;
 }
 
 /**
@@ -239,10 +260,25 @@ export const letterState = createState();
 /**
  * Setzt Werte und Meta auf die Schema-Defaults zurück und behält die
  * gebundenen IDs (DOM-Feldsatz). Für resetDraft() und Tests.
+ * Der Difft wird als Patches journaliert, damit ein Reset per Undo
+ * zurückholbar bleibt.
  */
 export function resetState() {
+  const vorher = snapshot(letterState);
   const next = createState({}, letterState.ids);
   letterState.werte = next.werte;
   letterState.meta = next.meta;
+  for (const id of letterState.ids) {
+    const prevWert = vorher.werte[id] ?? '';
+    const nextWert = letterState.werte[id] ?? '';
+    const prevMeta = vorher.meta[id] ?? null;
+    if (prevWert !== nextWert || prevMeta) {
+      letterState.journal.push({
+        id,
+        prev: { wert: prevWert, meta: prevMeta },
+        next: { wert: nextWert, meta: null }
+      });
+    }
+  }
   letterState.rev++;
 }

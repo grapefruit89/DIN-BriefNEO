@@ -15,20 +15,23 @@ import { Constants, Events, eventBus } from './core.js';
 import { EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, setCaretCharacterOffset, writeField } from './document.js';
 import { Field } from './field.js';
 import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
-import { letterState, toWire } from './state.js';
-import { hydrateStateFromDom } from './state-binding.js';
+import { applyPatch, letterState, resetState, takeJournal, toWire } from './state.js';
+import { hydrateStateFromDom, render } from './state-binding.js';
 
 export class DraftManager {
   /* Undo/Redo liegt bewusst NUR im RAM (entschieden 2026-11-13, B13).
      Der letzte Stand ist durch saveDraft() gesichert; Undo ueber einen Reload
      hinweg waere ein neues Feature und kostet Quota plus Multi-Tab-Kohaerenz.
      Wer es einbaut, muss beides mitloesen - nicht nur einen Ring schreiben. */
-  /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
+  /** @type {Array<{entries: import('./state.js').PatchEntry[], caretVorher: {id: string, offset: number} | null, caretNachher: {id: string, offset: number} | null}>} */
   #undoStack = [];
-  /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
+  /** @type {Array<{entries: import('./state.js').PatchEntry[], caretVorher: {id: string, offset: number} | null, caretNachher: {id: string, offset: number} | null}>} */
   #redoStack = [];
-  /** @type {{draftStr: string, caretInfo: {id: string, offset: number} | null} | null} */
-  #currentState = null;
+  /** Caret des zuletzt gespeicherten Stands — Ziel eines Undo. */
+  /** @type {{id: string, offset: number} | null} */
+  #letzterCaret = null;
+  /** true, sobald ein Ausgangsstand feststeht (Ladepfad oder erster Save). */
+  #hatBasis = false;
   /** @type {boolean} */
   #isRestoring = false;
   /** @type {(() => void) | null} */
@@ -218,9 +221,16 @@ export class DraftManager {
     }
 
     if (this.#isRestoring) return saved;
+    this.#commitHistory(this.#caret());
 
-    let caretInfo = null;
+    return saved;
+  }
 
+  /**
+   * Aktuelle Caret-Position des fokussierten Entwurfsfeldes.
+   * @returns {{id: string, offset: number} | null}
+   */
+  #caret() {
     const activeElem = document.activeElement;
     /* Beide Feldtypen: nativ (input/textarea) ueber selectionStart, #text als
        Rich-Text ueber Range. Vorher war die Bedingung `hasAttribute(
@@ -229,21 +239,66 @@ export class DraftManager {
     const istFeld = activeElem instanceof HTMLElement
       && (Field.isNative(activeElem) || activeElem.hasAttribute('contenteditable'));
     if (istFeld && activeElem.id && activeElem.id !== 'datum') {
-      caretInfo = { id: activeElem.id, offset: getCaretCharacterOffset(activeElem) };
+      return { id: activeElem.id, offset: getCaretCharacterOffset(activeElem) };
     }
+    return null;
+  }
 
-    if (!this.#currentState) {
-      this.#currentState = { draftStr, caretInfo };
-    } else if (draftStr !== this.#currentState.draftStr) {
-      this.#undoStack.push(this.#currentState);
-      if (this.#undoStack.length > Constants.LIMITS.HISTORY_MAX_ITEMS) this.#undoStack.shift();
-      this.#currentState = { draftStr, caretInfo };
-      this.#redoStack = [];
-    } else {
-      this.#currentState.caretInfo = caretInfo;
+  /**
+   * Schneidet das Journal in einen Undo-Eintrag (Patch-Stack statt Volltext).
+   * Aufruf aus saveDraft(); die Einträge umfassen genau ein Save-Fenster
+   * (500 ms Debounce) — dieselbe Granularität wie vorher.
+   * @param {{id: string, offset: number} | null} caretNachher
+   */
+  #commitHistory(caretNachher) {
+    const entries = takeJournal(letterState);
+    if (entries.length === 0) {
+      /* Kein neuer Stand: nur die Caret-Marke nachziehen. */
+      this.#letzterCaret = caretNachher;
+      return;
     }
+    if (!this.#hatBasis) {
+      /* Erster Save nach dem Kaltstart setzt den Ausgangsstand. */
+      this.#hatBasis = true;
+      this.#letzterCaret = caretNachher;
+      return;
+    }
+    this.#undoStack.push({ entries, caretVorher: this.#letzterCaret, caretNachher });
+    if (this.#undoStack.length > Constants.LIMITS.HISTORY_MAX_ITEMS) this.#undoStack.shift();
+    this.#redoStack = [];
+    this.#letzterCaret = caretNachher;
+  }
 
-    return saved;
+  /** Persistiert den aktuellen Zustand (Undo/Redo-Pfad). */
+  #persist() {
+    if (!saveJSON(STORAGE_KEYS.draft, toWire(letterState))) {
+      this.#saveState = 'error';
+      try {
+        this.#setSaveStatus('error');
+      } catch {
+        /* Status-Rendering darf den Fehlerpfad nicht abbrechen (B54) */
+      }
+    }
+  }
+
+  /**
+   * @param {{id: string, offset: number} | null} caretInfo
+   */
+  #restoreCaret(caretInfo) {
+    if (!caretInfo) return;
+    const elem = document.getElementById(caretInfo.id);
+    if (!elem) return;
+    elem.focus();
+    setCaretCharacterOffset(elem, caretInfo.offset);
+  }
+
+  /** Leert Undo/Redo (fremdes Dokument, Import). */
+  clearHistory() {
+    this.#undoStack = [];
+    this.#redoStack = [];
+    this.#letzterCaret = null;
+    this.#hatBasis = true;
+    takeJournal(letterState);
   }
 
   loadDraft() {
@@ -255,7 +310,8 @@ export class DraftManager {
        (B4-Review 2026-11-12). */
     this.#undoStack = [];
     this.#redoStack = [];
-    this.#currentState = { draftStr: JSON.stringify(draft), caretInfo: null };
+    this.#letzterCaret = null;
+    this.#hatBasis = true;
     this.#restoreState(draft);
     hydrateStateFromDom();
     return true;
@@ -359,107 +415,50 @@ export class DraftManager {
   undo() {
     clearTimeout(this.debounceTimer);
     this.debounceTimer = null;
-    this.saveDraft();
-    if (this.#undoStack.length === 0 || !this.#currentState) return;
-    this.#redoStack.push(this.#currentState);
-    this.#currentState = this.#undoStack.pop() || null;
-    this.#applyHistoryState(this.#currentState);
+    /* Anstehende Änderungen zuerst zu einem Eintrag schneiden — sonst würde
+       ein Undo die halbe Tipp-Pause verwerfen (identisch zur alten Semantik). */
+    this.#commitHistory(this.#caret());
+    const eintrag = this.#undoStack.pop();
+    if (!eintrag) return;
+    this.#redoStack.push(eintrag);
+    const ids = applyPatch(letterState, eintrag.entries, 'prev');
+    render(ids, 'undo');
+    this.#persist();
+    this.#letzterCaret = eintrag.caretVorher;
+    this.#restoreCaret(eintrag.caretVorher);
+    if (this.bus && typeof this.bus.publish === 'function') {
+      this.bus.publish(Events.DOCUMENT_CHANGED, { origin: 'undo' });
+    }
   }
 
   redo() {
     clearTimeout(this.debounceTimer);
     this.debounceTimer = null;
-    this.saveDraft();
-    if (this.#redoStack.length === 0 || !this.#currentState) return;
-    this.#undoStack.push(this.#currentState);
-    this.#currentState = this.#redoStack.pop() || null;
-    this.#applyHistoryState(this.#currentState);
-  }
-
-  /**
-   * @param {{draftStr: string, caretInfo: {id: string, offset: number} | null} | null} stateObj
-   */
-  #applyHistoryState(stateObj) {
-    if (!stateObj) return;
-    const draft = JSON.parse(stateObj.draftStr);
-    this.#restoreState(draft);
-    hydrateStateFromDom();
-    /* Rueckgabe pruefen: sonst zeigt der Status "gespeichert", waehrend der
-       Speicher den alten Stand haelt und der naechste Reload den Undo-Schritt
-       verliert (B4-Review 2026-11-12). */
-    if (!saveJSON(STORAGE_KEYS.draft, draft)) {
-      this.#saveState = 'error';
-      try {
-        this.#setSaveStatus('error');
-      } catch {
-        /* Status-Rendering darf den Fehlerpfad nicht abbrechen (B54) */
-      }
-    }
-
-    if (stateObj.caretInfo) {
-      const elem = document.getElementById(stateObj.caretInfo.id);
-      if (elem) {
-        elem.focus();
-        setCaretCharacterOffset(elem, stateObj.caretInfo.offset);
-      }
-    }
+    /* Ein Tippen nach dem Undo entwertet Redo: der Schnitt leert den Stack. */
+    this.#commitHistory(this.#caret());
+    const eintrag = this.#redoStack.pop();
+    if (!eintrag) return;
+    this.#undoStack.push(eintrag);
+    const ids = applyPatch(letterState, eintrag.entries, 'next');
+    render(ids, 'redo');
+    this.#persist();
+    this.#letzterCaret = eintrag.caretNachher;
+    this.#restoreCaret(eintrag.caretNachher);
     if (this.bus && typeof this.bus.publish === 'function') {
-      this.bus.publish(Events.DOCUMENT_CHANGED, { draft });
+      this.bus.publish(Events.DOCUMENT_CHANGED, { origin: 'redo' });
     }
-    /* Der Vergleichsstand für den nächsten Save muss den Zustand NACH den
-       Listenern spiegeln (Anrede-Seed schreibt Folgewerte): sonst hielte
-       saveDraft() einen "fremden" Stand und würde die Redo-Historie
-       verwerfen (D1 Stufe 3). */
-    this.#currentState = { draftStr: JSON.stringify(toWire(letterState)), caretInfo: stateObj.caretInfo };
   }
 
+  /** Leert den DOM über den Zustand (ein Schreiber: render). */
   resetDraft() {
-    document.querySelectorAll(EDITABLE_FIELD_SELECTOR).forEach(el => {
-      if (el.getAttribute('data-feldtyp') === 'systemwert') return;
-      if (Field.isNative(el)) {
-        Field.setValue(el, '');
-      } else if (el.getAttribute('data-feldtyp')?.includes('liste')) {
-        if (el.id === 'anlagen-angabe') {
-          el.replaceChildren();
-        } else {
-          el.replaceChildren(document.createElement('li'));
-        }
-      } else {
-        el.replaceChildren();
-        Field.setValue(el, '');
-      }
-    });
-    document.querySelectorAll('select[data-speichern]').forEach(el => {
-      const sel = /** @type {HTMLSelectElement} */ (el);
-      sel.selectedIndex = 0;
-    });
-    const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
-    if (anlagenSwitch) {
-      anlagenSwitch.checked = false;
-    }
-    const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
-    if (fussSwitch) {
-      fussSwitch.checked = false;
-    }
-    document.documentElement.setAttribute('data-anlagen', 'false');
-    document.documentElement.setAttribute('data-fuss', 'false');
-    /* Reset ist auch ein Zustandswechsel: Attribute (CSS-Wahrheit) mitziehen. */
-    // Datum: Markierung loeschen und Feld leeren, damit applyLetterDate wieder "heute" setzt.
-    const datumEl = document.getElementById('datum');
-    if (datumEl) {
-      datumEl.removeAttribute('data-dirty');
-      Field.setValue(datumEl, '');
-    }
+    resetState();
+    render([...letterState.ids], 'reset');
+
     const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
     if (pvSelect) {
       pvSelect.selectedIndex = 0;
     }
     AddressIntelligence.targetLock = null;
-    /* Herkunft der gespiegelten Felder mit loeschen: nach dem Reset ist nichts
-     * mehr "vom Nutzer getippt" (E1, 2026-11-12). */
-    document.querySelectorAll('[data-quelle]').forEach(el => {
-      el.removeAttribute('data-quelle');
-    });
     /* Privacy: die lokale Adress-Historie haelt bis zu 50 zuletzt gewaehlte
      * Empfaengeradressen und gehoert damit zum Brief, nicht zu den
      * Praeferenzen. Der Reset muss sie mitnehmen, sonst bleiben echte
@@ -468,20 +467,16 @@ export class DraftManager {
      * `remove()` faengt einen gesperrten Storage selbst ab. */
     remove(STORAGE_KEYS.addresses);
     /* Erst publizieren, dann speichern: Listener (Anrede- und Gruss-Seed)
-     * schreiben ihren Folgezustand ins DOM, danach wird der fertige Stand in
-     * EINEM Zug gesichert. Vorher entstanden zwei Schreibvorgaenge: leer, dann
-     * geseedet. Der Publish steht im try/catch, damit ein fehlerhafter Listener
-     * das Zuruecksetzen nicht unspeicherbar macht. */
+     * schreiben ihren Folgezustand, danach wird der fertige Stand in EINEM
+     * Zug gesichert. Der Publish steht im try/catch, damit ein fehlerhafter
+     * Listener das Zuruecksetzen nicht unspeicherbar macht. */
     try {
       if (this.bus && typeof this.bus.publish === 'function') {
-        this.bus.publish(Events.DOCUMENT_CHANGED, { draft: {} });
+        this.bus.publish(Events.DOCUMENT_CHANGED, { draft: {}, origin: 'reset' });
       }
     } catch (err) {
       console.warn('[DraftManager] DOCUMENT_CHANGED nach Reset fehlgeschlagen:', err);
     }
-    /* Der Reset hat den DOM geleert (und Listener haben geseedet): bevor der
-       Speicherpfad den Zustand liest, wird er aus dem DOM hydratisiert. */
-    hydrateStateFromDom();
     this.saveDraft();
   }
 

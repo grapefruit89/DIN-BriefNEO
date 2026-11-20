@@ -680,7 +680,7 @@ describe('State: reine Funktionen & Wire-Roundtrip (D1 Stufe 1)', () => {
     replace(s, next);
     assertEqual(s.werte.betreff, 'NEU');
     assertEqual(s.werte['toggle-fuss'], true);
-    replace(s, { werte: alt.werte, meta: alt.meta, rev: 0, ids: alt.ids });
+    replace(s, { werte: alt.werte, meta: alt.meta, rev: 0, ids: alt.ids, journal: [] });
     assertEqual(s.werte.betreff, 'ALT', 'Snapshot stellt den Stand her');
   });
 
@@ -841,6 +841,80 @@ describe('D1 Stufe 3: Zustand und DOM driften nicht auseinander', () => {
     const koerper = src.slice(start, ende);
     assert(!koerper.includes('collectDraft'), 'Speicherpfad ohne DOM-Scan');
     assert(koerper.includes('toWire(letterState)'), 'Speicherpfad liest den Zustand');
+  });
+});
+
+describe('D1 Stufe 4: Undo/Redo als Patch-Stack', () => {
+  it('Undo nach Reset holt den Brief zurück und persistiert ihn', () => {
+    hydrateStateFromDom();
+    seed();
+    setField('Vor dem Reset');
+    const dm = new DraftManager(createEventBus());
+    try {
+      dm.saveDraft();
+      dm.resetDraft();
+      assertEqual(fieldText(), '', 'Reset leert den Brief');
+      dm.undo();
+      assertEqual(fieldText(), 'Vor dem Reset', 'Undo stellt den Stand vor dem Reset her');
+      assertEqual(getDraft().brieftext, 'Vor dem Reset', 'Undo persistiert den wiederhergestellten Stand');
+    } finally {
+      dm.destroy();
+    }
+  });
+
+  it('mehrere Save-Fenster ergeben mehrere Undo-Schritte (kein Volltext-Archiv)', () => {
+    hydrateStateFromDom();
+    seed();
+    const dm = new DraftManager(createEventBus());
+    try {
+      setField('Eins');
+      dm.saveDraft();
+      setField('Zwei');
+      dm.saveDraft();
+      setField('Drei');
+      dm.saveDraft();
+      dm.undo();
+      assertEqual(fieldText(), 'Zwei', 'ein Schritt zurück');
+      dm.undo();
+      assertEqual(fieldText(), 'Eins', 'zweiter Schritt zurück');
+      dm.redo();
+      assertEqual(fieldText(), 'Zwei', 'Redo geht vorwärts');
+    } finally {
+      dm.destroy();
+    }
+  });
+
+  it('Patch-Einträge sind strukturell kleiner als Voll-Snapshots', () => {
+    const s = createState({ text: '' });
+    /** @type {any[]} */
+    const patches = [];
+    let text = '';
+    for (let i = 0; i < 10; i++) {
+      text += 'abcdefghij';
+      const p = setWert(s, 'text', text, 'user');
+      if (p) patches.push(p);
+    }
+    const patchBytes = JSON.stringify(patches).length;
+    const vollSnapshotBytes = JSON.stringify(s.werte).length * 10;
+    assert(patchBytes < vollSnapshotBytes, `Patch ${patchBytes} B < Volltext ${vollSnapshotBytes} B`);
+    assertEqual(patches.length, 10, 'zehn minimale Deltas');
+  });
+
+  it('clearHistory() leert beide Stapel und das Journal', () => {
+    hydrateStateFromDom();
+    seed();
+    const dm = new DraftManager(createEventBus());
+    try {
+      setField('Alt');
+      dm.saveDraft();
+      setField('Neu');
+      dm.saveDraft();
+      dm.clearHistory();
+      dm.undo();
+      assertEqual(fieldText(), 'Neu', 'nach clearHistory gibt es kein Undo mehr');
+    } finally {
+      dm.destroy();
+    }
   });
 });
 

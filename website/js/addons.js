@@ -13,7 +13,6 @@
  * 4. Poka-Yoke: Ein CI-Vertragstest in test/all.js verifiziert alle Hooks gegen die Registry.
  */
 
-import { notify } from './core.js';
 
 /**
  * Typ-Definition für das Kontextobjekt, das an Addons übergeben wird.
@@ -99,7 +98,6 @@ export async function invokeAddon(id, action = 'start', arg = null, ctx = {}) {
     throw new Error(`[AddonManager] Addon "${id}" exportiert weder run() noch passende Aktion "${action}"`);
   } catch (err) {
     console.error(`[AddonManager] Fehler beim Ausführen von Addon "${id}":`, err);
-    notify(`Addon "${id}" nicht verfügbar`, 'error');
     throw err;
   }
 }
@@ -139,7 +137,6 @@ export async function toggleAddon(id, enabled, ctx = {}) {
   } catch (err) {
     activePlugins.delete(id);
     console.error(`[AddonManager] Fehler beim Aktivieren von Plugin "${id}":`, err);
-    notify(`Plugin "${id}" konnte nicht gestartet werden`, 'error');
   }
 }
 
@@ -154,7 +151,7 @@ export function initAddonDispatcher(root = document) {
   // 1. Klick-Delegation für Aktions-Buttons
   root.addEventListener('click', (e) => {
     const target = /** @type {HTMLElement | null} */ (e.target);
-    const btn = target?.closest?.('[data-addon]');
+    const btn = target?.closest?.('button[data-addon], [role="button"][data-addon], [data-addon][data-addon-action]');
     if (!btn || !(btn instanceof HTMLElement)) return;
 
     const addonId = btn.dataset.addon;

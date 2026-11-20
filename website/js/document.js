@@ -941,7 +941,7 @@ export function collectDraft() {
    * entscheidbar, ob "1. März 2020" getippt wurde oder ob dort noch der
    * Tagesstand vom letzten Speichern steht (F5, Batch 05). Additiv: alte
    * Entwuerfe ohne den Schluessel verhalten sich wie bisher. */
-  if (letterState.meta.datum?.userSet) draft['datum__dirty'] = true;
+  if (letterState.meta.datum?.userSet) draft.datum__dirty = true;
 
   const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
   if (anlagenSwitch) {

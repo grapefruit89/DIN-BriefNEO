@@ -1512,9 +1512,9 @@ export { wuerfelTestbrief as starteTestbrief };
  * Einheitlicher Addon-Vertrag (B52): run(action, arg, ctx)
  * @param {string} [action]
  * @param {any} [arg]
- * @param {any} [ctx]
+ * @param {any} [_ctx]
  */
-export async function run(action = 'start', arg = null, ctx = {}) {
+export async function run(action = 'start', arg = null, _ctx = {}) {
   if (action === 'demo' || action === 'fuelleDemoText') {
     return fuelleDemoText(arg || 'lang');
   }

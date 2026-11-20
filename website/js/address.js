@@ -749,7 +749,7 @@ export function initSenderSync() {
        Namen"). */
     /* Die Herkunft steht im Zustand (`meta.herkunft`), also nicht raten: nur
      * wenn sie fehlt (Altbestand, Reset), bleibt der Modus offen. */
-    const gespeichert = letterState.meta['rucksendeangabe']?.herkunft;
+    const gespeichert = letterState.meta.rucksendeangabe?.herkunft;
     rueckModus = gespeichert === 'auto' || gespeichert === 'manuell' ? gespeichert : 'unklar';
     letzterAutowert = null;
   });

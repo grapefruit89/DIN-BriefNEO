@@ -138,6 +138,7 @@ export function aktiviere() {
     const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
     if (fussSwitch?.checked) {
       fussSwitch.checked = false;
+      fussSwitch.dispatchEvent(new Event('change', { bubbles: true }));
       document.documentElement.setAttribute('data-fuss', 'false');
     }
   };

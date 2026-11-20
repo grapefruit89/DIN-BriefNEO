@@ -11,6 +11,7 @@
 import { toggleAddon } from './addons.js';
 import { Events, eventBus, transitionOn } from './core.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+import { applyValue } from './state-binding.js';
 
 export { FONT_PRESETS } from './font-feature.js';
 
@@ -332,12 +333,8 @@ export class SettingsManager {
         this.settings.pluginGeschaeftsangaben = pluginGeschaeft.checked;
         this.updateSettings();
         if (!pluginGeschaeft.checked) {
-          const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
-          if (fussSwitch?.checked) {
-            fussSwitch.checked = false;
-            document.documentElement.setAttribute('data-fuss', 'false');
-            eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
-          }
+          applyValue('toggle-fuss', false);
+          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
         }
         /* Addon über zentralen AddonManager aktivieren/deaktivieren */
         void toggleAddon('geschaeftsangaben', pluginGeschaeft.checked);

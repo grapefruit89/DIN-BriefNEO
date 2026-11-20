@@ -138,7 +138,7 @@ export function toWire(state) {
     const herkunft = state.meta[id]?.herkunft;
     if (herkunft) out[`${id}__quelle`] = herkunft;
   }
-  if (state.meta.datum?.userSet) out['datum__dirty'] = true;
+  if (state.meta.datum?.userSet) out.datum__dirty = true;
   for (const id of toggles) out[id] = state.werte[id] === true;
   return out;
 }

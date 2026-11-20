@@ -15,6 +15,19 @@
  * vollstaendig vor dem ersten Paint. Siehe B71.)
  */
 try {
+  /* EIN Lifecycle-Token (D2): `data-booting` wird gesetzt, nicht erwartet.
+     Die Maske in base.css haengt daran; das Netz entfernt denselben Marker,
+     falls der Wert-Writer (boot-values.js) nicht ankommt. Beides steht VOR
+     jedem JSON-Zugriff, damit auch ein Fehler danach die Seite nicht
+     unsichtbar laesst. */
+  const root = document.documentElement;
+  root.setAttribute('data-booting', 'true');
+  setTimeout(() => {
+    if (root.getAttribute('data-booting') !== 'true') return;
+    root.removeAttribute('data-booting');
+    console.error('[Boot] Wert-Writer kam nicht innerhalb von 1800 ms an — Seite mit Defaults freigegeben.');
+  }, 1800);
+
   const defaults = {
     theme: 'auto',
     layout: 'form-b',
@@ -31,7 +44,6 @@ try {
     /* kaputtes JSON: mit Defaults weiter */
   }
   const settings = parsed && typeof parsed === 'object' ? { ...defaults, ...parsed } : defaults;
-  const root = document.documentElement;
 
   /* Gleiche Regel wie persistence.js#istAn (klassisches Skript, kein Import).
      Nur ein explizites `false` schaltet aus; die Defaults aus
@@ -84,18 +96,10 @@ try {
   const randU = RAND_U_WHITELIST.has(Number(settings.randU)) ? Number(settings.randU) : 20;
   root.style.setProperty('--rand-u', `${randU}mm`);
 
-  /* Sicherheitsnetz fuer den Platzhalter-FOUC-Schutz (sheet-common.css):
-   * Bleibt initApp haengen, duerfen die Platzhalter nicht dauerhaft
-   * verschwinden. Nach 2 s wird freigegeben, komme was mag.
-   *
-   * Bewusst im selben try: vor dieser Zeile kann nur `documentElement` oder
-   * `setProperty` werfen, und beides ist praktisch ausgeschlossen (geprueft
-   * 2026-11-12). Der Timer ist ausserdem KEIN Nachweis eines erfolgreichen
-   * Starts — er gibt nur die Platzhalter frei. Wer hier einen Startbeweis
-   * braucht, muss ihn an `data-ready` haengen, nicht an diese 2 Sekunden. */
-  setTimeout(() => {
-    if (!root.dataset.ready) root.dataset.ready = 'true';
-  }, 2000);
+  /* Der Reveal passiert im Wert-Writer (boot-values.js) bzw. in
+   * boot-state.js, falls der Modul-Pfad ausfaellt. Das Netz oben entfernt
+   * denselben Marker nach 1800 ms — es ist kein Startbeweis, sondern nur die
+   * Garantie, dass die Seite ueberhaupt sichtbar wird. */
 } catch (e) {
   /* Ohne Boot-Zustand startet die App im falschen Farbschema — sichtbar,
    * aber ohne Ursache. Daher loggen. */

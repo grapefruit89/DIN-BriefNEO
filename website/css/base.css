@@ -31,21 +31,28 @@
   border-width: 0;
 }
 
-/* --- 1a. KEIN UEBERGANG VOR DEM ERSTEN FRAME (FOUC-Sperre) ---
- * Beim Laden setzt der Seeder (boot.js im Head, boot-state.js am Body-Ende)
- * den Zustand NACH dem ersten Style-Durchlauf. Jede Eigenschaft, die daran
- * haengt, blendet dann ueber 150-200 ms "auf" — quer ueber den ersten Paint.
- * Gemessen 2026-11-12 (CDP, Cache aus): FCP 64 ms, aber der Postvermerk-Select
- * lief mit background-color/box-shadow von 30 ms bis ueber 139 ms, ebenso
- * eine Label-Farbe. Das war das sichtbare Wackeln bei Strg+F5.
- * Loesung: bis der Zustand steht (data-seeded, Netz data-ready), gibt es
- * keine Uebergaenge. Danach sind sie unveraendert da (Hover, Fokus, Klick).
- * NICHT ENTFERNEN und NICHT auf einzelne Selektoren verengen: die naechste
- * zustandsabhaengige Eigenschaft faellt sonst in dieselbe Falle. Die Wahrheit
- * steht vor dem Paint als Attribut am <html> (siehe DECISION-LOG). */
-:root:not([data-seeded="true"]):not([data-ready="true"]) *,
-:root:not([data-seeded="true"]):not([data-ready="true"]) *::before,
-:root:not([data-seeded="true"]):not([data-ready="true"]) *::after {
+/* --- 1a. BOOT-MASKE (D2): genau EIN Lifecycle-Token ---
+ * `data-booting="true"` wird ausschliesslich von JS gesetzt (boot.js im Head).
+ * Solange es steht, ist die Shell unsichtbar und es gibt keine Uebergaenge —
+ * danach wird nie wieder "aufgeblendet", weil der Wert-Writer vorher fertig
+ * ist. Fail-safe by construction: ohne JS, bei einem Fehler in boot.js oder
+ * wenn das Head-Skript gar nicht laedt, ist das Attribut NICHT gesetzt und
+ * die Seite sichtbar (mit Defaults) statt dauerhaft unsichtbar.
+ *
+ * `visibility: hidden` (nicht display: none) erhaelt das Layout; html/body
+ * malen weiter die Theme-Hintergrundfarbe, also kein weisser Blitz im Dark
+ * Mode. Das Netz in boot.js entfernt denselben Marker nach 1800 ms.
+ *
+ * NICHT auf einzelne Selektoren verengen und NICHT durch "Abwesenheit eines
+ * Markers" ersetzen: genau dieser Fehlermodus (unsichtbar bei fehlendem JS)
+ * war der Grund fuer den Umbau. */
+:root[data-booting="true"] #app-shell {
+  visibility: hidden;
+}
+
+:root[data-booting="true"] *,
+:root[data-booting="true"] *::before,
+:root[data-booting="true"] *::after {
   transition: none !important;
 }
 

@@ -1,0 +1,62 @@
+{
+  "local": {
+    "laeufe": 5,
+    "seededVorFirstPaint": 5,
+    "readyVorFirstPaint": 5,
+    "readyVorFcp": 5,
+    "seederFensterMs": {
+      "min": 1,
+      "max": 1
+    },
+    "abstandReadyZuFpMs": {
+      "min": 4,
+      "max": 33
+    },
+    "firstPaintMs": {
+      "min": 88,
+      "max": 120
+    },
+    "roh": [
+      {
+        "seederStart": 33.80000000074506,
+        "seeded": 34.40000000037253,
+        "ready": 81.5,
+        "fp": 96,
+        "fcp": 96,
+        "domContentLoaded": 82.40000000037253
+      },
+      {
+        "seederStart": 42.5,
+        "seeded": 43.09999999962747,
+        "ready": 87.90000000037253,
+        "fp": 92,
+        "fcp": 92,
+        "domContentLoaded": 88.30000000074506
+      },
+      {
+        "seederStart": 36.5,
+        "seeded": 37,
+        "ready": 76.80000000074506,
+        "fp": 88,
+        "fcp": 88,
+        "domContentLoaded": 77.30000000074506
+      },
+      {
+        "seederStart": 49.90000000037253,
+        "seeded": 50.40000000037253,
+        "ready": 87.19999999925494,
+        "fp": 120,
+        "fcp": 120,
+        "domContentLoaded": 88.09999999962747
+      },
+      {
+        "seederStart": 57.30000000074506,
+        "seeded": 57.80000000074506,
+        "ready": 96.90000000037253,
+        "fp": 112,
+        "fcp": 112,
+        "domContentLoaded": 97.80000000074506
+      }
+    ]
+  }
+}

@@ -202,10 +202,11 @@ function initApp() {
   bootStep('Addons', () => initAddonDispatcher());
 
   bootStep('Darstellung freigeben', () => {
-    // data-ready schaltet die Platzhalter frei (siehe sheet-common.css).
-    // Bei Fehlschlag dieses Schritts versteckt boot.js sie nach 2 s (Sicherheitsnetz).
+    /* Idempotentes Netz: boot-state.js hat die Maske bereits entfernt. Steht
+       sie hier noch (Seeder ausgefallen), wird sie jetzt freigegeben. Der
+       1800-ms-Timer in boot.js ist die letzte Rueckfallebene. */
     if (typeof performance !== 'undefined' && performance.mark) performance.mark('ready');
-    document.documentElement.dataset.ready = 'true';
+    document.documentElement.removeAttribute('data-booting');
   });
 }
 

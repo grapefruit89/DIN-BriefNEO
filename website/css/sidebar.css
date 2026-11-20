@@ -656,19 +656,11 @@ input[type="checkbox"][switch] {
 }
 
 /* --- UI-SHELL & FORM CONTROLS (aus ehemals layout.css) --- */
-/* FOUC: Werte aus localStorage (Postvermerk, Schalter) stehen erst mit
-   data-ready fest (boot.js setzt es am Ende von initApp, Sicherheitsnetz nach
-   2 s). Bis dahin lieber unsichtbar als falsch — der Platz bleibt erhalten.
-   Textfelder sind davon nicht betroffen: boot-state.js fuellt sie schon vor
-   dem Paint. */
-/* Sichtbar, sobald boot-state.js geseedet hat (data-seeded). NICHT an
-   data-ready haengen: das kommt erst am Ende von initApp und liesse die Regler
-   nach dem ersten Paint nachploppen. data-ready bleibt als Sicherheitsnetz,
-   falls der Seeder ausfaellt (boot.js setzt es notfalls nach 2 s). */
-:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,
-:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {
-  visibility: hidden;
-}
+/* FOUC-Schutz liegt seit D2 an genau einer Stelle: die Boot-Maske in
+   base.css verdeckt die ganze Shell, bis der Wert-Writer fertig ist. Die
+   fruehere Sichtbarkeits-Regel fuer #seitenleiste input[switch] und den
+   Postvermerk-Select war ein Symptom-Pflaster (zwei Marker, zwei Netze) und
+   ist entfallen — die Maske deckt dieselben Elemente ohnehin ab. */
 
 /* Zonen-Ueberschrift. Bewusst klein und gedämpft: sie gliedert, sie schreit
    nicht. Die Gruppen-Titel sind h3 mit derselben Optik wie bisher
@@ -746,8 +738,9 @@ input[type="checkbox"][switch] {
    Vorher spiegelte ein JS-Attribut (`data-gesetzt`) den Wert, weil die
    Aenderung nach dem Paint aufblendete (gemessen 2026-11-12: background-color
    30 -> 139 ms). Dieser Grund ist entfallen: seit demselben Tag sperrt
-   base.css alle Uebergaenge bis `data-seeded`, und der Seeder setzt die Werte
-   vorher. Das Attribut brachte dagegen einen eigenen Fehler mit - es wurde
+   base.css alle Uebergaenge bis zum Boot-Ende (`data-booting`), und der
+   Seeder setzt die Werte vorher. Das Attribut brachte dagegen einen eigenen
+   Fehler mit - es wurde
    berechnet, BEVOR der Seeder den Postvermerk setzte, und blieb deshalb auf
    "false" (30 von 30 kalten Reloads, gemessen 2026-11-14): die Liste zeigte
    "Einschreiben" in der Optik einer leeren Auswahl. `:has()` fragt den

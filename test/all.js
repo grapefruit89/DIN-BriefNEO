@@ -1699,22 +1699,21 @@ describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
   /* Kein DOM-Test moeglich: die Fixture laedt sheet-common.css nicht, und die
    * Regeln liegen in @scope (din-blatt). Geprueft wird deshalb der Vertrag im
    * Quelltext; der Beweis am laufenden Objekt steht im Commit (CDP-Messung). */
-  it('blendet Platzhalter bis zum Seeding aus (FOUC-Schutz)', async () => {
-    /* Anker ist seit 2026-11-14 `data-seeded` mit `data-ready` als Netz (B70).
-       Grund ist gemessen, nicht angenommen: `data-ready` kam in 21 von 30
-       lokalen Laeufen nach dem ersten Paint (6x CPU 29/30, langsames Netz
-       30/30, bis 1,9 s). Ein Platzhalter, der erst dann erscheint, fehlt bei
-       leeren Feldern sichtbar lange. Beide Marker bleiben noetig - faellt der
-       Seeder aus, setzt boot.js `data-ready` nach 2 s. */
-    const res = await fetch('/website/css/sheet-common.css');
-    const css = await res.text();
-    const netz = ':root:not([data-seeded="true"]):not([data-ready="true"])';
-    assert(css.includes(`${netz} & [data-placeholder]:empty::before`),
-      'contenteditable-Platzhalter haengt an data-seeded (Netz data-ready)');
-    assert(css.includes(`${netz} & textarea[data-feldtyp]::placeholder`),
-      'textarea-Platzhalter haengt an data-seeded (Netz data-ready)');
-    assert(!css.includes(':root:not([data-ready="true"]) & [data-placeholder]'),
-      'kein Platzhalter-Regelwerk mehr, das nur auf data-ready wartet');
+  it('genau eine Boot-Maske, geankert an data-booting (D2)', async () => {
+    /* D2 ersetzt das Zwei-Marker-Modell (`data-seeded` + `data-ready`) durch
+     * EINEN von JS gesetzten Marker. Die Maske deckt die ganze Shell ab;
+     * Platzhalter- und Sidebar-Sonderregeln sind entfallen, weil sie nur
+     * Text versteckten, den die Maske ohnehin verdeckt. */
+    const base = await (await fetch('/website/css/base.css')).text();
+    assert(base.includes(':root[data-booting="true"] #app-shell'),
+      'Maske haengt an data-booting und deckt die Shell');
+    assert(/:root\[data-booting="true"\] \*/.test(base),
+      'Transitions-Sperre haengt am selben Token');
+    for (const datei of ['/website/css/base.css', '/website/css/sidebar.css', '/website/css/sheet-common.css']) {
+      const css = await (await fetch(datei)).text();
+      assert(!css.includes('data-seeded'), `${datei}: kein data-seeded mehr`);
+      assert(!css.includes('data-ready'), `${datei}: kein data-ready mehr`);
+    }
   });
 });
 

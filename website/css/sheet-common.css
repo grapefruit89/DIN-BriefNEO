@@ -59,20 +59,20 @@ din-blatt {
  * haengen; zusaetzlich aendert sich die Spacer-Hoehe (Textfluss in #kern).
  * Alle bewegten Teile laufen mit DERSELBEN Kurve und Dauer, damit die Summe
  * (Kern-Position + Spacer) monoton und ruckelfrei ist.
- * Nur am Bildschirm, nur nach dem Seeding (kein Load-FOUC) und nicht bei
+ * Nur am Bildschirm, nach dem Boot (kein Load-FOUC) und nicht bei
  * reduzierter Bewegung. Im Druck gibt es keine Uebergaenge — das PDF bleibt
  * exakt. NICHT auf die Pille beschraenken: sonst springt das Blatt. */
 @media screen and (prefers-reduced-motion: no-preference) {
-  :root[data-seeded="true"] #rucksendeangabe,
-  :root[data-seeded="true"] #anschriftfeld,
-  :root[data-seeded="true"] #infoblock,
-  :root[data-seeded="true"] #kern,
-  :root[data-seeded="true"] din-falzmarke-1,
-  :root[data-seeded="true"] din-falzmarke-2 {
+  :root:not([data-booting="true"]) #rucksendeangabe,
+  :root:not([data-booting="true"]) #anschriftfeld,
+  :root:not([data-booting="true"]) #infoblock,
+  :root:not([data-booting="true"]) #kern,
+  :root:not([data-booting="true"]) din-falzmarke-1,
+  :root:not([data-booting="true"]) din-falzmarke-2 {
     transition: top 0.28s cubic-bezier(0.25, 1, 0.5, 1);
   }
 
-  :root[data-seeded="true"] #spacer {
+  :root:not([data-booting="true"]) #spacer {
     transition:
       height 0.28s cubic-bezier(0.25, 1, 0.5, 1),
       min-height 0.28s cubic-bezier(0.25, 1, 0.5, 1),
@@ -705,29 +705,11 @@ din-anlagen-angabe {
       pointer-events: none;
     }
 
-  /* FOUC-Schutz (gemessen 2026-11-10): Vor dem Restore sind #datum und
-     #unterschrift leer, also standen ihre Platzhalter ("2. September 2026",
-     "Ihr getippter Name") für ~36 ms auf dem Papier, bevor der echte Wert
-     kam.
-
-     Anker ist `data-seeded`, nicht `data-ready` (B70, gemessen 2026-11-14):
-     `data-ready` kommt erst am Ende von initApp und lag in 21 von 30 lokalen
-     Laeufen nach dem ersten Paint, unter 6x CPU-Drosselung in 29 von 30 und
-     im langsamen Netz in 30 von 30 (bis 1,9 s spaeter). `data-seeded` ist der
-     Punkt, an dem die Werte stehen — genau der Moment, in dem der Platzhalter
-     wieder erlaubt sein muss, sonst fehlt er bei leeren Feldern sichtbar.
-     `data-ready` bleibt als Netz: faellt der Seeder aus, setzt boot.js es nach
-     2 s und die Platzhalter erscheinen trotzdem. Die Feld-Geometrie ist von
-     beidem unberuehrt — nur der Text fehlt. */
-  :root:not([data-seeded="true"]):not([data-ready="true"]) & [data-placeholder]:empty::before,
-    :root:not([data-seeded="true"]):not([data-ready="true"]) & [contenteditable][data-placeholder]:empty::before {
-      content: none;
-    }
-
-  :root:not([data-seeded="true"]):not([data-ready="true"]) & textarea[data-feldtyp]::placeholder,
-    :root:not([data-seeded="true"]):not([data-ready="true"]) & input[data-atom]::placeholder {
-      color: transparent;
-    }
+  /* Hier stand bis D2 ein zweiter FOUC-Schutz: Platzhalter wurden bis zum
+     Boot-Ende unterdrueckt. Das war ein Symptom-Pflaster — die Boot-Maske
+     in base.css verdeckt die ganze Shell, bis der Wert-Writer fertig ist.
+     Wer die Maske spaeter entfernt, muss den Reveal-Zeitpunkt pruefen, nicht
+     diese Regeln wieder einfuehren. */
 
   /* Hier stand eine grau-kursive Markierung fuer automatisch erzeugte Anrede
      und Grussformel. Seit die Felder <input> mit Platzhalter sind, sah der

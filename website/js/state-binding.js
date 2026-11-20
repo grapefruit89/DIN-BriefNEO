@@ -20,7 +20,8 @@
 
 import { Events, eventBus } from './core.js';
 import { collectDraft, draftFieldIds, EDITABLE_FIELD_SELECTOR, readField, writeField } from './document.js';
-import { bindIds, createState, letterState, replace, setWert } from './state.js';
+import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS } from './persistence.js';
+import { bindIds, createState, letterState, replace, setWert, snapshot } from './state.js';
 
 const TOGGLE_IDS = new Set(['toggle-anlagen', 'toggle-fuss']);
 
@@ -147,4 +148,59 @@ export function hydrateStateFromDom() {
   replace(letterState, next);
   bindIds(letterState, draftFieldIds(document));
   return [...letterState.ids];
+}
+
+/**
+ * Ersetzt den Briefzustand atomar (Import, Multi-Tab), ohne Reload.
+ * Die Persistenz hat der Aufrufer (applyImportedData) bereits als Gate
+ * geschrieben; hier folgen RAM, Einstellungen und Projektion.
+ * Schlägt ein Schritt fehl, wird der alte RAM-Stand wiederhergestellt.
+ * @param {Record<string, string|boolean>} wire
+ * @param {{
+ *   settings?: any,
+ *   clearHistory?: (() => void) | null,
+ *   applyLetterDate?: (() => void) | null,
+ *   afterRender?: (() => void) | null
+ * }} [deps]
+ * @returns {boolean}
+ */
+export function applyState(wire, { settings = null, clearHistory = null, applyLetterDate = null, afterRender = null } = {}) {
+  const vorher = snapshot(letterState);
+  const vorherSettings = settings?.settings ? { ...settings.settings } : null;
+
+  try {
+    const next = createState(wire, draftFieldIds(document));
+    replace(letterState, next);
+    bindIds(letterState, draftFieldIds(document));
+    if (clearHistory) clearHistory();
+    render([...letterState.ids], 'import');
+
+    if (settings?.settings) {
+      const gespeichert = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS) || DEFAULT_SETTINGS;
+      /* In-place: SignatureFeature/FontFeature/SalutationFeature halten die
+         Referenz auf dieses Objekt (D1 §7.3, Fallstrick Objektidentität). */
+      Object.assign(settings.settings, gespeichert);
+      const warBereit = settings.isReady;
+      settings.isReady = false; // kein Theme-Crossfade beim Import
+      try {
+        settings.applySettings?.();
+      } finally {
+        settings.isReady = warBereit;
+      }
+    }
+
+    /* Ein importierter Brief ist ein fremdes Dokument: ohne datum__dirty rollt
+       das Datum wie bisher auf "heute" (Entscheidung §14.1: Verhalten 1:1). */
+    if (!letterState.meta.datum?.userSet) applyLetterDate?.();
+    afterRender?.();
+    eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'import' });
+    return true;
+  } catch (fehler) {
+    replace(letterState, { ...vorher, rev: 0, journal: [] });
+    bindIds(letterState, draftFieldIds(document));
+    render([...letterState.ids], 'import');
+    if (vorherSettings) Object.assign(settings.settings, vorherSettings);
+    console.error('[State] Import-Render fehlgeschlagen, RAM zurückgerollt:', fehler);
+    throw fehler;
+  }
 }

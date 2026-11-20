@@ -16,7 +16,7 @@ import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, format
 // @ts-ignore
 import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire, unsetMeta } from '../website/js/state.js';
-import { applyValue, commitElement, hydrateStateFromDom, initStateBinding, render } from '../website/js/state-binding.js';
+import { applyState, applyValue, commitElement, hydrateStateFromDom, initStateBinding, render } from '../website/js/state-binding.js';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
@@ -1174,6 +1174,70 @@ describe('Persistence: Import-Speichervorgang & Fehlerschutz vor Reload (B55)', 
 
     assertEqual(success, true, 'applyImportedData liefert true bei Erfolg');
     assertEqual(reloadTriggered, true, 'Reload-Callback wird bei Erfolg ausgeführt');
+  });
+});
+
+describe('D1 Stufe 6: Import ohne Reload', () => {
+  const payload = () => ({
+    ok: true,
+    format: DINLETTER_FORMAT,
+    schema_version: 5,
+    fields: { brieftext: 'IMPORTIERT', 'empfaenger-ort': '53111 Bonn', datum: '9. November 2026' },
+    layout: { form: 'form-a', marks: false },
+    signature: { transform: { x: 1, y: 2, scale: 0.5, rot: 0 } }
+  });
+
+  it('apply ersetzt RAM + DOM und ruft keinen Reload', () => {
+    hydrateStateFromDom();
+    let reload = false;
+    let historyGeleert = false;
+    let letterDate = 0;
+    const fakeSettings = { settings: { ...DEFAULT_SETTINGS }, isReady: true, applySettings: () => {} };
+
+    const ok = applyImportedData(payload(), {
+      reloadFn: () => { reload = true; },
+      apply: (/** @type {any} */ result) => applyState(result.fields, {
+        settings: fakeSettings,
+        clearHistory: () => { historyGeleert = true; },
+        applyLetterDate: () => { letterDate++; }
+      })
+    });
+
+    assertEqual(ok, true, 'Import erfolgreich');
+    assertEqual(reload, false, 'kein location.reload');
+    assertEqual(letterState.werte.brieftext, 'IMPORTIERT', 'RAM trägt den importierten Wert');
+    assertEqual(letterState.werte['empfaenger-ort'], '53111 Bonn');
+    assertEqual(fieldText(), 'IMPORTIERT', 'DOM zeigt den importierten Wert');
+    assertEqual(document.getElementById('empfaenger-ort')?.textContent, '53111 Bonn');
+    assertEqual(historyGeleert, true, 'Historie wird geleert');
+    assertEqual(letterDate, 1, 'Datum wird nachgezogen (kein datum__dirty im Import)');
+    assertEqual(fakeSettings.settings.layout, 'form-a', 'Einstellungen in-place übernommen');
+    assertEqual(fakeSettings.settings.marks, false);
+    assertEqual(getDraft().brieftext, 'IMPORTIERT', 'Speicher ist geschrieben');
+  });
+
+  it('wirft apply, bleibt der alte Entwurf im Speicher (Atomarität)', () => {
+    saveJSON(STORAGE_KEYS.draft, { brieftext: 'ALT' });
+    const vorher = localStorage.getItem(STORAGE_KEYS.draft);
+    const ok = applyImportedData(payload(), {
+      apply: () => { throw new Error('Render kaputt'); }
+    });
+    assertEqual(ok, false, 'Import meldet Fehler');
+    assertEqual(localStorage.getItem(STORAGE_KEYS.draft), vorher, 'Draft unverändert');
+  });
+
+  it('ohne apply bleibt der Reload-Callback der Fallback', () => {
+    let reload = false;
+    const ok = applyImportedData(payload(), { reloadFn: () => { reload = true; } });
+    assertEqual(ok, true);
+    assertEqual(reload, true, 'Fallback-Route funktioniert weiter');
+  });
+
+  it('main.js verdrahtet applyImport (Quelltext-Vertrag)', async () => {
+    const src = await (await fetch('/website/js/main.js')).text();
+    assert(src.includes('applyImport:'), 'Import-Callback ist verdrahtet');
+    assert(src.includes('applyState('), 'applyState übernimmt RAM + Projektion');
+    assert(!src.includes('location.reload'), 'kein Reload mehr im Import-Pfad');
   });
 });
 

@@ -746,11 +746,13 @@ function stelleAltenStandWiederHer(key, alt) {
  * Bricht bei Speicherfehlern (saveJSON -> false) sofort ab, ohne reload auszulösen (B55).
  * Seit 2026-11-13 atomar: schlaegt der zweite Schreibvorgang fehl, wird der
  * alte Stand wiederhergestellt (Befund B13: halber Import).
+ * D1: `apply` ersetzt den Reload — es bekommt den geprüften Import nach
+ * erfolgreichem Speicher-Gate und stellt RAM + DOM ohne Navigation her.
  * @param {any} pendingImport
- * @param {{ reloadFn?: () => void }} [options]
- * @returns {boolean} true bei Erfolg, false bei Speicherfehler
+ * @param {{ reloadFn?: (() => void) | null, apply?: ((pending: any) => void) | null }} [options]
+ * @returns {boolean} true bei Erfolg, false bei Speicher-/Renderfehler
  */
-export function applyImportedData(pendingImport, { reloadFn = () => location.reload() } = {}) {
+export function applyImportedData(pendingImport, { reloadFn = null, apply = null } = {}) {
   if (!pendingImport?.ok) return false;
   /* Alter Stand fuer den Rueckfall. Ohne ihn bleibt bei einem Fehler im
      zweiten Schreibvorgang ein halber Import stehen: Draft neu, Einstellungen
@@ -781,6 +783,12 @@ export function applyImportedData(pendingImport, { reloadFn = () => location.rel
       notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
       return false;
     }
+    if (typeof apply === 'function') {
+      /* Nach dem Speicher-Gate: RAM + Projektion. Wirft apply, fängt der
+         äußere catch den halben Zustand ab und stellt den alten Speicher her. */
+      apply(pendingImport);
+      return true;
+    }
     if (typeof reloadFn === 'function') {
       reloadFn();
     }
@@ -795,9 +803,9 @@ export function applyImportedData(pendingImport, { reloadFn = () => location.rel
 
 /**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog, Keyboard-Shortcut).
- * @param {{ collectDraft?: () => Record<string, string | boolean> }} [options]
+ * @param {{ collectDraft?: () => Record<string, string | boolean>, applyImport?: ((pending: any) => void) | null }} [options]
  */
-export function initImportExport({ collectDraft } = {}) {
+export function initImportExport({ collectDraft, applyImport = null } = {}) {
   if (typeof collectDraft === 'function') {
     registerDraftCollector(collectDraft);
   }
@@ -888,6 +896,6 @@ export function initImportExport({ collectDraft } = {}) {
     }
     const toApply = pendingImport;
     pendingImport = null;
-    applyImportedData(toApply);
+    applyImportedData(toApply, { apply: applyImport });
   });
 }

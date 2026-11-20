@@ -16,7 +16,7 @@ import { SalutationFeature } from './salutation.js';
 import { SettingsManager } from './settings.js';
 import { SignatureFeature } from './signature.js';
 import { letterState, toWire } from './state.js';
-import { applyValue, initStateBinding } from './state-binding.js';
+import { applyState, applyValue, initStateBinding } from './state-binding.js';
 
 /**
  * Setzt den Postvermerk im Blattfeld und hält die Auswahlliste synchron.
@@ -153,6 +153,13 @@ function initApp() {
   const settingsManager = kritischerWert('Einstellungen-Objekt', () => new SettingsManager());
   bootStep('Einstellungen', () => settingsManager.init());
 
+  /* Referenzen für den reload-freien Import (D1 Stufe 6): Signatur und
+     Schrift wenden ihre Einstellungen sonst nur in init() an. */
+  /** @type {SignatureFeature | null} */
+  let signatureFeature = null;
+  /** @type {FontFeature | null} */
+  let fontFeature = null;
+
   bootStep('Plugins', () => {
     // Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]).
     // Kein Umschalt-Signal mehr: der Controller wird genau einmal gemountet.
@@ -168,10 +175,30 @@ function initApp() {
   bootStep('Toast-System', () => initToastSystem());
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());
-  bootStep('Import/Export', () => initImportExport({ collectDraft: () => toWire(letterState) }));
+  bootStep('Import/Export', () => initImportExport({
+    collectDraft: () => toWire(letterState),
+    /* D1 Stufe 6: Import ohne Reload. applyState ersetzt RAM + Projektion;
+       die Persistenz hat applyImportedData bereits als Gate geschrieben. */
+    applyImport: (/** @type {any} */ result) => applyState(result.fields, {
+      settings: settingsManager,
+      clearHistory: () => draftManager.clearHistory(),
+      applyLetterDate,
+      afterRender: () => {
+        signatureFeature?.applyTransform();
+        fontFeature?.applyInitialFont();
+        AddressIntelligence.targetLock = null;
+      }
+    })
+  }));
   bootStep('Anrede', () => new SalutationFeature(settingsManager).init());
-  bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
-  bootStep('Schriftart', () => new FontFeature(settingsManager).init());
+  bootStep('Signatur', () => {
+    signatureFeature = new SignatureFeature(settingsManager);
+    signatureFeature.init();
+  });
+  bootStep('Schriftart', () => {
+    fontFeature = new FontFeature(settingsManager);
+    fontFeature.init();
+  });
   bootStep('Addons', () => initAddonDispatcher());
 
   bootStep('Darstellung freigeben', () => {

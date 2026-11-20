@@ -137,7 +137,8 @@ Autosave:  input/change → state-binding.commit() → letterState → DraftMana
                        → toWire(letterState) → localStorage('din_draft_current')
                        → Events.DOCUMENT_SAVED
 Export:    toWire(letterState) → buildDinLetterPayload() → buildDINLetterJSON() → JSON-Datei
-Import:    parseDinLetterPayload() → applyImportedData() → saveJSON → Reload
+Import:    parseDinLetterPayload() → applyImportedData() → saveJSON-Gate
+                       → applyState() (RAM + DOM, OHNE Reload)
 Fonts:     Datei-Input → FontFeature.injectFont() → FontFace + document.fonts
                      → saveBlob('font') → IndexedDB
 Reset:     resetDraft() → DOCUMENT_CHANGED → Salutation.refresh() → saveDraft() (ein Schreibvorgang)

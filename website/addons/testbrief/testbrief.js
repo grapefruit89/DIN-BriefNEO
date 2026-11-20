@@ -1387,9 +1387,11 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
      nicht (Review 2026-11-12). */
   if (anlagenText) {
     if (anlagenToggle) anlagenToggle.checked = true;
+    document.documentElement.setAttribute('data-anlagen', 'true');
     setField('anlagen-angabe', anlagenText);
   } else {
     if (anlagenToggle) anlagenToggle.checked = false;
+    document.documentElement.setAttribute('data-anlagen', 'false');
     setField('anlagen-angabe', '');
   }
 
@@ -1397,6 +1399,7 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   if (fussToggle) {
     fussToggle.checked = false;
   }
+  document.documentElement.setAttribute('data-fuss', 'false');
 
   // Postvermerk dynamisch steuern
   const postvermerk = resolvePostvermerk(szenario);

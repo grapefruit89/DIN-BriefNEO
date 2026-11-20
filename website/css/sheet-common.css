@@ -181,12 +181,12 @@ din-geschaeftsangaben {
    `--fuss-hoehe` ist der Vertrag gegen Ueberlappung: derselbe Wert verkuerzt
    den Textbereich (--nutz, sheet-multipage.css) und setzt die Oberkante der
    Fusszeile. Text und Fusszeile koennen sich deshalb nie treffen. */
-:root:has(#toggle-fuss:checked) din-geschaeftsangaben,
-:root:has(#toggle-fuss:checked) #geschaeftsangaben {
+:root[data-fuss="true"] din-geschaeftsangaben,
+:root[data-fuss="true"] #geschaeftsangaben {
   display: grid;
 }
 
-:root:has(#toggle-fuss:checked) {
+:root[data-fuss="true"] {
   --fuss-hoehe: 15mm;
 }
 

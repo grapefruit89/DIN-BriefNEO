@@ -58,12 +58,22 @@ try {
    * liegen (nichts geloescht). */
   root.setAttribute('data-plugin-multipage', 'true');
 
-  /* Anlagen und Fusszeile liest CSS direkt aus den Schaltern (:has). Die
-   * Checkbox setzt boot-state.js (klassisches Skript am Body-Ende) vor dem
-   * ersten Paint;
-   * gemessen 2026-11-14: 30 von 30 kalten Laeufen, :has() traf am firstPaint
-   * bereits zu (Paint 48-96 ms). Damit faellt hier ein JSON.parse auf dem
-   * kritischen Pfad weg. */
+  /* Anlagen und Fusszeile als Root-Attribute (ADR-KISS-MINIMAL-JS).
+   * Vor dem ersten Paint gesetzt, damit das Blatt 100% FOUC-frei bleibt. */
+  /** @type {Record<string, any>} */
+  let draft = {};
+  try {
+    const rawDraft = localStorage.getItem('din_draft_current');
+    draft = rawDraft ? JSON.parse(rawDraft) : {};
+  } catch {
+    /* kaputtes JSON: mit Defaults weiter */
+  }
+  const hatFuss = draft['toggle-fuss'] === true || draft['toggle-fuss'] === 'true'
+    || Boolean(draft['fuss-firma'] || draft['fuss-sitz'] || draft['fuss-gericht'] || draft['fuss-hrb']);
+  const hatAnlagen = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
+
+  root.setAttribute('data-anlagen', hatAnlagen ? 'true' : 'false');
+  root.setAttribute('data-fuss', hatFuss ? 'true' : 'false');
 
   /* Unterrand 20/30mm vor dem ersten Paint setzen (FOUC-Schutz): die
    * Druckregel von #kern liest --rand-u. Nur 20 und 30 sind zulaessig. */

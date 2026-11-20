@@ -281,7 +281,7 @@ din-vermerke, din-anlagenvermerk, din-geschaeftsangaben {
   display: none;
 }
 
-:root:has(#toggle-anlagen:checked) din-anlagenvermerk {
+:root[data-anlagen="true"] din-anlagenvermerk {
   display: block;
 }
 

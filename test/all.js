@@ -2047,7 +2047,7 @@ describe('Druck — Unterrand und Fußzeile', () => {
     const basis = ohneKommentare(await (await fetch('/website/css/sheet-common.css')).text());
 
     assert(/--fuss-hoehe:\s*0mm/.test(multipage), 'Default: kein Band (0mm)');
-    assert(/:root:has\(#toggle-fuss:checked\)\s*\{[^}]*--fuss-hoehe:\s*15mm/.test(basis),
+    assert(/:root\[data-fuss="true"\]\s*\{[^}]*--fuss-hoehe:\s*15mm/.test(basis),
       'Schalter setzt das Band auf 15mm');
     assert(/--nutz:\s*calc\([^;]*-\s*var\(--fuss-hoehe\)\)/.test(multipage),
       'Textbereich (--nutz) kuerzt um das Band');
@@ -5029,21 +5029,21 @@ describe('Ein/Aus-Schalter bleiben Haken, keine gestreckte Pille (2026-11-13)', 
   });
 });
 
-describe('Anlagen und Fusszeile ohne JS-Spiegel (Batch 01, 2026-11-14)', () => {
-  it('kein data-anlagen/data-fuss mehr in JS, CSS liest :has(:checked)', async () => {
+describe('Anlagen und Fusszeile als Root-Attribute (ADR-KISS-MINIMAL-JS, Weg 2)', () => {
+  it('data-anlagen/data-fuss in JS gesetzt, CSS liest :root[data-...]', async () => {
     for (const datei of ['/website/js/boot.js', '/website/js/main.js', '/website/js/draft-manager.js']) {
       const src = await (await fetch(datei)).text();
-      assert(!src.includes('data-anlagen'), `${datei} schreibt kein data-anlagen`);
-      assert(!src.includes('data-fuss'), `${datei} schreibt kein data-fuss`);
+      assert(src.includes('data-anlagen'), `${datei} setzt data-anlagen`);
+      assert(src.includes('data-fuss'), `${datei} setzt data-fuss`);
     }
     const [common, multi] = await Promise.all([
       (await fetch('/website/css/sheet-common.css')).text(),
       (await fetch('/website/css/sheet-multipage.css')).text()
     ]);
-    assert(common.includes(':root:has(#toggle-fuss:checked)'), 'Fusszeile aus dem Schalter');
-    assert(multi.includes(':root:has(#toggle-anlagen:checked)'), 'Anlagen aus dem Schalter');
-    assert(!common.includes('[data-fuss='), 'kein Attribut-Leser mehr (fuss)');
-    assert(!multi.includes('[data-anlagen='), 'kein Attribut-Leser mehr (anlagen)');
+    assert(common.includes(':root[data-fuss="true"]'), 'Fusszeile aus Root-Attribut');
+    assert(multi.includes(':root[data-anlagen="true"]'), 'Anlagen aus Root-Attribut');
+    assert(!common.includes(':root:has(#toggle-fuss:checked)'), 'kein :has(#toggle-fuss) mehr');
+    assert(!multi.includes(':root:has(#toggle-anlagen:checked)'), 'kein :has(#toggle-anlagen) mehr');
   });
 });
 

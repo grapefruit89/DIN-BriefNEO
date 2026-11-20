@@ -238,7 +238,8 @@ function initApp() {
     if (anlagenSwitch) {
       anlagenSwitch.addEventListener('change', () => {
         /* Attribut ist die Wahrheit fuer CSS (pre-paint gesetzt), der Schalter
-           ist das Eingabegeraet - beide hier synchron halten. */
+           ist das Eingabegeraet - beide hier synchron halten (ADR-KISS-MINIMAL-JS). */
+        document.documentElement.setAttribute('data-anlagen', anlagenSwitch.checked ? 'true' : 'false');
         const anlagenEl = document.getElementById('anlagen-angabe');
         if (anlagenEl instanceof HTMLTextAreaElement && anlagenSwitch.checked && !anlagenEl.value.trim()) {
           anlagenEl.value = 'Anlage 1';
@@ -247,11 +248,9 @@ function initApp() {
       });
     }
 
-    // Der Fuss-Schalter hat keine eigene UI-Logik, braucht aber denselben
-    // Speicherimpuls: ohne ihn landet sein Zustand nie im Entwurf und ist nach
-    // einem Neuladen weg. Die Sichtbarkeit liest CSS direkt (:has).
-    const fussSchalter = document.getElementById('toggle-fuss');
+    const fussSchalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
     fussSchalter?.addEventListener('change', () => {
+      document.documentElement.setAttribute('data-fuss', fussSchalter.checked ? 'true' : 'false');
       eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
     });
 

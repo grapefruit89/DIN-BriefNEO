@@ -361,8 +361,7 @@ export class DraftManager {
     if (anlagenSwitch && 'toggle-anlagen' in draft) {
       anlagenSwitch.checked = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
     }
-    /* Sichtbarkeit: CSS liest :has(#toggle-anlagen:checked); der Schalter oben
-       ist die Wahrheit, kein Attribut. */
+    document.documentElement.setAttribute('data-anlagen', anlagenSwitch?.checked ? 'true' : 'false');
 
     const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
     if (fussSwitch) {
@@ -380,6 +379,7 @@ export class DraftManager {
         ).some((sp) => Field.getValue(sp).trim() !== '');
       }
     }
+    document.documentElement.setAttribute('data-fuss', fussSwitch?.checked ? 'true' : 'false');
 
     this.#isRestoring = false;
     this.#setSaveStatus('saved');
@@ -465,6 +465,8 @@ export class DraftManager {
     if (fussSwitch) {
       fussSwitch.checked = false;
     }
+    document.documentElement.setAttribute('data-anlagen', 'false');
+    document.documentElement.setAttribute('data-fuss', 'false');
     /* Reset ist auch ein Zustandswechsel: Attribute (CSS-Wahrheit) mitziehen. */
     // Datum: Markierung loeschen und Feld leeren, damit applyLetterDate wieder "heute" setzt.
     const datumEl = document.getElementById('datum');

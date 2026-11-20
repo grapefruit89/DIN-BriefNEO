@@ -18,6 +18,7 @@ doc_links:
   - IMR-Registry
   - ADR-ANTIPATTERN
   - ADR-OMNITRACEABILITY
+  - ADR-KISS-MINIMAL-JS
   - ADR-OFFLINE-ADDRESS-INTELLIGENCE
   - Salutation-Engine
   - TEMPLATES
@@ -73,6 +74,7 @@ docs/
 - **[[IMR-Registry]]** ⭐⭐⭐ — Alleinige Quelle der Wahrheit (SSoT) für alle 45 Custom Tags und Millimetermaße.
 - **[[longevity-guidelines]]** ⭐⭐ — 10-Jahres-Technologiekriterien und Browser-Baseline.
 - **[[ADR-HTML]]** — Semantische HTML-Struktur, WYSIWYG & Native Popovers.
+- **[[ADR-KISS-MINIMAL-JS]]** ⭐⭐⭐ — 80/20-Prinzip, pragmatische FOUC-Toleranz und Minimal-JavaScript.
 - **[[ADR-OMNITRACEABILITY]]** ⭐⭐ — Bidirektionale Verknüpfung von Quellcode und Dokumentation.
 - **[[glossary]]** — Zentrales Projektglossar (Ubiquitous Language von A bis Z).
 

@@ -12,9 +12,9 @@
 
 import { AddressIntelligence } from './address.js';
 import { Constants, Events, eventBus } from './core.js';
-import { collectDraft, EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset } from './document.js';
+import { collectDraft, EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, setCaretCharacterOffset, writeField } from './document.js';
 import { Field } from './field.js';
-import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON, stripHtmlToPlaintext } from './persistence.js';
+import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 
 export class DraftManager {
   /* Undo/Redo liegt bewusst NUR im RAM (entschieden 2026-11-13, B13).
@@ -297,42 +297,7 @@ export class DraftManager {
       // Boolean-Werte sind Toggle-Zustaende; sie werden weiter unten als `checked` gesetzt.
       if (typeof draft[id] !== 'string') return;
 
-      if (elem instanceof HTMLSelectElement) {
-        elem.value = draft[id];
-        return;
-      }
-
-      if (Field.isNative(elem)) {
-        /* Migration alter Drafts: <li>-HTML -> \n-Text (einmalig). */
-        let val = draft[id];
-        if (elem.id === 'anlagen-angabe' && typeof val === 'string' && val.includes('<')) {
-          val = stripHtmlToPlaintext(val);
-        }
-        Field.setValue(elem, val);
-      // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
-      } else if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
-        const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
-        if (isListe && typeof draft[id] === 'string' && !draft[id].includes('<li')) {
-          const lines = draft[id].split('\n').map((l) => l.trim()).filter(Boolean);
-          if (lines.length > 0) {
-            elem.replaceChildren(...lines.map((line) => {
-              const li = document.createElement('li');
-              Field.setValue(li, line);
-              return li;
-            }));
-          } else {
-            elem.replaceChildren();
-          }
-        } else {
-          const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
-          elem.replaceChildren(sanitizeRichText(draft[id], extra));
-          if (isListe && elem.children.length === 0) {
-            elem.replaceChildren(document.createElement('li'));
-          }
-        }
-      } else if (!elem.querySelector('select[data-speichern]')) {
-        Field.setValue(elem, draft[id]);
-      }
+      writeField(elem, draft[id]);
     });
 
     /* Das Datum traegt den Nutzerwunsch, nicht den Tagesstand: `applyLetterDate`

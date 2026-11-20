@@ -12,6 +12,7 @@
 
 import { Field } from './field.js';
 import { applyMicroTypography } from './format.js';
+import { stripHtmlToPlaintext } from './persistence.js';
 
 /* =========================================================================================
  * 0. RICH TEXT SANITIZER (Allowlist Guard)
@@ -85,37 +86,45 @@ export function sanitizeRichText(htmlString, options = {}) {
  * Wendet DIN-5008-Mikrotypografie (geschützte Leerzeichen) auf ein HTML-Element an (§ 7.2 & § 8.2).
  * Traversiert Textknoten sicher via TreeWalker oder setzt textContent bei Plaintext.
  * @param {HTMLElement | Element} element
+ * @returns {boolean} true, wenn der Feldwert dabei verändert wurde
  */
 export function formatElementMicroTypography(element) {
-  if (!element || !(element instanceof HTMLElement)) return;
+  if (!element || !(element instanceof HTMLElement)) return false;
   /* Native Felder (Betreff, Anrede, Gruss, Unterschrift, Adressfelder):
      Wert ueber `value` statt TreeWalker - ein <input> hat keine Textknoten
      (Migration 2026-11-12). */
   if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
     const roh = element.value || '';
     const formatiert = applyMicroTypography(roh);
-    if (roh !== formatiert) Field.setValue(element, formatiert);
-    return;
+    if (roh !== formatiert) {
+      Field.setValue(element, formatiert);
+      return true;
+    }
+    return false;
   }
   if (element.getAttribute('contenteditable') === 'plaintext-only') {
     const raw = element.textContent || '';
     const formatted = applyMicroTypography(raw);
     if (raw !== formatted) {
       Field.setValue(element, formatted);
+      return true;
     }
-    return;
+    return false;
   }
   const doc = element.ownerDocument || document;
   const walker = doc.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let geaendert = false;
   for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
     if (node.nodeValue) {
       const val = node.nodeValue;
       const formatted = applyMicroTypography(val);
       if (val !== formatted) {
         node.nodeValue = formatted;
+        geaendert = true;
       }
     }
   }
+  return geaendert;
 }
 
 /* =========================================================================================
@@ -804,6 +813,80 @@ export const EDITABLE_FIELD_SELECTOR =
   '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-atom], select[data-speichern]';
 
 /**
+ * Liest den Wert genau eines Entwurfsfeldes.
+ * Rich-Text-Felder werden vor der Ausgabe mit sanitizeRichText abgesichert
+ * (A61: einzige Schreibgrenze). Gegenstück zu `writeField`.
+ * @param {Element | HTMLElement | null} elem
+ * @returns {string}
+ */
+export function readField(elem) {
+  if (!elem) return '';
+  if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
+    const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
+    const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
+    const cleanFrag = sanitizeRichText(/** @type {HTMLElement} */ (elem).innerHTML, extra);
+    const container = document.createElement('div');
+    container.appendChild(cleanFrag);
+    return container.innerHTML;
+  }
+  return Field.getValue(elem);
+}
+
+/**
+ * Schreibt einen Wert in genau ein Entwurfsfeld (Projektion des Zustands).
+ * Die Allowlist-/Feldtyp-Prüfung bleibt beim Aufrufer (`render`).
+ * @param {Element | HTMLElement | null} elem
+ * @param {string | boolean} wert
+ */
+export function writeField(elem, wert) {
+  if (!elem) return;
+  const text = typeof wert === 'string' ? wert : String(wert ?? '');
+
+  if (elem instanceof HTMLSelectElement) {
+    elem.value = text;
+    return;
+  }
+
+  if (Field.isNative(elem)) {
+    /* Migration alter Drafts: <li>-HTML -> \n-Text (einmalig). */
+    let val = text;
+    if (elem.id === 'anlagen-angabe' && val.includes('<')) {
+      val = stripHtmlToPlaintext(val);
+    }
+    Field.setValue(elem, val);
+    return;
+  }
+
+  // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
+  if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
+    const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
+    if (isListe && !text.includes('<li')) {
+      const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+      if (lines.length > 0) {
+        elem.replaceChildren(...lines.map((line) => {
+          const li = document.createElement('li');
+          Field.setValue(li, line);
+          return li;
+        }));
+      } else {
+        elem.replaceChildren();
+      }
+    } else {
+      const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
+      elem.replaceChildren(sanitizeRichText(text, extra));
+      if (isListe && elem.children.length === 0) {
+        elem.replaceChildren(document.createElement('li'));
+      }
+    }
+    return;
+  }
+
+  if (!elem.querySelector('select[data-speichern]')) {
+    Field.setValue(elem, text);
+  }
+}
+
+/**
  * Sammelt den aktuellen Zustand aller editierbaren Felder direkt aus dem Live-DOM.
  * Rich-Text-Felder werden vor der Ausgabe mit sanitizeRichText abgesichert.
  * @returns {Record<string, string | boolean>}
@@ -819,16 +902,7 @@ export function collectDraft() {
     // Der Anlagentext wird immer gespeichert, auch bei ausgeschaltetem Toggle (1.3) -
     // sonst ist er nach dem naechsten Reload endgueltig weg.
     if (!elem.id || (elem.getAttribute('data-feldtyp') === 'systemwert' && elem.id !== 'datum')) return;
-    if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
-      const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
-      const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
-      const cleanFrag = sanitizeRichText(elem.innerHTML, extra);
-      const container = document.createElement('div');
-      container.appendChild(cleanFrag);
-      draft[elem.id] = container.innerHTML;
-    } else {
-      draft[elem.id] = Field.getValue(elem);
-    }
+    draft[elem.id] = readField(elem);
 
     /* Herkunft eines gespiegelten Feldes ("auto"/"manuell") mitnehmen, damit
      * sie Undo/Redo und den Draft-Reload ueberlebt (E1, 2026-11-12). Ohne sie

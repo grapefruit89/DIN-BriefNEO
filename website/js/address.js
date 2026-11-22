@@ -32,7 +32,7 @@ import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe }
 import { setCaretToEnd } from './document.js';
 import { Field } from './field.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
-import { letterState, setMeta, unsetMeta } from './state.js';
+import { letterState, setMeta } from './state.js';
 import { applyValue, commitElement } from './state-binding.js';
 
 export {
@@ -342,7 +342,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
          mit (Firmen/Behörden) — die gehören nicht in den Absender
          (gemeldet 2026-11-22). */
       const nurOrte = liste.filter((e) => (e.typ || 'Stadt') === 'Stadt');
-      const eintraege = flacheVorschlaege(nurOrte, alle ? Infinity : maxSuggestions());
+      const eintraege = flacheVorschlaege(nurOrte, alle ? Number.POSITIVE_INFINITY : maxSuggestions());
       /* Bundesland nur bei gemischten Listen ("· Nordrhein-Westfalen" an
          einzelnen Bonn-Zeilen war Rauschen). */
       const staaten = new Set(eintraege.map((e) => e.state || '').filter(Boolean));
@@ -542,7 +542,7 @@ export const GRUPPE_AB_PLZ = 8;
  *   2026-11-22) — das Aufklappen passiert nach der Begrenzung.
  * @returns {Array<any>}
  */
-export function flacheVorschlaege(liste, limit = Infinity) {
+export function flacheVorschlaege(liste, limit = Number.POSITIVE_INFINITY) {
   const out = [];
   const gesehen = new Set();
   for (const item of liste) {
@@ -668,7 +668,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       if (t === 'behörde' || t === 'behoerde' || t === 'gericht') return 1;
       return 2;
     };
-    const eintraege = flacheVorschlaege(matches, isPlzList ? Infinity : maxSuggestions())
+    const eintraege = flacheVorschlaege(matches, isPlzList ? Number.POSITIVE_INFINITY : maxSuggestions())
       .toSorted((a, b) => {
         const ra = rang(a);
         const rb = rang(b);
@@ -901,25 +901,25 @@ export function initSenderSync() {
   /** @param {HTMLElement | null} el @returns {string} */
   const lies = (el) => Field.getValue(el).trim();
 
-  /** @param {string} name @param {string} street @param {string} city */
-  const baueRueckzeile = (name, street, city) =>
-    [abbreviateName(name), street, city].filter((p) => p.length > 0).join(' • ');
+  /* Segment-Spiegelung (Vorgabe 2026-11-22): die Ruecksendezeile besteht aus
+     hoechstens drei Teilen (Name • Strasse • Ort). Ein Feld aendert nur SEIN
+     Segment — ein von Hand editierter Ort bleibt stehen, wenn spaeter der Name
+     geaendert wird. */
+  /** @type {string[]} */
+  let segmente = ['', '', ''];
+  /* Nur eine Zeile mit drei Teilen laesst sich feldweise spiegeln. Wer etwas
+     Freies hineinschreibt ("EIGENE ZEILE VON HAND"), behaelt sie komplett. */
+  let strukturiert = true;
+  /** @param {string} text */
+  const setzeSegmente = (text) => {
+    const teile = String(text || '').split(' • ');
+    strukturiert = teile.length >= 3 || String(text || '').trim() === '';
+    segmente = [0, 1, 2].map((i) => (teile[i] ?? '').trim());
+  };
+  setzeSegmente(lies(absender));
 
-  /* Drei Zustaende statt Textvergleich. Textvergleich war die Ursache dafuer,
-   * dass eine aus dem Entwurf geladene Zeile ("Light Yagami • …") als
-   * Nutzertext galt und nie wieder mit Initialen geschrieben wurde
-   * (gemessen 2026-11-12).
-   *   unklar  — direkt nach dem Laden, wird beim ersten Sync entschieden
-   *   auto    — der Helfer besitzt die Zeile und darf sie ersetzen
-   *   manuell — der Nutzer hat sie angefasst; sie bleibt stehen
-   * "manuell" entsteht durch jede Eingabe in das Feld, also auch durch
-   * Loeschen: dann bleibt die Zeile leer. */
-  /** @type {'unklar'|'auto'|'manuell'} */
-  let rueckModus = 'unklar';
   /** @type {'unklar'|'auto'|'manuell'} */
   let unterschriftModus = 'unklar';
-  /** @type {string|null} */
-  let letzterAutowert = null;
   let schreibeGerade = false;
 
   /** @param {HTMLElement | null} el @param {string} wert */
@@ -931,71 +931,58 @@ export function initSenderSync() {
     schreibeGerade = false;
   };
 
-  for (const el of [absender, unterschrift]) {
-    if (!el) continue;
-    el.addEventListener('input', () => {
-      if (schreibeGerade) return; // eigener Schreibvorgang, kein Nutzer
-      if (el === absender) {
-        rueckModus = 'manuell';
-        setMeta(letterState, 'rucksendeangabe', { herkunft: 'manuell' });
-      } else unterschriftModus = 'manuell';
-    });
-  }
+  /**
+   * Uebernimmt genau ein Absenderfeld in sein Segment und schreibt die Zeile.
+   * @param {number} i
+   * @param {string} roh
+   */
+  const spiegleFeld = (i, roh) => {
+    if (!strukturiert) return;
+    if (segmente.every((p) => p === '')) {
+      /* Leere Zeile: alle drei Teile aus den Feldern aufbauen. */
+      segmente = [abbreviateName(lies(infoName)), lies(infoStreet), lies(infoCity)];
+    } else {
+      segmente[i] = i === 0 ? abbreviateName(roh.trim()) : roh.trim();
+    }
+    const neu = segmente.filter((p) => p.length > 0).join(' • ');
+    if (lies(absender) !== neu) schreibe(absender, neu);
+  };
 
-  function sync() {
+  /* Von Hand geaendert: Segmente aus dem Text uebernehmen. Ab dann bleiben sie
+     stehen, bis das zugehoerige Absenderfeld wieder angefasst wird. */
+  absender.addEventListener('input', () => {
+    if (schreibeGerade) return;
+    setzeSegmente(lies(absender));
+    setMeta(letterState, 'rucksendeangabe', { herkunft: 'manuell' });
+  });
+
+  unterschrift.addEventListener('input', () => {
+    if (schreibeGerade) return;
+    unterschriftModus = 'manuell';
+  });
+
+  const spiegleUnterschrift = () => {
     const name = lies(infoName);
-    const street = lies(infoStreet);
-    const city = lies(infoCity);
-    const auto = baueRueckzeile(name, street, city);
-    const aktuell = lies(absender);
-
-    // 1. Ruecksendezeile
-    const entscheidung = spiegelEntscheidung({
-      modus: rueckModus,
-      letzterAutowert,
-      aktuell,
-      auto,
-      street,
-      city
-    });
-    rueckModus = entscheidung.modus;
-    /* Herkunft am Feld markieren (Zustand-Meta): toWire() nimmt sie als
-       `<id>__quelle` in den Entwurf, der Ladepfad setzt sie zurück. */
-    if (absender) {
-      if (rueckModus === 'unklar') unsetMeta(letterState, 'rucksendeangabe', 'herkunft');
-      else setMeta(letterState, 'rucksendeangabe', { herkunft: rueckModus });
-    }
-    letzterAutowert = entscheidung.letzterAutowert;
-    if (entscheidung.schreiben) schreibe(absender, auto);
-
-    // 2. Maschinenschrift (voller Name, ohne Initialen)
-    const jetztUnterschrift = lies(unterschrift);
+    const jetzt = lies(unterschrift);
     if (unterschriftModus === 'unklar') {
-      unterschriftModus = jetztUnterschrift === '' || jetztUnterschrift === name ? 'auto' : 'manuell';
+      unterschriftModus = jetzt === '' || jetzt === name ? 'auto' : 'manuell';
     }
-    if (unterschriftModus === 'auto' && jetztUnterschrift !== name) schreibe(unterschrift, name);
-  }
+    if (unterschriftModus === 'auto' && jetzt !== name) schreibe(unterschrift, name);
+  };
 
-  infoName.addEventListener('input', sync);
-  infoStreet.addEventListener('input', sync);
-  infoCity.addEventListener('input', sync);
+  infoName.addEventListener('input', () => {
+    spiegleFeld(0, lies(infoName));
+    spiegleUnterschrift();
+  });
+  infoStreet.addEventListener('input', () => spiegleFeld(1, lies(infoStreet)));
+  infoCity.addEventListener('input', () => spiegleFeld(2, lies(infoCity)));
 
   eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
-    /* Undo/Redo und Reset stellen einen fremden Stand wieder her: Zustand neu
-     * entscheiden lassen, statt ihn zu raten. */
-    /* Nur die Rücksendezeile neu entscheiden: sie kann per Undo einen
-       fremden Stand zurueckbekommen. Die Maschinenschrift bleibt eine reine
-       Spiegelung des Namens (Test: "Maschinenschrift folgt weiterhin dem
-       Namen"). */
-    /* Die Herkunft steht im Zustand (`meta.herkunft`), also nicht raten: nur
-     * wenn sie fehlt (Altbestand, Reset), bleibt der Modus offen. */
-    const gespeichert = letterState.meta.rucksendeangabe?.herkunft;
-    rueckModus = gespeichert === 'auto' || gespeichert === 'manuell' ? gespeichert : 'unklar';
-    letzterAutowert = null;
-    /* Der Modus allein reicht nicht: ohne sync() blieb die Zeile stehen.
-       Betraf Undo/Redo/Reset UND die Auswahl aus der Ortsliste (gemeldet
-       2026-11-22: Auswahl im Absenderfeld kam in der Ruecksendezeile nicht an). */
-    sync();
+    /* Undo/Redo/Reset oder eine Auswahl aus der Ortsliste haben den Zustand
+       gesetzt: Segmente daraus neu aufbauen und die Maschinenschrift
+       nachziehen. */
+    setzeSegmente(lies(absender));
+    spiegleUnterschrift();
   });
 }
 

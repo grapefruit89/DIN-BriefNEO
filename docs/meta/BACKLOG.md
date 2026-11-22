@@ -4,7 +4,7 @@ title: Backlog — offene Baustellen nach Aufwand und ROI
 status: active
 type: reference
 created: '2026-10-02'
-updated: '2026-11-17'
+updated: '2026-11-22'
 tags:
 - din-briefneo
 - meta
@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-20 offene Punkte. Details unterhalb, nach Art gruppiert.
+17 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -161,6 +161,27 @@ Tab hat den Fokus), mit zwei Fenstern auf zwei Monitoren aber möglich.
 beim Speichern vergleichen (dann: Konflikt statt Überschreiben). Empfehlung:
 akzeptieren — der Schaden ist ein verlorener Absatz, die Reparatur wäre ein
 zweiter Zustand in jeder Speicherung.
+
+**Nachtrag 2026-11-22 (Nutzer-Test mit zwei Fenstern):** Der Toast erscheint
+wie beschrieben, Datenverlust wurde nicht beobachtet. Der Nutzer will den
+Konfliktfall aber nicht „dokumentiert akzeptieren", sondern den zweiten Tab
+**sperren**. Zwei getrennte Briefe pro Fenster (eigene Draft-IDs, Auswahl,
+Verlauf) sind ausdrücklich **nicht** gewollt — das wäre B32.
+
+Damit ist die Entscheidung gefallen (sperren statt akzeptieren), nur die
+Umsetzung fehlt:
+- `navigator.locks.request('din-briefneo-draft', { mode: 'exclusive' })` als
+  Ein-Instanz-Sperre — kein Polling, kein Heartbeat; der Browser räumt beim
+  Tab-Schließen selbst auf.
+- Zweiter Tab: Overlay statt Arbeitsfläche („läuft schon in einem anderen
+  Tab"), plus „übernehmen" über einen `BroadcastChannel`-Handshake: der
+  haltende Tab gibt frei und zeigt dasselbe Overlay.
+- Abgrenzung: Dev-Server (`127.0.0.1:8088`) und Produktions-Domain sind
+  verschiedene Origins und sperren sich nicht gegenseitig; betroffen sind nur
+  zwei Tabs derselben Adresse.
+Aufwand bleibt **S**. Abnahme: zwei Fenster derselben Origin — zweiter Tab
+gesperrt, Entwurf im ersten unverändert, nach Schließen des ersten übernimmt
+der zweite.
 
 ## ✨ Neue Features
 

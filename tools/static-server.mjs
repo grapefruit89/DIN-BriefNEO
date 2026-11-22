@@ -61,7 +61,31 @@ function liesDevGeokey() {
   }
 }
 
+/**
+ * Entwickler-Komfort fuer Schriften, die NICHT ins Repo duerfen (Lizenz:
+ * Aptos = Microsoft, Michelangelus = kommerziell).
+ *
+ * Die App laedt sie relativ aus `website/fonts/` (A45: kein Pfad aus
+ * `website/` heraus). Fehlt die Datei dort, liefert dieser Server sie aus dem
+ * lokalen Ordner `<repo>/fonts/` — genau wie `/__geokey` den Key aus
+ * `~/.secrets/` durchreicht. Auf einem fremden Webserver fehlt beides: 404,
+ * der Browser faellt auf seine Ersatzschrift zurueck. Kein Fehler.
+ *
+ * @param {string} root Web-Wurzel
+ * @returns {string | null} Pfad zu <repo>/fonts, wenn es ihn gibt
+ */
+function findeFontsOrdner(root) {
+  const repoRoot = path.basename(root) === 'website' ? path.dirname(root) : root;
+  const kandidat = path.join(repoRoot, 'fonts');
+  try {
+    return existsSync(kandidat) && statSync(kandidat).isDirectory() ? kandidat : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function startStaticServer(root, wunschPort = 0) {
+  const fontsOrdner = findeFontsOrdner(root);
   const server = http.createServer((req, res) => {
     const url = new URL(req.url || '/', 'http://127.0.0.1');
     if (url.pathname === '/__geokey') {
@@ -80,7 +104,19 @@ export async function startStaticServer(root, wunschPort = 0) {
       res.writeHead(400, NO_CACHE).end('Bad Request');
       return;
     }
-    if (!pfad.startsWith(root + path.sep) || !existsSync(pfad) || !statSync(pfad).isFile()) {
+    let lieferbar = pfad.startsWith(root + path.sep) && existsSync(pfad) && statSync(pfad).isFile();
+
+    /* Schriften-Fallback: nur fuer Dateien in einem `fonts/`-Ordner, nur
+       innerhalb von <repo>/fonts. Nie fuer andere Pfade. */
+    if (!lieferbar && fontsOrdner && pfad.includes(`${path.sep}fonts${path.sep}`)) {
+      const kandidat = path.join(fontsOrdner, path.basename(pfad));
+      if (kandidat.startsWith(fontsOrdner + path.sep) && existsSync(kandidat) && statSync(kandidat).isFile()) {
+        pfad = kandidat;
+        lieferbar = true;
+      }
+    }
+
+    if (!lieferbar) {
       res.writeHead(404, { ...NO_CACHE, 'Content-Type': 'text/plain; charset=utf-8' }).end('Not Found');
       return;
     }

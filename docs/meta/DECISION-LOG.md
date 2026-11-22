@@ -5222,3 +5222,33 @@ Gemessen (mm von Blatt-Oberkante):
 Umsetzung: `#datum { margin-top: 18mm }` in `sheet-common.css` (Zeile 433,
 **außerhalb** des `@media print`-Blocks — gilt damit auch im PDF). Der
 Infoblock selbst wurde nicht angefasst; der Betreff wandert nicht.
+
+**Font-Fallback im Dev-Server (2026-11-22):** Nutzer: „für lokale Tests habe ich
+`fonts/` und das soll für den Testserver im Debug-Browser genauso funktionieren
+wie `~/.secrets/geoapify`."
+
+`tools/static-server.mjs` liefert jetzt Schriften aus `<repo>/fonts/`, wenn sie
+unter `website/fonts/` fehlen — gleiche Idee wie `/__geokey`:
+
+| Fall | Verhalten |
+|---|---|
+| Datei in `website/fonts/` vorhanden | wird normal ausgeliefert (Inter) |
+| fehlt dort, liegt in `<repo>/fonts/` | **Dev-Server** liefert sie durch (200) |
+| fehlt in beiden | **404** — Browser nimmt seine Ersatzschrift |
+
+Die Regel greift **nur** für Pfade in einem `fonts/`-Ordner und **nur**
+innerhalb von `<repo>/fonts` — kein Zugriff auf andere Repo-Dateien. Die
+App-URL bleibt `../fonts/…` (A45-konform, kein Pfad aus `website/` heraus).
+
+Gemessen:
+
+```
+/website/fonts/aptos.woff2                  200  17 848 B
+/website/fonts/michelangelus-regular.woff2  200  23 212 B
+/website/fonts/inter_18pt-regular.woff2     200  17 864 B
+/website/fonts/gibt-es-nicht.woff2          404       9 B
+App: Test-Aptos und Test-Michelangelus laden (document.fonts.check true)
+```
+
+Damit braucht `website/fonts/` **keine** lokalen Kopien mehr: die zwei
+Nicht-Inter-Schriften liegen ausschließlich in `fonts/` (gitignored).

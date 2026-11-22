@@ -19,7 +19,7 @@ code_links:
 - 'tools/check-feature.js'
 - 'tools/test-runner.mjs'
 - 'tools/build_plz_data.mjs'
-- 'fonts/subset_fonts.py'
+- 'fonts/subset_fonts.py'  (lokal, gitignored)
 depends_on: []
 supersedes: []
 ---

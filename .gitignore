@@ -58,6 +58,6 @@ batch/**/verweise/
 website/fonts/*
 !website/fonts/inter_18pt-regular.woff2
 !website/fonts/inter_18pt-bold.woff2
-fonts/*
-!fonts/README.md
-!fonts/subset_fonts.py
+# fonts/ KOMPLETT: lokale Schriften und ihre Werkzeuge. Nichts davon ins Repo
+# (Lizenz: Aptos = Microsoft, Michelangelus = kommerziell).
+fonts/

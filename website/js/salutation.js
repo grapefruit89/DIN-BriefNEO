@@ -290,6 +290,9 @@ export class SalutationFeature {
     this.#liste = initVorschlagsliste({
       feld: 'anrede',
       popover: 'anrede-vorschlaege',
+      /* Varianten haengen nur am Empfaengernamen; beim Tippen im Anrede-Feld
+         bleibt die Liste stehen (kein Flackern, 2026-11-22). */
+      statisch: true,
       hole: () =>
         salutationVarianten(this.#nameText()).map((v) => ({
           text: v.anrede,

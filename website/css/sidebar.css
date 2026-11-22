@@ -1147,6 +1147,19 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
   anchor-name: --anchor-absender-strasse;
 }
 
+/* Die Strassenliste haengt an BEIDEN Strassenfeldern. Der Absender steht im
+   Infoblock (rechts, Liste waechst nach innen), der Empfaenger im
+   Anschriftfeld (links, Liste waechst nach rechts). */
+#empfaenger-strasse {
+  anchor-name: --anchor-empfaenger-strasse;
+}
+
+body:has(#empfaenger-strasse:focus) #strasse-vorschlaege {
+  position-anchor: --anchor-empfaenger-strasse;
+  left: anchor(left);
+  right: auto;
+}
+
 
 
 body:has(#absender-ort:focus) #plz-suggestions-popover {

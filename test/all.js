@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung, strassenSuchPfad } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -2710,6 +2710,23 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
     // Gleiche Nachricht erneut triggern: Popover öffnet sich erneut
     eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Gleicher Fehler', type: 'warning' });
     assertEqual(container?.dataset.type, 'warning', 'Typ wird bei gleichem Text aktualisiert');
+  });
+});
+
+describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
+  it('fragt nur Strassen in Deutschland, mit kleinem Limit', () => {
+    const pfad = strassenSuchPfad('Hauptstr', 'KEY');
+    assert(pfad.startsWith('/v1/geocode/autocomplete?'), 'Geoapify-Autocomplete');
+    assert(/type=street/.test(pfad), 'nur Strassen, nicht alles');
+    assert(/limit=8/.test(pfad), 'limit 8 statt 20 (gemessen: 1751 ms -> 536 ms)');
+    assert(/filter=countrycode%3Ade/.test(pfad), 'nur deutsche Treffer');
+    assert(/bias=proximity%3A/.test(pfad), 'Naehe-Gewichtung');
+    assert(!/limit=20/.test(pfad), 'kein altes Limit mehr');
+  });
+
+  it('Naehe ist ueberschreibbar (targetLock statt Bonn)', () => {
+    const pfad = strassenSuchPfad('Ringstr', 'KEY', { lon: 8.5, lat: 47.4 });
+    assert(/bias=proximity%3A8.5%2C47.4/.test(pfad), 'eigene Naehe');
   });
 });
 

@@ -89,6 +89,10 @@ export function passeAnBlattrand(popover, feldEl) {
  *   wird die Liste dann geschlossen.
  * @param {() => string} [cfg.aktuell] markiert den passenden Eintrag
  *   (Standard: Wert des Feldes).
+ * @param {boolean} [cfg.statisch] Liste aendert sich beim Tippen nicht
+ *   (Anrede-Varianten). Dann wird eine bereits offene Liste nicht neu gebaut;
+ *   bei datengetriebenen Listen (Strasse) MUSS neu gebaut werden, sonst
+ *   bleiben die Treffer des ersten Buchstabens stehen (gemessen 2026-11-22).
  * @returns {{ zerstoeren: () => void }}
  */
 export function initVorschlagsliste(cfg) {
@@ -171,7 +175,7 @@ export function initVorschlagsliste(cfg) {
 
   const zeige = async () => {
     if (unterdrueckt) return;
-    if (popover.matches(':popover-open') && popover.childElementCount > 0) return;
+    if (cfg.statisch && popover.matches(':popover-open') && popover.childElementCount > 0) return;
     const meinLauf = ++lauf;
     const liste = await cfg.hole(String(wert() || '').trim());
     if (meinLauf !== lauf) return; // veraltete Antwort

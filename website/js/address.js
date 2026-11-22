@@ -514,6 +514,39 @@ export function flacheVorschlaege(liste, limit = Number.POSITIVE_INFINITY) {
 }
 
 /**
+ * Standard-Naehe fuer die Strassen-Suche (Bonn, Heimfallpunkt 2026-11-22).
+ * Ohne Treffer-Sperre (`targetLock`) wird hiernach gewichtet.
+ */
+export const STRASSEN_BIAS = Object.freeze({ lon: 7.0982068, lat: 50.73743 });
+
+/**
+ * Query fuer die Strassen-Autovervollstaendigung (Geoapify).
+ * `type=street` und ein kleines Limit sind der ganze Geschwindigkeits-
+ * unterschied (gemessen 2026-11-22, gleiche Leitung):
+ *   limit=20, ohne type .................. 1751 ms
+ *   limit=8,  type=street ................  536 ms (2. Lauf 353 ms)
+ * `filter=countrycode:de` bleibt noetig: ohne ihn kamen oesterreichische
+ * Treffer zu "Hauptstrasse" (gemessen). Mit type=street kostet er kaum.
+ * @param {string} text
+ * @param {string} key
+ * @param {{ lon: number, lat: number }} [bias]
+ * @returns {string}
+ */
+export function strassenSuchPfad(text, key, bias = STRASSEN_BIAS) {
+  const params = new URLSearchParams({
+    text,
+    apiKey: key,
+    lang: 'de',
+    limit: '8',
+    type: 'street',
+    filter: 'countrycode:de',
+    format: 'json',
+    bias: `proximity:${bias.lon},${bias.lat}`
+  });
+  return `/v1/geocode/autocomplete?${params.toString()}`;
+}
+
+/**
  * Kuerzt generische Bestandteile aus Organisationsnamen fuer die ANZEIGE
  * ("Deutsche Postbank AG Niederlassung Hamburg (Giro)" -> "Deutsche Postbank AG
  * Hamburg (Giro)"). Gesucht und gespeichert wird weiter der volle Name; der
@@ -1603,23 +1636,24 @@ export function initAddressServices() {
     });
   }
 
-  /* Strassen-Vorschlaege fuer den Absender (Geoapify).
-     Bedienung kommt aus `initVorschlagsliste`; hier stehen nur Abruf (mit
-     LRU-Cache), Groesse am Blattrand und was beim Klick passiert.
-     - unabhaengig von allen anderen Feldern: gesucht wird der getippte Name
-     - Relevanz per Naehe, Standard Bonn
-     - ohne API-Key oder ohne Netz: keine Liste (offline-first) */
-  const absStrasseEl = feld('absender-strasse');
+  /* Strassen-Vorschlaege (Geoapify) fuer BEIDE Strassenfelder: Absender und
+     Empfaenger. Bedienung kommt aus `initVorschlagsliste`; hier stehen nur
+     Abruf (mit LRU-Cache) und was beim Klick passiert.
+     - gesucht wird nur der getippte Name, unabhaengig von anderen Feldern
+     - Relevanz per Naehe (Standard Bonn)
+     - ohne API-Key oder ohne Netz: keine Liste (offline-first)
+     - laufende Anfrage wird beim naechsten Tastendruck abgebrochen */
   const strassePopover = feld('strasse-vorschlaege');
-  if (absStrasseEl && strassePopover) {
-    /* Bonn als Standard-Naehe (Heimfallpunkt, gemessen 2026-11-22). */
-    const BONN = { lon: 7.0982068, lat: 50.73743 };
-    /* KEINE eigene Groessen-/Positionsrechnung mehr (gemeldet 2026-11-22:
-       "das dropdown hat die falsche Logik bzw. Position"): die Liste sass
-       420 px breit rechtsbuendig am Feld, waehrend die Ortsliste linksbuendig
-       in Feldbreite stand. Jetzt gilt fuer beide dieselbe Verankerung
-       (CSS `position-anchor: --anchor-absender-strasse`) und dieselbe Hoehe
-       (passeAnBlattrand bis 20 mm vor den Blatt-Unterrand). */
+  if (strassePopover) {
+    /** @type {AbortController | null} */
+    let strassenController = null;
+
+    /** @param {any} r Geoapify-Treffer @returns {{ text: string, zusatz: string, wert: any }} */
+    const alsVorschlag = (r) => ({
+      text: [r.street, r.housenumber].filter(Boolean).join(' '),
+      zusatz: `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`,
+      wert: r
+    });
 
     /** @param {string} text */
     const holeStrassen = async (text) => {
@@ -1628,50 +1662,59 @@ export function initAddressServices() {
       if (!key) return [];
       const schluessel = `strasse:${text.toLowerCase()}`;
       const ausCache = cacheHole(schluessel);
-      if (ausCache?.length) {
-        return ausCache.map((/** @type {any} */ r) => ({
-          text: [r.street, r.housenumber].filter(Boolean).join(' '),
-          zusatz: `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`,
-          wert: r
-        }));
-      }
-      const pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=20&format=json&filter=countrycode:de&bias=proximity:${BONN.lon},${BONN.lat}`;
+      if (ausCache?.length) return ausCache.map(alsVorschlag);
+
+      strassenController?.abort();
+      strassenController = new AbortController();
       try {
-        const { antwort } = await holeJsonMitFailover(pfad, new AbortController());
+        const { antwort } = await holeJsonMitFailover(
+          strassenSuchPfad(text, key),
+          strassenController
+        );
         if (!antwort.ok) return [];
         const daten = await antwort.json();
         const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
         if (!treffer.length) return [];
         cacheSetze(schluessel, /** @type {any} */ (treffer));
-        return treffer.map((/** @type {any} */ r) => ({
-          text: [r.street, r.housenumber].filter(Boolean).join(' '),
-          zusatz: `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`,
-          wert: r
-        }));
+        return treffer.map(alsVorschlag);
       } catch (err) {
-        console.debug('[Address] Strassen-Vorschlaege fehlgeschlagen:', err);
+        /* Abbruch ist kein Fehler: der naechste Tastendruck fragt neu. */
+        if (/** @type {Error} */ (err)?.name !== 'AbortError') {
+          console.debug('[Address] Strassen-Vorschlaege fehlgeschlagen:', err);
+        }
         return [];
       }
     };
 
-    initVorschlagsliste({
-      feld: absStrasseEl,
-      popover: strassePopover,
-      verzoegerung: 350,
-      hole: holeStrassen,
-      beiWahl: (/** @type {any} */ v) => {
-        const r = v.wert || {};
-        applyValue('absender-strasse', v.text, 'auto');
-        /* Passende PLZ/Ort immer mitschreiben. */
-        const ortFeld = feld('absender-ort');
-        const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
-        if (ortFeld && plzOrt) {
-          applyValue('absender-ort', plzOrt, 'auto');
-          eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-ort' });
+    /** @param {string} feldId @param {string} ortId */
+    const initStrasse = (feldId, ortId) => {
+      const el = feld(feldId);
+      if (!el) return;
+      initVorschlagsliste({
+        feld: el,
+        popover: strassePopover,
+        /* 180 ms statt 350: das Geoapify-Beispiel antwortet beim Tippen
+           schneller (Vorgabe 2026-11-22: "etwas langsam"). */
+        verzoegerung: 180,
+        hole: holeStrassen,
+        beiWahl: (/** @type {any} */ v) => {
+          const r = v.wert || {};
+          applyValue(feldId, v.text, 'auto');
+          /* Passende PLZ/Ort immer mitschreiben. */
+          const ortFeld = feld(ortId);
+          const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
+          if (ortFeld && plzOrt) {
+            applyValue(ortId, plzOrt, 'auto');
+            AddressIntelligence.targetLock = { plz: r.postcode || '', city: r.city || '' };
+            eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: ortId });
+          }
+          eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: feldId });
+          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
         }
-        eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-strasse' });
-        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-      }
-    });
+      });
+    };
+
+    initStrasse('absender-strasse', 'absender-ort');
+    initStrasse('empfaenger-strasse', 'empfaenger-ort');
   }
 }

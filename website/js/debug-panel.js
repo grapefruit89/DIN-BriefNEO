@@ -186,10 +186,15 @@ function blockText(inhalt) {
     zeilen.push('  (keine — Eingabe zu kurz, kein Key oder keine Treffer)');
     return zeilen;
   }
+  /* Nur EINMAL markieren: im Strassenfeld steht oft nur der Name
+     ("Kirchstraße"), und mehrere Treffer beginnen damit. Der erste ist der
+     aktuelle — sonst behauptet die Kopie, es seien zwei. */
   const aktuell = inhalt.aktuell.toLowerCase();
+  let markiert = false;
   for (const eintrag of inhalt.werte) {
-    const marke = aktuell && eintrag.toLowerCase().startsWith(aktuell) ? '   <- aktuell' : '';
-    zeilen.push(`  - ${eintrag}${marke}`);
+    const passt = !markiert && aktuell && eintrag.toLowerCase().startsWith(aktuell);
+    if (passt) markiert = true;
+    zeilen.push(`  - ${eintrag}${passt ? '   <- aktuell' : ''}`);
   }
   return zeilen;
 }
@@ -248,21 +253,27 @@ function verdrahteKnoepfe() {
     mitFeedback(/** @type {HTMLElement} */ (knopf), async () => {
       /** @type {string[]} */
       let zeilen;
-      if (art === 'alles' || art === 'anrede-gruss') {
-        const arten =
-          art === 'alles'
-            ? ['anrede', 'gruss', 'ort-empf', 'ort-abs', 'strasse-empf', 'strasse-abs']
-            : ['anrede', 'gruss'];
-        const bloecke = await Promise.all(arten.map((a) => dropdownInhalt(a)));
-        const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-        const titel = art === 'alles' ? 'Debug: alle Dropdown-Felder' : 'Anrede & Grußformel';
-        zeilen = [
-          titel,
-          '-'.repeat(titel.length),
-          `Tonalität: ${stil?.value || '?'}`,
-          `Bias: ${biasText()}`,
-          ''
-        ];
+      /* Drei Bloecke, je ein Knopf: Anrede+Gruss, Strassen, PLZ+Ort.
+         Strassen und Orte immer als PAAR (Absender + Empfaenger), damit der
+         Zusammenhang in der Zwischenablage erhalten bleibt. */
+      /** @type {Record<string, { titel: string, arten: string[] }>} */
+      const gruppen = {
+        'anrede-gruss': { titel: 'Anrede & Grußformel', arten: ['anrede', 'gruss'] },
+        strassen: { titel: 'Straßen (Absender & Empfänger)', arten: ['strasse-abs', 'strasse-empf'] },
+        orte: { titel: 'PLZ + Ort (Absender & Empfänger)', arten: ['ort-abs', 'ort-empf'] }
+      };
+      const gruppe = gruppen[art];
+      if (gruppe) {
+        const bloecke = await Promise.all(gruppe.arten.map((a) => dropdownInhalt(a)));
+        zeilen = [gruppe.titel, '-'.repeat(gruppe.titel.length)];
+        if (art === 'anrede-gruss') {
+          const stil = /** @type {HTMLSelectElement | null} */ (
+            document.getElementById('stil-select')
+          );
+          zeilen.push(`Tonalität: ${stil?.value || '?'}`);
+        }
+        if (art === 'strassen') zeilen.push(`Bias: ${biasText()}`);
+        zeilen.push('');
         for (const block of bloecke) {
           if (!block) continue;
           zeilen.push(...blockText(block), '');

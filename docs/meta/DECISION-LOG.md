@@ -4777,3 +4777,21 @@ Log            0 Meldungen
 
 `grep -n "new Date|Date.now|getFullYear|getMonth()|getDate()|getHours" website/js/*.js`
 → **0 Treffer**. Tests 432/432, Fitness 100 %.
+
+**Nachtrag Debug-Panel (2026-11-22):** Die vier Einzelknöpfe und „Alles
+kopieren" sind durch **drei Zeilen mit je einem Knopf „Copy to Clipboard"**
+ersetzt:
+
+| Block | Inhalt der Zwischenablage |
+|---|---|
+| Anrede & Grußformel | Tonalität, Anrede (aktuell + 6 Angebote mit [formal/polite/casual]), Grußformel (aktuell + 3) |
+| Straßen (Absender & Empfänger) | `Bias:`-Zeile, dann beide Felder mit aktuellem Wert und je 8 Angeboten |
+| PLZ + Ort (Absender & Empfänger) | beide Felder mit aktuellem Wert und der lokalen Ortsliste |
+
+Straßen und Orte gehen **immer als Paar** in die Kopie (Absender zuerst), nur
+die Anrede behält ihre sichtbare Tabelle. `<- aktuell` wird jetzt **einmal**
+pro Feld gesetzt: stand nur „Kirchstraße" im Feld, begannen mehrere Treffer
+damit und die Kopie behauptete zwei aktuelle Werte.
+
+Gemessen: Anrede 20 Zeilen, Straßen 21 Zeilen (Bias „Siegburg 50.80/7.21"),
+Orte 32 Zeilen; alle drei Knöpfe zeigen „✓ Kopiert".

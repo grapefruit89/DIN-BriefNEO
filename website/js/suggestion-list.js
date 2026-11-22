@@ -27,17 +27,18 @@ import { hidePopoverSafe, showPopoverSafe } from './core.js';
 export const BLATTRAND_PX = 76;
 
 /**
- * Reine Rechnung: wie hoch darf eine Liste unter `oben` werden, ohne den
- * Blattrand (20 mm) oder das Fenster zu verlassen?
- * Listen sollen so weit nach unten gehen wie Platz ist — jede Zeile weniger
- * Scrolling (Vorgabe 2026-11-22: "Hauptsache weniger scrollen").
+ * Reine Rechnung: wie hoch darf eine Liste unter `oben` werden?
+ * Bezug ist AUSSCHLIESSLICH das Blatt (Vorgabe 2026-11-22: "das dropdown soll
+ * absolut zu din a4 seite sein, zu nichts anderem - die din a4 seite ist der
+ * arbeitsbereich"). Das Fenster ist nur der Notbezug, wenn es kein Blatt gibt.
  * @param {{ oben: number, blattUnten?: number, viewportUnten: number, rand?: number }} lage
  * @returns {number} nutzbare Hoehe in px (mindestens 220)
  */
 export function blattrandHoehe({ oben, blattUnten, viewportUnten, rand = BLATTRAND_PX }) {
-  /* Der Blattrand zaehlt nur, solange das Blatt im Fenster sichtbar ist:
-     ragt es unten heraus, ist das Fensterende die Grenze. */
-  const unten = Math.min(blattUnten ?? viewportUnten, viewportUnten);
+  /* Kein min(Fenster, Blatt) mehr: das Fenster hat hier nichts zu melden.
+     Liegt der Blatt-Unterrand ausserhalb des Sichtbereichs, reicht die Liste
+     dorthin - beim Scrollen folgt sie dem Feld. */
+  const unten = blattUnten ?? viewportUnten;
   return Math.max(220, unten - rand - oben - 8);
 }
 
@@ -52,10 +53,15 @@ export function passeAnBlattrand(popover, feldEl) {
   if (!popover || !feldEl) return;
   const feldRect = feldEl.getBoundingClientRect();
   const blatt = document.getElementById('kern')?.getBoundingClientRect();
+  /* Unterkante der ERSTEN Seite, nicht von #kern: im Mehrseiten-Modus ist
+     #kern ein Multicol-Container ueber alle Seiten (column-wrap: wrap), seine
+     Unterkante liegt dann auf Seite 2, 3, ... A4 ist 210 x 297 mm, also
+     laesst sich die Seitenhoehe aus der Breite ableiten. */
+  const ersteSeiteUnten = blatt ? blatt.top + (blatt.width * 297) / 210 : undefined;
   const hoehe = blattrandHoehe({
     /* 4 px = Abstand des Popovers zum Feld (margin-top: var(--space-xs)). */
     oben: feldRect.bottom + 4,
-    blattUnten: blatt?.bottom,
+    blattUnten: ersteSeiteUnten,
     viewportUnten: window.innerHeight
   });
   popover.style.maxHeight = `${Math.round(hoehe)}px`;

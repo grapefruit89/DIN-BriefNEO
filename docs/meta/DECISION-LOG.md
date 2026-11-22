@@ -4152,3 +4152,33 @@ in `max-height` nicht kann (`CSS.supports` = false, fiel auf `62vh` zurück).
 **Nachweis im laufenden System:** gespeichert 30 → `inline: (keiner)`,
 `computed: 30mm`, Schalter an; Klick aus → 20 mm; Klick an → 30 mm;
 `localStorage.din_settings.randU = 30`. Tests 400/400, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Bezugssystem der Vorschlagslisten ist das Blatt, nicht das Fenster
+
+**Nutzer-Vorgabe (wörtlich):** „das dropdown soll absolut zu din a4 seite sein!
+zu nichts anderem.. die din a4 seite ist der arbeitsbereicht".
+
+**Gemessenes Problem:** Die Listen waren am Feld verankert und mit Fensterwerten
+gedeckelt. Im Infoblock (Feld 125…190 mm) lief die Ortsliste dadurch 14 mm über
+den rechten Blattrand hinaus (pop rechts 204,4 mm bei 210 mm Blattbreite);
+`max-width: min(560px, 92vw)` und `max-height: min(62vh, 760px)` bezogen sich
+auf das Fenster.
+
+**Umsetzung:**
+
+| Regel | vorher | jetzt |
+|---|---|---|
+| Breite | `min(560px, 92vw)` | `165 mm` (= 210 − 25 links − 20 rechts) |
+| Höhe | `min(62vh, 760px)` | `165 mm` Fallback, exakt per JS bis 20 mm vor Blatt-Unterrand |
+| `passeAnBlattrand` | `min(Blatt, Fenster)` | nur Blatt; Fenster nur, wenn kein Blatt existiert |
+| Infoblock-Felder (`#absender-ort`, `#absender-strasse`) | linksbündig | `right: anchor(right)` — wächst nach innen |
+| Mehrseiten | `#kern`-Unterkante | Unterkante der **ersten** Seite (`top + width × 297/210`) |
+
+**Nachweis (gemessen, Blatt 210 × 297 mm):** Empfänger-Liste 25…190 mm,
+Absender-Liste 110,6…190 mm, Straßen-Liste 110,6…190 mm, alle mit Unterkante
+274,7 mm (297 − 20 − 2,3). Keine Liste verlässt mehr das Blatt.
+
+**Grenze der Regel:** Die Sidebar-Listen (Anschrift-Suche, Zwischenablage) liegen
+nicht auf dem Blatt; für sie bleibt das Fenster der Bezug.

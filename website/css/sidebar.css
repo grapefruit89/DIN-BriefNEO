@@ -1094,21 +1094,25 @@ input[type="checkbox"][switch] {
   top: anchor(bottom);
   left: anchor(left);
   min-width: max(320px, anchor-size(width));
-  max-width: min(560px, 92vw);
+  /* Arbeitsbereich ist das Blatt, nicht das Fenster: 210 mm - 25 mm links -
+     20 mm rechts = 165 mm (2026-11-22). */
+  max-width: 165mm;
   /* Fallback; die Hoehe bis 20 mm vor den Blatt-Unterrand setzt
      passeAnBlattrand() beim Oeffnen (Regel 2026-11-22). */
-  max-height: min(50vh, 520px);
+  max-height: 165mm;
 }
 
 #strasse-vorschlaege,
 #strasse-vorschlaege[popover] {
   position-anchor: --anchor-absender-strasse;
   top: anchor(bottom);
-  left: anchor(left);
+  /* Das Strassenfeld steht im Infoblock knapp vor dem rechten Blattrand
+     (125...190 mm). Linksbuendig lief die Liste 14 mm ueber den Blattrand
+     hinaus (gemessen 2026-11-22); rechtsbuendig waechst sie nach innen. */
+  left: auto;
+  right: anchor(right);
   min-width: max(300px, anchor-size(width));
-  /* Genau wie die Ortsliste: linksbuendig am Feld, Breite aus dem Anker,
-     Hoehe bis 20 mm vor den Blatt-Unterrand (passeAnBlattrand, 2026-11-22). */
-  max-width: min(560px, 92vw);
+  max-width: 165mm;
 }
 
 #plz-suggestions-popover,
@@ -1117,12 +1121,13 @@ input[type="checkbox"][switch] {
   top: anchor(bottom);
   left: anchor(left);
   min-width: max(300px, anchor-size(width));
-  /* Breiter: lange Organisationsnamen brauchten mehr Platz (2026-11-22). */
-  max-width: min(560px, 92vw);
+  /* Breiter: lange Organisationsnamen brauchten mehr Platz (2026-11-22).
+     Gedeckelt auf den Blatt-Textbereich (165 mm), nicht auf das Fenster. */
+  max-width: 165mm;
   /* Fallback, falls das JS nicht laeuft. Beim Oeffnen setzt
      passeAnBlattrand() die Hoehe exakt bis 20 mm vor den Blatt-Unterrand
      (Vorgabe 2026-11-22: "alle Fenster so weit nach unten wie Platz ist"). */
-  max-height: min(62vh, 760px);
+  max-height: 165mm;
 }
 
 body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
@@ -1146,6 +1151,10 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
 
 body:has(#absender-ort:focus) #plz-suggestions-popover {
   position-anchor: --anchor-absender-ort;
+  /* Infoblock-Feld endet bei 190 mm (20 mm Blattrand). Rechtsbuendig bleibt
+     die Liste im Blatt, linksbuendig lief sie hinaus (gemessen 2026-11-22). */
+  left: auto;
+  right: anchor(right);
 }
 
 :is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) li {

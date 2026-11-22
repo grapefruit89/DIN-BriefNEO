@@ -2724,11 +2724,11 @@ describe('Vorschlagslisten: Hoehe bis 20 mm vor den Blatt-Unterrand (2026-11-22)
     );
   });
 
-  it('nimmt das Fensterende, wenn das Blatt unten herausragt', () => {
+  it('bleibt am Blatt, auch wenn es unten aus dem Fenster ragt', () => {
     assertEqual(
       blattrandHoehe({ oben: 281, blattUnten: 2000, viewportUnten: 900 }),
-      900 - 76 - 281 - 8,
-      'Fensterende statt unsichtbarem Blattrand'
+      2000 - 76 - 281 - 8,
+      'Blatt-Unterrand gilt, nicht das Fenster'
     );
   });
 

@@ -214,7 +214,7 @@ Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die Top-Layer-Overlay
   * `#anschrift-vorschlaege` und `#plz-suggestions-popover`: Verankert per `top/left: anchor()`; die Klasse `.autocomplete-dropdown` traegt nur noch das Aussehen, keine Position (2026-11-22).
   * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
 * **Hoehe der Vorschlagslisten (Regel 2026-11-22, Nutzer-Vorgabe):**
-  * Jede Vorschlagsliste geht **so weit nach unten, wie Platz ist** — bis **20 mm vor den Blatt-Unterrand** (`#kern`), mindestens 220 px, nie über das Fensterende hinaus. Lange Listen (Berlin: 284 PLZ) sollen weniger gescrollt werden.
+  * Jede Vorschlagsliste geht **so weit nach unten, wie Platz ist** — bis **20 mm vor den Blatt-Unterrand** (`#kern`), mindestens 220 px. Bezug ist **ausschließlich das Blatt** („die DIN-A4-Seite ist der Arbeitsbereich", Vorgabe 2026-11-22); das Fenster ist nur Notbezug, wenn kein Blatt existiert. Lange Listen (Berlin: 284 PLZ) sollen weniger gescrollt werden.
   * Umsetzung: `passeAnBlattrand()` in `website/js/suggestion-list.js` setzt beim Öffnen `max-height` (reine Rechnung in `blattrandHoehe()`, testbar ohne DOM). Gilt für PLZ/Ort, Straße, Anrede und die Anschrift-Suche.
   * Die CSS-Werte (`min(62vh,760px)`, `min(50vh,520px)`, `min(250px,40vh)`) sind nur **Fallback**, falls kein JS läuft.
   * Einordnung: bewusste, eng begrenzte Ausnahme von „kein JS-Layout" — es wird ausschließlich die Größe eines UI-Popovers gedeckelt, keine Dokument- oder Textgeometrie. Der Blattrand ist ohne JS nicht erreichbar (`anchor()` kennt nur das Ankerfeld, nicht das Blatt).

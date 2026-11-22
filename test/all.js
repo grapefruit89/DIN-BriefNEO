@@ -15,7 +15,7 @@ import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit, formatZahl } from '../website/js/format.js';
 // @ts-ignore
-import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
+import { applyImportedData, buildDINLetterJSON, initImportExport, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire, unsetMeta } from '../website/js/state.js';
 import { applyState, applyValue, commitElement, hydrateStateFromDom, initStateBinding, render } from '../website/js/state-binding.js';
 import { deriveSalutation, SALUTATION_TONES, salutationVarianten, tageszeitGruss, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
@@ -2854,6 +2854,56 @@ describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
   it('Naehe ist ueberschreibbar (targetLock statt Bonn)', () => {
     const pfad = strassenSuchPfad('Ringstr', 'KEY', { lon: 8.5, lat: 47.4 });
     assert(/bias=proximity%3A8.5%2C47.4/.test(pfad), 'eigene Naehe');
+  });
+});
+
+
+describe('Init degradiert statt abzubrechen (Invariante 2026-11-22)', () => {
+  it('initSenderSync: ohne #unterschrift spiegelt der Name weiter', () => {
+    /* Der fruehere Guard verlangte ALLE fuenf Felder. Fehlte eines, fiel die
+       gesamte Absender-Spiegelung aus - auch die Teile, die funktioniert
+       haetten. Jetzt haengt nur das Ziel (Ruecksendezeile). */
+    const box = document.createElement('div');
+    box.innerHTML = `
+      <input id="absender-name"><input id="absender-strasse"><input id="absender-ort">
+      <input id="rucksendeangabe">`;
+    document.body.append(box);
+    try {
+      initSenderSync();
+      const name = /** @type {HTMLInputElement} */ (document.getElementById('absender-name'));
+      const ziel = /** @type {HTMLInputElement} */ (document.getElementById('rucksendeangabe'));
+      name.value = 'Max Mustermann';
+      name.dispatchEvent(new Event('input', { bubbles: true }));
+      assert(ziel.value.includes('Mustermann'), 'Name spiegelt ohne Unterschrift-Feld');
+    } finally {
+      box.remove();
+    }
+  });
+
+  it('initImportExport: ohne Import-Elemente exportiert der Knopf', async () => {
+    /* Export, Kopieren und Import sind drei Features. Ein fehlender
+       Import-Knopf darf den Export nicht abschalten. */
+    const box = document.createElement('div');
+    box.innerHTML = '<button id="btn-export-dinletter"></button>';
+    document.body.append(box);
+    const original = /** @type {any} */ (window).showSaveFilePicker;
+    let dateiname = null;
+    /** @type {any} */ (window).showSaveFilePicker = async (/** @type {any} */ opts) => {
+      dateiname = opts.suggestedName;
+      return {
+        createWritable: async () => ({ write: async () => {}, close: async () => {} })
+      };
+    };
+    try {
+      initImportExport({ collectDraft });
+      /** @type {HTMLElement} */ (document.getElementById('btn-export-dinletter')).click();
+      await new Promise((r) => setTimeout(r, 80));
+      assert(dateiname !== null, 'Export laeuft ohne Import-Elemente');
+      assert(/\.json$/.test(String(dateiname)), 'Dateiname endet auf .json');
+    } finally {
+      /** @type {any} */ (window).showSaveFilePicker = original;
+      box.remove();
+    }
   });
 });
 

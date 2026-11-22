@@ -4901,3 +4901,36 @@ Geoapify-Key           → 32 Zeichen, Status "valid"
 Ortspopover            → am Feld, darunter, im Blatt (460 px)
 Log                    0 Meldungen
 ```
+
+---
+
+## 2026-11-22 — Init degradiert statt abzubrechen (Invariante + Tests)
+
+**Anlass:** Die Anschrift-Suche hing per Guard an `initAddressServices()` —
+also am einzigen Eingang für Key-Status, Straßen- und Ortssuche. Ein fehlendes
+Suchfeld hätte drei fremde Features abgeschaltet. Nutzer: „warum hängt da
+irgendwas am Button? Ist das noch woanders so?"
+
+**Sauberste Lösung statt Pflaster:**
+
+1. **Invariante** (`docs/meta/INIT-INVARIANTE.md`): Eine `init*`-Funktion steigt
+   nur aus, wenn ihr *eigenes* Ziel fehlt; optionale Teile werden einzeln
+   verdrahtet. Verboten ist ein Guard über mehrere unabhängige Features.
+2. **`initSenderSync`**: Guard von fünf Feldern auf `!absender` reduziert
+   (das Ziel). `infoName?.addEventListener`, `spiegleUnterschrift()` kehrt
+   früh zurück, wenn `#unterschrift` fehlt. `Field.getValue(null) === ''`,
+   fehlende Quellen ergeben also ein leeres Segment statt eines Abbruchs.
+3. **`initImportExport`**: gemeinsamer Guard über vier Elemente entfernt;
+   Export, Kopieren und Import sind jetzt drei Slices. Ein fehlender
+   Import-Knopf schaltet den Export nicht mehr ab.
+4. **Zwei Tests erzwingen die Invariante**:
+   - `initSenderSync: ohne #unterschrift spiegelt der Name weiter`
+   - `initImportExport: ohne Import-Elemente exportiert der Knopf`
+     (stubbt `showSaveFilePicker` und prüft den Dateinamen)
+
+**Audit aller `init*`-Funktionen (2026-11-22):** kein weiterer Fall bündelt
+fremde Features. `initDatePicker`, `initFormatSync`, `initStateBinding`,
+`initAddonDispatcher`, `initToastSystem`, `initDebugPanel` prüfen jeweils nur
+ihr eigenes Element bzw. pro Klick. Tabelle in `INIT-INVARIANTE.md`.
+
+Tests 409/409 (neu: 2 Degradations-Tests), Fitness 100 %.

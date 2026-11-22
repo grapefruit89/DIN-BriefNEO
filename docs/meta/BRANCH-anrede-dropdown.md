@@ -14,6 +14,7 @@ doc_links:
   - HANDOFF
   - DECISION-LOG
   - ADR-CSS
+  - INIT-INVARIANTE
 code_links:
   - website/js/suggestion-list.js
   - website/js/geo-cache.js

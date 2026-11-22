@@ -999,7 +999,13 @@ export function initSenderSync() {
   const absender = feld('rucksendeangabe');
   const unterschrift = feld('unterschrift');
 
-  if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
+  /* DEGRADATION STATT ABBRUCH (Invariante 2026-11-22): nur das Ziel ist
+     Pflicht — ohne Ruecksendezeile gibt es nichts zu spiegeln. Jedes Quellfeld
+     wird einzeln verdrahtet; fehlt eines, bleibt sein Segment leer
+     (Field.getValue(null) === ''), die anderen arbeiten weiter. Vorher stand
+     hier ein Guard ueber ALLE fuenf Felder: ein fehlendes Feld haette die
+     ganze Absender-Spiegelung abgeschaltet. */
+  if (!absender) return;
 
   /** @param {HTMLElement | null} el @returns {string} */
   const lies = (el) => Field.getValue(el).trim();
@@ -1063,12 +1069,13 @@ export function initSenderSync() {
     setMeta(letterState, 'rucksendeangabe', { herkunft: 'manuell' });
   });
 
-  unterschrift.addEventListener('input', () => {
+  unterschrift?.addEventListener('input', () => {
     if (schreibeGerade) return;
     unterschriftModus = 'manuell';
   });
 
   const spiegleUnterschrift = () => {
+    if (!unterschrift) return; /* Feld nicht vorhanden: nichts zu spiegeln. */
     const name = lies(infoName);
     const jetzt = lies(unterschrift);
     if (unterschriftModus === 'unklar') {
@@ -1077,12 +1084,12 @@ export function initSenderSync() {
     if (unterschriftModus === 'auto' && jetzt !== name) schreibe(unterschrift, name);
   };
 
-  infoName.addEventListener('input', () => {
+  infoName?.addEventListener('input', () => {
     spiegleFeld(0, lies(infoName));
     spiegleUnterschrift();
   });
-  infoStreet.addEventListener('input', () => spiegleFeld(1, lies(infoStreet)));
-  infoCity.addEventListener('input', () => spiegleFeld(2, lies(infoCity)));
+  infoStreet?.addEventListener('input', () => spiegleFeld(1, lies(infoStreet)));
+  infoCity?.addEventListener('input', () => spiegleFeld(2, lies(infoCity)));
 
   eventBus.subscribe(Events.DOCUMENT_CHANGED, (/** @type {any} */ payload) => {
     /* Undo/Redo/Reset: Segmente aus dem Zustand neu lesen.

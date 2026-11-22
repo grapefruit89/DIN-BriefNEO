@@ -798,7 +798,10 @@ export function initImportExport({ collectDraft, applyImport = null } = {}) {
   const importInput = /** @type {HTMLInputElement | null} */ (document.getElementById('dinletter-uploader'));
   const importDialog = /** @type {HTMLDialogElement | null} */ (document.getElementById('import-dialog'));
   const importFileName = document.getElementById('import-file-name');
-  if (!exportBtn || !importBtn || !importInput || !importDialog) return;
+  /* DEGRADATION STATT ABBRUCH (Invariante 2026-11-22): Export, Kopieren und
+     Import sind drei Features. Jedes wird nur verdrahtet, wenn seine Elemente
+     da sind — ein fehlender Import-Knopf darf den Export nicht abschalten.
+     Vorher stand hier ein gemeinsamer Guard ueber vier Elemente. */
 
   const handleExport = async () => {
     // Kein DOCUMENT_SAVE_REQUESTED: das Payload entsteht direkt aus dem DOM
@@ -807,7 +810,7 @@ export function initImportExport({ collectDraft, applyImport = null } = {}) {
     await exportDocumentToFile(payload);
   };
 
-  exportBtn.addEventListener('click', handleExport);
+  exportBtn?.addEventListener('click', handleExport);
 
   if (copyBtn) {
     /* Erfolgs-Feedback bleibt am Button statt als Toast: 2 s „✓ Kopiert",
@@ -840,53 +843,55 @@ export function initImportExport({ collectDraft, applyImport = null } = {}) {
     }
   });
 
-  importBtn.addEventListener('click', () => {
-    importInput.value = '';
-    importInput.click();
-  });
+  if (importBtn && importInput && importDialog) {
+    importBtn.addEventListener('click', () => {
+      importInput.value = '';
+      importInput.click();
+    });
 
-  /** @type {DinLetterParseResult | null} */
-  let pendingImport = null;
+    /** @type {DinLetterParseResult | null} */
+    let pendingImport = null;
 
-  importInput.addEventListener('change', async () => {
-    const file = importInput.files?.[0];
-    if (!file) return;
-    if (file.size > 1024 * 1024) {
-      notify(Constants.TOASTS.DRAFT.IMPORT_SIZE_ERROR, 'error');
-      return;
-    }
-    const result = parseDinLetterPayload(await file.text());
-    if (!result.ok) {
-      notify(Constants.TOASTS.DRAFT.IMPORT_REJECTED(result.reason), 'error');
-      return;
-    }
-    pendingImport = result;
-    if (importFileName) {
-      let info = file.name;
-      const details = [];
-      if (result.layout?.form) {
-        details.push(`Layout: ${result.layout.form === 'form-a' ? 'Form A' : 'Form B'}`);
+    importInput.addEventListener('change', async () => {
+      const file = importInput.files?.[0];
+      if (!file) return;
+      if (file.size > 1024 * 1024) {
+        notify(Constants.TOASTS.DRAFT.IMPORT_SIZE_ERROR, 'error');
+        return;
       }
-      if (result.signature?.transform) {
-        details.push('Signatur-Position');
+      const result = parseDinLetterPayload(await file.text());
+      if (!result.ok) {
+        notify(Constants.TOASTS.DRAFT.IMPORT_REJECTED(result.reason), 'error');
+        return;
       }
-      if (details.length > 0) {
-        info += ` (${details.join(', ')})`;
+      pendingImport = result;
+      if (importFileName) {
+        let info = file.name;
+        const details = [];
+        if (result.layout?.form) {
+          details.push(`Layout: ${result.layout.form === 'form-a' ? 'Form A' : 'Form B'}`);
+        }
+        if (result.signature?.transform) {
+          details.push('Signatur-Position');
+        }
+        if (details.length > 0) {
+          info += ` (${details.join(', ')})`;
+        }
+        Field.setValue(importFileName, info);
       }
-      Field.setValue(importFileName, info);
-    }
-    importDialog.showModal();
-  });
+      importDialog.showModal();
+    });
 
-  importDialog.addEventListener('close', () => {
-    const confirmed = importDialog.returnValue === 'confirm';
-    importDialog.returnValue = '';
-    if (!confirmed || !pendingImport?.ok) {
+    importDialog.addEventListener('close', () => {
+      const confirmed = importDialog.returnValue === 'confirm';
+      importDialog.returnValue = '';
+      if (!confirmed || !pendingImport?.ok) {
+        pendingImport = null;
+        return;
+      }
+      const toApply = pendingImport;
       pendingImport = null;
-      return;
-    }
-    const toApply = pendingImport;
-    pendingImport = null;
-    applyImportedData(toApply, { apply: applyImport });
-  });
+      applyImportedData(toApply, { apply: applyImport });
+    });
+  }
 }

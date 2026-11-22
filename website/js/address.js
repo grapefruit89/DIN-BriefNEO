@@ -381,8 +381,8 @@ AddressIntelligence.wireDOM = function wireDOM() {
         let extra = '';
         if (kreisName) extra = `· ${kreisName}`;
         else if (item.district) {
-          const teile = String(item.district).split(',').map((t) => t.trim()).filter(Boolean);
-          extra = teile.length > 1 ? `· ${teile[0]} +${teile.length - 1}` : `· ${teile[0] || item.district}`;
+          const erster = String(item.district).split(',')[0].trim();
+          extra = `· ${erster || item.district}`;
         } else if (item.state) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
         if (extra) {
           const sub = document.createElement('span');
@@ -700,17 +700,16 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       if (kreisName) {
         extraText = `· ${kreisName}`;
       } else if (item.district) {
-        /* Ortsteil-Listen wie "Heiderhof, Muffendorf, Pennenfeld, Schweinheim"
-           wurden abgeschnitten. Jetzt: erster Teil + "+N", voller Text im
-           Tooltip. Eine Zeile, kein Abschneiden, keine zweite Zeile. */
-        const teile = String(item.district).split(',').map((t) => t.trim()).filter(Boolean);
-        extraText = teile.length > 1
-          ? `· ${teile[0]} +${teile.length - 1}`
-          : `· ${teile[0] || item.district}`;
+        /* Nur der erste Ortsteil. "· Ippendorf" statt "· Ippendorf +2":
+           die Zahl war unklar und die Liste wurde vorher abgeschnitten.
+           Alle Ortsteile stehen im Tooltip. */
+        const erster = String(item.district).split(',')[0].trim();
+        extraText = `· ${erster || item.district}`;
       } else if (stateName) {
         extraText = `· ${stateName}`;
       }
 
+      if (item.district) li.title = `${item.name || item.city || ''} — ${item.district}`;
       if (extraText) {
         li.appendChild(document.createTextNode(' '));
         const districtSpan = document.createElement('span');

@@ -3253,7 +3253,7 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assertEqual(items[2].startsWith('53113'), true);
 
     // 2. Stadtteile: erster Teil + "+N" (vollstaendig im Tooltip, nie 2-zeilig)
-    assertEqual(items[1], '53111 Bonn · Zentrum +2');
+    assertEqual(items[1], '53111 Bonn · Zentrum');
     assert(items[2].includes('· Gronau'), '53113 hat Stadtteile');
 
     // 3. Vollständigkeit

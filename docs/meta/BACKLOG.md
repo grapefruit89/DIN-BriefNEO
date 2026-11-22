@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-17 offene Punkte. Details unterhalb, nach Art gruppiert.
+18 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -71,9 +71,40 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B93** | `targetLock` wird viermal geleert — Redundanz **nicht** bewiesen | S | ⭐ |
 | **B94** | Batch 06 auswerten: Layer-Kaskade | S | ⭐⭐ |
 | **B95** | Batch 07 auswerten: PDF-Export (Bibliothek oder Browser?) | S | ⭐⭐ |
+| **B96** | Phase-5-Lücke schließen: `boot-state.js` als Modul | S | ⭐⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
+
+### B96 · Phase-5-Lücke schließen: `boot-state.js` als Modul · **S** · ⭐⭐
+**Befund (2026-11-22, `tools/seeder-diff.mjs`, 7 Fälle):** genau eine
+Abweichung zwischen Boot-Schreiber und Restore —
+`legacy-liste`: `anlagen-angabe` steht im Moment des Reveals roh als
+`<ul><li>Anlage 1</li><li>Anlage 2</li></ul>` da und springt danach auf
+`Anlage 1\nAnlage 2`. Ursache: `writeField` (draft-model.js) migriert altes
+`<li>`-HTML für `anlagen-angabe` per `stripHtmlToPlaintext`, der klassische
+Boot-Pfad schreibt den Wert unverändert. Sichtbar wird es nur mit gedrosselter
+CPU (Reveal → `ready` ca. 40–60 ms, mit 20× Drosselung ca. 800 ms).
+
+**Entscheidung: Variante B.** `boot-state.js` wird ein ES-Modul und benutzt
+denselben Schreibpfad wie der Restore — kein Duplikat der Regel.
+- Import: `writeField` aus `draft-model.js`; der lokale Feld-Selektor bleibt,
+  bis `EDITABLE_FIELD_SELECTOR` ebenfalls importiert wird.
+- `<script type="module" src="js/boot-state.js?v=bs3">` **vor** `main.js`
+  einhängen (Modul-Reihenfolge = Dokumentreihenfolge), sonst gewinnt
+  `initApp` und gibt die Maske vor den Werten frei.
+- Nicht Teil dieses Punkts: der Fingerprint-Sonderfall (`ohneMarkup`) bleibt
+  vorerst — mit identischem Schreibpfad entsteht kein zweiter Wert, der
+  Restore schreibt halt noch einmal dasselbe.
+
+**Abnahme:** `seeder-diff` 0/7 · `paint-probe` TTC unverändert < 2 s ·
+`npm test` grün · Sichtprüfung mit 20× CPU-Drosselung (kein Roh-`<ul>`) ·
+Statuszeile weiterhin korrekt vor dem Reveal.
+
+**Nicht gewählt: Variante C** (`boot-values.js` als alleiniger Schreiber inkl.
+Reveal und immer publiziertem Fingerprint). Das löst die Ursache statt des
+Symptoms, ist aber ein Umbau des Boot-Pfads (2–3 h). Bleibt offen, wenn B
+nicht reicht.
 
 ### B40 · Vier vorbestehende Testfehler dokumentieren · **M** · ⭐⭐
 Gemessen am 2026-11-05 (Commit `aa4a39b`, reproduziert in eigenem Worktree):

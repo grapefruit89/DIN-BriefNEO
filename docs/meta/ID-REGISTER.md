@@ -4,7 +4,7 @@ title: ID-Register — Nummernkreise, Vergabe und Auslauf
 status: active
 type: reference
 created: '2026-11-17'
-updated: '2026-11-17'
+updated: '2026-11-22'
 tags:
 - din-briefneo
 - meta
@@ -59,7 +59,7 @@ Format: Präfix in Großbuchstaben, Zahl ohne Trennzeichen, im Fließtext in Bac
 | `C` | Farb-Fallback-Kette (Stufenfolge) | `docs/00-foundation/Immutable-Law-Catalog.md` (A16–A20) | C1 | `lawcoverage.js` |
 | `P` | Projekt-Antipattern-Regel mit `max_violations`-Ratsche | `tools/antipatterns/project.json` | P1–P40 | `tools/reconciliation.js` |
 | `W` | Web-Antipattern-Regel (Browser-/Plattformmuster, nicht projektspezifisch) | `tools/antipatterns/web.json` | W2–W6 | `tools/reconciliation.js` |
-| `B` | Backlog-Punkt: offen oder abgeschlossen | `docs/30-meta/BACKLOG.md` (offen), `docs/30-meta/BACKLOG-ARCHIV.md` (erledigt) | B6–B95 | `tools/backlog-sync.mjs` (Tabelle), `tools/id-register.js` (Auflösbarkeit) |
+| `B` | Backlog-Punkt: offen oder abgeschlossen | `docs/30-meta/BACKLOG.md` (offen), `docs/30-meta/BACKLOG-ARCHIV.md` (erledigt) | B6–B96 | `tools/backlog-sync.mjs` (Tabelle), `tools/id-register.js` (Auflösbarkeit) |
 
 **`W4` ist eine Regel, kein Gesetz.** Die ID existiert (`tools/antipatterns/web.json`:
 Zero-HEX-Farbsystem), aber drei Stellen nennen sie „Law W4" — ein Law mit dieser Nummer

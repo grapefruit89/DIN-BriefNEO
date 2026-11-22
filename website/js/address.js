@@ -1178,6 +1178,39 @@ export function adressRelevanz(item, query) {
 /**
  * Initialisiert Adress-Dienste (Geoapify, Offline-Intelligence, Absender-Proximity).
  */
+/**
+ * Ortsvorschlaege fuer PLZ + Ort — **eine** Wahrheit fuer Feld und Debug-Ausgabe.
+ *
+ * Drei Faelle, gemessen 2026-11-22:
+ *   - genau 5 Ziffern  -> lookupPlz (exakter Ort, `modus: 'plz'`)
+ *   - 3-4 Ziffern      -> lookupPrefix ("537" -> Siegburg, Hennef, ...)
+ *   - Text ab 3 Zeichen-> resolveCityInput (Orte, PLZ-Listen, Firmen)
+ *
+ * Der Debug-Pfad nutzte vorher nur `resolveCityInput` und meldete fuer "537"
+ * null Treffer, obwohl das Feld fuenf zeigte (gemeldet 2026-11-22).
+ *
+ * @param {string} raw
+ * @param {number} [max]
+ * @returns {{ items: any[], modus: 'kurz' | 'plz' | 'prefix' | 'text' }}
+ */
+export function ortsVorschlaege(raw, max = 24) {
+  const text = String(raw || '').trim();
+  if (text.length < 3) return { items: [], modus: 'kurz' };
+
+  if (/^\d{5}$/.test(text)) {
+    const res = AddressIntelligence.lookupPlz(text);
+    return { items: res ? [res] : [], modus: 'plz' };
+  }
+
+  const prefix = text.match(/^(\d{3,4})$/);
+  if (prefix) {
+    return { items: AddressIntelligence.lookupPrefix(prefix[1], Math.max(max, 15)), modus: 'prefix' };
+  }
+
+  const res = AddressIntelligence.resolveCityInput(text, max);
+  return { items: res.items || [], modus: 'text' };
+}
+
 export function initAddressServices() {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (feld('input-geoapify-key'));
   const statusEl = feld('geoapify-status');

@@ -17,7 +17,7 @@
  * Bewusst NICHT: eigene Sonden, Zähler im Produktivpfad, Diagramme.
  */
 
-import { strassenSuchPfad } from './address.js';
+import { ortsVorschlaege, strassenSuchPfad } from './address.js';
 import { AddressIntelligence } from './address-data.js';
 import { collectDraft } from './document.js';
 import { aktuelleStunde, formatZahl } from './format.js';
@@ -90,7 +90,7 @@ function biasText() {
  * aktuellem Wert und allen Angeboten, damit eine KI die Ausgabe einer Instanz
  * zuordnen kann (Vorgabe 2026-11-22).
  *
- * @typedef {{ id: string, aktuell: string, werte: string[] }} DropdownInhalt
+ * @typedef {{ id: string, aktuell: string, werte: string[], grund?: 'kurz' | 'kein-key' | 'keine-treffer' }} DropdownInhalt
  * @param {string} art
  * @returns {Promise<DropdownInhalt | null>}
  */
@@ -127,16 +127,17 @@ async function dropdownInhalt(art) {
   if (art === 'ort-empf' || art === 'ort-abs') {
     const id = art === 'ort-empf' ? 'empfaenger-ort' : 'absender-ort';
     const eingabe = wert(id);
-    if (eingabe.length < 3) return { id, aktuell: eingabe, werte: [] };
-    if (/^\d{5}$/.test(eingabe)) {
-      const treffer = AddressIntelligence.lookupPlz(eingabe);
-      return { id, aktuell: eingabe, werte: treffer ? [`${treffer.plz} ${treffer.city}`] : [] };
-    }
-    const res = AddressIntelligence.resolveCityInput(eingabe, 24);
+    /* Dieselbe Funktion wie das Feld (ortsVorschlaege) — sonst meldet die
+       Kopie fuer "537" null Treffer, waehrend das Feld fuenf zeigt. */
+    const res = ortsVorschlaege(eingabe, 24);
     const nurOrte = (res.items || []).filter((i) => (i.typ || 'Stadt') === 'Stadt');
+    /* Das Ortsverzeichnis ist lokal - hier ist weder ein Key noch ein Netz im
+       Spiel. Die fruehere Sammelmeldung "kein Key" war hier schlicht falsch. */
+    const ortsGrund = eingabe.length < 3 ? 'kurz' : 'keine-treffer';
     return {
       id,
       aktuell: eingabe,
+      grund: nurOrte.length ? undefined : ortsGrund,
       /* Wie im Dropdown: nur der ERSTE Stadtteil (die Spalte enthaelt bei
          manchen PLZ mehrere). */
       werte: nurOrte.slice(0, 40).map((i) => {
@@ -149,9 +150,9 @@ async function dropdownInhalt(art) {
   /* Strasse: derselbe Pfad-Bauer wie die echte Suche, aber ohne Cache. */
   const id = art === 'strasse-empf' ? 'empfaenger-strasse' : 'absender-strasse';
   const eingabe = wert(id);
-  if (eingabe.length < 3) return { id, aktuell: eingabe, werte: [] };
+  if (eingabe.length < 3) return { id, aktuell: eingabe, werte: [], grund: 'kurz' };
   const key = load(STORAGE_KEYS.geoapifyKey, '');
-  if (!key) return { id, aktuell: eingabe, werte: [] };
+  if (!key) return { id, aktuell: eingabe, werte: [], grund: 'kein-key' };
   try {
     const antwort = await fetch(`https://api.geoapify.com${strassenSuchPfad(eingabe, key)}`);
     const daten = await antwort.json();
@@ -165,7 +166,7 @@ async function dropdownInhalt(art) {
       )
     };
   } catch {
-    return { id, aktuell: eingabe, werte: [] };
+    return { id, aktuell: eingabe, werte: [], grund: 'keine-treffer' };
   }
 }
 
@@ -182,7 +183,12 @@ function blockText(inhalt) {
     `mögliche werte (${inhalt.werte.length}):`
   ];
   if (inhalt.werte.length === 0) {
-    zeilen.push('  (keine — Eingabe zu kurz, kein Key oder keine Treffer)');
+    /* Drei verschiedene Ursachen, drei verschiedene Saetze: vorher stand
+       "Eingabe zu kurz, kein Key oder keine Treffer" fuer alles zusammen und
+       fuehrte bei "53" zu der Frage, wie viele Treffer es denn gaebe. */
+    if (inhalt.grund === 'kurz') zeilen.push('  (keine — Eingabe zu kurz, mindestens 3 Zeichen)');
+    else if (inhalt.grund === 'kein-key') zeilen.push('  (keine — für Straßen fehlt der Geoapify-Key)');
+    else zeilen.push('  (keine Treffer für diese Eingabe)');
     return zeilen;
   }
   /* Nur EINMAL markieren: im Strassenfeld steht oft nur der Name

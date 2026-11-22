@@ -5025,3 +5025,30 @@ eigene `absUserEditing`-Spur (delete → true, Ziffer eingetippt → false).
 `lookupPrefix` und `absUserEditing` im Absender-Block stehen (der Handler hängt
 in einer Closure und lässt sich im Testkontext nicht zuverlässig auslösen —
 das Verhalten ist im Browser gemessen). 412 Tests.
+
+**Korrektur 4 (2026-11-22): Debug-Kopie log für Orte, Text nennt falsche Ursachen.**
+
+Nutzer: „537 zeigt im Copy 0 Treffer, das Feld zeigt 5" und „der Key liegt und
+funktioniert nachweislich".
+
+| Problem | Ursache | Behebung |
+|---|---|---|
+| Copy meldet 0 Treffer für „537" | `dropdownInhalt('ort-*')` nutzte nur `resolveCityInput` (kennt keine 3–4-Ziffern-Präfixe) | neue gemeinsame Funktion **`ortsVorschlaege(raw, max)`** in `address.js`; Debug nutzt sie |
+| Meldung „Eingabe zu kurz, **kein Key** oder keine Treffer" | ein Sammelsatz für drei Ursachen — bei der **lokalen** Ortssuche ist „kein Key" sachlich falsch | `DropdownInhalt.grund` (`kurz` / `kein-key` / `keine-treffer`), jeweils eigener Satz |
+
+**Gemessen nach dem Fix:**
+
+```
+"53"   → 0, Text: "(keine — Eingabe zu kurz, mindestens 3 Zeichen)"
+"537"  → 5 Treffer: 53718, 53721 Siegburg, 53773 Hennef, 53783 Eitorf, 53797 Lohmar
+"538"  → 11 Treffer, darunter 53840/53842/53844 Troisdorf
+```
+
+Zur Frage „wie viele Treffer gäbe es bei 53": **112 PLZ** beginnen mit 53
+(68 verschiedene Einträge), aber die Suche startet bewusst bei **3 Zeichen** —
+`lookupPrefix('53')` liefert technisch 0.
+
+**Datenbefund, nicht geändert:** `53718` trägt in `orte.json.gz` den „Ort"
+„Ahrens + Sieberz" (Firmen-PLZ). GeoNames führt solche Großkunden-PLZ so; für
+den Absender ist das kein Ort. Eine Korrektur braucht eine Override-Liste im
+Build (`tools/build_plz_data.mjs`) — bewusst nicht still gefiltert.

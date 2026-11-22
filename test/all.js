@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung, strassenSuchPfad, ermittleGeoBias, GEO_BIAS_TTL_MS } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung, strassenSuchPfad, ermittleGeoBias, GEO_BIAS_TTL_MS, ortsVorschlaege } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
@@ -2858,6 +2858,34 @@ describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
 });
 
 
+
+
+describe('ortsVorschlaege: eine Wahrheit fuer Feld und Debug (2026-11-22)', () => {
+  it('3-4 Ziffern nutzen lookupPrefix, Text resolveCityInput', async () => {
+    await AddressIntelligence.init();
+    const kurz = ortsVorschlaege('53');
+    assertEqual(kurz.items.length, 0, 'unter 3 Zeichen: keine Treffer');
+    assertEqual(kurz.modus, 'kurz');
+
+    const dreistellig = ortsVorschlaege('537');
+    assert(dreistellig.items.length > 0, '537 liefert Orte');
+    assertEqual(dreistellig.modus, 'prefix');
+
+    const vierstellig = ortsVorschlaege('538');
+    assert(
+      vierstellig.items.some((i) => String(i.city || '').includes('Troisdorf')),
+      '538 enthaelt Troisdorf'
+    );
+
+    const text = ortsVorschlaege('bonn');
+    assert(text.items.length > 0, 'Textsuche liefert Bonn');
+    assertEqual(text.modus, 'text');
+
+    const plz = ortsVorschlaege('53840');
+    assertEqual(plz.modus, 'plz');
+    assertEqual(plz.items.length, 1, 'exakte PLZ: ein Eintrag');
+  });
+});
 
 describe('Absender-Ort: PLZ-Praefix und Loeschen (2026-11-22)', () => {
   /* Vorher hatte nur der Empfaenger den 3-4-Ziffern-Zweig (lookupPrefix) und

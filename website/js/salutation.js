@@ -13,7 +13,7 @@
 //     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
-import { Events, eventBus } from './core.js';
+import { Events, eventBus, hidePopoverSafe, showPopoverSafe } from './core.js';
 import { Field } from './field.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { letterState, setMeta, unsetMeta } from './state.js';
@@ -41,6 +41,32 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
     closing: 'Beste Grüße'
   }
 }));
+
+/**
+ * Alle Anrede-Varianten zum aktuellen Empfaenger, fuer die Auswahl am Feld.
+ * Drei Stile, je mit Namen (wenn vorhanden) und in der allgemeinen Form.
+ * Doppelte Texte (z. B. wenn kein Name vorliegt) werden entfernt.
+ * @param {string} rawName
+ * @returns {Array<{ anrede: string, style: 'formal'|'polite'|'casual' }>}
+ */
+export function salutationVarianten(rawName) {
+  const name = String(rawName || '').trim();
+  /** @type {Array<{ anrede: string, style: 'formal'|'polite'|'casual' }>} */
+  const out = [];
+  const gesehen = new Set();
+  /** @param {string} anrede @param {'formal'|'polite'|'casual'} style */
+  const dazu = (anrede, style) => {
+    const text = String(anrede || '').trim();
+    if (!text || gesehen.has(text)) return;
+    gesehen.add(text);
+    out.push({ anrede: text, style });
+  };
+  for (const style of STYLES) {
+    if (name) dazu(deriveSalutation(name, style), style);
+    dazu(SALUTATION_TONES[style].salutationDefault, style);
+  }
+  return out;
+}
 
 const CLOSINGS = Object.freeze({
   formal: SALUTATION_TONES.formal.closing,
@@ -211,6 +237,8 @@ export class SalutationFeature {
       });
     }
 
+    this.#initVarianten();
+
     /* Reset und Undo/Redo melden sich als DOCUMENT_CHANGED. Ein eigener
      * Dialog-Listener waere ein zweiter Pfad fuer denselben Zustand (und ein
      * zweiter Speicherimpuls). Deshalb haengt hier beides: erst vorhandenen
@@ -221,6 +249,52 @@ export class SalutationFeature {
     });
 
     this.refresh();
+  }
+
+  /**
+   * Auswahl der Anrede direkt am Feld auf dem Blatt: Klick/Fokus oeffnet die
+   * Varianten, Tippen schliesst sie wieder. Ein Klick setzt Anrede und Stil.
+   */
+  #initVarianten() {
+    const el = document.getElementById('anrede');
+    const pop = document.getElementById('anrede-vorschlaege');
+    if (!(el instanceof HTMLInputElement) || !pop) return;
+
+    const zeige = () => {
+      const varianten = salutationVarianten(this.#nameText());
+      if (!varianten.length) return;
+      pop.replaceChildren();
+      for (const v of varianten) {
+        const li = document.createElement('li');
+        li.className = 'suggestion-item';
+        li.dataset.typ = 'adresse';
+        li.setAttribute('role', 'option');
+        li.setAttribute('aria-selected', 'false');
+        const main = document.createElement('span');
+        main.className = 'suggestion-main';
+        const text = document.createElement('span');
+        text.className = 'city-val';
+        text.textContent = v.anrede;
+        main.appendChild(text);
+        li.appendChild(main);
+        li.addEventListener('mousedown', (ev) => {
+          ev.preventDefault();
+          this.#setStyle(v.style);
+          applyValue('anrede', v.anrede, 'logic');
+          setMeta(letterState, 'anrede', { userSet: true });
+          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+          hidePopoverSafe(pop);
+          el.focus();
+        });
+        pop.appendChild(li);
+      }
+      showPopoverSafe(pop);
+    };
+
+    el.addEventListener('focus', zeige);
+    /* Erste Taste schliesst die Liste und schreibt normal weiter. */
+    el.addEventListener('input', () => hidePopoverSafe(pop));
+    el.addEventListener('blur', () => hidePopoverSafe(pop));
   }
 
   destroy() {

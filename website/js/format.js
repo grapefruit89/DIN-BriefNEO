@@ -378,6 +378,21 @@ export function currentISODate() {
 }
 
 /**
+ * Aktuelle Stunde (0–23) in Europe/Berlin — zoneiert ueber `Temporal` (A50).
+ * EINE Stelle fuer "wie spaet ist es"; die Anrede baut darauf die Tageszeit-
+ * Variante ("Guten Morgen,"/ "Guten Abend,").
+ * @returns {number | null} null, wenn Temporal fehlt oder wirft
+ */
+export function aktuelleStunde() {
+  try {
+    return Temporal.Now.zonedDateTimeISO('Europe/Berlin').hour;
+  } catch (err) {
+    console.warn('[DateFormat] aktuelleStunde fehlgeschlagen:', err);
+    return null;
+  }
+}
+
+/**
  * Formatiert das heutige Datum DIN-5008-konform ("4. September 2026", ohne führende Null).
  * @returns {string}
  */

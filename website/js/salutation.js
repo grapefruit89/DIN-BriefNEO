@@ -15,6 +15,7 @@
 
 import { Events, eventBus } from './core.js';
 import { Field } from './field.js';
+import { aktuelleStunde } from './format.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { letterState, setMeta, unsetMeta } from './state.js';
 import { applyValue } from './state-binding.js';
@@ -44,6 +45,22 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
 }));
 
 /**
+ * Grussformel nach Tageszeit. Reine Funktion (Stunde wird uebergeben) und
+ * damit ohne Uhr testbar.
+ *   5–10 Uhr  -> "Guten Morgen"
+ *   11–17 Uhr -> "Guten Tag"
+ *   18–4 Uhr  -> "Guten Abend"
+ * @param {number} stunde 0–23
+ * @returns {'Guten Morgen' | 'Guten Tag' | 'Guten Abend'}
+ */
+export function tageszeitGruss(stunde) {
+  if (!Number.isFinite(stunde)) return 'Guten Tag';
+  if (stunde >= 5 && stunde < 11) return 'Guten Morgen';
+  if (stunde >= 18 || stunde < 5) return 'Guten Abend';
+  return 'Guten Tag';
+}
+
+/**
  * Alle Anrede-Varianten zum aktuellen Empfaenger, fuer die Auswahl am Feld.
  *
  * Linguistischer Hintergrund: die Toene bilden die **T-V-Unterscheidung**
@@ -51,21 +68,23 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
  * **Register** des Schreibens ab — deshalb drei Stufen statt beliebig vieler
  * Formulierungen. Die Farben der drei Gruppen stehen in `sidebar.css`
  * (ordinale Skala: Blau = distanziert, Rot = vertraut).
+ *
  * Mit Empfaengernamen NUR die Formen mit Namen (die allgemeinen waeren hier
  * falsch), dazu je Stil eine Variante mit anderem Tonfall (sehr verehrt /
- * liebe(r)). Ohne Namen nur die allgemeinen Formen. Doppelte werden entfernt.
+ * liebe(r)). Ist nur eine FIRMA bekannt, kommen Team-Formen. Ohne beides nur
+ * die allgemeinen Formen. Doppelte werden entfernt. Liegt eine Uhrzeit vor
+ * (`stunde`), bietet der hoefliche Ton zusaetzlich die Tageszeit-Grussform an
+ * (Uhr zoniert aus `format.js`, A48/A50).
  *
- * Ist nur eine FIRMA bekannt (kein Ansprechpartner), sind Personen-Anreden
- * falsch: dann kommen Team-Formen ("Sehr geehrtes Team der X GmbH," /
- * "Guten Tag zusammen," / "Hallo zusammen,"). Das ist die 80/20-Auswahl aus
- * den gaengigen Anrede-Empfehlungen (2026-11-22) — bewusst ohne regionale
- * Varianten (Moin/Servus), ohne Gendern und ohne tageszeitabhaengige Formen
- * (die braeuchten eine Uhr, siehe A48).
+ * Bewusst nicht enthalten: regionale Formen (Moin/Servus), Gendern und
+ * Mehrpersonen-Anreden — 80/20-Entscheidung vom 2026-11-22.
+ *
  * @param {string} rawName Ansprechpartner (darf leer sein)
  * @param {string} [rawFirma] Firma/Behoerde, wenn kein Ansprechpartner bekannt ist
+ * @param {number | null} [stunde] aktuelle Stunde 0-23; null = neutral
  * @returns {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>}
  */
-export function salutationVarianten(rawName, rawFirma = '') {
+export function salutationVarianten(rawName, rawFirma = '', stunde = null) {
   const name = String(rawName || '').trim();
   const firma = String(rawFirma || '').trim();
   /** @type {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>} */
@@ -108,6 +127,12 @@ export function salutationVarianten(rawName, rawFirma = '') {
     }
     const basis = deriveSalutation(name, style);
     dazu(basis, style);
+    /* Hoeflicher Ton: zusaetzlich die Grussform der aktuellen Tageszeit
+       (Vorgabe 2026-11-22; Uhr kommt zoneiert aus format.js, A48/A50). */
+    if (style === 'polite' && basis.startsWith('Guten Tag') && Number.isFinite(stunde)) {
+      const gruss = tageszeitGruss(/** @type {number} */ (stunde));
+      if (gruss !== 'Guten Tag') dazu(basis.replace('Guten Tag', gruss), style);
+    }
     /* Erweiterungen, die dieselbe Stil-Gruppe (und damit denselben Gruss)
        behalten: foermlicher bzw. persoenlicher als die Standardform. */
     if (style === 'formal') {
@@ -323,7 +348,7 @@ export class SalutationFeature {
          bleibt die Liste stehen (kein Flackern, 2026-11-22). */
       statisch: true,
       hole: () =>
-        salutationVarianten(this.#nameFeldText(), this.#firmaText()).map((v) => ({
+        salutationVarianten(this.#nameFeldText(), this.#firmaText(), aktuelleStunde()).map((v) => ({
           text: v.anrede,
           gruppe: v.ton,
           wert: v

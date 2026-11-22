@@ -4356,3 +4356,31 @@ Casual-Ersetzung `Hallo` → `Liebe` lief auch auf „Hallo,").
 
 Gemessen im Browser: nur Firma → 5 Varianten (2/2/1) in den drei Farbgruppen;
 mit „Frau Lara Croft" unverändert 5 (2/1/2). Tests 412/412, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Korrektur: Tageszeit-Anreden gehen doch (Temporal statt Date)
+
+**Korrektur einer eigenen Aussage (gleicher Tag).** Im Eintrag „Team-Formen für
+Firmen" steht, Tageszeit-Anreden seien nicht übernommen, weil sie „eine Uhr
+bräuchten — A48 verbietet die Date-API". **Das war falsch.** A48 verbietet
+`new Date()`/`Date.now`/`Date.parse`; der Ersatz ist ausdrücklich **`Temporal`**
+(A50: `Temporal.Now` nur mit expliziter IANA-Zone). Gemessen im laufenden
+Chrome 156: `Temporal.Now.zonedDateTimeISO('Europe/Berlin').hour` = 20 → die
+Uhr war die ganze Zeit verfügbar.
+
+**Nutzervorlage:** „wir haben temporal! Guten Morgen, Herr …"
+
+**Umsetzung:**
+
+| Datei | Zusatz |
+|---|---|
+| `website/js/format.js` | `aktuelleStunde()` — eine Stelle für „wie spät ist es", zoniert via `Temporal` (A50) |
+| `website/js/salutation.js` | `tageszeitGruss(stunde)` (reine Funktion) + Variante im höflichen Ton |
+
+Fenster: 5–10 „Guten Morgen", 11–17 „Guten Tag", 18–4 „Guten Abend". Ohne Uhr
+(`NaN`) bleibt es bei „Guten Tag" — die Automatik ändert sich nicht, nur die
+Auswahlliste bietet die passende Form an.
+
+**Gemessen (20:31):** „Guten Tag Frau Croft," **und** „Guten Abend Frau Croft,"
+stehen nebeneinander; 6 Varianten gesamt (2/2/2). Tests 414/414 (2 neue), Fitness 100 %.

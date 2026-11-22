@@ -18,7 +18,7 @@ import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, format
 import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire, unsetMeta } from '../website/js/state.js';
 import { applyState, applyValue, commitElement, hydrateStateFromDom, initStateBinding, render } from '../website/js/state-binding.js';
-import { deriveSalutation, SALUTATION_TONES, salutationVarianten, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
+import { deriveSalutation, SALUTATION_TONES, salutationVarianten, tageszeitGruss, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
 import { BLATTRAND_PX, satzspiegelHoehe } from '../website/js/suggestion-list.js';
@@ -6154,6 +6154,27 @@ describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
     assert(texte.includes('Sehr verehrter Herr Mustermann,'));
     assert(texte.includes('Lieber Herr Mustermann,'));
     assert(!texte.includes('Liebe Herr Mustermann,'));
+  });
+
+  it('Tageszeit-Gruss: Morgen 5-10, Tag 11-17, Abend 18-4', () => {
+    assertEqual(tageszeitGruss(8), 'Guten Morgen');
+    assertEqual(tageszeitGruss(10), 'Guten Morgen');
+    assertEqual(tageszeitGruss(11), 'Guten Tag');
+    assertEqual(tageszeitGruss(17), 'Guten Tag');
+    assertEqual(tageszeitGruss(18), 'Guten Abend');
+    assertEqual(tageszeitGruss(3), 'Guten Abend');
+    assertEqual(tageszeitGruss(Number.NaN), 'Guten Tag', 'ohne Uhr bleibt es neutral');
+  });
+
+  it('mit Uhrzeit kommt die passende Grussform zum Namen', () => {
+    const morgens = salutationVarianten('Frau Erika Mustermann', '', 8).map((x) => x.anrede);
+    assert(morgens.includes('Guten Morgen Frau Mustermann,'), 'morgens');
+    assert(morgens.includes('Guten Tag Frau Mustermann,'), 'Guten Tag bleibt als neutrale Form');
+    const abends = salutationVarianten('Frau Erika Mustermann', '', 21).map((x) => x.anrede);
+    assert(abends.includes('Guten Abend Frau Mustermann,'), 'abends');
+    const ohneUhr = salutationVarianten('Frau Erika Mustermann').map((x) => x.anrede);
+    assert(!ohneUhr.some((t) => t.startsWith('Guten Morgen') || t.startsWith('Guten Abend')),
+      'ohne Uhrzeit keine Tageszeit-Form');
   });
 
   it('nur Firma: Team-Formen statt Personen-Anreden', () => {

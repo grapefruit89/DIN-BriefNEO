@@ -486,6 +486,11 @@ export const GRUPPE_AB_PLZ = 8;
 /**
  * Klappt Stadt-Zeilen mit wenigen PLZs direkt in die Liste aus.
  *
+ * Muster: **Progressive Disclosure** — grosse Staedte bleiben eine Zeile
+ * ("Neustadt · 9 PLZs"), kleine klappen sofort auf. Ueber `GRUPPE_AB_PLZ`
+ * entscheidet die Datenlage, nicht die Ansicht.
+ *
+ *
  * Entfernt dabei Dubletten: `resolveCityInput('troi')` liefert sowohl
  * "Troisdorf (3 PLZs)" als auch "Troisdorf 53840" — nach dem Ausklappen waere
  * die 53840 zweimal da. Der Schluessel enthaelt den Typ, damit eine Behoerde
@@ -528,6 +533,8 @@ export const STRASSEN_BIAS = Object.freeze({ lon: 7.0982068, lat: 50.73743 });
  *   limit=8,  type=street ................  536 ms (2. Lauf 353 ms)
  * `filter=countrycode:de` bleibt noetig: ohne ihn kamen oesterreichische
  * Treffer zu "Hauptstrasse" (gemessen). Mit type=street kostet er kaum.
+ * `bias=proximity` ist eine weiche Relevanz-Gewichtung (**proximity bias**):
+ * Naegeles Treffer zuerst, ohne fremde Treffer auszuschliessen.
  * @param {string} text
  * @param {string} key
  * @param {{ lon: number, lat: number }} [bias]
@@ -855,6 +862,10 @@ function abbreviateName(fullName) {
 }
 
 /**
+ * Muster: **derived state mit klebrigem Nutzer-Override** (wie "controlled vs.
+ * uncontrolled input"): die Zeile folgt der Automatik, solange niemand sie
+ * anfasst — danach gehoert sie dem Menschen und wird nicht mehr ueberschrieben.
+ *
  * Entscheidet, ob die Ruecksendezeile neu geschrieben werden darf.
  * Reine Funktion, damit die vier Faelle ohne DOM-Zustand testbar sind:
  * leer/Entwurf -> schreiben, Nutzertext -> stehen lassen, geloescht -> leer lassen.
@@ -1766,7 +1777,9 @@ export function initAddressServices() {
         hole: holeStrassen,
         beiWahl: (/** @type {any} */ v) => {
           const r = v.wert || {};
-          /* Erst hier zaehlt der Begriff als "gebraucht" - nicht beim Tippen. */
+          /* Erst hier zaehlt der Begriff als "gebraucht" - nicht beim Tippen.
+             Das ist die Admission-Policy des Rings (siehe geo-cache.js):
+             nur eine Uebernahme ins Feld macht eine Abfrage wertvoll. */
           geoCacheZaehle(letzterStrassenSchluessel);
           applyValue(feldId, v.text, 'auto');
           /* Passende PLZ/Ort immer mitschreiben. */

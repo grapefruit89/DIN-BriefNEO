@@ -902,7 +902,9 @@ export class AddressIntelligence {
 
     const filtered = prefix ? plausibel.filter(p => p.startsWith(prefix)) : plausibel;
 
-    /* Gruppieren statt nur sortieren (gemeldet 2026-11-22: "Berlin ist noch
+    /* Muster: `ORDER BY stadtteil NULLS LAST, plz` (SQL:2003) — erst die
+       Gruppen mit Wert, die ohne Wert ans Ende. Gruppieren statt nur sortieren
+       (gemeldet 2026-11-22: "Berlin ist noch
        Chaos"): Rein nach PLZ standen die Stadtteile kreuz und quer, weil jede
        PLZ ihren eigenen Stadtteil traegt ("10318 Karlshorst", dann vier PLZ
        ohne Stadtteil, dann "10405 Prenzlauer Berg"; Moabit/Tiergarten

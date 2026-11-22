@@ -12,8 +12,21 @@
  * IndexedDB ist für strukturierte Daten per A34 verboten).
  *
  * Speicherplatz: Die Rohantwort wiegt 9,8 KB je Suchbegriff, die Felder, die
- * die Liste braucht, 0,4 KB — 1 MB fasst damit ~2.900 statt ~104 Begriffe.
- * Der Ring ist auf 512 KB gedeckelt und verdrängt das Älteste zuerst.
+ * die Liste braucht, 0,4 KB (gemessen 2026-11-22) — der 1-MB-Ring fasst damit
+ * ~2.400 Begriffe statt ~104 roh.
+ *
+ * KONZEPT (bewusst gewaehlt, nicht "irgendein Cache"):
+ *  - Verdrängung: **LFU mit LRU-Tie-Break** — Haeufigkeit zuerst, Alter nur als
+ *    Gleichstand. Reines LRU (nur Alter) war der Stand davor.
+ *  - Gezaehlt wird erst die **Uebernahme ins Feld** (`geoCacheZaehle`), nicht
+ *    die Suche: eine **Admission-Policy** mit implizitem Feedback. Wer sucht,
+ *    aber nichts waehlt, hat nichts bewiesen.
+ *  - Auch leere Trefferlisten liegen hier: **Negative-Cache** (Begriff aus dem
+ *    DNS, wo NXDOMAIN-Antworten ebenfalls gecacht werden).
+ *  - Nicht gebaut, weil bei ~2.400 kleinen Eintraegen ohne Gewinn: **GDSF**
+ *    (Haeufigkeit pro Byte — lohnt nur bei stark unterschiedlichen Groessen),
+ *    **LFUDA** (Haeufigkeit mit Alterung gegen Dauerbrenner), **TinyLFU /
+ *    W-TinyLFU** (Doorkeeper, braucht Frequenz-Sketch).
  *
  * Aufbau:
  *   localStorage['geo_cache_v1:<hash>']  = der Wert (JSON)

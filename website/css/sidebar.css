@@ -1077,7 +1077,10 @@ input[type="checkbox"][switch] {
 }
 
 /* Anrede-Varianten: Verlauf von distanziert (blau) nach vertraut (rot).
-   Drei klar getrennte Stufen: 255 Grad (blau) -> 320 (violett) -> 25 (rot). */
+   Drei klar getrennte Stufen: 255 Grad (blau) -> 320 (violett) -> 25 (rot).
+   Konzept: **ordinale Farbskala** (Hue = Naehe, nicht Kategorie) im
+   OKLCH-Raum, damit die drei Stufen gleich hell und gleich stark wirken —
+   Blau/Gruen/Rot waeren eine kategoriale Skala und wuerden Naehe nicht abbilden. */
 #anrede-vorschlaege li[data-gruppe="formal"] { --ort-ton: oklch(0.55 0.17 255); }
 #anrede-vorschlaege li[data-gruppe="polite"] { --ort-ton: oklch(0.56 0.17 320); }
 #anrede-vorschlaege li[data-gruppe="casual"] { --ort-ton: oklch(0.58 0.19 25); }

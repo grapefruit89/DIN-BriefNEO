@@ -13,6 +13,15 @@
  * Bewusst NICHT hier: die PLZ-Liste (Farben je Stadtteil, Ausklappen von
  * Städten, Firmen-Badges) — die hat echte Fachlogik, kein Gerüst.
  *
+ * BEDIENMUSTER (woran sich das Geraet orientiert):
+ *  - **WAI-ARIA Combobox/Listbox**: `role=option`, `aria-selected`,
+ *    `aria-expanded`; Auswahl NUR durch explizite Aktion (Klick/Enter).
+ *  - **Light Dismiss** der Popover-API: Klick ausserhalb und Esc schliessen von
+ *    selbst; `blur` behandeln wir zusaetzlich, weil ein Auto-Popover beim
+ *    Wegtabben offen bliebe.
+ *  - **Expliziter Zustand statt Hover**: Hover ist keine Auswahl (Vorgabe
+ *    2026-11-22) — deshalb keine Vorauswahl ohne Interaktion.
+ *
  * Verhalten (einheitlich für alle Nutzer dieses Helfers):
  *  - Öffnen per Klick (nicht per Fokus: ein Klick löst focus aus und gilt für
  *    einen auto-Popover als "außerhalb" — er würde sofort wieder schließen)
@@ -46,6 +55,10 @@ export function blattrandHoehe({ oben, blattUnten, viewportUnten, rand = BLATTRA
  * Setzt die Hoehe einer Vorschlagsliste so, dass sie bis 20 mm vor den
  * Blatt-Unterrand reicht (Blatt = `#kern`). Wird nicht geklemmt, wenn die
  * Liste kuerzer ist — `max-height` deckelt nur.
+ *
+ * Bezugsrahmen ist der **Satzspiegel** (DIN 5008: 25 mm links, 20 mm rechts,
+ * 20 mm unten), nicht das Browserfenster — Vorgabe 2026-11-22: "die DIN-A4-Seite
+ * ist der Arbeitsbereich".
  * @param {HTMLElement} popover
  * @param {HTMLElement} feldEl Ankerfeld (die Liste haengt darunter)
  */

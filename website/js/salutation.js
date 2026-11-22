@@ -45,6 +45,12 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
 
 /**
  * Alle Anrede-Varianten zum aktuellen Empfaenger, fuer die Auswahl am Feld.
+ *
+ * Linguistischer Hintergrund: die Toene bilden die **T-V-Unterscheidung**
+ * (Distanz vs. Vertrautheit; im Deutschen Siezen/Duzen plus Titel) und das
+ * **Register** des Schreibens ab — deshalb drei Stufen statt beliebig vieler
+ * Formulierungen. Die Farben der drei Gruppen stehen in `sidebar.css`
+ * (ordinale Skala: Blau = distanziert, Rot = vertraut).
  * Mit Empfaengernamen NUR die Formen mit Namen (die allgemeinen waeren hier
  * falsch), dazu je Stil eine Variante mit anderem Tonfall (sehr verehrt /
  * liebe(r)). Ohne Namen nur die allgemeinen Formen. Doppelte werden entfernt.

@@ -329,6 +329,10 @@ AddressIntelligence.wireDOM = function wireDOM() {
     /** @param {string} plz @param {string} city */
     const schreibeAbsender = (plz, city) => {
       applyValue('absender-ort', `${plz || ''} ${city || ''}`.trim(), 'auto');
+      /* initSenderSync haengt an DOCUMENT_CHANGED (bisher nur Undo/Redo/Reset).
+         Ohne dieses Signal blieb die Ruecksendezeile leer, wenn der Ort aus der
+         Vorschlagsliste kam statt getippt zu werden (gemeldet 2026-11-22). */
+      eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto' });
       eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     };
 
@@ -988,6 +992,10 @@ export function initSenderSync() {
     const gespeichert = letterState.meta.rucksendeangabe?.herkunft;
     rueckModus = gespeichert === 'auto' || gespeichert === 'manuell' ? gespeichert : 'unklar';
     letzterAutowert = null;
+    /* Der Modus allein reicht nicht: ohne sync() blieb die Zeile stehen.
+       Betraf Undo/Redo/Reset UND die Auswahl aus der Ortsliste (gemeldet
+       2026-11-22: Auswahl im Absenderfeld kam in der Ruecksendezeile nicht an). */
+    sync();
   });
 }
 

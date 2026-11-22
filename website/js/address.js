@@ -31,6 +31,7 @@ import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
 import { setCaretToEnd } from './document.js';
 import { Field } from './field.js';
+import { formatZahl } from './format.js';
 import { geoCacheHole, geoCacheSetze, geoCacheZaehle } from './geo-cache.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { letterState, setMeta } from './state.js';
@@ -786,7 +787,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       } else if (!item.isSinglePlz && (item.plzCount || 0) > 1) {
         const countSub = document.createElement('span');
         countSub.className = 'city-sub';
-        Field.setValue(countSub, `· ${item.plzCount} PLZs`);
+        Field.setValue(countSub, `· ${formatZahl(item.plzCount)} PLZs`);
         leftWrapper.appendChild(countSub);
       }
 
@@ -849,7 +850,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       hintLi.setAttribute('role', 'option');
       hintLi.setAttribute('aria-disabled', 'true');
       hintLi.setAttribute('aria-selected', 'false');
-      Field.setValue(hintLi, `${totalCount} Treffer – tippe weiter`);
+      Field.setValue(hintLi, `${formatZahl(totalCount)} Treffer – tippe weiter`);
       popoverEl.appendChild(hintLi);
     }
 

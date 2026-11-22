@@ -201,15 +201,21 @@ function initApp() {
   });
   bootStep('Addons', () => initAddonDispatcher());
 
-  /* ?debug -> kleines Selbstauskunfts-Panel (dynamischer Import: kein
-     Lastpfad fuer normale Nutzer, keine Zeile im Produktivverhalten). */
-  if (new URLSearchParams(location.search).has('debug')) {
-    bootStep('Debug-Panel', () => {
+  /* Debug-Panel: Schalter in den Einstellungen (Standard aus). Modul wird nur
+     bei Bedarf geladen; Sichtbarkeit macht CSS (:has), nicht dieses Skript. */
+  bootStep('Debug-Panel', () => {
+    const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-debug'));
+    if (!schalter) return;
+    const laden = () => {
       import('./debug-panel.js')
-        .then((m) => m.mountDebugPanel())
+        .then((m) => m.initDebugPanel())
         .catch((err) => console.debug('[Debug-panel] konnte nicht laden:', err));
+    };
+    if (schalter.checked) laden();
+    schalter.addEventListener('change', () => {
+      if (schalter.checked) laden();
     });
-  }
+  });
 
   bootStep('Darstellung freigeben', () => {
     /* Idempotentes Netz: boot-state.js hat die Maske bereits entfernt. Steht

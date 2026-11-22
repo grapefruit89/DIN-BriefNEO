@@ -112,8 +112,8 @@ node tools/build_db.js -q       # Fitness 100.0 % (clean)
 | `format.js` → `aktuelleStunde` | zoneiert via `Temporal` (A50), eine Stelle für die Uhr | niedrig |
 | `settings.js` → `applySettings` | setzt `--rand-u` nicht mehr inline, gibt den Boot-Wert frei | mittel (Unterrand-Schalter) |
 | `boot.js` | Kommentar: bleibt Pre-Paint-Snapshot | niedrig |
-| `main.js` → `initApp` | `?debug` → dynamischer Import; Druckzähler in `beforeprint` | niedrig |
-| `debug-panel.js` (neu, 169 Zeilen) | Selbstauskunft, liest nur vorhandene APIs | niedrig |
+| `main.js` → `initApp` | Debug-Panel lädt nur bei aktivem Schalter (dynamischer Import); Druckzähler in `beforeprint` | niedrig |
+| `debug-panel.js` (neu) | füllt das statische Panel (Sichtbarkeit per CSS `:has`), liest nur vorhandene APIs, Zahlen mit Tausenderpunkt (`formatZahl`) | niedrig |
 
 ---
 

@@ -30,7 +30,7 @@
     <title>DIN-BriefNEO | Pure Refactored</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
     <link rel="stylesheet" href="css/base.css?v=live6">
-    <link rel="stylesheet" href="css/sidebar.css?v=live9">
+    <link rel="stylesheet" href="css/sidebar.css?v=live10">
     <link rel="stylesheet" href="css/sheet-common.css?v=common1">
     <link rel="stylesheet" href="css/sheet-multipage.css?v=multi1">
     <script src="js/boot.js?v=boot2"></script>
@@ -311,6 +311,10 @@
                 <label for="plugin-geschaeftsangaben" class="seitenleiste-label">Geschäftsangaben (§ 35a)</label>
                 <input type="checkbox" switch id="plugin-geschaeftsangaben" data-addon-toggle="geschaeftsangaben">
               </div>
+              <div class="seitenleiste-switch-row">
+                <label for="toggle-debug" class="seitenleiste-label">Debug-Panel</label>
+                <input type="checkbox" switch id="toggle-debug">
+              </div>
               <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
                    stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
               <div class="seitenleiste-subgroup workbench-box">
@@ -473,6 +477,33 @@
         <form method="dialog"><button class="btn primary">Verstanden</button></form>
       </div>
     </dialog>
+
+
+    <!-- Debug-Panel: statisches Markup, per CSS am Schalter sichtbar (kein
+         Ein-/Ausblenden in JS). Die Werte schreibt debug-panel.js; das × ist
+         ein <label> auf denselben Schalter und schaltet ihn damit nativ aus. -->
+    <aside id="debug-panel" class="debug-panel nicht-drucken" role="complementary" aria-label="Entwickler-Informationen">
+      <div class="debug-kopf">
+        <strong>Debug · DIN-BriefNEO</strong>
+        <label for="toggle-debug" class="debug-schliessen" title="Panel ausschalten">×</label>
+      </div>
+      <dl class="debug-tabelle">
+        <dt>PLZ im Bestand</dt><dd id="dbg-plz">–</dd>
+        <dt>Ortsnamen</dt><dd id="dbg-orte">–</dd>
+        <dt>Ortsteile (PLZ)</dt><dd id="dbg-ortsteile">–</dd>
+        <dt>PLZ mit Bundesland</dt><dd id="dbg-bundesland">–</dd>
+        <dt>Adressbuch</dt><dd id="dbg-adressbuch">–</dd>
+        <dt>Geo-Cache</dt><dd id="dbg-cache">–</dd>
+        <dt>localStorage</dt><dd id="dbg-speicher">–</dd>
+        <dt>Entwurf</dt><dd id="dbg-entwurf">–</dd>
+        <dt>Gedruckt</dt><dd id="dbg-gedruckt">–</dd>
+        <dt>Layout</dt><dd id="dbg-layout">–</dd>
+        <dt>Unterrand</dt><dd id="dbg-unterrand">–</dd>
+        <dt>Uhrzeit</dt><dd id="dbg-uhr">–</dd>
+        <dt>Schrift</dt><dd id="dbg-schrift">–</dd>
+      </dl>
+      <dl class="debug-tabelle" id="debug-felder"></dl>
+    </aside>
 
     <!-- Setzt den gespeicherten UI-Zustand (Form, Postvermerk, Schalter) vor
          dem ersten Paint; ohne ihn springt die Anzeige beim Hard-Reload. -->

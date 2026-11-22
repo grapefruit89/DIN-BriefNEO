@@ -28,6 +28,7 @@ import { DOCUMENT_SCHEMA_V5 } from './schema.js';
  * @property {'form-a' | 'form-b' | string} layout
  * @property {boolean} [marks]
  * @property {boolean} [pluginTestbrief]
+ * @property {boolean} [debugPanel]
  * @property {boolean} [pluginGeschaeftsangaben] Addon „Geschäftsangaben" (§ 35a)
  * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
@@ -49,6 +50,8 @@ export const DEFAULT_SETTINGS = {
   layout: 'form-b',
   marks: true,
   pluginTestbrief: true,
+  /** Debug-Panel in der Seitenleiste einschalten (Standard: aus). */
+  debugPanel: false,
   /* Addon „Geschäftsangaben" (§ 35a GmbHG + IBAN/BIC): aus, bis der Nutzer es
    * einschaltet. Ein Addon darf den Brief nicht von selbst veraendern. */
   pluginGeschaeftsangaben: false,

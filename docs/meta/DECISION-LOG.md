@@ -4408,3 +4408,27 @@ Anrede passenden Sätze."
 → `Liebe Frau Croft,` → `Beste Grüße` → manuell `Herzliche Grüße` → formelle
 Anrede → **bleibt** `Herzliche Grüße`. Liste sitzt 25…190 mm im Blatt, drei
 Einträge, Unterkante 192 mm. Tests 416/416 (1 neuer 3×3-Vertrag), Fitness 100 %.
+
+---
+
+## 2026-11-22 — Debug-Panel als Einstellung, Sichtbarkeit per CSS, Zahlen mit Tausenderpunkt
+
+**Nutzer-Vorgabe:** „kann man das so machen, dass ich das in den Einstellungen
+einschalten kann? und wenn ich auf das X klicke soll das weggehen! dann möchte
+ich das möglichst mit wenig JavaScript auskommt!" — plus: „Zahlen mit
+1.000er Trennpunkt".
+
+**Umsetzung (drei JS-Zeilen fürs Ein-/Ausschalten gespart):**
+
+| Ebene | Lösung |
+|---|---|
+| Schalter | `#toggle-debug` in den Einstellungen; `DEFAULT_SETTINGS.debugPanel = false`, gespeichert wie die anderen Schalter |
+| Sichtbarkeit | **reines CSS**: `#debug-panel { display: none }` + `:root:has(#toggle-debug:checked) #debug-panel { display: block }` |
+| Schließen | das × ist ein `<label for="toggle-debug">` — nativ, ohne JS; es schaltet den Schalter und damit die Einstellung aus |
+| Markup | Panel steht **statisch** in `index.html` (12 Zeilen Werte + freie Liste); JS schreibt nur `textContent` |
+| Laden | Modul nur bei aktivem Schalter (dynamischer Import in `main.js`); Takt (1,5 s) läuft nur bei `display !== none` |
+| Zahlen | `formatZahl()` in `format.js` (`Intl.NumberFormat('de-DE')`): 10184 → `10.184`; genutzt im Panel, im Treffer-Hinweis und bei „n PLZs" |
+
+**Nachweis:** Schalter an → `display: block`, 352×718 px links neben der
+Seitenleiste, Werte `10.184 / 6.664 / 303`; × → `display: none`,
+`din_settings.debugPanel = false`. Tests 418/418, Fitness 100 %.

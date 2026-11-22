@@ -55,6 +55,7 @@ export class SettingsManager {
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
+    this.debugSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-debug'));
     this.pluginGeschaeftSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));
 
     this.isReady = false;
@@ -85,6 +86,7 @@ export class SettingsManager {
 
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), istAn(this.settings.marks));
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), istAn(this.settings.pluginTestbrief));
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.debugSwitch), this.settings.debugPanel === true);
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginGeschaeftSwitch), this.settings.pluginGeschaeftsangaben === true);
 
     /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
@@ -319,6 +321,15 @@ export class SettingsManager {
       randUSwitch.addEventListener('change', () => {
         if (!this.isReady) return;
         this.changeRandU(randUSwitch.checked ? 30 : 20);
+      });
+    }
+
+    const debugSwitch = this.debugSwitch;
+    if (debugSwitch) {
+      debugSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.debugPanel = debugSwitch.checked;
+        this.updateSettings();
       });
     }
 

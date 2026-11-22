@@ -378,6 +378,23 @@ export function currentISODate() {
 }
 
 /**
+ * Zahl mit deutschem Tausendertrenner: 10184 -> "10.184".
+ * Zahlen ohne Trenner sind in Listen und im Debug-Panel nicht lesbar
+ * (Vorgabe 2026-11-22). `Intl` ist Plattform, keine Abhängigkeit.
+ * @param {number} wert
+ * @returns {string}
+ */
+export function formatZahl(wert) {
+  const n = Number(wert);
+  if (!Number.isFinite(n)) return '–';
+  try {
+    return new Intl.NumberFormat('de-DE').format(n);
+  } catch {
+    return String(Math.round(n));
+  }
+}
+
+/**
  * Aktuelle Stunde (0–23) in Europe/Berlin — zoneiert ueber `Temporal` (A50).
  * EINE Stelle fuer "wie spaet ist es"; die Anrede baut darauf die Tageszeit-
  * Variante ("Guten Morgen,"/ "Guten Abend,").

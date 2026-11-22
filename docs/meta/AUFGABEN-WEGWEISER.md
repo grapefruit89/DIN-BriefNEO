@@ -123,7 +123,7 @@ website/js/salutation.js         Anrede/Grußformel-Engine, Auto-Seed
 website/js/field.js             Minimale Feld-Abstraktion (isNative/getValue/setValue)
 website/js/suggestion-list.js   Gemeinsames Gerüst für Vorschlagslisten (Klick, Tasten, Blur)
 website/js/geo-cache.js         Ringspeicher für Geoapify-Treffer (1 MB, localStorage)
-website/js/debug-panel.js       Selbstauskunft per ?debug (Daten, Speicher, Adressfelder, offene Liste)
+website/js/debug-panel.js       Selbstauskunft (Schalter „Debug-Panel“ in den Einstellungen)
 website/js/geo-cache.js         Ringspeicher (1 MB, LFU) — Review: docs/meta/REVIEW-anrede-dropdown.md
 website/js/format.js             Reine DIN-5008-Formatter + Mikro-Typografie
 website/js/signature.js          Unterschrift-Upload, Kompression, Drag/Rotate

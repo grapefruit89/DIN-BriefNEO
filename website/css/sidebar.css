@@ -1574,8 +1574,17 @@ aside select {
    setzt SettingsManager.#applyPlugins() aus din_settings. */
 :root[data-plugin-testbrief="false"] #btn-testbrief { display: none; }
 
-/* Debug-Panel (nur per ?debug geladen, 2026-11-22). Bewusst klein: eine
-   Tabelle, zwei Knoepfe, unten links ueber der Seitenleiste. */
+/* Debug-Panel (2026-11-22). Sichtbarkeit ist eine reine CSS-Ableitung aus dem
+   Schalter in den Einstellungen — kein Ein-/Ausblenden in JS. Das x im Kopf
+   ist ein <label for="toggle-debug"> und schaltet den Schalter nativ aus. */
+#debug-panel {
+  display: none;
+}
+
+:root:has(#toggle-debug:checked) #debug-panel {
+  display: block;
+}
+
 .debug-panel {
   position: fixed;
   /* Rechts der Seitenleiste statt darueber: kein z-index-Kampf, und die
@@ -1607,17 +1616,24 @@ aside select {
 
 .debug-kopf strong { flex: 1; font-size: 0.7rem; }
 
-.debug-kopf button {
+.debug-schliessen {
   width: 1.4rem;
   height: 1.4rem;
-  padding: 0;
-  font-size: 0.8rem;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.85rem;
   line-height: 1;
   color: var(--text-primary);
-  background: transparent;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   cursor: pointer;
+  user-select: none;
+}
+
+.debug-schliessen:hover,
+.debug-schliessen:focus-visible {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
 }
 
 .debug-tabelle {

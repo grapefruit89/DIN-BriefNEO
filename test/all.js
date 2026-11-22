@@ -13,7 +13,7 @@ import { applyDraftValues, clearBootFingerprint, publishBootFingerprint, readBoo
 import { Field } from '../website/js/field.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
-import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
+import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit, formatZahl } from '../website/js/format.js';
 // @ts-ignore
 import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire, unsetMeta } from '../website/js/state.js';
@@ -2379,6 +2379,12 @@ describe('WYSIWYG — Bildschirm und Druck gleich', () => {
   });
 });
 
+describe('Debug-Panel ist standardmaessig aus (2026-11-22)', () => {
+  it('debugPanel ist ein Schalter mit Default false', () => {
+    assertEqual(DEFAULT_SETTINGS.debugPanel, false, 'Standard: aus');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
   /* Feature 2026-11-11, umgestellt 2026-11-22: --rand-u steuert den Unterrand
    * im Druck. Der Wert kommt jetzt aus einer CSS-Regel am Schalter
@@ -2838,6 +2844,21 @@ describe('Geo-Cache: Ringspeicher im localStorage (2026-11-22)', () => {
       localStorage.removeItem('geo_cache_index_v1');
       geoCacheLeeren();
     }
+  });
+});
+
+describe('Zahlen lesbar machen (Tausendertrennung, 2026-11-22)', () => {
+  it('setzt den deutschen Tausenderpunkt', () => {
+    assertEqual(formatZahl(10184), '10.184');
+    assertEqual(formatZahl(1000), '1.000');
+    assertEqual(formatZahl(999), '999');
+    assertEqual(formatZahl(0), '0');
+    assertEqual(formatZahl(1234567), '1.234.567');
+  });
+
+  it('bleibt bei Unsinn bei einem Strich', () => {
+    assertEqual(formatZahl(Number.NaN), '–');
+    assertEqual(formatZahl(Number.POSITIVE_INFINITY), '–');
   });
 });
 

@@ -3,28 +3,27 @@
 // @guide [[din-5008-css-architektur]]
 
 /**
- * @file debug-panel.js — kleines Selbstauskunfts-Panel für die Entwicklungsarbeit.
+ * @file debug-panel.js — füllt das Debug-Panel mit Werten.
  *
- * Warum so klein: Ein früheres Panel (1029 Zeilen JS, 490 CSS, 397 Testzeilen)
- * wurde am 2026-11-07 gelöscht, weil es niemand nutzte (Commit ab9a78f). Dieses
- * hier beantwortet nur die Fragen, die beim Debuggen wirklich aufgekommen sind:
- * Wie groß ist der Datenbestand? Was liegt im Speicher? Welche Werte stehen in
- * den Adressfeldern — und was bietet die gerade offene Vorschlagsliste an?
+ * Das Panel selbst steht als **statisches Markup** in `index.html`; sichtbar
+ * wird es allein über CSS (`:root:has(#toggle-debug:checked) #debug-panel`).
+ * Hier steht deshalb nur: Werte holen und in vorhandene `<dd>` schreiben.
+ * Das × im Panel ist ein `<label for="toggle-debug">` und schaltet den
+ * Schalter nativ aus — kein JS zum Schließen.
  *
- * Bewusst NICHT: eigene Mess-Sonden, Zähler im Produktivpfad, Diagramme.
- * Alles wird aus vorhandenen APIs gelesen (AddressIntelligence, geo-cache,
- * localStorage, DOM).
+ * Geladen wird das Modul nur, wenn der Schalter an ist (main.js), und die
+ * Aktualisierung läuft nur, solange das Panel sichtbar ist.
  *
- * Aufruf: `?debug` an die URL hängen. Laden per dynamischem import() aus
- * main.js — kein Pfad für normale Nutzer.
+ * Bewusst NICHT: eigene Sonden, Zähler im Produktivpfad, Diagramme.
  */
 
 import { AddressIntelligence } from './address-data.js';
+import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
 import { loadJSON, STORAGE_KEYS } from './persistence.js';
 
 /** @param {number} bytes @returns {string} */
-const alsKb = (bytes) => `${(bytes / 1024).toFixed(1)} KB`;
+const alsKb = (bytes) => `${formatZahl(Math.round(bytes / 102.4) / 10)} KB`;
 
 /** @returns {number} Groesse des localStorage in Bytes (UTF-16) */
 function speicherBytes() {
@@ -36,20 +35,73 @@ function speicherBytes() {
   return summe;
 }
 
-/**
- * Wert eines Feldes (input/textarea oder beliebiges Element).
- * @param {string} id @returns {string}
- */
+/** @param {string} id @returns {string} */
 function feldWert(id) {
   const el = document.getElementById(id);
   if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) return el.value.trim();
   return (el?.textContent || '').trim();
 }
 
-/** @returns {Array<[string, string]>} belegte Adressfelder */
-function adressfelder() {
-  /** @type {Array<[string, string]>} */
-  const liste = [];
+/** @type {ReturnType<typeof setInterval> | null} */
+let timer = null;
+
+/** Einmalige Initialisierung: Werte schreiben und sichtbarkeitsabhängig takten. */
+export function initDebugPanel() {
+  if (timer) return;
+  aktualisiere();
+  timer = setInterval(() => {
+    /* Nur arbeiten, solange der Schalter an ist. (offsetParent taugt hier
+       nicht: das Panel ist `position: fixed` und hat deshalb immer null.) */
+    const panel = document.getElementById('debug-panel');
+    if (panel && getComputedStyle(panel).display !== 'none') aktualisiere();
+  }, 1500);
+}
+
+export function aktualisiere() {
+  /** @param {string} id @param {string | number} wert */
+  const setze = (id, wert) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = String(wert);
+  };
+
+  const ai = AddressIntelligence;
+  if (ai.isReady) {
+    setze('dbg-plz', formatZahl(ai.plzToCity.size));
+    setze('dbg-orte', formatZahl(ai.ortList.length));
+    setze('dbg-ortsteile', formatZahl(ai.districts.size));
+    setze('dbg-bundesland', formatZahl(ai.states.size));
+  }
+
+  const cache = geoCacheGroesse();
+  const adressbuch = /** @type {unknown[]} */ (loadJSON(STORAGE_KEYS.addresses, []));
+  setze('dbg-adressbuch', formatZahl(Array.isArray(adressbuch) ? adressbuch.length : 0));
+  setze('dbg-cache', `${formatZahl(cache.eintraege)} · ${alsKb(cache.bytes)} · ${formatZahl(cache.gewaehlt)} gewählt`);
+  setze('dbg-speicher', alsKb(speicherBytes()));
+  setze('dbg-entwurf', alsKb((localStorage.getItem(STORAGE_KEYS.draft) || '').length * 2));
+  setze('dbg-gedruckt', formatZahl(Number(localStorage.getItem('din_print_count') || '0') || 0));
+
+  const root = document.documentElement;
+  setze('dbg-layout', root.dataset.layout === 'form-a' ? 'Form A' : 'Form B');
+  setze('dbg-unterrand', getComputedStyle(root).getPropertyValue('--rand-u').trim() || '–');
+  setze('dbg-schrift', getComputedStyle(root).getPropertyValue('--active-font-family').trim().slice(0, 26) || '–');
+  /* Uhrzeit zeigt, welche Anrede-Variante gerade "passt". */
+  const stunde = aktuelleStunde();
+  setze('dbg-uhr', stunde === null ? '–' : `${String(stunde).padStart(2, '0')} Uhr`);
+
+  /* Dynamischer Teil: belegte Adressfelder + offene Vorschlagsliste. */
+  const felder = document.getElementById('debug-felder');
+  if (!felder) return;
+  felder.replaceChildren();
+
+  /** @param {string} name @param {string} wert */
+  const zeile = (name, wert) => {
+    const dt = document.createElement('dt');
+    dt.textContent = name;
+    const dd = document.createElement('dd');
+    dd.textContent = wert;
+    felder.append(dt, dd);
+  };
+
   const namen = [
     ['empfaenger-firma', 'Empf. Firma'],
     ['empfaenger-name', 'Empf. Name'],
@@ -62,108 +114,15 @@ function adressfelder() {
   ];
   for (const [id, label] of namen) {
     const wert = feldWert(id);
-    if (wert) liste.push([label, wert]);
+    if (wert) zeile(label, wert);
   }
-  return liste;
-}
 
-/**
- * Inhalt der gerade offenen Vorschlagsliste.
- * @returns {{ feld: string, eintraege: string[] } | null}
- */
-function offeneVorschlaege() {
   const popover = document.querySelector('[popover]:popover-open');
-  if (!popover) return null;
-  const eintraege = [...popover.querySelectorAll('li')]
-    .map((li) => (li.textContent || '').replace(/\s+/g, ' ').trim())
-    .filter(Boolean);
-  return { feld: popover.id || '(ohne id)', eintraege };
-}
-
-export function mountDebugPanel() {
-  if (document.getElementById('debug-panel')) return;
-
-  const panel = document.createElement('aside');
-  panel.id = 'debug-panel';
-  panel.className = 'debug-panel nicht-drucken';
-  panel.setAttribute('aria-label', 'Entwickler-Informationen');
-
-  const kopf = document.createElement('div');
-  kopf.className = 'debug-kopf';
-  const titel = document.createElement('strong');
-  titel.textContent = 'Debug · DIN-BriefNEO';
-
-  /** @type {ReturnType<typeof setInterval> | null} */
-  let timer = null;
-  const beenden = () => {
-    if (timer) clearInterval(timer);
-    timer = null;
-    panel.remove();
-  };
-
-  const knopfAktualisieren = document.createElement('button');
-  knopfAktualisieren.type = 'button';
-  knopfAktualisieren.textContent = '↻';
-  knopfAktualisieren.title = 'Aktualisieren';
-  const knopfSchliessen = document.createElement('button');
-  knopfSchliessen.type = 'button';
-  knopfSchliessen.textContent = '×';
-  knopfSchliessen.title = 'Schließen';
-  knopfSchliessen.addEventListener('click', beenden);
-  kopf.append(titel, knopfAktualisieren, knopfSchliessen);
-
-  const tabelle = document.createElement('dl');
-  tabelle.className = 'debug-tabelle';
-  panel.append(kopf, tabelle);
-  document.body.append(panel);
-
-  /** @param {string} name @param {string | number} wert */
-  const zeile = (name, wert) => {
-    const dt = document.createElement('dt');
-    dt.textContent = name;
-    const dd = document.createElement('dd');
-    dd.textContent = String(wert);
-    tabelle.append(dt, dd);
-  };
-
-  const aktualisieren = () => {
-    tabelle.replaceChildren();
-    const ai = AddressIntelligence;
-    const cache = geoCacheGroesse();
-
-    if (!ai.isReady) {
-      zeile('Daten', 'noch nicht geladen');
-    } else {
-      zeile('PLZ im Bestand', ai.plzToCity.size);
-      zeile('Ortsnamen', ai.ortList.length);
-      zeile('Ortsteile (PLZ)', ai.districts.size);
-      zeile('PLZ mit Bundesland', ai.states.size);
-    }
-    zeile('Adressbuch', /** @type {unknown[]} */ (loadJSON(STORAGE_KEYS.addresses, [])).length);
-    zeile('Geo-Cache', `${cache.eintraege} · ${alsKb(cache.bytes)} · ${cache.gewaehlt} gewählt`);
-    zeile('localStorage', alsKb(speicherBytes()));
-    zeile('Entwurf', alsKb((localStorage.getItem(STORAGE_KEYS.draft) || '').length * 2));
-    zeile('Gedruckt', localStorage.getItem('din_print_count') || '0');
-
-    const root = document.documentElement;
-    zeile('Layout', root.dataset.layout === 'form-a' ? 'Form A' : 'Form B');
-    zeile('Unterrand', getComputedStyle(root).getPropertyValue('--rand-u').trim() || '—');
-    zeile('Schrift', getComputedStyle(root).getPropertyValue('--active-font-family').trim().slice(0, 26) || '—');
-
-    for (const [name, wert] of adressfelder()) zeile(name, wert);
-
-    const offen = offeneVorschlaege();
-    zeile('Offene Liste', offen ? `${offen.feld} · ${offen.eintraege.length}` : '—');
-    if (offen) {
-      for (const [i, eintrag] of offen.eintraege.slice(0, 8).entries()) {
-        zeile(`  ${i + 1}`, eintrag);
-      }
-    }
-  };
-
-  knopfAktualisieren.addEventListener('click', aktualisieren);
-  aktualisieren();
-  /* Der offene Popover aendert sich beim Tippen; 1,5 s reichen fuer einen
-     Blick auf die Vorschlaege, ohne im Ruhezustand zu stoeren. */
-  timer = setInterval(aktualisieren, 1500);
+  if (popover) {
+    const eintraege = [...popover.querySelectorAll('li')]
+      .map((li) => (li.textContent || '').replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
+    zeile('Offene Liste', `${popover.id || '(ohne id)'} · ${formatZahl(eintraege.length)}`);
+    for (const [i, eintrag] of eintraege.slice(0, 6).entries()) zeile(`  ${i + 1}`, eintrag);
+  }
 }

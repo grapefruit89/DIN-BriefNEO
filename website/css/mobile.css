@@ -1,0 +1,37 @@
+/* @adr [[ADR-CSS]]  */
+/**
+ * mobile.css — Layout unter 900 px: Seitenleiste oben, Blatt darunter.
+ *
+ * Warum: Auf 412 px (Pixel 9) ist die Desktop-Shell 1034 px breit (240 px
+ * Leiste + 794 px Blatt). Mit `overflow: hidden` war das Blatt zu 57 %
+ * abgeschnitten **und** unerreichbar (gemessen 2026-11-22).
+ *
+ * A43-konform: kein Dokument-Scroll, sondern internes Scrollen in zwei
+ * abgegrenzten Bereichen — Leiste oben, Blatt unten.
+ */
+@media (max-width: 899px) {
+  #app-shell {
+    grid-template-columns: 1fr;
+    /* Leiste so hoch wie noetig, Blatt nimmt den Rest. */
+    grid-template-rows: auto 1fr;
+  }
+
+  /* Die Leiste darf nicht die halbe Hoehe fressen: eigener Scrollbereich. */
+  aside.seitenleiste,
+  #seitenleiste {
+    max-inline-size: none;
+    max-height: 45dvh;
+    overflow-y: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* Das Blatt bleibt in Originalgroesse (DIN-Maßstab), ist aber schiebbar. */
+  #viewport {
+    overflow: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 8px;
+    overscroll-behavior: contain;
+  }
+}

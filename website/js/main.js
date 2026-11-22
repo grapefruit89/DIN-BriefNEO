@@ -4,6 +4,7 @@
 
 import { initAddonDispatcher } from './addons.js';
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
+import { initApi } from './api.js';
 import { Events, eventBus, initToastSystem } from './core.js';
 import { initDatePicker } from './date-picker.js';
 import { initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
@@ -181,6 +182,7 @@ function initApp() {
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());
   bootStep('Datums-Kalender', () => initDatePicker());
+  bootStep('Agenten-API', () => initApi());
   bootStep('Import/Export', () => initImportExport({
     collectDraft: () => toWire(letterState),
     /* D1 Stufe 6: Import ohne Reload. applyState ersetzt RAM + Projektion;

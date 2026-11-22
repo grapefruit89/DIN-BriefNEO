@@ -403,7 +403,8 @@ body {
 /* --- 4. APP SHELL & VIEWPORT GRID --- */
 #app-shell {
   display: grid;
-  grid-template-columns: var(--seitenleiste-breite) 1fr;
+  /* Die Spaltenbreite steht in `desktop.css` (Media Query). Ohne sie ist die
+     Shell mobil einspaltig, statt 1034 px breit zu bleiben. */
   width: 100%;
   height: 100dvh;
   overflow: hidden;

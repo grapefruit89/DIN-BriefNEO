@@ -72,6 +72,10 @@
   <!-- Die Anschrift-Suche ist am 2026-11-22 entfallen; initAddressServices
        braucht nur noch den Key. -->
   <input id="input-geoapify-key" aria-label="Geoapify-Key (Test)">
+  <!-- initApi() haengt an #betreff; ohne es bleibt window.dinApi ungesetzt.
+       data-atom macht das Feld fuer writeField() schreibbar (Allowlist). -->
+  <input id="betreff" data-atom aria-label="Betreff (Test)">
+  <div id="empfaenger-name" contenteditable="true"></div>
 
   <h2>Ergebnisse</h2>
   <div id="test-report"></div>

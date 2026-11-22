@@ -5111,3 +5111,54 @@ erlauben, Dialoge abzusenden — kein Nutzen, nur Risiko. Für DIN-BriefNEO ist
 die **Imperative API** der richtige Weg (Tools statt Form-Submit), und die ist
 in Chrome 156 ohne Flag nicht verfügbar (`navigator.modelContext` fehlt,
 gemessen). Bleibt offen, siehe unten.
+
+---
+
+## 2026-11-22 — `window.dinApi`: Brief-Schnittstelle für Agenten
+
+**Wunsch:** „eine Schnittstelle, die ein Agent nutzen kann, um den Brief
+komplett zu schreiben und zu bedienen."
+
+**Entscheidung: kein WebMCP, sondern ein einfaches JS-Objekt.** WebMCP
+(Chrome 156) ist ohne Origin-Trial/Flag nicht vorhanden — gemessen:
+`navigator.modelContext === undefined`, `modelContextTesting === undefined`.
+Ein `window.dinApi` funktioniert heute in jedem Browser, ist per Konsole, CDP
+und Test aufrufbar; WebMCP wäre später ein dünner Wrapper darüber.
+
+**Datei:** `website/js/api.js` (neu), eingebunden als Boot-Schritt
+„Agenten-API". Alles ist Aufsatz auf vorhandener Logik — `applyValue`,
+`ortsVorschlaege`, `formatDatum`, `salutationVarianten`,
+`buildDINLetterJSON`. Keine zweite Wahrheit.
+
+| Funktion | Wirkung |
+|---|---|
+| `hilfe()` | Feldliste (28), Schalter (3), Signaturen, Hinweis was fehlt |
+| `lesen()` | alle Feldwerte + Schalter, `anzahlFelder` |
+| `setzen(id, wert)` | ein Feld; unbekannte IDs → `{ok:false, fehler}` statt Throw |
+| `anrede(name, firma?, ton?)` | Anrede + Grußformel passend zur Tonalität |
+| `adresse(rolle, daten)` | Empfänger/Absender; leere Angaben werden übersprungen |
+| `datum(eingabe)` | ISO, `TT.MM.JJJJ` oder Langform → Langform |
+| `exportieren()` | dieselbe JSON-Struktur wie „Speichern (.json)" |
+
+**Fund beim Testen:** `applyValue` ist der *Programm*-Schreiber und feuert
+bewusst **kein** `input` (sonst Endlosschleifen). Die Absender-Spiegelung
+(`initSenderSync`) hängt aber an `DOCUMENT_CHANGED` — ohne dieses Signal blieb
+die Rücksendezeile leer. Die API publiziert es jetzt nach jedem Schreiben
+(`schreibe()`), und die Zeile stimmt: „M. Mustermann • Musterweg 5 • 53840
+Troisdorf".
+
+**Bewusst nicht enthalten:** Drucken, Datei-Dialoge (Unterschrift, Schrift),
+Dialoge. Diese brauchen eine Nutzergeste; die API sagt das in `hilfe()`.
+
+**Gemessen (Browser, frischer Zustand):**
+
+```
+adresse('empfaenger', {...})  ok
+adresse('absender', {...})    ok  → Rücksendezeile vollständig
+anrede(..., 'casual')         "Hallo Frau Croft," / "Beste Grüße"
+datum('2026-12-24')           "24. Dezember 2026"
+setzen('gibt-es-nicht')       {ok:false, fehler:… 'hilfe() zeigt die Liste'}
+exportieren()                 {ok:true, brief.format, brief.fields[…]}
+```
+
+`website/llms.txt` nennt die API jetzt für Agenten. Tests: 5 neue Fälle (420).

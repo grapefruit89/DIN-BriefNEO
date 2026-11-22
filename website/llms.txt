@@ -24,3 +24,19 @@
   Einstellungen hinterlegt ist.
 - Das Datumsfeld nimmt deutsche Schreibweisen (`22. November 2026`,
   `22.11.2026`) und ISO (`2026-11-22`).
+
+## Agenten-Schnittstelle
+
+Nach dem Boot steht `window.dinApi` bereit (kein Flag, kein Zusatzmodul):
+
+- `dinApi.hilfe()` — Feldliste, Schalter und Signaturen
+- `dinApi.lesen()` — alle Feldwerte
+- `dinApi.setzen(id, wert)` — ein Feld schreiben (String, bei Schaltern boolean)
+- `dinApi.anrede(name, firma?, tonalitaet?)` — Anrede und Grußformel,
+  Tonalität `formal` | `polite` | `casual`
+- `dinApi.adresse('empfaenger' | 'absender', {firma?, name?, strasse?, ort?})`
+- `dinApi.datum('2026-11-22')` — schreibt die deutsche Langform
+- `dinApi.exportieren()` — der Brief als DIN-Letter-JSON
+
+Drucken, Datei-Uploads (Unterschrift, Schrift) und Dialoge sind bewusst nicht
+Teil der API — sie brauchen eine Nutzergeste.

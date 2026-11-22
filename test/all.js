@@ -8,6 +8,7 @@ import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelli
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
 import { heute, leseDatum, monatsName, monatsTage, startOffset, titelText, WOCHENTAGE } from '../website/js/date-picker.js';
+import { initApi } from '../website/js/api.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
 import { applyDraftValues, clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
 import { Field } from '../website/js/field.js';
@@ -2936,6 +2937,72 @@ describe('Absender-Ort: PLZ-Praefix und Loeschen (2026-11-22)', () => {
     const block = src.slice(start, ende);
     assert(block.includes('lookupPrefix'), 'Praefix-Suche im Absender-Zweig');
     assert(block.includes('absUserEditing'), 'Loesch-Spur im Absender-Zweig');
+  });
+});
+
+
+describe('window.dinApi: Brief-Schnittstelle für Agenten (2026-11-22)', () => {
+  it('bietet hilfe(), lesen(), setzen() und lehnt unbekannte Felder ab', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    assert(api, 'window.dinApi gesetzt');
+    if (!api) return;
+
+    const hilfe = api.hilfe();
+    assert(hilfe.ok, 'hilfe ok');
+    assert(hilfe.felder.includes('betreff'), 'betreff in der Feldliste');
+    assert(Array.isArray(hilfe.schalter), 'Schalter dokumentiert');
+
+    const rein = api.setzen('betreff', 'Rechtsbehelf');
+    assertEqual(rein.ok, true);
+    assertEqual(api.lesen().felder.betreff, 'Rechtsbehelf', 'Wert lesbar');
+
+    const falsch = api.setzen('gibt-es-nicht', 'x');
+    assertEqual(falsch.ok, false, 'unbekanntes Feld wird abgelehnt');
+    assert(String(falsch.fehler).includes('hilfe'), 'Fehler verweist auf hilfe()');
+  });
+
+  it('schreibt Datum in Langform und lehnt Unsinn ab', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    if (!api) return;
+    const gut = api.datum('2026-11-22');
+    assertEqual(gut.ok, true);
+    assertEqual(gut.datum, '22. November 2026');
+    const schlecht = api.datum('irgendwann');
+    assertEqual(schlecht.ok, false, 'unbekanntes Datum wird abgelehnt');
+  });
+
+  it('anrede() setzt Anrede und Grußformel passend zur Tonalität', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    if (!api) return;
+    const r = api.anrede('Frau Lara Croft', 'Muster GmbH', 'casual');
+    assertEqual(r.ok, true);
+    assertEqual(r.tonalitaet, 'casual');
+    assert(r.anrede.startsWith('Hallo'), 'casual-Anrede');
+    assertEqual(r.grussformel, 'Beste Grüße');
+  });
+
+  it('adresse() schreibt nur die übergebenen Teile', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    if (!api) return;
+    const r = api.adresse('empfaenger', { name: 'Frau Test', ort: '53840 Troisdorf' });
+    assertEqual(r.ok, true);
+    assertEqual(r.gesetzt['empfaenger-name'], 'Frau Test');
+    const leer = api.adresse('empfaenger', {});
+    assertEqual(leer.ok, false, 'leere Angaben werden abgelehnt');
+  });
+
+  it('exportieren() liefert die DIN-Letter-Struktur', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    if (!api) return;
+    const r = api.exportieren();
+    assertEqual(r.ok, true);
+    assert(r.brief && r.brief.format, 'format vorhanden');
+    assert(Array.isArray(r.brief.fields), 'fields ist die Dateiliste');
   });
 });
 

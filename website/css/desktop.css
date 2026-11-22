@@ -1,0 +1,17 @@
+/* @adr [[ADR-CSS]]  */
+/**
+ * desktop.css — Layout ab 900 px: Seitenleiste links, Blatt rechts.
+ *
+ * Die Shell (`#app-shell`) ist ein Grid. Die Spaltenbreite steht hier und
+ * nicht mehr in `base.css`, damit `mobile.css` sie ohne `!important` kippen
+ * kann: eine Entscheidung, eine Datei, eine Media Query.
+ */
+@media (min-width: 900px) {
+  #app-shell {
+    grid-template-columns: var(--seitenleiste-breite) 1fr;
+  }
+
+  #viewport {
+    overflow-x: hidden;
+  }
+}

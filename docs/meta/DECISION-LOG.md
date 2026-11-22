@@ -4943,3 +4943,38 @@ bleibt die Überschrift als `sr-only` stehen und benennt die Zone per
 Absicht („jede Zone ist benannt") statt der Zahl der h2.
 Gemessen: `position: absolute`, 1×1 px, `clip: rect(0,0,0,0)` — optisch weg,
 für Screenreader vorhanden.
+
+**Korrektur (2026-11-22): Kollateralschaden beim Purge.** Meine Aussage
+„Anschrift-Suche und Clipboard-Parser entfernt, gemessen: 0 Log-Meldungen"
+war unvollständig. Beim 99-Zeilen-Schnitt in `sidebar.css` sind **drei
+Anker-Regeln** mitgelöscht worden, die nichts mit der Suche zu tun hatten:
+
+| Regel | Folge |
+|---|---|
+| `#anrede-vorschlaege` (`position-anchor: --anchor-anrede`) | Dropdown oben links im Fenster (x=0, y=4) statt am Feld |
+| `#gruss-vorschlaege` (Anker, Stil, Hover, `[data-gruppe]`-Töne) | dito, zusätzlich fehlte der Farbverlauf blau→rot |
+| `#strasse-vorschlaege` (`position-anchor: --anchor-absender-strasse`) | dito |
+| `#anrede-vorschlaege li[data-gruppe=…]` | Gruppenfarbe fehlte |
+
+**Warum die Tests es nicht fanden:** Es gab keinen Test, der die
+Anker-Regeln prüft. `npm test` und die Browser-Messung deckten nur das
+Öffnen und die Trefferzahl ab, nicht die Position.
+
+**Behoben:** Die Regeln sind aus `164568b~1` wiederhergestellt. Nachgemessen
+mit Fokus (nur dann greift `body:has(…:focus)`):
+
+```
+anrede        dx=0  dy=4  Breite 624  anchor --anchor-anrede
+gruss         dx=0  dy=4  Breite 624  anchor --anchor-gruss
+strasseEmpf   dx=0  dy=4  Breite 302  anchor --anchor-empfaenger-strasse
+ort           dx=0  dy=4  Breite 460  anchor --anchor-ort
+Gruppenton    oklch(0.58 0.19 25 / 0.18)   (casual, rot)
+```
+
+**Neuer Wächter:** `Popover-Anker (Ratsche gegen CSS-Kollateralschaden)`
+prüft für jede Popover-ID, dass ein CSS-Block `position-anchor` **und**
+`anchor(bottom)` enthält. Gegenprobe gegen die kaputte Version: 0 Treffer
+für anrede/gruss/strasse → der Test hätte den Fehler gemeldet.
+
+**Offen (nicht kaputt):** der `.autocomplete-dropdown`-Block (3 Regeln) wird
+von keinem HTML-Element mehr genutzt — toter CSS, kein Fehler.

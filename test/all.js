@@ -2907,6 +2907,31 @@ describe('Init degradiert statt abzubrechen (Invariante 2026-11-22)', () => {
   });
 });
 
+
+describe('Popover-Anker (Ratsche gegen CSS-Kollateralschaden, 2026-11-22)', () => {
+  /* Beim Purge der Anschrift-Suche sind die Anker-Regeln von Anrede, Gruß und
+     Straße mitgeloescht worden — die Dropdowns landeten oben links im Fenster.
+     Dieser Test haelt fuer JEDES Feld-Popover fest, dass es einen Anker und
+     eine Position hat. */
+  it('jedes Feld-Popover hat position-anchor und top: anchor(bottom)', async () => {
+    const css = await (await fetch('/website/css/sidebar.css')).text();
+    const bloecke = css.split('}').map((b) => b);
+    const ids = [
+      'plz-suggestions-popover',
+      'strasse-vorschlaege',
+      'anrede-vorschlaege',
+      'gruss-vorschlaege',
+      'datum-kalender'
+    ];
+    for (const id of ids) {
+      const mitAnker = bloecke.filter(
+        (b) => b.includes(`#${id}`) && b.includes('position-anchor') && b.includes('anchor(bottom)')
+      );
+      assert(mitAnker.length > 0, `#${id}: Anker + Position vorhanden`);
+    }
+  });
+});
+
 describe('Datums-Kalender (date-picker.js)', () => {
   it('gibt alle Tage eines Monats als ISO aus', () => {
     const nov = monatsTage(2026, 11);

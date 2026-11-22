@@ -1051,6 +1051,72 @@ input[type="checkbox"][switch] {
   }
 }
 
+/* Anrede-Varianten: Verlauf von distanziert (blau) nach vertraut (rot).
+   Drei klar getrennte Stufen: 255 Grad (blau) -> 320 (violett) -> 25 (rot).
+   Konzept: **ordinale Farbskala** (Hue = Naehe, nicht Kategorie) im
+   OKLCH-Raum, damit die drei Stufen gleich hell und gleich stark wirken —
+   Blau/Gruen/Rot waeren eine kategoriale Skala und wuerden Naehe nicht abbilden. */
+#anrede-vorschlaege li[data-gruppe="formal"],
+#gruss-vorschlaege li[data-gruppe="formal"] { --ort-ton: var(--ton-formal); }
+#anrede-vorschlaege li[data-gruppe="polite"],
+#gruss-vorschlaege li[data-gruppe="polite"] { --ort-ton: var(--ton-hoeflich); }
+#anrede-vorschlaege li[data-gruppe="casual"],
+#gruss-vorschlaege li[data-gruppe="casual"] { --ort-ton: var(--ton-locker); }
+
+/* Die Gruppen sollen klar lesbar sein: im Anrede-Popover etwas kraeftiger
+   hinterlegt als in den Ortslisten. */
+#anrede-vorschlaege li.suggestion-item {
+  background: color-mix(in oklch, var(--ort-ton) 18%, transparent);
+}
+
+/* Grußformeln: dieselbe Optik wie die Anrede-Liste, drei Eintraege je Ton. */
+#gruss-vorschlaege,
+#gruss-vorschlaege[popover] {
+  position-anchor: --anchor-gruss;
+  top: anchor(bottom);
+  left: anchor(left);
+  min-width: max(280px, anchor-size(width));
+  max-width: 165mm;
+  max-height: 165mm;
+}
+
+#gruss-vorschlaege li.suggestion-item {
+  background: color-mix(in oklch, var(--ort-ton) 18%, transparent);
+}
+
+#gruss-vorschlaege li.suggestion-item:hover {
+  background: color-mix(in oklch, var(--ort-ton) 30%, var(--segment-bg));
+  outline: 2px solid color-mix(in oklch, var(--ort-ton) 75%, transparent);
+  outline-offset: -2px;
+}
+
+#anrede-vorschlaege,
+#anrede-vorschlaege[popover] {
+  position-anchor: --anchor-anrede;
+  top: anchor(bottom);
+  left: anchor(left);
+  min-width: max(320px, anchor-size(width));
+  /* Arbeitsbereich ist das Blatt, nicht das Fenster: 210 mm - 25 mm links -
+     20 mm rechts = 165 mm (2026-11-22). */
+  max-width: 165mm;
+  /* Fallback; die Hoehe bis 20 mm vor den Blatt-Unterrand setzt
+     passeAnBlattrand() beim Oeffnen (Regel 2026-11-22). */
+  max-height: 165mm;
+}
+
+#strasse-vorschlaege,
+#strasse-vorschlaege[popover] {
+  position-anchor: --anchor-absender-strasse;
+  top: anchor(bottom);
+  /* Das Strassenfeld steht im Infoblock knapp vor dem rechten Blattrand
+     (125...190 mm). Linksbuendig lief die Liste 14 mm ueber den Blattrand
+     hinaus (gemessen 2026-11-22); rechtsbuendig waechst sie nach innen. */
+  left: auto;
+  right: anchor(right);
+  min-width: max(300px, anchor-size(width));
+  max-width: 165mm;
+}
+
 #plz-suggestions-popover,
 #plz-suggestions-popover[popover] {
   position-anchor: --anchor-ort;

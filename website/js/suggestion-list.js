@@ -229,7 +229,15 @@ export function initVorschlagsliste(cfg) {
   };
 
   const beiKlick = () => oeffne();
-  const beiEingabe = () => {
+  /** @param {Event} ev */
+  const beiEingabe = (ev) => {
+    /* Nur ECHTE Eingaben oeffnen die Liste: eine Tastatur-/Paste-Eingabe ist
+       ein InputEvent MIT inputType. Programmgesteuertes Fuellen (Testbrief,
+       Formatierer) schickt ein nacktes `new Event('input')` ohne inputType —
+       das liess alle Listen kurz aufblitzen (gemeldet 2026-11-22: "Testbrief
+       triggert auch alle Dropdowns"). Tests, die InputEvent mit inputType
+       senden, laufen weiter. */
+    if (!(ev instanceof InputEvent) || !ev.inputType) return;
     unterdrueckt = false;
     verzoegert();
   };

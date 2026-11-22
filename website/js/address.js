@@ -227,6 +227,10 @@ AddressIntelligence.wireDOM = function wireDOM() {
   empfOrtEl.addEventListener('input', (/** @type {any} */ e) => {
     // Fiktive Testbrief-Adresse: nicht aufloesen, nicht ueberschreiben.
     if (empfOrtEl.hasAttribute('data-autofill-aus')) return;
+    /* Programmgesteuertes Fuellen (Testbrief) schickt ein Event OHNE
+       inputType; echte Eingaben (Tastatur, Paste) haben einen. Nur die
+       oeffnen die Liste - sonst blitzen alle Dropdowns kurz auf (2026-11-22). */
+    if (!(e instanceof InputEvent) || !e.inputType) return;
     if (e?.inputType?.startsWith('delete')) {
       userEditing = true;
     } else if (e?.inputType === 'insertText' && /\d/.test(e.data || '')) {
@@ -375,7 +379,8 @@ AddressIntelligence.wireDOM = function wireDOM() {
       );
 
     absOrtEl.addEventListener('blur', () => hidePopoverSafe(suggestionsPopover));
-    absOrtEl.addEventListener('input', () => {
+    absOrtEl.addEventListener('input', (/** @type {Event} */ ev) => {
+      if (!(ev instanceof InputEvent) || !ev.inputType) return;
       const raw = Field.getValue(absOrtEl).trim();
       if (absTimer) clearTimeout(absTimer);
       if (raw.length < 3) {
@@ -405,9 +410,10 @@ AddressIntelligence.wireDOM = function wireDOM() {
 
   // Case C: Eingabe im Firma-Feld (Großkunden & Behörden Direkt-Lookup)
   if (empfFirmaEl) {
-    empfFirmaEl.addEventListener('input', () => {
+    empfFirmaEl.addEventListener('input', (/** @type {Event} */ ev) => {
       // Fiktive Testbrief-Firma: kein Grosskunden-Lookup.
       if (empfFirmaEl.hasAttribute('data-autofill-aus')) return;
+      if (!(ev instanceof InputEvent) || !ev.inputType) return;
       const rawText = Field.getValue(empfFirmaEl).trim();
 
       if (firmaDebounceTimer) clearTimeout(firmaDebounceTimer);

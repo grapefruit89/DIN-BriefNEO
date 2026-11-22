@@ -22,7 +22,7 @@ import { deriveSalutation, SALUTATION_TONES, salutationVarianten, SalutationEngi
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
 import { BLATTRAND_PX, blattrandHoehe } from '../website/js/suggestion-list.js';
-import { geoCacheGroesse, geoCacheHash, geoCacheHole, geoCacheLeeren, geoCacheSetze, RING_MAX_BYTES } from '../website/js/geo-cache.js';
+import { geoCacheGroesse, geoCacheHash, geoCacheHole, geoCacheLeeren, geoCacheNutzung, geoCacheSetze, geoCacheZaehle, RING_MAX_BYTES } from '../website/js/geo-cache.js';
 import { assert, assertEqual, describe, it, run } from './runner.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
@@ -2746,6 +2746,59 @@ describe('Geo-Cache: Ringspeicher im localStorage (2026-11-22)', () => {
       assert(groesse.eintraege > 0, 'Ring ist nicht leer');
       assertEqual(geoCacheHole('strasse:begriff0'), undefined, 'aeltester Eintrag ist weg');
       assert(geoCacheHole('strasse:begriff399') !== undefined, 'neuester Eintrag ist da');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('zaehlt nur, wenn ein Treffer wirklich uebernommen wird', () => {
+    try {
+      geoCacheLeeren();
+      geoCacheSetze('strasse:ringstr', { art: 'strasse', d: [['Ringstraße', '', '', '', '']] });
+      assertEqual(geoCacheNutzung('strasse:ringstr'), 0, 'Suchen allein zaehlt nicht');
+      geoCacheZaehle('strasse:ringstr');
+      geoCacheZaehle('strasse:ringstr');
+      assertEqual(geoCacheNutzung('strasse:ringstr'), 2, 'zwei Uebernahmen');
+      assertEqual(geoCacheNutzung('strasse:unbekannt'), 0, 'unbekannter Schluessel bleibt 0');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('Zaehler ueberlebt ein Neusuchen desselben Begriffs', () => {
+    try {
+      geoCacheLeeren();
+      geoCacheSetze('strasse:ringstr', { art: 'strasse', d: [['Ringstraße', '', '', '', '']] });
+      geoCacheZaehle('strasse:ringstr');
+      geoCacheZaehle('strasse:ringstr');
+      geoCacheZaehle('strasse:ringstr');
+      geoCacheSetze('strasse:ringstr', { art: 'strasse', d: [['Ringstraße 2', '', '', '', '']] });
+      assertEqual(geoCacheNutzung('strasse:ringstr'), 3, 'Wert neu, Zaehler bleibt');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('LFU: ein gewaehlter Begriff ueberlebt die Verdraengung, ungenutzte fliegen', () => {
+    try {
+      geoCacheLeeren();
+      /* Ein Eintrag wiegt ~4,3 KB; 200 fuellen ~860 KB, also noch unter dem
+         Deckel. Erst danach wird gewaehlt und weiter gefuellt (Verdraengung). */
+      const fuell = 'y'.repeat(2048);
+      for (let i = 0; i < 200; i++) {
+        geoCacheSetze(`strasse:begriff${i}`, { art: 'strasse', d: [[fuell, '', '', '', '']] });
+      }
+      /* Einen alten, aber gewaehlten Begriff markieren. */
+      geoCacheZaehle('strasse:begriff0');
+      for (let i = 200; i < 320; i++) {
+        geoCacheSetze(`strasse:begriff${i}`, { art: 'strasse', d: [[fuell, '', '', '', '']] });
+      }
+      const groesse = geoCacheGroesse();
+      assert(groesse.bytes <= RING_MAX_BYTES, `Deckel gehalten (${groesse.bytes})`);
+      assert(geoCacheHole('strasse:begriff0') !== undefined, 'gewaehlter Begriff bleibt');
+      assertEqual(geoCacheNutzung('strasse:begriff0'), 1, 'Zaehler unveraendert');
+      assertEqual(geoCacheHole('strasse:begriff1'), undefined, 'ungueltiger Nachbar fliegt');
+      assert(groesse.gewaehlt >= 1, 'gewaehlte Eintraege werden gezaehlt');
     } finally {
       geoCacheLeeren();
     }

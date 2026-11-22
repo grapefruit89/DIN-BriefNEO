@@ -31,7 +31,7 @@ import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
 import { setCaretToEnd } from './document.js';
 import { Field } from './field.js';
-import { geoCacheHole, geoCacheSetze } from './geo-cache.js';
+import { geoCacheHole, geoCacheSetze, geoCacheZaehle } from './geo-cache.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { letterState, setMeta } from './state.js';
 import { applyValue, commitElement } from './state-binding.js';
@@ -1082,6 +1082,9 @@ export function initAddressServices() {
   /** @type {AddressEntry[]} */
   let renderedSuggestions = [];
   let activeSuggestionIndex = -1;
+  /* Cache-Schluessel der angezeigten Adress-Treffer (LFU-Signal beim Klick,
+     siehe geo-cache.js). */
+  let letzterAdressSchluessel = '';
 
   // Load initial settings
   const savedKey = load(STORAGE_KEYS.geoapifyKey, '') || '';
@@ -1427,6 +1430,7 @@ export function initAddressServices() {
     // 3. CACHE HIT: Sofortiges Rendering ohne Netzwerk!
     const lock = AddressIntelligence.targetLock;
     const cacheKey = `${lock ? `${lock.plz} ` : ''}${query}`.toLowerCase();
+    letzterAdressSchluessel = cacheKey;
     const ausCache = cacheHole(cacheKey);
     if (ausCache) {
       mergeAndRender(localMatches, ausCache, query);
@@ -1487,6 +1491,7 @@ export function initAddressServices() {
          "53840" zeigten gar nichts (gemeldet 2026-11-13). */
 
       cacheSetze(cacheKey, parsedSuggestions);
+      letzterAdressSchluessel = cacheKey;
       /* Ueberholte Antwort verwerfen: der Nutzer hat inzwischen weitergetippt
        * oder das Feld geleert (B3-03). */
       if (generation !== suchGeneration) return;
@@ -1615,6 +1620,9 @@ export function initAddressServices() {
     const empfStrasse = feld('empfaenger-strasse');
     const empfOrt = feld('empfaenger-ort');
 
+    /* LFU-Signal: nur eine Uebernahme ins Feld macht den Suchbegriff wertvoll. */
+    geoCacheZaehle(letzterAdressSchluessel);
+
     /* Nur fuellen, was der Treffer wirklich hat: ein Stadt-/PLZ-Treffer hat
        keine Strasse und darf das Empfaengerfeld nicht leeren. */
     if (empfStrasse && item.street) {
@@ -1693,6 +1701,9 @@ export function initAddressServices() {
   if (strassePopover) {
     /** @type {AbortController | null} */
     let strassenController = null;
+    /* Schluessel der zuletzt angezeigten Strasse-Treffer. Beim Klick wird er
+       gezaehlt (LFU: gewaehlte Begriffe bleiben laenger im Ring). */
+    let letzterStrassenSchluessel = '';
 
     /** @param {any} r Geoapify-Treffer @returns {{ text: string, zusatz: string, wert: any }} */
     const alsVorschlag = (r) => ({
@@ -1707,6 +1718,7 @@ export function initAddressServices() {
       const key = load(STORAGE_KEYS.geoapifyKey, '');
       if (!key) return [];
       const schluessel = `strasse:${text.toLowerCase()}`;
+      letzterStrassenSchluessel = schluessel;
       const ausCache = cacheHole(schluessel);
       if (ausCache?.length) return ausCache.map(alsVorschlag);
 
@@ -1748,6 +1760,8 @@ export function initAddressServices() {
         hole: holeStrassen,
         beiWahl: (/** @type {any} */ v) => {
           const r = v.wert || {};
+          /* Erst hier zaehlt der Begriff als "gebraucht" - nicht beim Tippen. */
+          geoCacheZaehle(letzterStrassenSchluessel);
           applyValue(feldId, v.text, 'auto');
           /* Passende PLZ/Ort immer mitschreiben. */
           const ortFeld = feld(ortId);

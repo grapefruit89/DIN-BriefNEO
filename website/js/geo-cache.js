@@ -23,7 +23,7 @@
  */
 
 /** Deckel des Rings in Bytes (UTF-16, also ×2 pro Zeichen). */
-export const RING_MAX_BYTES = 512 * 1024;
+export const RING_MAX_BYTES = 1024 * 1024;
 
 const WERT_PREFIX = 'geo_cache_v1:';
 const INDEX_KEY = 'geo_cache_index_v1';
@@ -32,7 +32,8 @@ const INDEX_KEY = 'geo_cache_index_v1';
  * @typedef {object} IndexEintrag
  * @property {number} b Bytes (Wert + Schluessel)
  * @property {number} l Laenge des Originalschluessels (Kollisionsschutz)
- * @property {number} t Zeitpunkt des Schreibens
+ * @property {number} t Reihenfolge des Schreibens (Zaehler, keine Uhrzeit)
+ * @property {number} n wie oft ein Treffer dieser Abfrage GEWAEHLT wurde
  */
 
 /** @type {Map<string, IndexEintrag> | null} */
@@ -79,7 +80,7 @@ function ladeIndex() {
       if (!e || typeof e.h !== 'string' || !Number.isFinite(e.b)) continue;
       const t = Number(e.t) || 0;
       if (t > zaehler) zaehler = t;
-      index.set(e.h, { b: Number(e.b), l: Number(e.l) || 0, t });
+      index.set(e.h, { b: Number(e.b), l: Number(e.l) || 0, t, n: Number(e.n) || 0 });
       gesamtBytes += Number(e.b);
     }
   } catch {
@@ -97,7 +98,7 @@ export function geoCacheFlush() {
     indexTimer = null;
   }
   try {
-    const liste = [...index.entries()].map(([h, e]) => ({ h, b: e.b, l: e.l, t: e.t }));
+    const liste = [...index.entries()].map(([h, e]) => ({ h, b: e.b, l: e.l, t: e.t, n: e.n }));
     localStorage.setItem(INDEX_KEY, JSON.stringify(liste));
   } catch {
     /* Quota oder Privatmodus: dann bleibt der Ring eben unsichtbar. */
@@ -113,13 +114,16 @@ function planeIndex() {
 }
 
 /**
- * Verdrängt die ältesten Einträge, bis `noetig` zusätzliche Bytes hineinpassen.
+ * Verdrängt Einträge, bis `noetig` zusätzliche Bytes hineinpassen.
+ * Reihenfolge: **nie gewählte zuerst**, dann die am längsten unbenutzten.
+ * Ein Begriff, dessen Treffer schon ins Feld übernommen wurde, ist mehr wert
+ * als einer, den niemand angeklickt hat (Vorgabe 2026-11-22).
  * @param {number} [noetig=0]
  */
 function verdraenge(noetig = 0) {
   const idx = ladeIndex();
   if (gesamtBytes + noetig <= RING_MAX_BYTES) return;
-  const nachAlter = [...idx.entries()].sort((a, b) => a[1].t - b[1].t);
+  const nachAlter = [...idx.entries()].sort((a, b) => a[1].n - b[1].n || a[1].t - b[1].t);
   for (const [h, e] of nachAlter) {
     if (gesamtBytes + noetig <= RING_MAX_BYTES) break;
     try {
@@ -162,7 +166,9 @@ export function geoCacheSetze(schluessel, wert) {
   const alt = idx.get(hash);
   if (alt) gesamtBytes -= alt.b;
   zaehler += 1;
-  idx.set(hash, { b: bytes, l: schluessel.length, t: zaehler });
+  /* Zaehler NICHT zuruecksetzen: derselbe Begriff wird oft neu gesucht und
+     soll dabei nicht seine Wertigkeit verlieren. */
+  idx.set(hash, { b: bytes, l: schluessel.length, t: zaehler, n: alt?.n ?? 0 });
   gesamtBytes += bytes;
   verdraenge();
   planeIndex();
@@ -208,12 +214,43 @@ export function geoCacheHole(schluessel) {
 }
 
 /**
+ * Zaehlt einen Treffer als "wurde wirklich ins Feld uebernommen".
+ * Nur DAS zaehlt: eine Abfrage, bei der der Nutzer nichts auswaehlt, ist fuer
+ * die Verdrängung nichts wert (Vorgabe 2026-11-22).
+ * @param {string} schluessel
+ */
+export function geoCacheZaehle(schluessel) {
+  if (!schluessel) return;
+  const idx = ladeIndex();
+  const hash = geoCacheHash(schluessel);
+  const eintrag = idx.get(hash);
+  if (!eintrag || eintrag.l !== schluessel.length) return;
+  eintrag.n += 1;
+  planeIndex();
+}
+
+/**
+ * Wie oft ein Begriff als "gewaehlt" gezaehlt wurde (0 = nie).
+ * @param {string} schluessel
+ * @returns {number}
+ */
+export function geoCacheNutzung(schluessel) {
+  const idx = ladeIndex();
+  const hash = geoCacheHash(schluessel);
+  const eintrag = idx.get(hash);
+  if (!eintrag || eintrag.l !== schluessel.length) return 0;
+  return eintrag.n;
+}
+
+/**
  * Belegung des Rings (fuer Diagnose und Tests).
- * @returns {{ eintraege: number, bytes: number, maxBytes: number }}
+ * @returns {{ eintraege: number, bytes: number, maxBytes: number, gewaehlt: number }}
  */
 export function geoCacheGroesse() {
   const idx = ladeIndex();
-  return { eintraege: idx.size, bytes: gesamtBytes, maxBytes: RING_MAX_BYTES };
+  let gewaehlt = 0;
+  for (const e of idx.values()) if (e.n > 0) gewaehlt += 1;
+  return { eintraege: idx.size, bytes: gesamtBytes, maxBytes: RING_MAX_BYTES, gewaehlt };
 }
 
 /** Leert den Ring vollstaendig (Einstellungen, Tests). */

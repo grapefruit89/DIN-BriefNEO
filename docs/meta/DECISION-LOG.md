@@ -4211,3 +4211,29 @@ Verdrängung nach Alter, Kollisionsschutz über die Originalschlüssel-Länge.
 derselbe Begriff die Liste mit **0 API-Abrufen** (567 ms ab erstem Tastendruck,
 davon 350 ms Tippen + 180 ms Debounce); kalt kostet derselbe Begriff ~500–600 ms
 Netz zusätzlich. Tests 406/406, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Ring auf 1 MB, Verdrängung nach LFU (Zähler nur bei Übernahme)
+
+**Nutzer-Vorgabe:** größerer Ring und ein Zähler „wie oft die Adresse gesucht
+wurde" — aber ausdrücklich nur für das, „was nachher tatsächlich ins Feld kommt".
+
+**Anker:** Das ist **LFU (Least Frequently Used)** mit **LRU-Tie-Break**; die
+Zählung erst bei der Übernahme ist eine **Admission-Policy** mit implizitem
+Feedback (Klick statt Abfrage). Verwandt: TinyLFU (Doorkeeper), LFUDA (Alterung),
+GDSF (Häufigkeit pro Byte).
+
+**Umsetzung:**
+
+| Punkt | Wert |
+|---|---|
+| Deckel | 512 KB → **1 MB** (~2.400 Begriffe bei 428 Byte) |
+| Zähler | `n` je Eintrag, nur über `geoCacheZaehle()` — aufgerufen in der Straßen-Auswahl (beide Felder) und in `selectSuggestion` der Sidebar-Suche |
+| Verdrängung | `n` aufsteigend, dann Schreibreihenfolge → **nie Gewähltes fliegt zuerst** |
+| Neusuchen | `geoCacheSetze` behält `n` (ein Begriff verliert seine Wertigkeit nicht, nur weil er erneut gesucht wird) |
+
+**Nachweis:** Ring geleert → „Hauptstr" suchen: Zähler **0** (Suchen allein
+zählt nicht) → erste Auswahl **1** → zweite Auswahl **2**; Belegung 428 Byte von
+1.048.576. Tests: 3 neue (Zähler nur bei Übernahme, Zähler überlebt Neusuchen,
+gewählter Begriff überlebt die Verdrängung), 409/409, Fitness 100 %.

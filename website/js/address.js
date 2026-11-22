@@ -346,92 +346,32 @@ AddressIntelligence.wireDOM = function wireDOM() {
     };
 
     /** @param {Array<any>} liste @param {boolean} [alle] */
-    const zeichneAbsender = (liste, alle = false) => {
-      /* Nur Orte. Eine Stadt bringt aus lookupCityPlzs auch ihre Großempfänger
-         mit (Firmen/Behörden) — die gehören nicht in den Absender
-         (gemeldet 2026-11-22). */
-      const nurOrte = liste.filter((e) => (e.typ || 'Stadt') === 'Stadt');
-      const eintraege = flacheVorschlaege(nurOrte, alle ? Number.POSITIVE_INFINITY : maxSuggestions());
-      /* Bundesland nur bei gemischten Listen ("· Nordrhein-Westfalen" an
-         einzelnen Bonn-Zeilen war Rauschen). */
-      const staaten = new Set(eintraege.map((e) => e.state || '').filter(Boolean));
-      if (!eintraege.length) {
-        hidePopoverSafe(suggestionsPopover);
-        return;
-      }
-      const farben = farbenFuerListe(eintraege, (e) => (e.plz ? AddressIntelligence.getKreisKey(e.plz) : ''));
-      /* Gleicher Name in mehreren Kreisen: dort den Kreis zeigen. */
-      const kreiseJeName = new Map();
-      for (const e of eintraege) {
-        const n = e.name || e.city || '';
-        const set = kreiseJeName.get(n) ?? new Set();
-        set.add(e.plz ? AddressIntelligence.getKreisKey(e.plz) || '' : '');
-        kreiseJeName.set(n, set);
-      }
-
-      suggestionsPopover.replaceChildren();
-      eintraege.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = 'suggestion-item';
-        li.setAttribute('role', 'option');
-        li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
-        li.dataset.ortFarbe = farben[index];
-        li.dataset.typ = 'stadt';
-
-        const main = document.createElement('span');
-        main.className = 'suggestion-main';
-        if (item.plz) {
-          const plzTeil = document.createElement('span');
-          plzTeil.textContent = item.plz;
-          main.appendChild(plzTeil);
-          main.appendChild(document.createTextNode(' '));
-        }
-        const nameTeil = document.createElement('span');
-        nameTeil.className = 'city-val';
-        nameTeil.textContent = item.name || item.city || '';
-        main.appendChild(nameTeil);
-        if (!item.plz && (item.plzCount || 0) > 1) {
-          const anzahl = document.createElement('span');
-          anzahl.className = 'city-sub';
-          anzahl.textContent = `· ${item.plzCount} PLZs`;
-          main.appendChild(anzahl);
-        }
-        li.appendChild(main);
-
-        const mehrfach = (kreiseJeName.get(item.name || item.city || '')?.size || 0) > 1;
-        const kreisName = mehrfach && item.plz ? AddressIntelligence.getKreis(item.plz) : '';
-        let extra = '';
-        const istOrt = (item.typ || 'Stadt') === 'Stadt';
-        if (kreisName) extra = `· ${kreisName}`;
-        else if (item.district) {
-          const erster = String(item.district).split(',')[0].trim();
-          extra = `· ${erster || item.district}`;
-        } else if (item.state && staaten.size > 1) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
-        /* Badge sagt bereits, dass es eine Firma/Behörde ist. */
-        if (!istOrt) extra = '';
-        if (extra) {
-          const sub = document.createElement('span');
-          sub.className = 'district-val';
-          sub.textContent = extra;
-          li.appendChild(document.createTextNode(' '));
-          li.appendChild(sub);
-        }
-
-        li.addEventListener('mousedown', (ev) => {
-          ev.preventDefault();
-          /* Stadtsammelzeile ("Neustadt (9 PLZs)"): erst die PLZ zeigen. */
-          if ((item.plzCount || 0) > 1 && !item.plz) {
-            zeichneAbsender(AddressIntelligence.lookupCityPlzs(item.city), true);
-            return;
+    const zeichneAbsender = (liste, alle = false) =>
+      renderUniversalSuggestions(
+        liste,
+        liste.length,
+        absOrtEl,
+        null,
+        null,
+        suggestionsPopover,
+        absOrtEl,
+        alle,
+        {
+          nurOrte: true,
+          /** @param {any} item */
+          beiWahl: (item) => {
+            /* Stadtsammelzeile ("Neustadt (9 PLZs)"): erst die PLZ zeigen. */
+            if ((item.plzCount || 0) > 1 && !item.plz) {
+              zeichneAbsender(AddressIntelligence.lookupCityPlzs(item.city), true);
+              return true;
+            }
+            schreibeAbsender(item.plz || '', item.city || item.name || '');
+            setCaretToEnd(absOrtEl);
+            hidePopoverSafe(suggestionsPopover);
+            return true;
           }
-          schreibeAbsender(item.plz || '', item.city || item.name || '');
-          setCaretToEnd(absOrtEl);
-          hidePopoverSafe(suggestionsPopover);
-        });
-        suggestionsPopover.appendChild(li);
-      });
-      showPopoverSafe(suggestionsPopover);
-    };
+        }
+      );
 
     absOrtEl.addEventListener('blur', () => hidePopoverSafe(suggestionsPopover));
     absOrtEl.addEventListener('input', () => {
@@ -527,6 +467,9 @@ AddressIntelligence.wireDOM = function wireDOM() {
 
   empfOrtEl.addEventListener('keydown', handleKeyNav);
   if (empfFirmaEl) empfFirmaEl.addEventListener('keydown', handleKeyNav);
+  /* Beide Ortfelder fuellen dasselbe Popover - ohne diese Zeile reagierte die
+     Absender-Liste nicht auf Pfeile/Enter (gemessen 2026-11-22). */
+  if (absOrtEl) absOrtEl.addEventListener('keydown', handleKeyNav);
 };
 
 /**
@@ -638,13 +581,19 @@ export function farbenFuerListe(eintraege, kreisVon) {
  * @param {HTMLElement} popoverEl
  * @param {HTMLElement | null} [anchorEl]
  * @param {boolean} [isPlzList=false]
+ * @param {{ nurOrte?: boolean, beiWahl?: (item: any) => boolean }} [optionen]
+ *   `nurOrte`: Firmen/Behoerden ausblenden (Absender). `beiWahl`: eigene
+ *   Auswahl-Logik; `true` = behandelt.
  */
-function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasseEl, popoverEl, anchorEl = null, isPlzList = false) {
+function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasseEl, popoverEl, anchorEl = null, isPlzList = false, optionen = {}) {
   const render = () => {
     popoverEl.replaceChildren();
 
     /** @param {any} item */
     const selectItem = (item) => {
+      /* Eigene Auswahl (Absender-Ort): der Aufrufer entscheidet, was mit dem
+         Treffer passiert, und meldet mit `true`, dass er ihn behandelt hat. */
+      if (optionen.beiWahl?.(item)) return;
       /* Stadtteil-Gruppe (grosse Stadt): deren PLZ anzeigen. */
       if (Array.isArray(item.plzs)) {
         renderUniversalSuggestions(item.plzs, item.plzs.length, ortEl, firmaEl, strasseEl, popoverEl, anchorEl, true);
@@ -678,7 +627,12 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       if (t === 'behörde' || t === 'behoerde' || t === 'gericht') return 1;
       return 2;
     };
-    const eintraege = flacheVorschlaege(matches, isPlzList ? Number.POSITIVE_INFINITY : maxSuggestions())
+    /* Der Absender zeigt nur Orte: eine Stadt bringt aus lookupCityPlzs auch
+       ihre Grossempfaenger mit, die gehoeren nicht in die Ruecksendezeile. */
+    const quelle = optionen.nurOrte
+      ? matches.filter((e) => (e.typ || 'Stadt') === 'Stadt')
+      : matches;
+    const eintraege = flacheVorschlaege(quelle, isPlzList ? Number.POSITIVE_INFINITY : maxSuggestions())
       .toSorted((a, b) => {
         const ra = rang(a);
         const rb = rang(b);
@@ -692,6 +646,11 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
         }
         return 0;
       });
+
+    if (!eintraege.length) {
+      hidePopoverSafe(popoverEl);
+      return;
+    }
 
     /* Bundesland nur, wenn es die Zeile von den anderen desselben Namens
        unterscheidet: bei "frankfurt am main" sind 114 Zeilen Hessen, zwei

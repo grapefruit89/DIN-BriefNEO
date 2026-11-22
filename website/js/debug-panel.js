@@ -24,7 +24,7 @@ import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
 import { holeLog } from './log.js';
 import { buildDINLetterJSON, load, loadJSON, STORAGE_KEYS } from './persistence.js';
-import { SALUTATION_TONES, salutationVarianten } from './salutation.js';
+import { aktuelleTonalitaet, SALUTATION_TONES, salutationVarianten } from './salutation.js';
 
 /** @param {number} bytes @returns {string} */
 const alsKb = (bytes) => `${formatZahl(Math.round(bytes / 102.4) / 10)} KB`;
@@ -116,8 +116,7 @@ async function dropdownInhalt(art) {
   }
 
   if (art === 'gruss') {
-    const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-    const ton = stil && stil.value in SALUTATION_TONES ? stil.value : 'formal';
+    const ton = aktuelleTonalitaet();
     return {
       id: 'grussformel',
       aktuell: wert('grussformel'),
@@ -266,12 +265,7 @@ function verdrahteKnoepfe() {
       if (gruppe) {
         const bloecke = await Promise.all(gruppe.arten.map((a) => dropdownInhalt(a)));
         zeilen = [gruppe.titel, '-'.repeat(gruppe.titel.length)];
-        if (art === 'anrede-gruss') {
-          const stil = /** @type {HTMLSelectElement | null} */ (
-            document.getElementById('stil-select')
-          );
-          zeilen.push(`Tonalität: ${stil?.value || '?'}`);
-        }
+        if (art === 'anrede-gruss') zeilen.push(`Tonalität: ${aktuelleTonalitaet()}`);
         if (art === 'strassen') zeilen.push(`Bias: ${biasText()}`);
         zeilen.push('');
         for (const block of bloecke) {

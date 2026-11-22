@@ -1873,7 +1873,9 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     /* Ratsche gegen die Rueckkehr des FOUC: jeder dieser Werte stand schon
        einmal erst nach dem Paint im DOM (Befund B11). */
     const src = await (await fetch('/website/js/boot-state.js')).text();
-    for (const id of ['stil-select', 'select-schriftart', 'btn-rand-u-30', 'plugin-testbrief', 'datum']) {
+    /* #stil-select ist am 2026-11-22 entfallen (Tonalitaet kommt aus der
+       Anrede-Wahl) - die uebrigen Regler bleiben in der Ratsche. */
+    for (const id of ['select-schriftart', 'btn-rand-u-30', 'plugin-testbrief', 'datum']) {
       assert(src.includes(`'${id}'`), `#${id} wird vor dem Paint gesetzt`);
     }
     /* B62: die Optik kommt aus :has(option:checked...), nicht aus einem
@@ -6020,14 +6022,17 @@ describe('Strukturvertrag liegt nicht in der Design-Schicht (Befund B15)', () =>
     );
   });
 
-  it('Postvermerk steht vor Brief-Stil (Schreibablauf)', async () => {
+  it('Postvermerk steht vor den Zusatzbloecken (Schreibablauf)', async () => {
+    /* Bis 2026-11-22 lautete der Test "vor Brief-Stil". Das Auswahlfeld ist
+       entfallen (Tonalitaet kommt aus der Anrede-Wahl); die Absicht bleibt:
+       der Postvermerk gehoert in den Anschriftbereich, vor alles Zusaetzliche. */
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const labels = [...doc.querySelectorAll('#zone-dokument .seitenleiste-label')].map((e) => e.textContent.trim());
     const post = labels.indexOf('Postvermerk');
-    const stil = labels.findIndex((l) => l.startsWith('Brief-Stil'));
-    assert(post > -1 && stil > -1, 'beide Labels vorhanden');
-    assert(post < stil, 'Postvermerk vor Brief-Stil (gehoert ins Anschriftfeld)');
+    const anlagen = labels.indexOf('Anlagen');
+    assert(post > -1 && anlagen > -1, 'beide Labels vorhanden');
+    assert(post < anlagen, 'Postvermerk vor den Zusatzbloecken');
   });
 
   it('Hinweise sind verbunden, der Key-Status ist eine Live-Region', async () => {

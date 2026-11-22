@@ -310,14 +310,8 @@ export class SalutationFeature {
   }
 
   init() {
-    const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-    if (styleSelect) {
-      styleSelect.value = this.settings.formality;
-      styleSelect.addEventListener('change', () => {
-        this.#setStyle(toStyle(styleSelect.value));
-      });
-    }
-
+    /* Kein eigenes Auswahlfeld mehr (2026-11-22): die Tonalitaet kommt aus der
+       Anrede-Wahl (#uebernehme -> #setStyle) und liegt in den Einstellungen. */
     this.#seedAuto();
 
     document.getElementById('empfaenger-name')?.addEventListener('input', () => this.#update('anrede'));
@@ -434,10 +428,6 @@ export class SalutationFeature {
   /** @param {'formal' | 'polite' | 'casual'} style */
   #setStyle(style) {
     this.settings.formality = style;
-    const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-    if (styleSelect?.value !== style) {
-      if (styleSelect) styleSelect.value = style;
-    }
     if (this.#settingsManager) {
       this.#settingsManager.updateSettings();
     } else {
@@ -524,4 +514,18 @@ export class SalutationFeature {
     unsetMeta(letterState, kind, 'userSet');
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
   }
+}
+
+/**
+ * Aktuelle Tonalitaet aus den Einstellungen. Seit 2026-11-22 gibt es kein
+ * eigenes Auswahlfeld mehr: die Tonalitaet wird durch die Anrede-Wahl gesetzt
+ * (#uebernehme -> #setStyle) und liegt in `din_settings.formality`. Wer sie
+ * nur lesen will (Debug-Panel, Testbrief), holt sie hier — nicht aus dem DOM.
+ * @returns {'formal' | 'polite' | 'casual'}
+ */
+export function aktuelleTonalitaet() {
+  const gespeichert = /** @type {{ formality?: string } | null} */ (
+    loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS)
+  );
+  return toStyle(gespeichert?.formality);
 }

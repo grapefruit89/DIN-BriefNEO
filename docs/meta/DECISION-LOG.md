@@ -4804,3 +4804,47 @@ Der JS-Block, der `dbg-tonalitaet`/`dbg-anrede-*`/`dbg-gruss-*` füllte, ist
 mitgelöscht — sonst wäre er toter Code gegen nicht mehr existierende Elemente.
 Gemessen: 0 alte `dd`-IDs, 3 Blöcke, Kopie unverändert (Tonalität + 6 Anreden),
 0 Log-Meldungen.
+
+---
+
+## 2026-11-22 — `#stil-select` entfällt: Tonalität kommt aus der Anrede-Wahl
+
+**Nutzer:** „das kann denke ich komplett weg, wir haben ja jetzt dafür 2
+Dropdown-Felder" (Anrede + Grußformel).
+
+**Befund vorher:** `#stil-select` war die einzige **Bedienung** für
+`settings.formality`. Der Wert wurde aber schon vorher von der Anrede-Wahl
+gesetzt: `#uebernehme(v)` ruft `#setStyle(v.style)` **vor** dem Schreiben der
+Anrede („Stil zuerst, der Gruß zieht nach"). Das Auswahlfeld war also ein
+zweiter Weg zum selben Zustand — und der einzige, der die Tonalität ohne
+Anredewechsel ändern konnte.
+
+**Jetzt:**
+
+| Datei | Änderung |
+|---|---|
+| `website/index.html` | der `<div class="seitenleiste-field-group">` mit `#stil-select` ist gelöscht |
+| `salutation.js` | `init()` bindet kein Select mehr; `#setStyle()` schreibt kein Select mehr; **neu:** `export function aktuelleTonalitaet()` als einzige Lesestelle für `din_settings.formality` |
+| `boot-state.js` | der Pre-Paint-Block für `#stil-select` ist entfernt (Kommentar nennt das Datum) |
+| `debug-panel.js` | `Tonalität:` und die Gruß-Liste lesen `aktuelleTonalitaet()` statt `stil.value` |
+| `testbrief.js` | `currentStyle = aktuelleTonalitaet()` statt Select-Wert |
+| `test/all.js` | Boot-Ratsche und der Reihenfolge-Test nennen `#stil-select` nicht mehr |
+
+`settings.formality` bleibt gespeichert (keine Migration nötig); die Tonalität
+überlebt einen Reload, nur das Control ist weg.
+
+**Gemessen (2026-11-22):**
+
+```
+#stil-select im DOM            weg
+Anrede "Hallo Frau Croft," gewählt
+  → din_settings.formality     "casual"
+  → Grußvorschläge           Beste Grüße · Viele Grüße · Herzliche Grüße
+  → Debug-Kopie              "Tonalität: casual"
+Testbrief                      Gruß "Beste Grüße" (casual)
+Log                            0 Meldungen
+```
+
+Nebenbefund, nicht geändert: der Testbrief leitet die **Anrede** aus der
+Figuren-Beziehung ab (formal/vertraut), nicht aus der Tonalität — der Gruß
+folgt der Tonalität. Das ist Addon-Logik, unabhängig von dieser Änderung.

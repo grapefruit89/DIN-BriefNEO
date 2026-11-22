@@ -15,7 +15,7 @@
 import { Events, eventBus } from '../../js/core.js';
 import { Field } from '../../js/field.js';
 import { applyLetterDate } from '../../js/format.js';
-import { SalutationEngine } from '../../js/salutation.js';
+import { aktuelleTonalitaet, SalutationEngine } from '../../js/salutation.js';
 import { letterState, unsetMeta } from '../../js/state.js';
 import { applyValue } from '../../js/state-binding.js';
 
@@ -1375,7 +1375,7 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   setField('empfaenger-ort', resolveOrtZeile(recipient));
 
   // Briefkern
-  const currentStyle = (/** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'))?.value) || 'formal';
+  const currentStyle = aktuelleTonalitaet();
   setField('betreff', randomBetreff(themenHook, szenario));
   setField('anrede', deriveAnrede(sender, recipient, currentStyle));
   setField('text', generateNerdText(sender, recipient, dritte, themenHook, szenario));

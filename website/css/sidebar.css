@@ -1739,8 +1739,10 @@ body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover
   /* Rechtsbuendig: linksbuendig liefe der Kalender ueber den Blattrand. */
   left: auto;
   right: anchor(right);
-  inline-size: 264px;
-  max-width: 100%;
+  /* Genau so breit wie das Datumsfeld (gemessen 22.11.2026: 246 px = 65 mm).
+     Nicht breiter — der Kalender soll unter dem Feld sitzen, nicht daneben
+     herausragen. Die 7 Spalten bleiben bei dieser Breite 29 px breit. */
+  inline-size: anchor-size(width);
   padding: var(--space-sm);
   display: grid;
   gap: var(--space-xs);

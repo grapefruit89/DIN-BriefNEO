@@ -1698,14 +1698,14 @@ export function initAddressServices() {
             hidePopoverSafe(strassePopover);
             return;
           }
-          treffer.forEach((/** @type {any} */ r, /** @type {number} */ index) => {
+          treffer.forEach((/** @type {any} */ r) => {
             const li = document.createElement('li');
             li.className = 'suggestion-item';
             li.dataset.typ = 'adresse';
-            /* Erster Treffer ist vorausgewaehlt, damit die Auswahl sichtbar ist
-               (die anderen Listen machen das genauso). */
+            /* Keine Vorauswahl: hervorgehoben wird nur, worauf der Zeiger
+               steht (Vorgabe 2026-11-22). */
             li.setAttribute('role', 'option');
-            li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+            li.setAttribute('aria-selected', 'false');
             const main = document.createElement('span');
             main.className = 'suggestion-main';
             const name = document.createElement('span');
@@ -1719,9 +1719,12 @@ export function initAddressServices() {
             li.addEventListener('mousedown', (ev) => {
               ev.preventDefault();
               applyValue('absender-strasse', name.textContent, 'auto');
+              /* Passende PLZ/Ort immer mitschreiben (Vorgabe 2026-11-22). */
               const ortFeld = feld('absender-ort');
-              if (ortFeld && !Field.getValue(ortFeld).trim() && (r.postcode || r.city)) {
-                applyValue('absender-ort', `${r.postcode || ''} ${r.city || ''}`.trim(), 'auto');
+              const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
+              if (ortFeld && plzOrt) {
+                applyValue('absender-ort', plzOrt, 'auto');
+                eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-ort' });
               }
               eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-strasse' });
               eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });

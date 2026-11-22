@@ -1303,6 +1303,15 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   background: var(--segment-bg);
 }
 
+/* Strassenliste: Hover bekommt die kraeftige Auswahl-Optik (Akzent + Rahmen).
+   Es gibt bewusst keine Vorauswahl mehr - hervorgehoben ist nur, worauf der
+   Zeiger steht (Vorgabe 2026-11-22). */
+#strasse-vorschlaege li:not(.suggestion-hint):hover {
+  background: color-mix(in oklch, var(--accent-color) 18%, transparent);
+  outline: 2px solid color-mix(in oklch, var(--accent-color) 65%, transparent);
+  outline-offset: -2px;
+}
+
 aside input[type="text"],
 aside input[type="password"],
 aside input[type="search"],
@@ -1318,8 +1327,7 @@ aside select {
 
 #anschrift-vorschlaege li[aria-selected="true"],
 #anschrift-vorschlaege li:focus-visible,
-#plz-suggestions-popover li[aria-selected="true"],
-#strasse-vorschlaege li[aria-selected="true"] {
+#plz-suggestions-popover li[aria-selected="true"] {
   background: color-mix(in oklch, var(--accent-color) 18%, transparent);
   outline: 2px solid color-mix(in oklch, var(--accent-color) 65%, transparent);
   outline-offset: -2px;

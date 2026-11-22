@@ -34,6 +34,7 @@ import { Field } from './field.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { letterState, setMeta } from './state.js';
 import { applyValue, commitElement } from './state-binding.js';
+import { initVorschlagsliste } from './suggestion-list.js';
 
 export {
   AddressData,
@@ -1639,24 +1640,22 @@ export function initAddressServices() {
   }
 
   /* Strassen-Vorschlaege fuer den Absender (Geoapify).
-     - unabhaengig von allen anderen Feldern: gesucht wird nur der getippte Name
+     Bedienung kommt aus `initVorschlagsliste`; hier stehen nur Abruf (mit
+     LRU-Cache), Groesse am Blattrand und was beim Klick passiert.
+     - unabhaengig von allen anderen Feldern: gesucht wird der getippte Name
      - Relevanz per Naehe, Standard Bonn
-     - Liste reicht bis 20 mm ueber den Blattrand, rechts 20 mm Abstand
-     - Ergebnisse landen im gemeinsamen LRU-Cache (max 100): derselbe
-       Strassenname wird nicht erneut abgerufen
-     - ohne API-Key oder ohne Netz passiert nichts (offline-first) */
+     - ohne API-Key oder ohne Netz: keine Liste (offline-first) */
   const absStrasseEl = feld('absender-strasse');
   const strassePopover = feld('strasse-vorschlaege');
   if (absStrasseEl && strassePopover) {
-    /** @type {any} */
-    let strasseTimer = null;
     /* Bonn als Standard-Naehe (Heimfallpunkt, gemessen 2026-11-22). */
     const BONN = { lon: 7.0982068, lat: 50.73743 };
     /* 20 mm = 75,6 px bei 96 dpi (DIN 5008 Rand). */
     const RAND = 76;
 
-    const passeGroesse = () => {
-      const feldRect = absStrasseEl.getBoundingClientRect();
+    /** Haelt die Liste innerhalb des A4-Blatts (rechts 20 mm, unten 20 mm). */
+    const passeGroesse = (/** @type {HTMLElement} */ pop, /** @type {HTMLElement} */ feldEl) => {
+      const feldRect = feldEl.getBoundingClientRect();
       const blatt = document.getElementById('kern')?.getBoundingClientRect();
       const linksGrenze = (blatt ? blatt.left : 0) + RAND;
       const rechtsGrenze = (blatt ? blatt.right : window.innerWidth) - RAND;
@@ -1664,93 +1663,64 @@ export function initAddressServices() {
       const breite = Math.max(300, Math.min(420, rechtsGrenze - linksGrenze));
       const links = Math.max(linksGrenze, Math.min(feldRect.right - breite, rechtsGrenze - breite));
       const oben = feldRect.bottom + 4;
-      strassePopover.style.left = `${Math.round(links)}px`;
-      strassePopover.style.top = `${Math.round(oben)}px`;
-      strassePopover.style.width = `${Math.round(breite)}px`;
-      strassePopover.style.maxHeight = `${Math.max(220, Math.round(untenGrenze - oben - 8))}px`;
+      pop.style.left = `${Math.round(links)}px`;
+      pop.style.top = `${Math.round(oben)}px`;
+      pop.style.width = `${Math.round(breite)}px`;
+      pop.style.maxHeight = `${Math.max(220, Math.round(untenGrenze - oben - 8))}px`;
     };
 
-    /** @param {Array<any>} treffer */
-    const zeichne = (treffer) => {
-      strassePopover.replaceChildren();
-      for (const r of treffer) {
-        const li = document.createElement('li');
-        li.className = 'suggestion-item';
-        li.dataset.typ = 'adresse';
-        /* Keine Vorauswahl: hervorgehoben wird nur, worauf der Zeiger steht. */
-        li.setAttribute('role', 'option');
-        li.setAttribute('aria-selected', 'false');
-        const main = document.createElement('span');
-        main.className = 'suggestion-main';
-        const name = document.createElement('span');
-        name.className = 'city-val';
-        name.textContent = [r.street, r.housenumber].filter(Boolean).join(' ');
-        const sub = document.createElement('span');
-        sub.className = 'city-sub';
-        sub.textContent = `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`;
-        main.append(name, sub);
-        li.append(main);
-        li.addEventListener('mousedown', (ev) => {
-          ev.preventDefault();
-          applyValue('absender-strasse', name.textContent, 'auto');
-          /* Passende PLZ/Ort immer mitschreiben. */
-          const ortFeld = feld('absender-ort');
-          const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
-          if (ortFeld && plzOrt) {
-            applyValue('absender-ort', plzOrt, 'auto');
-            eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-ort' });
-          }
-          eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-strasse' });
-          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-          hidePopoverSafe(strassePopover);
-        });
-        strassePopover.append(li);
+    /** @param {string} text */
+    const holeStrassen = async (text) => {
+      if (text.length < 3 || !navigator.onLine) return [];
+      const key = load(STORAGE_KEYS.geoapifyKey, '');
+      if (!key) return [];
+      const schluessel = `strasse:${text.toLowerCase()}`;
+      const ausCache = cacheHole(schluessel);
+      if (ausCache?.length) {
+        return ausCache.map((/** @type {any} */ r) => ({
+          text: [r.street, r.housenumber].filter(Boolean).join(' '),
+          zusatz: `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`,
+          wert: r
+        }));
       }
-      passeGroesse();
-      showPopoverSafe(strassePopover);
+      const pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=20&format=json&filter=countrycode:de&bias=proximity:${BONN.lon},${BONN.lat}`;
+      try {
+        const { antwort } = await holeJsonMitFailover(pfad, new AbortController());
+        if (!antwort.ok) return [];
+        const daten = await antwort.json();
+        const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
+        if (!treffer.length) return [];
+        cacheSetze(schluessel, /** @type {any} */ (treffer));
+        return treffer.map((/** @type {any} */ r) => ({
+          text: [r.street, r.housenumber].filter(Boolean).join(' '),
+          zusatz: `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`,
+          wert: r
+        }));
+      } catch (err) {
+        console.debug('[Address] Strassen-Vorschlaege fehlgeschlagen:', err);
+        return [];
+      }
     };
 
-    absStrasseEl.addEventListener('blur', () => hidePopoverSafe(strassePopover));
-    absStrasseEl.addEventListener('input', () => {
-      if (absStrasseEl.hasAttribute('data-autofill-aus')) return;
-      if (strasseTimer) clearTimeout(strasseTimer);
-      const text = Field.getValue(absStrasseEl).trim();
-      if (text.length < 3 || !navigator.onLine) {
-        hidePopoverSafe(strassePopover);
-        return;
+    initVorschlagsliste({
+      feld: absStrasseEl,
+      popover: strassePopover,
+      verzoegerung: 350,
+      groesse: passeGroesse,
+      hole: holeStrassen,
+      beiWahl: (/** @type {any} */ v) => {
+        const r = v.wert || {};
+        applyValue('absender-strasse', v.text, 'auto');
+        /* Passende PLZ/Ort immer mitschreiben. */
+        const ortFeld = feld('absender-ort');
+        const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
+        if (ortFeld && plzOrt) {
+          applyValue('absender-ort', plzOrt, 'auto');
+          eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-ort' });
+        }
+        eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-strasse' });
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
       }
-      strasseTimer = setTimeout(async () => {
-        const key = load(STORAGE_KEYS.geoapifyKey, '');
-        if (!key) {
-          hidePopoverSafe(strassePopover);
-          return;
-        }
-        const schluessel = `strasse:${text.toLowerCase()}`;
-        const ausCache = cacheHole(schluessel);
-        if (ausCache?.length) {
-          zeichne(ausCache);
-          return;
-        }
-        const pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=20&format=json&filter=countrycode:de&bias=proximity:${BONN.lon},${BONN.lat}`;
-        try {
-          const { antwort } = await holeJsonMitFailover(pfad, new AbortController());
-          if (!antwort.ok) {
-            hidePopoverSafe(strassePopover);
-            return;
-          }
-          const daten = await antwort.json();
-          const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
-          if (!treffer.length) {
-            hidePopoverSafe(strassePopover);
-            return;
-          }
-          cacheSetze(schluessel, /** @type {any} */ (treffer));
-          zeichne(treffer);
-        } catch (err) {
-          hidePopoverSafe(strassePopover);
-          console.debug('[Address] Strassen-Vorschlaege fehlgeschlagen:', err);
-        }
-      }, 350);
     });
   }
 }

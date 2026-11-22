@@ -5945,8 +5945,13 @@ describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
     assert(texte.includes('Guten Tag Frau Mustermann,'), 'hoeflich');
     assert(texte.includes('Hallo Frau Mustermann,'), 'locker');
     assert(texte.includes('Liebe Frau Mustermann,'), 'persoenlich');
+    /** @param {string} t */
+    const ohneSatzzeichen = (t) => t.toLowerCase().replace(/[^a-zäöüß]/g, '');
+    assertEqual(new Set(texte.map(ohneSatzzeichen)).size, texte.length, 'auch ohne Satzzeichen keine Doppelten');
     assert(!texte.includes(SALUTATION_TONES.formal.salutationDefault), 'keine allgemeine Form');
-    assertEqual(v.length, 5);
+    assertEqual(v.length, 5, 'formal 2, hoeflich 1, locker 2');
+    const tone = new Set(v.map((x) => x.ton));
+    assertEqual(tone.size, 3, 'drei Tonalitaeten fuer die Farbgruppen');
   });
 
   it('maennliche Anrede bekommt "Sehr verehrter" und "Lieber"', () => {

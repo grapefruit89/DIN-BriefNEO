@@ -121,6 +121,7 @@ website/js/address-data.js       100 % DOM-frei: Offline-Index, Suche, Dekompres
 website/js/clipboard-parser.js   Heuristik für unstrukturierte Anschriften (Impressum, CSV)
 website/js/salutation.js         Anrede/Grußformel-Engine, Auto-Seed
 website/js/field.js             Minimale Feld-Abstraktion (isNative/getValue/setValue)
+website/js/suggestion-list.js   Gemeinsames Gerüst für Vorschlagslisten (Klick, Tasten, Blur)
 website/js/format.js             Reine DIN-5008-Formatter + Mikro-Typografie
 website/js/signature.js          Unterschrift-Upload, Kompression, Drag/Rotate
 website/js/font-feature.js       Font-Presets, Upload, FontFace + IndexedDB

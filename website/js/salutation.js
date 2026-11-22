@@ -13,11 +13,12 @@
 //     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
-import { Events, eventBus, hidePopoverSafe, showPopoverSafe } from './core.js';
+import { Events, eventBus } from './core.js';
 import { Field } from './field.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { letterState, setMeta, unsetMeta } from './state.js';
 import { applyValue } from './state-binding.js';
+import { initVorschlagsliste } from './suggestion-list.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 
@@ -48,19 +49,25 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
  * falsch), dazu je Stil eine Variante mit anderem Tonfall (sehr verehrt /
  * liebe(r)). Ohne Namen nur die allgemeinen Formen. Doppelte werden entfernt.
  * @param {string} rawName
- * @returns {Array<{ anrede: string, style: 'formal'|'polite'|'casual' }>}
+ * @returns {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>}
  */
 export function salutationVarianten(rawName) {
   const name = String(rawName || '').trim();
-  /** @type {Array<{ anrede: string, style: 'formal'|'polite'|'casual' }>} */
+  /** @type {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>} */
   const out = [];
   const gesehen = new Set();
   /** @param {string} anrede @param {'formal'|'polite'|'casual'} style */
+  /** Vergleich ohne Satzzeichen/Gross-Klein: "Guten Tag Frau X," und
+   *  "Guten Tag, Frau X," sind fuer den Leser dieselbe Anrede. */
+  /** @param {string} text @returns {string} */
+  const schluessel = (text) => text.toLowerCase().replace(/[^a-zäöüß ]/g, '').replace(/\s+/g, ' ').trim();
+  /** @param {string} anrede @param {'formal'|'polite'|'casual'} style */
   const dazu = (anrede, style) => {
     const text = String(anrede || '').trim();
-    if (!text || gesehen.has(text)) return;
-    gesehen.add(text);
-    out.push({ anrede: text, style });
+    const k = schluessel(text);
+    if (!text || gesehen.has(k)) return;
+    gesehen.add(k);
+    out.push({ anrede: text, style, ton: style });
   };
   for (const style of STYLES) {
     if (!name) {
@@ -218,6 +225,9 @@ export class SalutationFeature {
   /** @type {(() => void) | null} */
   #unsubDocChanged = null;
 
+  /** @type {{ zerstoeren: () => void } | null} */
+  #liste = null;
+
   /**
    * @param {import('./settings.js').SettingsManager | null} [settingsManager]
    */
@@ -270,94 +280,21 @@ export class SalutationFeature {
   }
 
   /**
-   * Auswahl der Anrede direkt am Feld auf dem Blatt.
-   * - Solange der Cursor im Feld ist, steht die Liste darunter; das Feld bleibt
-   *   dabei normal editierbar (getippt wird oben, die Liste zeigt nur die
-   *   Varianten)
-   * - Pfeiltasten waehlen, Enter uebernimmt, Escape schliesst bis zum naechsten
-   *   Betreten des Feldes
+   * Auswahl der Anrede direkt am Feld auf dem Blatt. Bedienung (Klick,
+   * Pfeile, Enter, Escape, Tippen) kommt aus `initVorschlagsliste` — hier
+   * steht nur, WAS angeboten wird und was beim Klick passiert.
    */
   #initVarianten() {
-    const el = document.getElementById('anrede');
-    const pop = document.getElementById('anrede-vorschlaege');
-    if (!(el instanceof HTMLInputElement) || !pop) return;
-
-    /* Bleibt offen, solange der Cursor im Feld ist; Escape unterdrueckt sie,
-       bis das Feld neu betreten wird. */
-    /** @param {HTMLElement[]} items @param {number} index */
-    const markiere = (items, index) => {
-      items.forEach((li, i) => {
-        li.setAttribute('aria-selected', i === index ? 'true' : 'false');
-      });
-    };
-
-    const zeige = () => {
-      /* Steht die Liste schon, nichts neu bauen: replaceChildren bei jedem
-         Tastendruck liess sie kurz auf null Groesse schrumpfen und wieder
-         erscheinen (gemeldet 2026-11-22: "blitzt nur kurz auf"). */
-      if (pop.matches(':popover-open') && pop.childElementCount > 0) return;
-      const varianten = salutationVarianten(this.#nameText());
-      if (!varianten.length) return;
-      const aktuell = Field.getValue(el).trim();
-      pop.replaceChildren();
-      for (const v of varianten) {
-        const li = document.createElement('li');
-        li.className = 'suggestion-item';
-        li.dataset.typ = 'adresse';
-        li.setAttribute('role', 'option');
-        li.setAttribute('aria-selected', v.anrede === aktuell ? 'true' : 'false');
-        const main = document.createElement('span');
-        main.className = 'suggestion-main';
-        const text = document.createElement('span');
-        text.className = 'city-val';
-        text.textContent = v.anrede;
-        main.appendChild(text);
-        li.appendChild(main);
-        li.addEventListener('mousedown', (ev) => {
-          ev.preventDefault();
-          this.#uebernehme(v);
-          hidePopoverSafe(pop);
-          el.focus();
-        });
-        pop.appendChild(li);
-      }
-      showPopoverSafe(pop);
-      el.setAttribute('aria-expanded', 'true');
-    };
-
-    /* NICHT auf focus: ein Klick ins Feld loest focus aus, und derselbe Klick
-       gilt fuer den auto-Popover als "ausserhalb" - er schloss ihn sofort
-       wieder (gemessen 2026-11-22: "blitzt kurz auf"). Erst 'click' kommt nach
-       diesem Licht-Ausblenden. */
-    el.addEventListener('click', zeige);
-    /* Auch beim Tippen zeigen: ist das Feld schon fokussiert (z. B. nach dem
-       Laden), kam nie ein focus-Event - dann blieb die Liste aus (gemessen
-       2026-11-22 an echter Tastatureingabe). */
-    el.addEventListener('input', zeige);
-    el.addEventListener('blur', () => {
-      hidePopoverSafe(pop);
-      el.setAttribute('aria-expanded', 'false');
-    });
-    el.addEventListener('keydown', (ev) => {
-      if (!pop.matches(':popover-open')) return;
-      const items = /** @type {HTMLElement[]} */ ([...pop.querySelectorAll('li')]);
-      const idx = items.findIndex((li) => li.getAttribute('aria-selected') === 'true');
-      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
-        ev.preventDefault();
-        const naechster = ev.key === 'ArrowDown'
-          ? Math.min(idx + 1, items.length - 1)
-          : Math.max(idx - 1, 0);
-        markiere(items, naechster);
-      } else if (ev.key === 'Enter') {
-        ev.preventDefault();
-        items[Math.max(idx, 0)]?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-      } else if (ev.key === 'Escape') {
-        ev.preventDefault();
-        hidePopoverSafe(pop);
-        el.setAttribute('aria-expanded', 'false');
-      } else if (ev.key === 'Tab') {
-        hidePopoverSafe(pop);
-      }
+    this.#liste = initVorschlagsliste({
+      feld: 'anrede',
+      popover: 'anrede-vorschlaege',
+      hole: () =>
+        salutationVarianten(this.#nameText()).map((v) => ({
+          text: v.anrede,
+          gruppe: v.ton,
+          wert: v
+        })),
+      beiWahl: (/** @type {any} */ v) => this.#uebernehme(v.wert)
     });
   }
 
@@ -378,6 +315,10 @@ export class SalutationFeature {
     if (this.#unsubDocChanged) {
       this.#unsubDocChanged();
       this.#unsubDocChanged = null;
+    }
+    if (this.#liste) {
+      this.#liste.zerstoeren();
+      this.#liste = null;
     }
   }
 

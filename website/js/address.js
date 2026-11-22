@@ -1643,16 +1643,27 @@ export function initAddressServices() {
     const BONN = { lon: 7.0982068, lat: 50.73743 };
 
     /** Breite/Hoehe so setzen, dass 20 mm Blattrand bleiben. */
+    /* 20 mm = 75,6 px bei 96 dpi (DIN 5008 Rand). */
+    const RAND = 76;
+
+    /**
+     * Haelt die Liste INNERHALB des A4-Blatts: rechts bis zum 20-mm-Rand,
+     * unten bis 20 mm ueber die Blattunterkante. Das Absenderfeld steht selbst
+     * am rechten Blattrand, deshalb waechst die Liste nach links.
+     */
     const passeGroesse = () => {
       const feldRect = absStrasseEl.getBoundingClientRect();
-      /* Rechts bis 20 mm vor den Fensterrand (das Feld steht selbst am
-         Blattrand, breiter ginge nur nach draussen), unten bis 20 mm ueber
-         die Blattunterkante. 20 mm = 75,6 px bei 96 dpi. */
       const blatt = document.getElementById('kern')?.getBoundingClientRect();
-      const grenzeRechts = window.innerWidth - 76;
-      const grenzeUnten = (blatt ? blatt.bottom : window.innerHeight) - 76;
-      strassePopover.style.width = `${Math.max(320, Math.min(900, grenzeRechts - feldRect.left))}px`;
-      strassePopover.style.maxHeight = `${Math.max(220, grenzeUnten - feldRect.bottom - 8)}px`;
+      const linksGrenze = (blatt ? blatt.left : 0) + RAND;
+      const rechtsGrenze = (blatt ? blatt.right : window.innerWidth) - RAND;
+      const untenGrenze = (blatt ? blatt.bottom : window.innerHeight) - RAND;
+      const breite = Math.max(320, Math.min(560, rechtsGrenze - linksGrenze));
+      const links = Math.max(linksGrenze, Math.min(feldRect.right - breite, rechtsGrenze - breite));
+      const oben = feldRect.bottom + 4;
+      strassePopover.style.left = `${Math.round(links)}px`;
+      strassePopover.style.top = `${Math.round(oben)}px`;
+      strassePopover.style.width = `${Math.round(breite)}px`;
+      strassePopover.style.maxHeight = `${Math.max(220, Math.round(untenGrenze - oben - 8))}px`;
     };
 
     absStrasseEl.addEventListener('input', () => {

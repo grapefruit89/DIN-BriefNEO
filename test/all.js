@@ -5338,6 +5338,24 @@ describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
     assert(farben[2] !== farben[3], 'Neustadt HE != BY');
   });
 
+  it('Gleichnamige in verschiedenen Kreisen bekommen verschiedene Farben', () => {
+    /* Gemeldet 2026-11-22: fuenf bayerische Neustadts, alle "Neustadt (Bayern)",
+       deshalb eine Farbe. Der Kreis trennt vier davon; nur 92660/95514 liegen
+       im selben Landkreis (09374) und bleiben absichtlich zusammen. */
+    const eintraege = [
+      { city: 'Neustadt', state: 'BY', plz: '92660' },
+      { city: 'Neustadt', state: 'BY', plz: '95514' },
+      { city: 'Neustadt', state: 'BY', plz: '93333' },
+      { city: 'Neustadt', state: 'BY', plz: '96465' },
+      { city: 'Neustadt', state: 'BY', plz: '97845' },
+    ];
+    /** @type {Record<string, string>} */
+    const kreise = { 92660: '09374', 95514: '09374', 93333: '09273', 96465: '09473', 97845: '09677' };
+    const farben = farbenFuerListe(eintraege, (e) => kreise[String(e.plz)] || '');
+    assertEqual(farben[0], farben[1], 'gleicher Kreis -> gleiche Farbe (bewusste Grenze)');
+    assertEqual(new Set(farben).size, 4, `vier Farben fuer fuenf Staedte (${farben.join(',')})`);
+  });
+
   it('mehr Orte als Farben wiederholen sich (dokumentierte Grenze)', () => {
     const viele = Array.from({ length: ORT_FARBEN + 2 }, (_, i) => ({ city: `Ort${i}`, state: 'X' }));
     const farben = farbenFuerListe(viele);

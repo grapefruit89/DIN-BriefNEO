@@ -424,16 +424,23 @@ export const ORT_FARBEN = 6;
  * immer unterscheidbar, solange die Liste nicht mehr als ORT_FARBEN Orte hat;
  * danach wiederholen sich die Toene.
  *
- * Der Schluessel enthaelt Bundesland/Stadtteil: "neustadt" liefert neun Orte
- * mit demselben Namen, die sich nur im Bundesland unterscheiden.
+ * Der Schluessel besteht aus Name + Bundesland + Kreis. Das Bundesland allein
+ * reichte nicht: "neustadt" liefert fuenf bayerische Staedte, die alle als
+ * "Neustadt (Bayern)" erscheinen (gemessen 2026-11-22). Mit dem Kreis werden
+ * vier davon getrennt; nur 92660/95514 bleiben zusammen, weil sie im selben
+ * Landkreis liegen - dafuer waere der 8-stellige Gemeindeschluessel noetig.
+ *
  * @param {Array<any>} eintraege
+ * @param {(eintrag: any) => string} [kreisVon] liefert den Kreis-Schluessel
+ *   je Eintrag (die Liste selbst traegt ihn nicht immer).
  * @returns {string[]} Farbe je Eintrag, gleiche Laenge wie `eintraege`
  */
-export function farbenFuerListe(eintraege) {
+export function farbenFuerListe(eintraege, kreisVon) {
   const jeOrt = new Map();
   let naechste = 1;
   return eintraege.map((eintrag) => {
-    const ort = `${eintrag.city || eintrag.name || ''}|${eintrag.state || eintrag.district || ''}`;
+    const kreis = eintrag.kreisKey || (kreisVon ? kreisVon(eintrag) : '') || '';
+    const ort = `${eintrag.city || eintrag.name || ''}|${eintrag.state || eintrag.district || ''}|${kreis}`;
     if (!jeOrt.has(ort)) {
       jeOrt.set(ort, String(naechste));
       naechste = (naechste % ORT_FARBEN) + 1;
@@ -478,7 +485,21 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
     };
 
     const eintraege = flacheVorschlaege(matches);
-    const farben = farbenFuerListe(eintraege);
+    const farben = farbenFuerListe(eintraege, (e) => (e.plz ? AddressIntelligence.getKreisKey(e.plz) : ''));
+    /* Namen, die in dieser Liste in MEHREREN Kreisen vorkommen: nur dort zeigt
+       die Zeile den Landkreis ("Neustadt (Landkreis Kelheim)"). Kommt der Name
+       mehrfach im selben Kreis vor (Bonn, Troisdorf: eine Stadt, viele PLZ),
+       bleibt die gewohnte Ortsteil-/Bundesland-Anzeige. */
+    const kreiseJeName = new Map();
+    for (const e of eintraege) {
+      const n = e.name || e.city || '';
+      let set = kreiseJeName.get(n);
+      if (!set) {
+        set = new Set();
+        kreiseJeName.set(n, set);
+      }
+      set.add(e.plz ? AddressIntelligence.getKreisKey(e.plz) || '' : '');
+    }
 
     eintraege.forEach((item, index) => {
       const li = document.createElement('li');
@@ -536,7 +557,11 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       const stateName = stateCode ? (BUNDESLAENDER[stateCode] || stateCode) : '';
 
       let extraText = '';
-      if (item.district) {
+      const mehrfach = (kreiseJeName.get(item.name || item.city || '')?.size || 0) > 1;
+      const kreisName = mehrfach && item.plz ? AddressIntelligence.getKreis(item.plz) : '';
+      if (kreisName) {
+        extraText = `(${kreisName})`;
+      } else if (item.district) {
         extraText = `(${item.district})`;
       } else if (stateName) {
         extraText = `(${stateName})`;

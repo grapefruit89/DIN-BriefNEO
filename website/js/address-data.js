@@ -413,6 +413,12 @@ export class AddressIntelligence {
   /** @type {Map<string, string>} */
   static states = new Map();
 
+  /** @type {Map<string, string>} Landkreis-Name je PLZ (Daten-Spalte `kreis`). */
+  static kreis = new Map();
+
+  /** @type {Map<string, string>} 5-stelliger Kreis-Schluessel je PLZ (`kreisKey`). */
+  static kreisKey = new Map();
+
   /** @type {Map<string, string[]>} */
   static ortIndex = new Map();
   /** @type {Map<string, Array<{ plz: string, city: string, name: string }>>} */
@@ -456,6 +462,29 @@ export class AddressIntelligence {
   }
 
   /**
+   * Landkreis-Name einer PLZ (z. B. 'Landkreis Kelheim').
+   * Dient der Anzeige, wenn ein Ortsname mehrfach in der Liste steht.
+   * @param {string} plz
+   * @returns {string}
+   */
+  static getKreis(plz) {
+    const p = normalizePostcode(plz) || plz;
+    return AddressIntelligence.kreis.get(p) || '';
+  }
+
+  /**
+   * 5-stelliger Kreis-Schluessel einer PLZ (z. B. '09273').
+   * Dient der Farbgruppierung: gleicher Name in verschiedenen Kreisen sind
+   * verschiedene Orte (Neustadt an der Waldnaab vs. Neustadt am Kulm).
+   * @param {string} plz
+   * @returns {string}
+   */
+  static getKreisKey(plz) {
+    const p = normalizePostcode(plz) || plz;
+    return AddressIntelligence.kreisKey.get(p) || '';
+  }
+
+  /**
    * Initializes the in-memory database by decompressing the gzip datasets.
    * Runs in under 1ms via native C++ DecompressionStream.
    * @returns {Promise<boolean>}
@@ -488,6 +517,10 @@ export class AddressIntelligence {
         }
 
         const { plz, ort, district, state } = plzData;
+        /* Optional: Kreis-Spalten. Fehlen sie (aeltere Datei), bleibt alles
+           wie vorher - nur ohne Kreis-Disambiguierung. */
+        const kreisArr = Array.isArray(plzData.kreis) ? plzData.kreis : [];
+        const kreisKeyArr = Array.isArray(plzData.kreisKey) ? plzData.kreisKey : [];
         /* Columnar-Schema ist oben hart geprueft - der Object.keys-Fallback war
            unerreichbar (B8-Review 2026-11-12). */
         AddressIntelligence.plzList = plz;
@@ -519,6 +552,10 @@ export class AddressIntelligence {
           if (st) {
             AddressIntelligence.states.set(p, st);
           }
+          const kr = kreisArr[i];
+          if (kr) AddressIntelligence.kreis.set(p, kr);
+          const krk = kreisKeyArr[i];
+          if (krk) AddressIntelligence.kreisKey.set(p, krk);
 
           // Build reverse City -> PLZ index
           const normCity = city.toLowerCase().trim();

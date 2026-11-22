@@ -4,7 +4,13 @@
  * ================================
  * Kanonische, reproduzierbare Build-Pipeline („Data-as-Code“) für DIN-BriefNEO.
  * Kompiliert das verlustfreie Columnar-JSON nach website/data/orte.json.gz:
- *   { plz: string[], ort: string[], district: (string|null)[], state: string[] }
+ *   { plz: string[], ort: string[], district: (string|null)[], state: string[],
+ *     kreis: (string|null)[], kreisKey: (string|null)[] }
+ *
+ * `kreis`/`kreisKey` (Landkreis-Name und 5-stelliger Kreisschluessel) kommen aus
+ * der Quelle und dienen der Orts-Disambiguierung: gleicher Kurzname in
+ * verschiedenen Kreisen = verschiedene Orte (Neustadt an der Waldnaab vs.
+ * Neustadt am Kulm). Ohne `--download` bleiben beide Spalten null.
  *
  * Nutzung:
  *   node tools/build_plz_data.mjs             # Deterministischer Offline-Rebuild aus lokalem Datenbestand
@@ -48,33 +54,53 @@ const STATE_OVERRIDES = {
 
 /**
  * Entpackt eine einzelne Datei aus einem PKZip-Buffer rein mit Node.js-Standard-APIs.
+ *
+ * Warum über das zentrale Verzeichnis: das GeoNames-Archiv setzt im lokalen
+ * Header das "Data-Descriptor"-Flag (Bit 3), dort steht die komprimierte
+ * Groesse als 0. Der fruehere Weg (lokaler Header der Reihe nach) lief
+ * deshalb ins Leere — `--download` brach mit "DE.txt konnte nicht extrahiert
+ * werden" ab (gemessen 2026-11-22). Groesse und Kompression stehen
+ * zuverlaessig im zentralen Verzeichnis am Dateiende.
  * @param {Buffer} zipBuf
  * @param {string} targetName
  * @returns {string | null}
  */
 function extractFileFromZipBuffer(zipBuf, targetName) {
-  let offset = 0;
-  while (offset < zipBuf.length - 4) {
-    const sig = zipBuf.readUInt32LE(offset);
-    if (sig === 0x04034b50) {
-      // Local File Header
-      const method = zipBuf.readUInt16LE(offset + 8);
-      const compSize = zipBuf.readUInt32LE(offset + 18);
-      const nameLen = zipBuf.readUInt16LE(offset + 26);
-      const extraLen = zipBuf.readUInt16LE(offset + 28);
-      const name = zipBuf.toString('utf-8', offset + 30, offset + 30 + nameLen);
-      const dataOffset = offset + 30 + nameLen + extraLen;
-      const compData = zipBuf.subarray(dataOffset, dataOffset + compSize);
-
-      if (name === targetName) {
-        if (method === 0) return compData.toString('utf-8');
-        if (method === 8) return zlib.inflateRawSync(compData).toString('utf-8');
-        throw new Error(`Nicht unterstützte Zip-Kompression: ${method}`);
-      }
-      offset = dataOffset + compSize;
-    } else {
+  let eocd = -1;
+  const untergrenze = Math.max(0, zipBuf.length - 66_000);
+  for (let i = zipBuf.length - 22; i >= untergrenze; i--) {
+    if (zipBuf.readUInt32LE(i) === 0x06054b50) {
+      eocd = i;
       break;
     }
+  }
+  if (eocd < 0) return null;
+
+  const entryCount = zipBuf.readUInt16LE(eocd + 10);
+  let p = zipBuf.readUInt32LE(eocd + 16);
+
+  for (let n = 0; n < entryCount; n++) {
+    if (zipBuf.readUInt32LE(p) !== 0x02014b50) return null;
+    const method = zipBuf.readUInt16LE(p + 10);
+    const compSize = zipBuf.readUInt32LE(p + 20);
+    const nameLen = zipBuf.readUInt16LE(p + 28);
+    const extraLen = zipBuf.readUInt16LE(p + 30);
+    const commentLen = zipBuf.readUInt16LE(p + 32);
+    const localOffset = zipBuf.readUInt32LE(p + 42);
+    const name = zipBuf.toString('utf-8', p + 46, p + 46 + nameLen);
+
+    if (name === targetName) {
+      /* Datenposition aus dem LOKALEN Header: dessen Extra-Feld kann sich in
+         der Laenge vom zentralen Eintrag unterscheiden. */
+      const lNameLen = zipBuf.readUInt16LE(localOffset + 26);
+      const lExtraLen = zipBuf.readUInt16LE(localOffset + 28);
+      const dataOffset = localOffset + 30 + lNameLen + lExtraLen;
+      const compData = zipBuf.subarray(dataOffset, dataOffset + compSize);
+      if (method === 0) return compData.toString('utf-8');
+      if (method === 8) return zlib.inflateRawSync(compData).toString('utf-8');
+      throw new Error(`Nicht unterstützte Zip-Kompression: ${method}`);
+    }
+    p += 46 + nameLen + extraLen + commentLen;
   }
   return null;
 }
@@ -85,6 +111,12 @@ async function run() {
   console.log('===========================================================');
 
   const shouldDownload = process.argv.includes('--download');
+  /* Neue PLZ aus der Quelle werden nur mit `--neu` uebernommen. Ohne diesen
+     Schalter waeren beim ersten --download 642 Eintraege dazugekommen, fast
+     ausschliesslich Behoerden und Firmen (Finanzamt Dresden, AOK, Agentur fuer
+     Arbeit ...). Die gehoeren in grosskunden.json.gz, nicht ins Ortsverzeichnis
+     (gemessen 2026-11-22). */
+  const shouldAddNew = process.argv.includes('--neu');
 
   // 1. Vorhandene Datenbasis und manuelle Ortsteile laden (SCHUTZ VOR DATENVERLUST!)
   /** @type {Record<string, string>} */
@@ -149,9 +181,14 @@ async function run() {
         const plz = parts[1]?.trim();
         const ort = parts[2]?.trim();
         const state = parts[4]?.trim();
+        /* Spalte 7/8: Landkreis-Name und 5-stelliger Kreisschluessel.
+           Nicht Teil des 8-stelligen AGS (Destatis), aber ausreichend, um
+           gleichnamige Orte in verschiedenen Kreisen zu trennen. */
+        const kreis = parts[7]?.trim() || null;
+        const kreisKey = parts[8]?.trim() || null;
         if (plz && /^\d{5}$/.test(plz) && ort && state) {
           if (!sourceData[plz]) {
-            sourceData[plz] = { ort, state };
+            sourceData[plz] = { ort, state, kreis, kreisKey };
           }
         }
       }
@@ -160,34 +197,63 @@ async function run() {
   }
 
   // 3. Normalisierung & Verlustfreie Aggregation
-  /** @type {Map<string, { ort: string, district: string | null, state: string }>} */
+  /** @type {Map<string, { ort: string, district: string | null, state: string, kreis: string | null, kreisKey: string | null }>} */
   const mergedMap = new Map();
 
-  // Zuerst bestehende Orte übernehmen
+  // Zuerst bestehende Orte übernehmen (Name bleibt kuratiert)
   for (const [plz, ort] of Object.entries(existingOrte)) {
     const dist = existingDistricts[plz] || null;
     const state = STATE_OVERRIDES[plz] || existingStates[plz] || sourceData[plz]?.state || '';
-    mergedMap.set(plz, { ort, district: dist, state });
+    mergedMap.set(plz, {
+      ort,
+      district: dist,
+      state,
+      kreis: sourceData[plz]?.kreis ?? null,
+      kreisKey: sourceData[plz]?.kreisKey ?? null
+    });
   }
 
-  // Ggf. neue PLZs aus GeoNames übernehmen
+  // Ggf. neue PLZs aus GeoNames übernehmen (nur mit --neu)
+  let uebersprungen = 0;
   for (const [plz, data] of Object.entries(sourceData)) {
+    if (!shouldAddNew && !mergedMap.has(plz)) {
+      uebersprungen++;
+      continue;
+    }
     if (!mergedMap.has(plz)) {
       const state = STATE_OVERRIDES[plz] || data.state;
-      mergedMap.set(plz, { ort: data.ort, district: null, state });
+      mergedMap.set(plz, {
+        ort: data.ort,
+        district: null,
+        state,
+        kreis: data.kreis ?? null,
+        kreisKey: data.kreisKey ?? null
+      });
     }
+  }
+
+  if (uebersprungen > 0) {
+    console.log(`      Neue PLZ nicht uebernommen: ${uebersprungen} (dafuer --neu setzen)`);
+  }
+  const ohneKreis = Array.from(mergedMap.values()).filter((e) => !e.kreisKey).length;
+  if (ohneKreis === mergedMap.size) {
+    console.warn('      WARNUNG: keine Kreis-Daten vorhanden — Build ohne --download? Dann bleiben kreis/kreisKey leer.');
+  } else if (ohneKreis > 0) {
+    console.log(`      Kreis-Daten: ${mergedMap.size - ohneKreis} von ${mergedMap.size} PLZ abgedeckt`);
   }
 
   // 4. Columnar Projection & Sortierung
   console.log('[3/5] Erzeuge sortierte Columnar-Projektion...');
   const sorted = Array.from(mergedMap.entries()).sort(([a], [b]) => a.localeCompare(b, 'de', { numeric: true }));
 
-  /** @type {{ plz: string[], ort: string[], district: (string | null)[], state: string[] }} */
+  /** @type {{ plz: string[], ort: string[], district: (string | null)[], state: string[], kreis: (string | null)[], kreisKey: (string | null)[] }} */
   const columnar = {
     plz: [],
     ort: [],
     district: [],
-    state: []
+    state: [],
+    kreis: [],
+    kreisKey: []
   };
 
   /** @type {Record<string, string>} */
@@ -198,6 +264,8 @@ async function run() {
     columnar.ort.push(item.ort);
     columnar.district.push(item.district);
     columnar.state.push(item.state);
+    columnar.kreis.push(item.kreis);
+    columnar.kreisKey.push(item.kreisKey);
     if (item.state) {
       statesExport[plz] = item.state;
     }
@@ -220,6 +288,26 @@ async function run() {
   }
   console.log('      ✓ Troisdorf 53840/53842/53844 vollständig mit Ortsteilen (NW)');
   console.log('      ✓ Neustadt Disambiguierung verifiziert (HE, RP, BY)');
+
+  /* Kreis-Spalte: Grundlage der Orts-Disambiguierung. Der Fall, der sich
+     NICHT trennen laesst, wird hier festgehalten — so faellt auf, wenn ein
+     spaeteres Datenupdate die Schluessel verschiebt. */
+  const k = (plz) => columnar.kreisKey[columnar.plz.indexOf(plz)];
+  const n33 = columnar.plz.indexOf('93333');
+  if (k('92660') && k('95514') && k('93333')) {
+    if (k('92660') !== k('95514')) {
+      throw new Error('Normverletzung: 92660/95514 liegen im selben Kreis (09374) — Kreis-Schluessel verschoben!');
+    }
+    if (k('93333') === k('92660')) {
+      throw new Error('Normverletzung: 93333 (Landkreis Kelheim) darf nicht im Kreis von 92660 liegen!');
+    }
+    if (k('53840') !== k('53842') || k('53844') !== k('53840')) {
+      throw new Error('Normverletzung: Troisdorf-PLZ muessen denselben Kreis tragen!');
+    }
+    console.log('      ✓ Kreis-Schluessel: Neustadt 09374 (92660+95514) getrennt von 09273 (93333)');
+  } else {
+    console.warn('      WARNUNG: keine Kreis-Daten — Invarianz-Pruefung uebersprungen (Build ohne --download?)');
+  }
 
   // 6. Gzip Level 9 Kompression & Persistenz
   console.log('[5/5] Komprimiere und speichere Ziel-Assets...');

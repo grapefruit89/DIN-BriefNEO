@@ -68,20 +68,27 @@ Wir konsolidieren den gesamten deutschen PLZ-, Orts-, Ortsteil- und Bundesland-B
 
 Nach der Bereinigung verbleiben exakt drei schlanke, autoritative Datensätze (Gesamt-Payload: 139 KB statt zuvor 267 KB):
 
-### 1. `website/data/orte.json.gz` (66,7 KB)
+### 1. `website/data/orte.json.gz` (80,1 KB)
 Kanonische spaltenbasierte Datenbank aller 10.184 deutschen Postleitzahlen:
 ```json
 {
   "plz": ["01067", "53840", "53844", "92660"],
   "ort": ["Dresden", "Troisdorf", "Troisdorf", "Neustadt"],
   "district": [null, "Troisdorf-Mitte, Oberlar, FWH", "Bergheim, Eschmar, Müllekoven, Sieglar", null],
-  "state": ["SN", "NW", "NW", "BY"]
+  "state": ["SN", "NW", "NW", "BY"],
+  "kreis": ["Kreisfreie Stadt Dresden", "Rhein-Sieg-Kreis", "Rhein-Sieg-Kreis", "Landkreis Neustadt an der Waldnaab"],
+  "kreisKey": ["14612", "05382", "05382", "09374"]
 }
 ```
 * `plz`: 5-stellige deutsche Postleitzahl (String, strikt aufsteigend sortiert).
 * `ort`: Offizieller Gemeindename / Hauptort.
 * `district`: Eingemeindete Ortsteile, Stadtteile oder Leitbereiche (oder `null`).
 * `state`: 2-Zeichen ISO-3166-2:DE Bundesland-Code (`NW`, `BY`, `BE`, `BW`, `HE`, etc.).
+* `kreis`: Landkreis bzw. kreisfreie Stadt aus der Quelle (`null` ohne `--download`).
+* `kreisKey`: 5-stelliger Kreisschlüssel (`09374`) — trennt gleichnamige Orte in
+  verschiedenen Landkreisen (Neustadt an der Waldnaab vs. Neustadt am Kulm).
+  Bewusste Grenze: Gemeinden desselben Landkreises bleiben ununterscheidbar
+  (92660/95514), dafür wäre der 8-stellige AGS aus dem Destatis-Verzeichnis nötig.
 
 ### 2. `website/data/grosskunden.json.gz` (55,0 KB)
 Behörden-, Gerichts-, Rundfunk- und Firmen-Großempfänger mit eigener PLZ nach DIN 5008 (Wegfall der Straßenzeile):

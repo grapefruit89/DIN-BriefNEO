@@ -411,8 +411,8 @@ export function flacheVorschlaege(liste) {
   return out;
 }
 
-/** Anzahl der Pastelltoene fuer die Ortsunterscheidung. */
-export const ORT_FARBEN = 6;
+/** Anzahl der Ortstoene. Reihenfolge im CSS: Goldwinkel-Abstaende (weit auseinander). */
+export const ORT_FARBEN = 12;
 
 /**
  * Vergibt die Pastellfarben (1..ORT_FARBEN) in der Reihenfolge der Liste.

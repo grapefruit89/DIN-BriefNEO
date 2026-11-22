@@ -1144,17 +1144,30 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
    Deterministisch aus dem Ortsnamen (address.js, farbeFuerOrt), damit die
    Liste bei jedem Tippen gleich aussieht. Die Typ-Farbe sitzt auf `color` und
    bleibt unberuehrt; Hover/Auswahl ueberschreiben nur den Hintergrund. */
+/* Balken statt Klammer: `border-left` laeuft ueber die volle Zeilenhoehe und
+   folgt keiner Rundung. Radius nur rechts, damit links eine gerade Kante steht
+   (vorher: inset-box-shadow + border-radius => kleiner Bogen je Zeile). */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item {
-  --ort-ton: oklch(0.72 0.06 250);
-  box-shadow: inset 3px 0 0 var(--ort-ton);
-  background: color-mix(in oklch, var(--ort-ton) 9%, transparent);
+  --ort-ton: oklch(0.62 0.17 250);
+  border-left: 3px solid var(--ort-ton);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding-inline-start: calc(var(--space-lg) - 3px);
+  background: color-mix(in oklch, var(--ort-ton) 13%, transparent);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.78 0.12 55); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.74 0.10 250); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.78 0.11 150); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="4"] { --ort-ton: oklch(0.76 0.10 300); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="5"] { --ort-ton: oklch(0.78 0.09 195); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="6"] { --ort-ton: oklch(0.78 0.11 15); }
+/* Zwoelf Toene im Goldwinkel-Abstand (137,5 Grad): benachbarte Eintraege liegen
+   weit auseinander, gleiche Stadt behaelt ihren Ton (Vergabe in address.js). */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.62 0.17 138); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.62 0.17 275); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.62 0.17 53); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="4"] { --ort-ton: oklch(0.62 0.17 190); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="5"] { --ort-ton: oklch(0.62 0.17 328); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="6"] { --ort-ton: oklch(0.62 0.17 105); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="7"] { --ort-ton: oklch(0.62 0.17 243); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="8"] { --ort-ton: oklch(0.62 0.17 20); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="9"] { --ort-ton: oklch(0.62 0.17 158); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="10"] { --ort-ton: oklch(0.62 0.17 295); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="11"] { --ort-ton: oklch(0.62 0.17 73); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="12"] { --ort-ton: oklch(0.62 0.17 210); }
 
 /* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
    kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */

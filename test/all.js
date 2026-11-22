@@ -18,7 +18,7 @@ import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, format
 import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire, unsetMeta } from '../website/js/state.js';
 import { applyState, applyValue, commitElement, hydrateStateFromDom, initStateBinding, render } from '../website/js/state-binding.js';
-import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
+import { deriveSalutation, SALUTATION_TONES, salutationVarianten, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
 import { assert, assertEqual, describe, it, run } from './runner.js';
@@ -5932,6 +5932,25 @@ describe('Ortssuche: Stadt schlaegt Ortsteil (2026-11-22)', () => {
     const res = AddressIntelligence.resolveCityInput('roisdorf', 12);
     const namen = res.items.map((i) => `${i.name || i.city} ${i.district || ''}`);
     assert(namen.some((n) => n.includes('Bornheim')), `Ortsteil-Treffer bleibt (${namen.join(' | ')})`);
+  });
+});
+
+describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
+  it('liefert drei Stile, je mit Namen und allgemein — ohne Doppelte', () => {
+    const v = salutationVarianten('Frau Erika Mustermann');
+    const texte = v.map((x) => x.anrede);
+    assertEqual(new Set(texte).size, texte.length, 'keine doppelten Texte');
+    assert(texte.includes('Sehr geehrte Frau Mustermann,'), 'foermlich mit Namen');
+    assert(texte.includes('Guten Tag Frau Mustermann,'), 'hoeflich mit Namen');
+    assert(texte.includes('Hallo Frau Mustermann,'), 'locker mit Namen');
+    assert(texte.includes(SALUTATION_TONES.formal.salutationDefault), 'allgemeine Form');
+    assertEqual(v.length, 6, 'drei Stile x zwei Formen');
+  });
+
+  it('ohne Namen nur die allgemeinen Formen', () => {
+    const v = salutationVarianten('');
+    assertEqual(v.length, 3);
+    assert(v.every((x) => x.anrede.endsWith(',')));
   });
 });
 

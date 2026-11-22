@@ -252,24 +252,36 @@ export class SalutationFeature {
   }
 
   /**
-   * Auswahl der Anrede direkt am Feld auf dem Blatt: Klick/Fokus oeffnet die
-   * Varianten, Tippen schliesst sie wieder. Ein Klick setzt Anrede und Stil.
+   * Auswahl der Anrede direkt am Feld auf dem Blatt.
+   * - Klick ins Feld oeffnet die Varianten (Tab-Fokus nicht, sonst springt die
+   *   Liste beim Durchtabben auf)
+   * - Pfeiltasten waehlen, Enter uebernimmt, Escape schliesst
+   * - Tippen schliesst die Liste und du editierst normal weiter
    */
   #initVarianten() {
     const el = document.getElementById('anrede');
     const pop = document.getElementById('anrede-vorschlaege');
     if (!(el instanceof HTMLInputElement) || !pop) return;
 
+    let perZeiger = false;
+    /** @param {HTMLElement[]} items @param {number} index */
+    const markiere = (items, index) => {
+      items.forEach((li, i) => {
+        li.setAttribute('aria-selected', i === index ? 'true' : 'false');
+      });
+    };
+
     const zeige = () => {
       const varianten = salutationVarianten(this.#nameText());
       if (!varianten.length) return;
+      const aktuell = Field.getValue(el).trim();
       pop.replaceChildren();
       for (const v of varianten) {
         const li = document.createElement('li');
         li.className = 'suggestion-item';
         li.dataset.typ = 'adresse';
         li.setAttribute('role', 'option');
-        li.setAttribute('aria-selected', 'false');
+        li.setAttribute('aria-selected', v.anrede === aktuell ? 'true' : 'false');
         const main = document.createElement('span');
         main.className = 'suggestion-main';
         const text = document.createElement('span');
@@ -279,22 +291,64 @@ export class SalutationFeature {
         li.appendChild(main);
         li.addEventListener('mousedown', (ev) => {
           ev.preventDefault();
-          this.#setStyle(v.style);
-          applyValue('anrede', v.anrede, 'logic');
-          setMeta(letterState, 'anrede', { userSet: true });
-          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+          this.#uebernehme(v);
           hidePopoverSafe(pop);
           el.focus();
         });
         pop.appendChild(li);
       }
       showPopoverSafe(pop);
+      el.setAttribute('aria-expanded', 'true');
     };
 
-    el.addEventListener('focus', zeige);
-    /* Erste Taste schliesst die Liste und schreibt normal weiter. */
-    el.addEventListener('input', () => hidePopoverSafe(pop));
-    el.addEventListener('blur', () => hidePopoverSafe(pop));
+    el.addEventListener('pointerdown', () => {
+      perZeiger = true;
+    });
+    el.addEventListener('focus', () => {
+      if (perZeiger) zeige();
+      perZeiger = false;
+    });
+    el.addEventListener('input', () => {
+      hidePopoverSafe(pop);
+      el.setAttribute('aria-expanded', 'false');
+    });
+    el.addEventListener('blur', () => {
+      hidePopoverSafe(pop);
+      el.setAttribute('aria-expanded', 'false');
+    });
+    el.addEventListener('keydown', (ev) => {
+      if (!pop.matches(':popover-open')) return;
+      const items = /** @type {HTMLElement[]} */ ([...pop.querySelectorAll('li')]);
+      const idx = items.findIndex((li) => li.getAttribute('aria-selected') === 'true');
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+        ev.preventDefault();
+        const naechster = ev.key === 'ArrowDown'
+          ? Math.min(idx + 1, items.length - 1)
+          : Math.max(idx - 1, 0);
+        markiere(items, naechster);
+      } else if (ev.key === 'Enter') {
+        ev.preventDefault();
+        items[Math.max(idx, 0)]?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+      } else if (ev.key === 'Escape') {
+        ev.preventDefault();
+        hidePopoverSafe(pop);
+      } else if (ev.key === 'Tab') {
+        hidePopoverSafe(pop);
+      }
+    });
+  }
+
+  /**
+   * Uebernimmt eine Variante: Stil zuerst (zieht den Gruß nach), dann die
+   * Anrede — und markiert sie als Nutzerwahl, damit die Automatik sie stehen
+   * laesst.
+   * @param {{ anrede: string, style: 'formal'|'polite'|'casual' }} v
+   */
+  #uebernehme(v) {
+    this.#setStyle(v.style);
+    applyValue('anrede', v.anrede, 'logic');
+    setMeta(letterState, 'anrede', { userSet: true });
+    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
   }
 
   destroy() {

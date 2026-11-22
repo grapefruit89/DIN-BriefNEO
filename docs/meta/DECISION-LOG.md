@@ -5052,3 +5052,36 @@ Zur Frage „wie viele Treffer gäbe es bei 53": **112 PLZ** beginnen mit 53
 „Ahrens + Sieberz" (Firmen-PLZ). GeoNames führt solche Großkunden-PLZ so; für
 den Absender ist das kein Ort. Eine Korrektur braucht eine Override-Liste im
 Build (`tools/build_plz_data.mjs`) — bewusst nicht still gefiltert.
+
+**Korrektur 5 (2026-11-22): 53840 Troisdorf fehlte in der Ortssuche.**
+Nutzer: „53840 Troisdorf fehlt".
+
+**Ursache:** `53840` trägt `typ: "Firma"` (dort sitzt die BwConsulting GmbH als
+Großempfänger), `city` ist aber korrekt **Troisdorf**. Der Filter
+`(typ || 'Stadt') === 'Stadt'` warf den Eintrag deshalb weg — in
+`renderUniversalSuggestions` **und** in der Debug-Kopie.
+
+**Regel jetzt an einer Stelle: `istOrt(eintrag)`**
+
+```
+Ort, wenn city und name sich unterscheiden (dann ist name der Betrieb)
+oder der Typ ausdrücklich 'Stadt' ist.
+```
+
+| Eintrag | city | name | typ | istOrt |
+|---|---|---|---|---|
+| 53840 | Troisdorf | BwConsulting GmbH | Firma | ✅ Ort |
+| 53804 | Much | Much | Stadt | ✅ Ort |
+| 53877 | Euskirchen | P & G Manufacturing | Firma | ✅ Ort |
+| 53718 | Ahrens + Sieberz | Ahrens + Sieberz | Stadt | ⚠️ bleibt (Datenfall) |
+
+Zusätzlich zeigt die **Ortssuche** bei Großempfänger-PLZ den **Ort** als
+Zeile (`53840 Troisdorf · Troisdorf-Mitte`), nicht den Betrieb — der gehört
+ins Firmenfeld. Der Hinweis „Großempfänger" bleibt bei 53877/53879 sichtbar.
+
+**Gemessen:** `ortsVorschlaege('538', {nurOrte:true})` → 11 Treffer,
+`53840 Troisdorf` enthalten, keine Firmennamen in der Liste.
+
+**Offen (Daten, nicht Code):** `53718` führt „Ahrens + Sieberz" selbst als
+`city`; `53884` führt „Feldpostleitstelle Mechernich" als Ort. Das ist nur
+über eine Override-Liste im Build (`tools/build_plz_data.mjs`) zu lösen.

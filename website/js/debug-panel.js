@@ -129,8 +129,10 @@ async function dropdownInhalt(art) {
     const eingabe = wert(id);
     /* Dieselbe Funktion wie das Feld (ortsVorschlaege) — sonst meldet die
        Kopie fuer "537" null Treffer, waehrend das Feld fuenf zeigt. */
-    const res = ortsVorschlaege(eingabe, 24);
-    const nurOrte = (res.items || []).filter((i) => (i.typ || 'Stadt') === 'Stadt');
+    /* Dieselbe Orts-Regel wie das Feld (istOrt): Grossempfaenger-PLZ wie
+       53840 Troisdorf bleibt ein Ort, auch wenn dort ein Betrieb sitzt. */
+    const res = ortsVorschlaege(eingabe, 24, { nurOrte: true });
+    const nurOrte = res.items || [];
     /* Das Ortsverzeichnis ist lokal - hier ist weder ein Key noch ein Netz im
        Spiel. Die fruehere Sammelmeldung "kein Key" war hier schlicht falsch. */
     const ortsGrund = eingabe.length < 3 ? 'kurz' : 'keine-treffer';

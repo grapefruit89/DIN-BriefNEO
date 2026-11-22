@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung, strassenSuchPfad, ermittleGeoBias, GEO_BIAS_TTL_MS, ortsVorschlaege } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung, strassenSuchPfad, ermittleGeoBias, GEO_BIAS_TTL_MS, ortsVorschlaege, istOrt } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
@@ -2884,6 +2884,26 @@ describe('ortsVorschlaege: eine Wahrheit fuer Feld und Debug (2026-11-22)', () =
     const plz = ortsVorschlaege('53840');
     assertEqual(plz.modus, 'plz');
     assertEqual(plz.items.length, 1, 'exakte PLZ: ein Eintrag');
+  });
+
+  it('istOrt: Grossempfaenger-PLZ bleibt ein Ort (53840 Troisdorf)', () => {
+    /* 53840 traegt typ 'Firma' (BwConsulting GmbH), city ist aber Troisdorf.
+       Der alte Filter (typ === 'Stadt') hat den Ort verschluckt. */
+    assert(
+      istOrt({ city: 'Troisdorf', name: 'BwConsulting GmbH', typ: 'Firma' }),
+      'Grossempfaenger-PLZ mit echtem Ort bleibt Ort'
+    );
+    assert(istOrt({ city: 'Much', name: 'Much', typ: 'Stadt' }), 'reiner Ort');
+    assert(
+      !istOrt({ city: 'Musterfirma GmbH', name: 'Musterfirma GmbH', typ: 'Firma' }),
+      'Firma mit Firmennamen als city ist kein Ort'
+    );
+  });
+
+  it('538 enthaelt 53840 Troisdorf (nurOrte)', () => {
+    const { items } = ortsVorschlaege('538', 24, { nurOrte: true });
+    assert(items.some((i) => i.plz === '53840'), '53840 Troisdorf vorhanden');
+    assert(items.some((i) => i.plz === '53842'), '53842 vorhanden');
   });
 });
 

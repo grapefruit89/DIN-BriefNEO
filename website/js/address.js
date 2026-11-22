@@ -770,9 +770,17 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       return 2;
     };
     /* Der Absender zeigt nur Orte: eine Stadt bringt aus lookupCityPlzs auch
-       ihre Grossempfaenger mit, die gehoeren nicht in die Ruecksendezeile. */
+       ihre Grossempfaenger mit, die gehoeren nicht in die Ruecksendezeile.
+       Bei einer Grossempfaenger-PLZ (53840 = BwConsulting, city Troisdorf)
+       bleibt der ORT der Text der Zeile - der Betrieb gehoert ins Firmenfeld,
+       nicht in die Rucksendezeile (gemeldet 2026-11-22). */
     const quelle = optionen.nurOrte
-      ? matches.filter((e) => (e.typ || 'Stadt') === 'Stadt')
+      ? matches.filter(istOrt).map((e) => {
+          if (e.city && e.name && e.city !== e.name) {
+            return { ...e, name: e.city, typ: 'Stadt' };
+          }
+          return e;
+        })
       : matches;
     const eintraege = flacheVorschlaege(quelle, isPlzList ? Number.POSITIVE_INFINITY : maxSuggestions())
       .toSorted((a, b) => {
@@ -1176,8 +1184,26 @@ export function adressRelevanz(item, query) {
 }
 
 /**
- * Initialisiert Adress-Dienste (Geoapify, Offline-Intelligence, Absender-Proximity).
+ * Ist der Eintrag ein ORT (und keine Firma)?
+ *
+ * `typ` allein reicht nicht: Grossempfaenger-PLZ wie 53840 Troisdorf tragen
+ * `typ: 'Firma'` (BwConsulting GmbH), sind aber ein Ort — `city` ist Troisdorf,
+ * `name` der Betrieb. Umgekehrt traegt 53718 den Firmennamen als `city`
+ * ("Ahrens + Sieberz"): dort ist `city === name` und es ist kein Ort.
+ *
+ * Regel: Ort, wenn `city` und `name` sich unterscheiden (dann ist `name` der
+ * Betrieb) ODER der Typ ausdruecklich 'Stadt' ist.
+ * @param {{ typ?: string, city?: string, name?: string }} eintrag
+ * @returns {boolean}
  */
+export function istOrt(eintrag) {
+  if (!eintrag) return false;
+  const city = String(eintrag.city || '');
+  const name = String(eintrag.name || '');
+  if (city && name && city !== name) return true;
+  return (eintrag.typ || 'Stadt') === 'Stadt';
+}
+
 /**
  * Ortsvorschlaege fuer PLZ + Ort — **eine** Wahrheit fuer Feld und Debug-Ausgabe.
  *
@@ -1191,9 +1217,10 @@ export function adressRelevanz(item, query) {
  *
  * @param {string} raw
  * @param {number} [max]
+ * @param {{ nurOrte?: boolean }} [opts]
  * @returns {{ items: any[], modus: 'kurz' | 'plz' | 'prefix' | 'text' }}
  */
-export function ortsVorschlaege(raw, max = 24) {
+export function ortsVorschlaege(raw, max = 24, { nurOrte = false } = {}) {
   const text = String(raw || '').trim();
   if (text.length < 3) return { items: [], modus: 'kurz' };
 
@@ -1202,15 +1229,23 @@ export function ortsVorschlaege(raw, max = 24) {
     return { items: res ? [res] : [], modus: 'plz' };
   }
 
+  const nur = (/** @type {any[]} */ items) => (nurOrte ? items.filter(istOrt) : items);
+
   const prefix = text.match(/^(\d{3,4})$/);
   if (prefix) {
-    return { items: AddressIntelligence.lookupPrefix(prefix[1], Math.max(max, 15)), modus: 'prefix' };
+    return {
+      items: nur(AddressIntelligence.lookupPrefix(prefix[1], Math.max(max, 15))),
+      modus: 'prefix'
+    };
   }
 
   const res = AddressIntelligence.resolveCityInput(text, max);
-  return { items: res.items || [], modus: 'text' };
+  return { items: nur(res.items || []), modus: 'text' };
 }
 
+/**
+ * Initialisiert Adress-Dienste (Geoapify, Offline-Intelligence, Absender-Proximity).
+ */
 export function initAddressServices() {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (feld('input-geoapify-key'));
   const statusEl = feld('geoapify-status');

@@ -2751,6 +2751,20 @@ describe('Geo-Cache: Ringspeicher im localStorage (2026-11-22)', () => {
     }
   });
 
+  it('merkt sich auch eine leere Trefferliste', () => {
+    try {
+      geoCacheLeeren();
+      geoCacheSetze('strasse:zzzzz', { art: 'strasse', d: [] });
+      const wert = /** @type {any} */ (geoCacheHole('strasse:zzzzz'));
+      assert(wert !== undefined, 'leeres Ergebnis ist ein Ergebnis, kein Miss');
+      assert(Array.isArray(wert.d), 'Form bleibt erhalten');
+      assertEqual(wert.d.length, 0);
+      assertEqual(geoCacheNutzung('strasse:zzzzz'), 0, 'leer wird nie gezaehlt');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
   it('zaehlt nur, wenn ein Treffer wirklich uebernommen wird', () => {
     try {
       geoCacheLeeren();

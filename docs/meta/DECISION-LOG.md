@@ -4237,3 +4237,25 @@ GDSF (Häufigkeit pro Byte).
 zählt nicht) → erste Auswahl **1** → zweite Auswahl **2**; Belegung 428 Byte von
 1.048.576. Tests: 3 neue (Zähler nur bei Übernahme, Zähler überlebt Neusuchen,
 gewählter Begriff überlebt die Verdrängung), 409/409, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Auch leere Trefferlisten in den Ring (Negative-Cache)
+
+**Nutzer-Vorgabe:** „alle Sachen speichern die wir suchen also alle Ergebnisse …
+weniger Abfragen; aber nur die Sachen die wir aktiv übernehmen sollen negativ
+gezählt werden."
+
+**Befund:** Die Straßensuche verwarf leere Antworten vor dem Ablegen
+(`if (!treffer.length) return []`) und der Cache-Treffer verlangte
+`ausCache?.length` — eine gemerkte leere Liste wäre also ohnehin ignoriert
+worden. Jede sinnlose Zeichenfolge kostete damit **jedes Mal** einen Abruf.
+
+**Umsetzung:** leere Liste wird gespeichert (`cacheSetze(schluessel, [])`) und
+beim Lesen als Treffer erkannt (`if (ausCache)` statt `ausCache?.length`).
+Adressfeld-Suche legte leere Listen schon vorher ab.
+
+**Nachweis:** „Zzqqxww" → 1. Versuch: 1 Abruf, 0 Treffer, Ring 88 Byte;
+2. Versuch: **0 Abrufe**, weiterhin 0 Treffer. Zähler bleibt 0,
+`gewaehlt: 0` — leere Ergebnisse werden nie gewertet.
+Tests: 1 neuer (410/410), Fitness 100 %.

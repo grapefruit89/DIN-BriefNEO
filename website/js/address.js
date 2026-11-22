@@ -1720,7 +1720,10 @@ export function initAddressServices() {
       const schluessel = `strasse:${text.toLowerCase()}`;
       letzterStrassenSchluessel = schluessel;
       const ausCache = cacheHole(schluessel);
-      if (ausCache?.length) return ausCache.map(alsVorschlag);
+      /* Auch eine LEERE Trefferliste ist ein Ergebnis: sonst fragt jeder
+         erneute Tastendruck dieselbe nichtsnutzige Zeichenfolge wieder an
+         (Vorgabe 2026-11-22: "alle Ergebnisse speichern"). */
+      if (ausCache) return ausCache.map(alsVorschlag);
 
       strassenController?.abort();
       strassenController = new AbortController();
@@ -1732,7 +1735,10 @@ export function initAddressServices() {
         if (!antwort.ok) return [];
         const daten = await antwort.json();
         const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
-        if (!treffer.length) return [];
+        if (!treffer.length) {
+          cacheSetze(schluessel, []);
+          return [];
+        }
         cacheSetze(schluessel, /** @type {any} */ (treffer));
         return treffer.map(alsVorschlag);
       } catch (err) {

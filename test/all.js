@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, adressRelevanz, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -5311,6 +5311,19 @@ describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
     assertEqual(raus.length, 3, 'drei PLZ-Zeilen');
     assertEqual(new Set(raus.map((e) => e.plz)).size, 3, 'keine Dublette (53840 nur einmal)');
     assert(raus.every((e) => String(e.plz).startsWith('538')), 'nur Troisdorf-PLZs');
+  });
+
+  it('generische Namensteile werden fuer die Anzeige entfernt', () => {
+    assertEqual(
+      verkuerzeName('Deutsche Postbank AG Niederlassung Hamburg (Giro)'),
+      'Deutsche Postbank AG Hamburg (Giro)'
+    );
+    assertEqual(
+      verkuerzeName('Postbank eine Niederlassung der Deutsche Bank AG'),
+      'Postbank Deutsche Bank AG'
+    );
+    // Namen ohne generische Teile bleiben unveraendert.
+    assertEqual(verkuerzeName('Bundesministerium des Innern'), 'Bundesministerium des Innern');
   });
 
   it('Stadtteile derselben Stadt bekommen eigene Farben', () => {

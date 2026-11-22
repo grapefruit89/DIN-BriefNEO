@@ -548,6 +548,21 @@ export function flacheVorschlaege(liste, limit = Infinity) {
   return out;
 }
 
+/**
+ * Kuerzt generische Bestandteile aus Organisationsnamen fuer die ANZEIGE
+ * ("Deutsche Postbank AG Niederlassung Hamburg (Giro)" -> "Deutsche Postbank AG
+ * Hamburg (Giro)"). Gesucht und gespeichert wird weiter der volle Name; der
+ * Tooltip der Zeile zeigt ihn.
+ * @param {string} name
+ * @returns {string}
+ */
+export function verkuerzeName(name) {
+  return String(name || '')
+    .replace(/\b(?:eine\s+)?(?:Niederlassung|Filiale|Geschäftsstelle|Hauptverwaltung|Belegarchiv)(?:\s+(?:der|des))?\s*/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 /** Anzahl der Ortstoene. Reihenfolge im CSS: Goldwinkel-Abstaende (weit auseinander). */
 export const ORT_FARBEN = 20;
 
@@ -673,7 +688,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       // Name
       const nameSpan = document.createElement('span');
       nameSpan.className = 'city-val';
-      Field.setValue(nameSpan, item.name);
+      Field.setValue(nameSpan, verkuerzeName(item.name));
       leftWrapper.appendChild(nameSpan);
 
       /* Kein [Firma]/[Behörde]-Badge mehr: der Typ steckt in der Farbe des
@@ -715,7 +730,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       /* Bei Großempfängern sagt das Badge schon, was es ist — der Zusatz
          "· Großempfänger" wurde abgeschnitten und raubte dem Namen Platz. */
       if (item.typ && item.typ !== 'Stadt') extraText = '';
-      if (item.district) li.title = `${item.name || item.city || ''}${item.typ && item.typ !== 'Stadt' ? '' : ` — ${item.district}`}`;
+      if (item.district || (item.typ && item.typ !== 'Stadt')) li.title = `${item.name || item.city || ''}${item.typ && item.typ !== 'Stadt' ? '' : ` — ${item.district}`}`;
       if (extraText) {
         li.appendChild(document.createTextNode(' '));
         const districtSpan = document.createElement('span');

@@ -1157,14 +1157,25 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 }
 
 /* Farbcodierung und Badges für universelles Autocomplete */
-/* Typ-Farbe gilt in beiden Listen. Das :is() hebt die Spezifität über die
-   bestehenden `#liste li { color: … }`-Regeln (ID + Element), sonst gewinnt
-   dort die Grundfarbe und die Typ-Kennzeichnung bleibt unsichtbar. */
+/* Typ-Kennzeichnung ohne Badge: Schrift und Balken tragen die Farbe.
+   Das :is() hebt die Spezifität über `#liste li { color: … }`. */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="firma"] { color: oklch(45% 0.16 250); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="behoerde"] { color: oklch(50% 0.14 145); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="gericht"] { color: oklch(48% 0 0); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="institution"] { color: oklch(55% 0.18 45); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="firma"] {
+  --ort-ton: oklch(0.56 0.17 255);
+  color: oklch(45% 0.16 255);
+}
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="behoerde"] {
+  --ort-ton: oklch(0.58 0.15 150);
+  color: oklch(42% 0.13 150);
+}
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="gericht"] {
+  --ort-ton: oklch(0.52 0.01 250);
+  color: oklch(40% 0 0);
+}
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="institution"] {
+  --ort-ton: oklch(0.58 0.16 40);
+  color: oklch(45% 0.14 40);
+}
 
 /* Ortsfarbe: gleiche Stadt = gleicher Ton, sanft hinterlegt plus 3px-Balken.
    Deterministisch aus dem Ortsnamen (address.js, farbeFuerOrt), damit die

@@ -652,7 +652,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
          durchgehend gleich (siehe farbenFuerListe). */
       /* Großempfänger/Behörden bekommen KEINE Ortsfarbe: sie sind keine Orte,
          und eine lange Liste davon soll ruhig bleiben (2026-11-22). */
-      li.dataset.ortFarbe = (item.typ || 'Stadt') === 'Stadt' ? farben[index] : '0';
+      if ((item.typ || 'Stadt') === 'Stadt') li.dataset.ortFarbe = farben[index];
 
       // Typ als Datum ins Markup; das Aussehen entscheidet das CSS (beide Listen).
       const typLower = (item.typ || '').toLowerCase();
@@ -676,16 +676,12 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       Field.setValue(nameSpan, item.name);
       leftWrapper.appendChild(nameSpan);
 
-      // Typ-Badge wenn nicht Stadt
+      /* Kein [Firma]/[Behörde]-Badge mehr: der Typ steckt in der Farbe des
+         Balkens und der Schrift (CSS, data-typ). Die Stadt steht als Zusatz. */
       if (item.typ && item.typ !== 'Stadt') {
-        const badge = document.createElement('span');
-        badge.className = 'ac-badge';
-        Field.setValue(badge, `[${item.typ}]`);
-        leftWrapper.appendChild(badge);
-
         const citySub = document.createElement('span');
         citySub.className = 'city-sub';
-        Field.setValue(citySub, item.city);
+        Field.setValue(citySub, `· ${item.city}`);
         leftWrapper.appendChild(citySub);
       } else if (!item.isSinglePlz && (item.plzCount || 0) > 1) {
         const countSub = document.createElement('span');

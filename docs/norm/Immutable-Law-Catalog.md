@@ -130,7 +130,7 @@ Soweit nicht anders markiert: HARD BAN.
 
 | # | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- |
-| A48 | `new Date()`, `Date.parse`, `Date.now` als Zeitquelle in `website/`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` in `website/` | HARD BAN im Produkt. Gilt für `website/**`. `tools/`, `agent/` dürfen `Date` nutzen. Legacy-Date-Libraries bleiben projektweit verboten. |
+| A48 | `new Date()`, `Date.parse`, `Date.now`, `.getTime()` als Zeitquelle in `website/`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` in `website/` | HARD BAN im Produkt. Gilt für `website/**`. `tools/`, `agent/` dürfen `Date` nutzen. Legacy-Date-Libraries bleiben projektweit verboten. |
 | A50 | `Temporal.Now.plainDateISO()` (und andere `Temporal.Now`-Ableitungen) **ohne explizite IANA-Zeitzone** in `website/` | `Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString()` — zentral in `51-persistence.js` (`currentISODate()`), referenziert statt neu geschrieben | Ohne Zone nutzt `plainDateISO()` die System-Zeitzone (UTC in CI/VMs/Servern); zwischen 00:00 und ~02:00 deutscher Zeit liefert sie den Vortag → Dateiname/Metadaten widersprechen dem Briefdatum. „Heute" lebt in genau einem Modul (Single Source of Truth). |
 
 ### Color, CSS, Struktur
@@ -179,6 +179,7 @@ Soweit nicht anders markiert: HARD BAN.
 | A55 | HARD BAN | JS-Interzeptoren, die Formatierung auf Plaintext-Feldern abfangen (`beforeInputFormatTypes`, `beforeInputParagraphTypes`, Regex-Sanitizer in `input`-Listenern) | `contenteditable="plaintext-only"` + `enterkeyhint` | Die Engine erzwingt das auf C++-Ebene lückenlos; die JS-Nachbildung war lückenhaft und teuer. |
 | A56 | HARD BAN | manuelle Pointer-Drag-Schleifen (`pointerdown`/`pointermove`/`setPointerCapture`) für Swipe-to-Dismiss und manuelle `z-index`-Stapelung bei Toasts | Popover API (`popover="manual"`) im nativen Top-Layer + deklarative CSS-Transitions | Top-Layer beendet den z-index-Wettlauf mit Modals; 60+ Zeilen Pointer-Logik entfallen. |
 | A61 | HARD BAN | **Schreibender** `innerHTML`-Zugriff und `setHTMLUnsafe()` zum Parsen von HTML-Strings | `setHTML()`, oder `DOMParser` + `replaceChildren(...doc.body.childNodes)` | XSS-Pfad. **Lesender** `.innerHTML`-Zugriff zum Serialisieren eines Entwurfs ist ausdrücklich zulässig — nur das Zurückschreiben muss gefiltert laufen. |
+| A65 | HARD BAN | Dynamische Codeausführung und HTML-Injektion: `eval()`, `new Function()`, String-Form von `setTimeout`/`setInterval`, `insertAdjacentHTML()`, `document.write()` | DOM-API (`createElement`, `textContent`, `setHTML()`), Timer mit Funktionsreferenz | Code aus Strings ist ein XSS- und CSP-Loch und lässt sich im Debugger nicht schrittweise verfolgen; `innerHTML` selbst regelt A61. Gilt für `website/**`. |
 
 ### UI-Zustand & Semantik
 

@@ -15,7 +15,7 @@
       "check": "regex",
       "category": "javascript",
       "description": "Legacy Date API in website/. Catalog TM1/A48. Tooling exempt.",
-      "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.parse\\(|\\bmoment\\(|\\bdate-fns\\b|\\bluxon\\b|from ['\"]moment['\"]|from ['\"]date-fns['\"]|from ['\"]luxon['\"]",
+      "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.parse\\(|\\bmoment\\(|\\bdate-fns\\b|\\bluxon\\b|from ['\"]moment['\"]|from ['\"]date-fns['\"]|from ['\"]luxon['\"]|\\.getTime\\(",
       "file_patterns": [
         "*.js"
       ],

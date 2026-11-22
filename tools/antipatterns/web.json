@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
+  "version": "1.1.2",
   "layer": "web",
   "id_space": "JSON-IDs (W*) bleiben. Normative IDs nur in catalog_ref.",
   "description": "Web-Mechanik-Sonden. Farbe ist Policy-Warnung, kein Hex-Verbot. Norm: Immutable-Law-Catalog.",
@@ -112,6 +112,22 @@
       "pattern": "(?<![\\w-])100vw\\b",
       "file_patterns": [
         "*.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "W8",
+      "catalog_ref": [
+        "A65"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Dynamische Codeausfuehrung und HTML-Injektion (eval, new Function, String-Timer, insertAdjacentHTML, document.write) ist Catalog HARD BAN A65 (XSS/CSP-Pfad, im Debugger nicht schrittweise verfolgbar). Ersatz: createElement/textContent/setHTML(), Timer mit Funktionsreferenz.",
+      "pattern": "\\beval\\s*\\(|\\bnew\\s+Function\\s*\\(|\\binsertAdjacentHTML\\s*\\(|\\bdocument\\.write\\s*\\(|\\b(?:setTimeout|setInterval)\\s*\\(\\s*['\\\"`]",
+      "file_patterns": [
+        "*.js"
       ],
       "exemptions": []
     }

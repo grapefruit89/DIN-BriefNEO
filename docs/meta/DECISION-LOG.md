@@ -4259,3 +4259,27 @@ Adressfeld-Suche legte leere Listen schon vorher ab.
 2. Versuch: **0 Abrufe**, weiterhin 0 Treffer. Zähler bleibt 0,
 `gewaehlt: 0` — leere Ergebnisse werden nie gewertet.
 Tests: 1 neuer (410/410), Fitness 100 %.
+
+---
+
+## 2026-11-22 — A65 in den Law Catalog: keine dynamische Codeausführung, keine HTML-Injektion
+
+**Nutzer-Vorgabe:** „Kein innerHTML, kein eval, kein document.execCommand — diesen
+veralteten Dreck will ich da nicht haben." Prüfung des Bestands ergab: zwei der drei
+waren **schon** verboten und maschinell geprüft — A61 (kein `innerHTML`/`setHTMLUnsafe`),
+A52 (kein `execCommand`), A48 (keine Date-API). Es fehlten `eval`, `new Function`,
+die String-Form von `setTimeout`/`setInterval`, `insertAdjacentHTML` und `document.write`.
+
+**Neu:**
+
+| Ort | Änderung |
+|---|---|
+| `docs/norm/Immutable-Law-Catalog.md` | **A65** (HARD BAN, `website/**`); A48 zusätzlich um `.getTime()` erweitert |
+| `tools/antipatterns/web.json` | Regel **W8** (`catalog_ref: A65`), Version 1.1.2 |
+| `tools/antipatterns/base.json` | B2-Pattern um `\.getTime\(` erweitert |
+| `docs/meta/ID-REGISTER.md` | A-Bereich A1–A65 |
+
+**Rot-Nachweis (Gate wirklich scharf):** temporäre Datei mit `eval('1+1')` →
+`[CRITICAL] [W8] Verstoss … A65`; mit `new Date().getTime()` → B2/A48 schlägt an.
+Nach dem Entfernen: 52 Regeln, 0 Verstöße. Produktivcode war bereits sauber
+(0 Treffer für alle fünf Muster).

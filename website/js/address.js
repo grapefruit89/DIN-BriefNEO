@@ -802,7 +802,19 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       /* Bei Großempfängern sagt das Badge schon, was es ist — der Zusatz
          "· Großempfänger" wurde abgeschnitten und raubte dem Namen Platz. */
       if (item.typ && item.typ !== 'Stadt') extraText = '';
-      if (item.district || (item.typ && item.typ !== 'Stadt')) li.title = `${item.name || item.city || ''}${item.typ && item.typ !== 'Stadt' ? '' : ` — ${item.district}`}`;
+      /* WCAG 1.4.1 ("Farbe nie als einziges Mittel"): Bei Firmen, Behoerden und
+         Gerichten steckt der Typ sonst NUR in der Farbe (data-typ -> color).
+         Deshalb zusaetzlich als Text - im Tooltip und fuer Vorleseprogramme
+         (.sr-only), ohne die Liste lauter zu machen (Vorgabe 2026-11-22). */
+      const typWort = item.typ && item.typ !== 'Stadt' ? String(item.typ) : '';
+      const titelZusatz = typWort || (item.district ? String(item.district) : '');
+      if (titelZusatz) li.title = `${item.name || item.city || ''} — ${titelZusatz}`;
+      if (typWort) {
+        const nurVorlesen = document.createElement('span');
+        nurVorlesen.className = 'sr-only';
+        nurVorlesen.textContent = ` — ${typWort}`;
+        li.appendChild(nurVorlesen);
+      }
       if (extraText) {
         li.appendChild(document.createTextNode(' '));
         const districtSpan = document.createElement('span');

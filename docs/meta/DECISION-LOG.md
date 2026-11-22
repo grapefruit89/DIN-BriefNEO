@@ -4120,3 +4120,35 @@ keine Unklarheit. `tools/id-register.js` prüft jetzt auch die Deckung von `W` g
   5. Mechanisches CI-Budget-Gate in `tools/repo-map-check.mjs` verankert (`AGENTS.md` <= 70 Z., `map.md` <= 100 Z.).
   6. Test-Isolation repariert: `<div id="anrede">` im HTML-Fixture `test/index.html` ergänzt, sodass isolierte Filter-Läufe (z. B. `--filter="PLZ|Address"`, `--filter=DraftManager`) fehlerfrei durchlaufen.
 - **Folge:** Token-Ersparnis pro KI-Start ~80 %, 0 % Regressionsrisiko, Fitness-Score 100 % clean.
+
+---
+
+## 2026-11-22 — Unterrand-Schalter rein deklarativ (`:root:has()`), kein zweiter Setzer
+
+**Ausgangsfrage des Users:** „wo kann man JavaScript loswerden? also gegen CSS/HTML tauschen?"
+
+**Befund (gemessen):** Von den 560 Zeilen Dropdown-/Overlay-Bedienung sind nur
+zwei Zeilen durch CSS ersetzbar — der Unterrand. Alles andere ist Verhalten
+(Debounce, Tastatur, ARIA, Datenabruf) oder der Blattrand-Deckel, den `anchor()`
+in `max-height` nicht kann (`CSS.supports` = false, fiel auf `62vh` zurück).
+
+**Umsetzung:** `--rand-u` hängt jetzt am Schalter, wie `--fuss-hoehe` an
+`#toggle-fuss`:
+
+```css
+:root:has(#btn-rand-u-30:checked) { --rand-u: 30mm; }   /* Default 20mm bleibt */
+```
+
+- `settings.js` setzt keinen Inline-Wert mehr, sondern gibt den von `boot.js`
+  mit `removeProperty()` ab. Reihenfolge: erst Schalter stellen, dann abgeben —
+  dadurch kein Frame mit falschem Wert.
+- `boot.js` bleibt als Pre-Paint-Snapshot (blocking script im `<head>`, sieht
+  den Schalter noch nicht).
+- Tests: 3 alte (Computed-Style nach `applySettings`) durch 2 ersetzt —
+  CSS-Vertrag (`--rand-u: 20mm`, `:has(#btn-rand-u-30:checked)` → 30 mm, kein
+  `setProperty('--rand-u')` in `settings.js`) + Whitelist-Normalisierung
+  (30 bleibt, 25 → 20).
+
+**Nachweis im laufenden System:** gespeichert 30 → `inline: (keiner)`,
+`computed: 30mm`, Schalter an; Klick aus → 20 mm; Klick an → 30 mm;
+`localStorage.din_settings.randU = 30`. Tests 400/400, Fitness 100 %.

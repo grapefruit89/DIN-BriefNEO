@@ -23,6 +23,14 @@
      (gemeldet 2026-11-16). Dritte Verwendung derselben Zahl. */
   --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke) + var(--fuss-hoehe)); /* 53mm, mit Fuss 68mm */
 }
+/* Unterrand-Schalter "30 mm" (Experten, nicht normgerecht): reine CSS-Ableitung
+   aus dem Schalter statt Inline-Style aus settings.js (2026-11-22). Gleiches
+   Muster wie --fuss-hoehe an #toggle-fuss. boot.js setzt den Wert einmalig vor
+   dem ersten Paint (FOUC-Schutz); ab initApp entscheidet diese Regel. */
+:root:has(#btn-rand-u-30:checked) {
+  --rand-u: 30mm;
+}
+
 
 /* Spacer-Höhe auf Seite 1: schiebt den Betreff an die DIN-5008-Position.
    Ableitung statt Doppelpflege — die Falzmarke ist die Quelle, der Betreff

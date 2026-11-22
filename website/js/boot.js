@@ -91,7 +91,9 @@ try {
   root.setAttribute('data-fuss', hatFuss ? 'true' : 'false');
 
   /* Unterrand 20/30mm vor dem ersten Paint setzen (FOUC-Schutz): die
-   * Druckregel von #kern liest --rand-u. Nur 20 und 30 sind zulaessig. */
+   * Druckregel von #kern liest --rand-u. Nur 20 und 30 sind zulaessig.
+   * Ab initApp gibt settings.js diesen Inline-Wert ab; dann steuert die
+   * CSS-Regel `:root:has(#btn-rand-u-30:checked)` (sheet-multipage.css). */
   const RAND_U_WHITELIST = new Set([20, 30]);
   const randU = RAND_U_WHITELIST.has(Number(settings.randU)) ? Number(settings.randU) : 20;
   root.style.setProperty('--rand-u', `${randU}mm`);

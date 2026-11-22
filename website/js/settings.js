@@ -89,12 +89,17 @@ export class SettingsManager {
 
     /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
      * von #kern setzt. Nur zwei Werte — alles andere faellt auf DIN 5008
-     * (20mm) zurueck. */
+     * (20mm) zurueck.
+     * Der Wert steht seit 2026-11-22 als CSS-Regel in sheet-multipage.css
+     * (`:root:has(#btn-rand-u-30:checked) { --rand-u: 30mm; }`). Hier wird nur
+     * der Schalter gestellt und der Inline-Wert von boot.js abgegeben (der
+     * FOUC-Schutz vor dem ersten Paint) — danach ist die CSS-Regel die einzige
+     * Quelle. */
     const randU = this.settings.randU === 30 ? 30 : 20;
     this.settings.randU = randU;
-    document.documentElement.style.setProperty('--rand-u', `${randU}mm`);
     const randUSwitch = document.getElementById('btn-rand-u-30');
     if (randUSwitch instanceof HTMLInputElement) setzeSchalter(randUSwitch, randU === 30);
+    document.documentElement.style.removeProperty('--rand-u');
 
     this.#spiegleLayoutFlags();
     this.#applyPlugins();

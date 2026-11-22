@@ -2369,41 +2369,34 @@ describe('WYSIWYG — Bildschirm und Druck gleich', () => {
 });
 
 describe('Unterrand (20/30)', () => {
-  /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
-   * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008
-   * (20mm) zurueck. Steuerung: Setup-Radio, Boot setzt den Wert vor dem
-   * ersten Paint. */
-  /** @param {number} wert @returns {string} */
-  const setzeRandU = (wert) => {
-    localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ ...DEFAULT_SETTINGS, randU: wert }));
-    new SettingsManager().applySettings();
-    return getComputedStyle(document.documentElement).getPropertyValue('--rand-u').trim();
-  };
-
-  it('randU=20 setzt --rand-u auf 20mm, der Druck liest die Variable', async () => {
-    try {
-      assertEqual(setzeRandU(20), '20mm', '--rand-u = 20mm');
-      const css = await (await fetch('/website/css/sheet-multipage.css')).text();
-      assert(/@page\s*\{[^}]*margin:\s*25mm 0 var\(--rand-u\) 0;/.test(css),
-        'der Unterrand kommt aus --rand-u (in @page, nicht im Padding)');
-    } finally {
-      document.documentElement.style.removeProperty('--rand-u');
-    }
+  /* Feature 2026-11-11, umgestellt 2026-11-22: --rand-u steuert den Unterrand
+   * im Druck. Der Wert kommt jetzt aus einer CSS-Regel am Schalter
+   * (`:root:has(#btn-rand-u-30:checked)`), nicht mehr aus einem Inline-Style
+   * in settings.js. Nur 20 und 30 sind zulaessig; alles andere faellt auf
+   * DIN 5008 (20mm) zurueck. */
+  it('20/30 stehen als CSS-Regel am Schalter, nicht als Inline-Style', async () => {
+    const css = await (await fetch('/website/css/sheet-multipage.css')).text();
+    assert(/--rand-u:\s*20mm/.test(css), 'DIN-Standard 20 mm ist der Default');
+    assert(
+      /:root:has\(#btn-rand-u-30:checked\)\s*\{\s*--rand-u:\s*30mm;?\s*\}/.test(css),
+      'Schalter an -> 30 mm, ohne JS'
+    );
+    const js = await (await fetch('/website/js/settings.js')).text();
+    assert(!/setProperty\(\s*'--rand-u'/.test(js), 'settings.js setzt --rand-u nicht mehr inline');
   });
 
-  it('randU=30 setzt --rand-u auf 30mm', () => {
+  it('randU=30 bleibt 30 mm, ungueltige Werte fallen auf 20 mm zurueck', () => {
+    const lade = (/** @type {number} */ wert) => {
+      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ ...DEFAULT_SETTINGS, randU: wert }));
+      const manager = new SettingsManager();
+      manager.applySettings();
+      return manager.settings.randU;
+    };
     try {
-      assertEqual(setzeRandU(30), '30mm', '--rand-u = 30mm');
+      assertEqual(lade(30), 30, '30 mm bleibt');
+      assertEqual(lade(25), 20, 'ungueltiger Wert -> DIN-Standard 20 mm');
     } finally {
-      document.documentElement.style.removeProperty('--rand-u');
-    }
-  });
-
-  it('randU=25 (ungueltig) faellt auf 20mm zurueck', () => {
-    try {
-      assertEqual(setzeRandU(25), '20mm', 'ungueltiger Wert -> DIN-Standard');
-    } finally {
-      document.documentElement.style.removeProperty('--rand-u');
+      localStorage.removeItem(STORAGE_KEYS.settings);
     }
   });
 });

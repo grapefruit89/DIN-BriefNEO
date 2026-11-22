@@ -304,7 +304,7 @@ din-anlagen-angabe {
    Nur `background` — keine Geometrie, kein Layout, kein Druck. */
 @keyframes feld-puls {
   from {
-    background: light-dark(oklch(0.92 0.08 145), oklch(0.75 0.10 145));
+    background: var(--farbe-erfolg-flaeche);
   }
   to {
     background: transparent;
@@ -600,7 +600,7 @@ din-anlagen-angabe {
     /* Literale Warnfarbe statt var(--c-danger): die Variable liefert
        light-dark(...) und wurde im outline-Shorthand verworfen (gemessen
        2026-11-12: errechnet blieb die UA-Fokusoptik, 3px dunkel). */
-    outline: 2px solid oklch(0.55 0.22 25) !important;
+    outline: 2px solid var(--farbe-markierung-fehler) !important;
     outline-offset: -2px;
     border-radius: 3px;
     animation: feld-voll-stopp 180ms ease-out;

@@ -4302,3 +4302,29 @@ wieder einbauen möchte, weil es halt das etablierte LLM-Wissen ist."
 **Rot-Nachweis:** eine Temp-Datei mit `import … from 'lodash/debounce'`, `require('x')`
 und `confirm()/alert()` löste **drei** CRITICAL-Treffer aus (W9, W10, W11); nach dem
 Entfernen 55 Regeln, 0 Verstöße.
+
+---
+
+## 2026-11-22 — Alle rohen Farb-Literale tokenisiert (79 → 0)
+
+**Nutzer-Vorgabe:** „dann bitte diese tokenisieren" (79 rohe Literale in Regeln).
+
+**Umsetzung:** ein Token-Block `2c. FARB-ROLLEN & LISTENPALETTE` in `base.css`
+mit 40 Rollen-Tokens plus den 21 Palettentönen `--ort-ton-0…20` (vorher 21
+einzelne `oklch()`-Werte in `sidebar.css`). Betroffen: `base.css`,
+`sheet-common.css`, `sheet.css`, `sheet-multipage.css`, `sidebar.css`.
+
+Beispiele: `--farbe-weiss`, `--farbe-schatten`, `--farbe-text-anthrazit`,
+`--farbe-ueberlauf*` (Überlauf-Warnung), `--status-erfolg/offen/fehler-*`
+(Speicherstatus), `--liste-firma/-behoerde/-strasse`, `--ton-formal/-hoeflich/-locker`.
+
+**Nachweis gleiche Optik (gemessen, computed style):**
+`--liste-firma` = `oklch(45% 0.16 255)` → Zeile rendert `oklch(0.45 0.16 255)`;
+`--ort-ton-3` = `oklch(0.56 0.19 53)`; `--farbe-weiss` = `oklch(100% 0 0)`.
+Screenshot vor/nach identisch.
+
+**Tokenbestand:** 170 Namen auf der Seite, davon **65 Farbtokens**. 13 Tokens
+haben am `:root` keinen Wert — das ist korrekt: sie werden *scoped* gesetzt
+(`--ort-ton` je Zeile, `--items` je Container, `--active-idx` je Segment).
+Ein Test wurde angepasst (Puls-Startfarbe kommt jetzt aus
+`--farbe-erfolg-flaeche`). Tests 410/410, Fitness 100 %.

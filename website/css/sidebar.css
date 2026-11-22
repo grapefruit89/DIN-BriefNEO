@@ -146,7 +146,7 @@ fieldset.seitenleiste-field-group > legend {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
+  color: var(--farbe-text-anthrazit); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -181,7 +181,7 @@ fieldset.seitenleiste-field-group > legend {
 .btn.primary {
   background: var(--accent-color);
   border-color: var(--accent-color);
-  color: oklch(1 0 0); /* Hochkontrast-Weiss auf dunklem Primaer-Akzent */
+  color: var(--farbe-akzent-auf-dunkel); /* Hochkontrast-Weiss auf dunklem Primaer-Akzent */
   font-weight: 600;
 }
 
@@ -270,7 +270,7 @@ fieldset.seitenleiste-field-group > legend {
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: var(--radius-sm);
-  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Nachgeschaerft von var(--text-muted) fuer > 5:1 Kontrast */
+  color: var(--farbe-text-anthrazit); /* WCAG 2.1 AA: Nachgeschaerft von var(--text-muted) fuer > 5:1 Kontrast */
   cursor: pointer;
   transition: color 0.2s ease;
   text-align: center;
@@ -284,7 +284,7 @@ fieldset.seitenleiste-field-group > legend {
 :root[data-layout="form-b"] .segmented-control-layout label[for="btn-form-b"],
 .segmented-control button[aria-pressed="true"],
 .segmented-control:not(.segmented-control-layout) input[type="radio"]:checked + label {
-  color: oklch(0 0 0);
+  color: var(--farbe-schwarz);
   font-weight: 700;
   /* Box-shadow and background are now handled by ::before */
 }
@@ -326,7 +326,7 @@ fieldset.seitenleiste-field-group > legend {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Sattes Anthrazit fuer hohen Kontrast */
+  color: var(--farbe-text-anthrazit); /* WCAG 2.1 AA: Sattes Anthrazit fuer hohen Kontrast */
   transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -337,7 +337,7 @@ fieldset.seitenleiste-field-group > legend {
 }
 
 .input-field::placeholder {
-  color: oklch(0.42 0.03 260); /* WCAG 2.1 AA Kontrast >= 4.5:1 auf --bg-card */
+  color: var(--farbe-text-leise); /* WCAG 2.1 AA Kontrast >= 4.5:1 auf --bg-card */
   opacity: 1;
 }
 
@@ -427,7 +427,7 @@ fieldset.seitenleiste-field-group > legend {
   padding: 1px var(--space-sm);
   border-radius: var(--radius-xs);
   color: var(--text-muted);
-  background: light-dark(oklch(0.94 0.01 260), oklch(0.25 0.01 260));
+  background: var(--farbe-hinweis-flaeche);
   border: 1px solid var(--border-color);
   opacity: 0.85;
   vertical-align: middle;
@@ -440,9 +440,9 @@ fieldset.seitenleiste-field-group > legend {
   font-weight: 600;
   padding: 1px var(--space-sm);
   border-radius: var(--radius-xs);
-  color: light-dark(oklch(0.45 0.18 50), oklch(0.85 0.18 70));
-  background: light-dark(oklch(0.96 0.05 60), oklch(0.28 0.08 55));
-  border: 1px solid light-dark(oklch(0.82 0.12 60), oklch(0.48 0.12 55));
+  color: var(--farbe-warnung-text);
+  background: var(--farbe-warnung-bg);
+  border: 1px solid var(--farbe-warnung-rand);
   vertical-align: middle;
 }
 
@@ -550,7 +550,7 @@ fieldset.seitenleiste-field-group > legend {
 .input-status-hint[data-status="valid"] { color: var(--c-success); }
 .input-status-hint[data-status="invalid"] { color: var(--c-danger); }
 .input-status-hint[data-status="pending"] { color: var(--accent-color); }
-.input-status-hint[data-status="error"] { color: var(--c-warning, oklch(0.75 0.14 75)); }
+.input-status-hint[data-status="error"] { color: var(--c-warning); }
 
 .input-field[data-status="valid"] {
   border-color: var(--c-success);
@@ -852,13 +852,13 @@ input[type="checkbox"][switch] {
   width: auto;
   font-size: 0.8rem;
   font-weight: 600;
-  color: light-dark(oklch(0.28 0.20 28), oklch(0.25 0.22 28));
+  color: var(--farbe-gefahr-text);
   padding: var(--space-sm) var(--space-xl);
 }
 
 .btn-danger-subtle:hover {
-  background: color-mix(in oklch, oklch(0.40 0.20 28) 12%, transparent);
-  color: light-dark(oklch(0.28 0.24 28), oklch(0.25 0.26 28));
+  background: color-mix(in oklch, var(--farbe-gefahr-ton) 12%, transparent);
+  color: var(--farbe-gefahr-text-hover);
 }
 
 /* Autosave-Indikator */
@@ -887,29 +887,29 @@ input[type="checkbox"][switch] {
 /* Gespeichert: Klares Grün mit starkem Kontrast in beiden Themes */
 .save-status[data-state="saved"],
 .save-status.saved {
-  color: light-dark(oklch(0.38 0.12 145), oklch(0.85 0.14 145));
-  background: light-dark(oklch(0.94 0.04 145), oklch(0.24 0.05 145));
-  border: 1px solid light-dark(oklch(0.85 0.06 145), oklch(0.35 0.08 145));
+  color: var(--status-erfolg-text);
+  background: var(--status-erfolg-bg);
+  border: 1px solid var(--status-erfolg-rand);
 }
 
 /* Speichern / Dirty: Warmes Amber */
 .save-status[data-state="dirty"],
 .save-status.dirty {
-  color: light-dark(oklch(0.42 0.14 65), oklch(0.88 0.14 65));
-  background: light-dark(oklch(0.95 0.05 65), oklch(0.26 0.06 65));
-  border: 1px solid light-dark(oklch(0.85 0.08 65), oklch(0.38 0.08 65));
+  color: var(--status-offen-text);
+  background: var(--status-offen-bg);
+  border: 1px solid var(--status-offen-rand);
 }
 
 /* Fehler: Signal-Rot */
 .save-status[data-state="error"],
 .save-status.error {
-  color: light-dark(oklch(0.40 0.18 25), oklch(0.90 0.15 25));
-  background: light-dark(oklch(0.95 0.05 25), oklch(0.26 0.08 25));
-  border: 1px solid light-dark(oklch(0.85 0.08 25), oklch(0.40 0.10 25));
+  color: var(--status-fehler-text);
+  background: var(--status-fehler-bg);
+  border: 1px solid var(--status-fehler-rand);
 }
 .import-file-name {
   font-size: 0.85em;
-  color: light-dark(oklch(0.45 0.02 250), oklch(0.7 0.02 250));
+  color: var(--farbe-text-neutral);
   word-break: break-all;
 }
 
@@ -994,7 +994,7 @@ input[type="checkbox"][switch] {
 
 #hinweis-close:hover {
   color: var(--c-danger);
-  background: oklch(50% 0.2 20 / 10%);
+  background: var(--farbe-gefahr-hover-bg);
 }
 
 /* Lebensdauer je Typ — die einzige Stelle, an der ein Hinweis Zeit bekommt.
@@ -1081,9 +1081,9 @@ input[type="checkbox"][switch] {
    Konzept: **ordinale Farbskala** (Hue = Naehe, nicht Kategorie) im
    OKLCH-Raum, damit die drei Stufen gleich hell und gleich stark wirken —
    Blau/Gruen/Rot waeren eine kategoriale Skala und wuerden Naehe nicht abbilden. */
-#anrede-vorschlaege li[data-gruppe="formal"] { --ort-ton: oklch(0.55 0.17 255); }
-#anrede-vorschlaege li[data-gruppe="polite"] { --ort-ton: oklch(0.56 0.17 320); }
-#anrede-vorschlaege li[data-gruppe="casual"] { --ort-ton: oklch(0.58 0.19 25); }
+#anrede-vorschlaege li[data-gruppe="formal"] { --ort-ton: var(--ton-formal); }
+#anrede-vorschlaege li[data-gruppe="polite"] { --ort-ton: var(--ton-hoeflich); }
+#anrede-vorschlaege li[data-gruppe="casual"] { --ort-ton: var(--ton-locker); }
 
 /* Die Gruppen sollen klar lesbar sein: im Anrede-Popover etwas kraeftiger
    hinterlegt als in den Ortslisten. */
@@ -1250,7 +1250,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .district-val {
   min-width: 0;
   font-size: 0.72rem;
-  color: var(--text-muted, oklch(55% 0 0));
+  color: var(--text-muted);
   font-style: italic;
   opacity: 0.8;
   white-space: nowrap;
@@ -1266,26 +1266,26 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Strassen-Vorschlaege: neutraler Balken. Vorher trugen sie die Standardfarbe
    (blau) und sahen aus wie Firmen (gemeldet 2026-11-22). */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-typ="adresse"] {
-  --ort-ton: oklch(0.62 0.02 250);
+  --ort-ton: var(--liste-strasse);
   color: var(--text-primary);
 }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-typ="firma"] {
   --ort-ton: oklch(0.56 0.17 255);
-  color: oklch(45% 0.16 255);
+  color: var(--liste-firma);
 }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-typ="behoerde"] {
   /* Behörden: Anthrazit. Kein Ortston liegt so dunkel und unbunt -
      dadurch mit keiner Ortsfarbe verwechselbar. */
   --ort-ton: oklch(0.34 0.01 260);
-  color: oklch(40% 0.02 260);
+  color: var(--liste-behoerde);
 }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-typ="gericht"] {
   --ort-ton: oklch(0.34 0.01 260);
-  color: oklch(40% 0.02 260);
+  color: var(--liste-behoerde);
 }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-typ="institution"] {
   --ort-ton: oklch(0.56 0.17 255);
-  color: oklch(45% 0.16 255);
+  color: var(--liste-firma);
 }
 
 /* Ortsfarbe: gleiche Stadt = gleicher Ton, sanft hinterlegt plus 3px-Balken.
@@ -1305,27 +1305,27 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Zwoelf Toene im Goldwinkel-Abstand (137,5 Grad): benachbarte Eintraege liegen
    weit auseinander, gleiche Stadt behaelt ihren Ton (Vergabe in address.js). */
 /* 0 = kein Ort (Großempfänger/Behörde): neutraler Balken, ruhige Zeile. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="0"] { --ort-ton: oklch(0.72 0.01 250); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.56 0.19 138); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.72 0.11 275); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.56 0.19 53); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="4"] { --ort-ton: oklch(0.72 0.11 190); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="5"] { --ort-ton: oklch(0.56 0.19 328); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="6"] { --ort-ton: oklch(0.72 0.11 105); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="7"] { --ort-ton: oklch(0.56 0.19 243); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="8"] { --ort-ton: oklch(0.72 0.11 20); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="9"] { --ort-ton: oklch(0.56 0.19 158); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="10"] { --ort-ton: oklch(0.72 0.11 295); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="11"] { --ort-ton: oklch(0.56 0.19 73); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="12"] { --ort-ton: oklch(0.72 0.11 210); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="13"] { --ort-ton: oklch(0.56 0.19 8); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="14"] { --ort-ton: oklch(0.72 0.11 145); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="15"] { --ort-ton: oklch(0.56 0.19 283); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="16"] { --ort-ton: oklch(0.72 0.11 60); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="17"] { --ort-ton: oklch(0.56 0.19 198); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="18"] { --ort-ton: oklch(0.72 0.11 335); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="19"] { --ort-ton: oklch(0.56 0.19 113); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="20"] { --ort-ton: oklch(0.72 0.11 250); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="0"] { --ort-ton: var(--ort-ton-0); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="1"] { --ort-ton: var(--ort-ton-1); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="2"] { --ort-ton: var(--ort-ton-2); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="3"] { --ort-ton: var(--ort-ton-3); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="4"] { --ort-ton: var(--ort-ton-4); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="5"] { --ort-ton: var(--ort-ton-5); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="6"] { --ort-ton: var(--ort-ton-6); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="7"] { --ort-ton: var(--ort-ton-7); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="8"] { --ort-ton: var(--ort-ton-8); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="9"] { --ort-ton: var(--ort-ton-9); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="10"] { --ort-ton: var(--ort-ton-10); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="11"] { --ort-ton: var(--ort-ton-11); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="12"] { --ort-ton: var(--ort-ton-12); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="13"] { --ort-ton: var(--ort-ton-13); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="14"] { --ort-ton: var(--ort-ton-14); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="15"] { --ort-ton: var(--ort-ton-15); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="16"] { --ort-ton: var(--ort-ton-16); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="17"] { --ort-ton: var(--ort-ton-17); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="18"] { --ort-ton: var(--ort-ton-18); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="19"] { --ort-ton: var(--ort-ton-19); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .suggestion-item[data-ort-farbe="20"] { --ort-ton: var(--ort-ton-20); }
 
 /* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
    kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */
@@ -1343,7 +1343,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 
 :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege) .city-sub {
   font-size: 0.75rem;
-  color: var(--text-muted, oklch(55% 0 0));
+  color: var(--text-muted);
   margin-inline-start: var(--space-xs);
 }
 
@@ -1351,7 +1351,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 #anschrift-vorschlaege .suggestion-hint {
   padding: var(--space-sm) var(--space-lg);
   font-size: 0.75rem;
-  color: var(--text-muted, oklch(55% 0 0));
+  color: var(--text-muted);
   font-style: italic;
   cursor: default;
 }
@@ -1381,7 +1381,7 @@ aside select {
 
 ::search-text {
   background-color: oklch(from var(--accent-color) calc(l + 0.35) c h / 90%);
-  color: oklch(15% 0 0);
+  color: var(--farbe-text-tief);
 }
 
 #anschrift-vorschlaege li[aria-selected="true"],
@@ -1420,7 +1420,7 @@ aside select {
 }
 .glass-dialog::backdrop {
   opacity: 0;
-  background: oklch(0% 0 0 / 40%);
+  background: var(--farbe-schleier);
   backdrop-filter: blur(4px);
   transition: opacity 0.2s ease, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
 }
@@ -1442,15 +1442,15 @@ aside select {
 #din-info-dialog .dialog-actions { margin-top: var(--space-2xl); }
 .btn.danger,
 .btn-danger {
-  border-color: oklch(0.45 0.18 28);
-  color: oklch(0.38 0.16 28); /* WCAG 2.1 AA: Dunkles Karminrot fuer > 5.5:1 Kontrast auf hellem Hintergrund */
+  border-color: var(--farbe-dialog-gefahr-rand);
+  color: var(--farbe-dialog-gefahr-text); /* WCAG 2.1 AA: Dunkles Karminrot fuer > 5.5:1 Kontrast auf hellem Hintergrund */
   font-weight: 600;
 }
 .btn.danger:hover,
 .btn-danger:hover {
-  background: color-mix(in oklch, oklch(45% 0.22 25) 15%, var(--bg-card));
-  color: oklch(0.28 0.14 28);
-  border-color: oklch(0.38 0.16 28);
+  background: color-mix(in oklch, var(--farbe-dialog-gefahr-ton) 15%, var(--bg-card));
+  color: var(--farbe-dialog-gefahr-stark);
+  border-color: var(--farbe-dialog-gefahr-text);
 }
 
 /* Workbench UI Styling (C13: aus sheet-multipage.css umgezogen) */

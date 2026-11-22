@@ -1637,9 +1637,10 @@ describe('Popover: geschlossene Overlays blockieren keine Klickfläche', () => {
   });
 
   it('Puls beim Einfuegen kommt aus CSS und respektiert reduced-motion', async () => {
-    const [css, js] = await Promise.all([
+    const [css, js, basis] = await Promise.all([
       fetch('/website/css/sheet-common.css').then((r) => r.text()),
-      fetch('/website/addons/clipboard-parser/clipboard-parser.js').then((r) => r.text())
+      fetch('/website/addons/clipboard-parser/clipboard-parser.js').then((r) => r.text()),
+      fetch('/website/css/base.css').then((r) => r.text())
     ]);
     assert(/@keyframes\s+feld-puls/.test(css), '@keyframes feld-puls steht im Stylesheet');
     assert(
@@ -1649,7 +1650,16 @@ describe('Popover: geschlossene Overlays blockieren keine Klickfläche', () => {
     /* Die Test-Fixture laedt sheet-common.css nicht (nur base/sidebar), deshalb
        wird die Regel am Text geprueft; das laufende Verhalten ist im echten
        Blatt per CDP gemessen (1 Animation, 500 ms; reduced-motion: keine). */
-    assert(/from\s*\{[\s\S]{0,120}?oklch\(0\.92 0\.08 145\)/.test(css), 'Startfarbe der bestehenden Optik');
+    /* Seit der Tokenisierung (2026-11-22) steht der Farbwert in base.css als
+       --farbe-erfolg-flaeche; der Keyframe referenziert nur noch den Token. */
+    assert(
+      /from\s*\{[\s\S]{0,120}?var\(--farbe-erfolg-flaeche\)/.test(css),
+      'Startfarbe kommt aus dem Token'
+    );
+    assert(
+      /--farbe-erfolg-flaeche:\s*light-dark\(oklch\(0\.92 0\.08 145\)/.test(basis),
+      'Token traegt die bestehende Optik'
+    );
     assert(js.includes("classList.add('field-highlight')"), 'das JS setzt die Klasse');
     assert(js.includes('.animate(') === false, 'keine Web-Animations-API mehr');
     assert(js.includes("matchMedia('(prefers-reduced-motion: reduce)')") === false,

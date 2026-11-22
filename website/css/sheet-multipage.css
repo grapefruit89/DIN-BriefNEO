@@ -146,7 +146,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     /* 0.5pt = 0,176 mm im Druck. Chromium klemmt sub-pixel Rahmenbreiten auf dem
        Bildschirm auf 1px (auch bei DPR 2) — der Unterschied ist nur im Druck/PDF
        sichtbar. Wert deckt sich mit print.css / print-multipage.css. */
-    border-bottom: 0.5pt solid oklch(0.35 0 0);
+    border-bottom: 0.5pt solid var(--farbe-linie-anthrazit);
     pointer-events: none;
     z-index: 10;
   }
@@ -270,7 +270,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     background:
       linear-gradient(var(--blatt-hintergrund) 0 var(--seite), transparent var(--seite))
       0 0 / 100% calc(var(--seite) + var(--luecke)) repeat-y;
-    filter: drop-shadow(0 4px 14px oklch(0 0 0 / 12%));
+    filter: drop-shadow(0 4px 14px var(--farbe-schatten-weich));
     box-sizing: border-box;
     display: block;
     overflow: visible;
@@ -456,13 +456,13 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   @top-left {
     padding-left: 25mm;
     font: 9pt var(--font-system-stack, sans-serif);
-    color: oklch(25% 0 0);
+    color: var(--farbe-text-dunkel);
     vertical-align: middle;
   }
   @top-right {
     padding-right: 20mm;
     font: 9pt var(--font-system-stack, sans-serif);
-    color: oklch(25% 0 0);
+    color: var(--farbe-text-dunkel);
     vertical-align: middle;
     content: "Seite " counter(page) " von " counter(pages);
   }
@@ -485,7 +485,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   html, body {
     overflow: visible !important;
     height: auto !important;
-    background: oklch(100% 0 0) !important;
+    background: var(--farbe-weiss) !important;
   }
 
   #probe {

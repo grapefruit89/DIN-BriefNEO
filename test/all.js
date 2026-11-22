@@ -3200,10 +3200,10 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
       { input: 'b',     expectItems: 0 },
       { input: 'bo',    expectItems: 0 },
       { input: 'bon',   expectItems: 8,  expectFirstItem: /Bonn/,     isStadtListe: true },
-      { input: 'bonn',  expectItems: 39, expectFirstItem: /53103/,    isPlzListe: true,
+      { input: 'bonn',  expectItems: 39, expectFirstItem: /53111/,    isPlzListe: true,
         expectNotContains: ['Bondelum', 'Bondorf', 'Bönen', 'Bonstetten', 'BonusCard'] },
       { input: 'bon',   expectItems: 8,  expectFirstItem: /Bonn/,     isStadtListe: true,  isDelete: true },
-      { input: 'bonn',  expectItems: 39, expectFirstItem: /53103/,    isPlzListe: true },
+      { input: 'bonn',  expectItems: 39, expectFirstItem: /53111/,    isPlzListe: true },
       { input: 'b',     expectItems: 0,  isDelete: true },
       { input: '',      expectItems: 0,  isDelete: true, popoverClosed: true },
     ];
@@ -3247,14 +3247,14 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
 
     const items = [...popover.querySelectorAll('li')].map(li => li.textContent?.trim() || '');
 
-    // 1. Reihenfolge
-    assertEqual(items[0].startsWith('53103'), true);
-    assertEqual(items[1].startsWith('53111'), true);
-    assertEqual(items[2].startsWith('53113'), true);
+    // 1. Reihenfolge: Zeilen MIT Stadtteil zuerst (seit 2026-11-22)
+    assertEqual(items[0].startsWith('53111'), true);
+    assertEqual(items[1].startsWith('53113'), true);
+    assertEqual(items[2].startsWith('53115'), true);
 
-    // 2. Stadtteile: erster Teil + "+N" (vollstaendig im Tooltip, nie 2-zeilig)
-    assertEqual(items[1], '53111 Bonn · Zentrum');
-    assert(items[2].includes('· Gronau'), '53113 hat Stadtteile');
+    // 2. Stadtteile: erster Teil (vollstaendig im Tooltip, nie 2-zeilig)
+    assertEqual(items[0], '53111 Bonn · Zentrum');
+    assert(items[1].includes('· Gronau'), '53113 hat Stadtteile');
 
     // 3. Vollständigkeit
     assertEqual(items.length, 39);

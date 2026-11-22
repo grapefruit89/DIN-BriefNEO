@@ -658,7 +658,19 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       return 2;
     };
     const eintraege = flacheVorschlaege(matches, isPlzList ? Infinity : maxSuggestions())
-      .toSorted((a, b) => rang(a) - rang(b));
+      .toSorted((a, b) => {
+        const ra = rang(a);
+        const rb = rang(b);
+        if (ra !== rb) return ra - rb;
+        /* Innerhalb von Block 1: Zeilen MIT Stadtteil zuerst, die ohne
+           Zusatzangabe (219 von 284 in Berlin) nach hinten. */
+        if (ra === 0) {
+          const ha = a.district ? 0 : 1;
+          const hb = b.district ? 0 : 1;
+          if (ha !== hb) return ha - hb;
+        }
+        return 0;
+      });
 
     /* Bundesland nur, wenn es die Zeile von den anderen desselben Namens
        unterscheidet: bei "frankfurt am main" sind 114 Zeilen Hessen, zwei

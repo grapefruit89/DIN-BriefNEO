@@ -1078,7 +1078,9 @@ input[type="checkbox"][switch] {
   left: anchor(left);
   min-width: max(300px, anchor-size(width));
   max-width: 440px;
-  max-height: min(400px, 45vh);
+  /* Bis kurz vor die Unterkante des Blattes (20 mm Rand) statt bei 12 Zeilen
+     abzuschneiden (gemessen 2026-11-22: 743 px Platz = ~25 Zeilen). */
+  max-height: min(62vh, 760px);
 }
 
 body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
@@ -1115,6 +1117,17 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 
 /* Der gemeinsame Renderer erzeugt diese Unterelemente in beiden Listen
    (#anschrift-vorschlaege und #plz-suggestions-popover). */
+/* Lange Namen (Behörden) enden mit "…" statt hart abgeschnitten zu werden;
+   der volle Text steht im Tooltip der Zeile. */
+#plz-suggestions-popover .suggestion-main {
+  min-width: 0;
+  overflow: hidden;
+}
+#plz-suggestions-popover .city-val {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-main {
   display: inline-flex;
   gap: var(--space-sm);
@@ -1171,26 +1184,26 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
    weit auseinander, gleiche Stadt behaelt ihren Ton (Vergabe in address.js). */
 /* 0 = kein Ort (Großempfänger/Behörde): neutraler Balken, ruhige Zeile. */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="0"] { --ort-ton: oklch(0.72 0.01 250); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.62 0.17 138); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.62 0.17 275); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.62 0.17 53); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="4"] { --ort-ton: oklch(0.62 0.17 190); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="5"] { --ort-ton: oklch(0.62 0.17 328); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="6"] { --ort-ton: oklch(0.62 0.17 105); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="7"] { --ort-ton: oklch(0.62 0.17 243); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="8"] { --ort-ton: oklch(0.62 0.17 20); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="9"] { --ort-ton: oklch(0.62 0.17 158); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="10"] { --ort-ton: oklch(0.62 0.17 295); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="11"] { --ort-ton: oklch(0.62 0.17 73); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="12"] { --ort-ton: oklch(0.62 0.17 210); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="13"] { --ort-ton: oklch(0.62 0.17 8); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="14"] { --ort-ton: oklch(0.62 0.17 145); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="15"] { --ort-ton: oklch(0.62 0.17 283); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="16"] { --ort-ton: oklch(0.62 0.17 60); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="17"] { --ort-ton: oklch(0.62 0.17 198); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="18"] { --ort-ton: oklch(0.62 0.17 335); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="19"] { --ort-ton: oklch(0.62 0.17 113); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="20"] { --ort-ton: oklch(0.62 0.17 250); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.56 0.19 138); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.72 0.11 275); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.56 0.19 53); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="4"] { --ort-ton: oklch(0.72 0.11 190); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="5"] { --ort-ton: oklch(0.56 0.19 328); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="6"] { --ort-ton: oklch(0.72 0.11 105); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="7"] { --ort-ton: oklch(0.56 0.19 243); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="8"] { --ort-ton: oklch(0.72 0.11 20); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="9"] { --ort-ton: oklch(0.56 0.19 158); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="10"] { --ort-ton: oklch(0.72 0.11 295); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="11"] { --ort-ton: oklch(0.56 0.19 73); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="12"] { --ort-ton: oklch(0.72 0.11 210); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="13"] { --ort-ton: oklch(0.56 0.19 8); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="14"] { --ort-ton: oklch(0.72 0.11 145); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="15"] { --ort-ton: oklch(0.56 0.19 283); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="16"] { --ort-ton: oklch(0.72 0.11 60); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="17"] { --ort-ton: oklch(0.56 0.19 198); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="18"] { --ort-ton: oklch(0.72 0.11 335); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="19"] { --ort-ton: oklch(0.56 0.19 113); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="20"] { --ort-ton: oklch(0.72 0.11 250); }
 
 /* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
    kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */

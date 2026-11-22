@@ -141,7 +141,8 @@ export function bindListSelection(popoverEl, items, select) {
  * deshalb hier zentral und nicht im CSS.
  */
   const SUGGESTION_BREAKPOINT_PX = 600;
-const maxSuggestions = () => (window.innerWidth < SUGGESTION_BREAKPOINT_PX ? 8 : 12);
+/* 24 statt 12: das Popover reicht bis kurz vor den Blattrand (~25 Zeilen). */
+const maxSuggestions = () => (window.innerWidth < SUGGESTION_BREAKPOINT_PX ? 10 : 24);
 
 /** Listener-Register (ersetzt data-wired am Ort-Feld). */
 let adressfelderVerdrahtet = false;
@@ -379,11 +380,14 @@ AddressIntelligence.wireDOM = function wireDOM() {
         const mehrfach = (kreiseJeName.get(item.name || item.city || '')?.size || 0) > 1;
         const kreisName = mehrfach && item.plz ? AddressIntelligence.getKreis(item.plz) : '';
         let extra = '';
+        const istOrt = (item.typ || 'Stadt') === 'Stadt';
         if (kreisName) extra = `· ${kreisName}`;
         else if (item.district) {
           const erster = String(item.district).split(',')[0].trim();
           extra = `· ${erster || item.district}`;
         } else if (item.state) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
+        /* Badge sagt bereits, dass es eine Firma/Behörde ist. */
+        if (!istOrt) extra = '';
         if (extra) {
           const sub = document.createElement('span');
           sub.className = 'district-val';
@@ -712,7 +716,10 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
         extraText = `· ${stateName}`;
       }
 
-      if (item.district) li.title = `${item.name || item.city || ''} — ${item.district}`;
+      /* Bei Großempfängern sagt das Badge schon, was es ist — der Zusatz
+         "· Großempfänger" wurde abgeschnitten und raubte dem Namen Platz. */
+      if (item.typ && item.typ !== 'Stadt') extraText = '';
+      if (item.district) li.title = `${item.name || item.city || ''}${item.typ && item.typ !== 'Stadt' ? '' : ` — ${item.district}`}`;
       if (extraText) {
         li.appendChild(document.createTextNode(' '));
         const districtSpan = document.createElement('span');

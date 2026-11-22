@@ -5309,6 +5309,15 @@ describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
     assert(raus.every((e) => String(e.plz).startsWith('538')), 'nur Troisdorf-PLZs');
   });
 
+  it('nach dem Aufklappen wird auf die Listengroesse gekappt', () => {
+    /* Gemessen 2026-11-22: "neu" erzeugte 38 Zeilen, weil das Aufklappen erst
+       NACH der Trefferbegrenzung passiert. */
+    const viele = Array.from({ length: 40 }, (_, i) => ({
+      typ: 'Stadt', name: `Ort${i}`, city: `Ort${i}`, isSinglePlz: true, plz: `0000${i}`,
+    }));
+    assertEqual(flacheVorschlaege(viele, 12).length, 12, 'hoechstens 12 Zeilen');
+  });
+
   it('Stadt ab 8 PLZs bleibt eine Zeile (Unterliste lohnt dann)', () => {
     const raus = flacheVorschlaege([
       { typ: 'Stadt', name: 'Bonn', city: 'Bonn', isSinglePlz: false, plzCount: 38 },

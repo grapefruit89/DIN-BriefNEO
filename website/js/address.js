@@ -308,6 +308,119 @@ AddressIntelligence.wireDOM = function wireDOM() {
     clearPopover();
   });
 
+  /* Absender-Ort: dieselbe Offline-Liste wie der Empfänger, aber bewusst OHNE
+     Großkunden und ohne Firmenfeld — der Absender ist eine Person oder Stelle,
+     keine Behörde. Die Liste hängt per CSS-Anker an DIESEM Feld
+     (--anchor-absender-ort), damit sie immer darunter aufklappt. */
+  const absOrtEl = feld('absender-ort');
+  if (absOrtEl) {
+    /** @type {any} */
+    let absTimer = null;
+
+    /** @param {string} plz @param {string} city */
+    const schreibeAbsender = (plz, city) => {
+      applyValue('absender-ort', `${plz || ''} ${city || ''}`.trim(), 'auto');
+      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+    };
+
+    /** @param {Array<any>} liste @param {boolean} [alle] */
+    const zeichneAbsender = (liste, alle = false) => {
+      const eintraege = flacheVorschlaege(liste, alle ? Infinity : maxSuggestions());
+      if (!eintraege.length) {
+        hidePopoverSafe(suggestionsPopover);
+        return;
+      }
+      const farben = farbenFuerListe(eintraege, (e) => (e.plz ? AddressIntelligence.getKreisKey(e.plz) : ''));
+      /* Gleicher Name in mehreren Kreisen: dort den Kreis zeigen. */
+      const kreiseJeName = new Map();
+      for (const e of eintraege) {
+        const n = e.name || e.city || '';
+        const set = kreiseJeName.get(n) ?? new Set();
+        set.add(e.plz ? AddressIntelligence.getKreisKey(e.plz) || '' : '');
+        kreiseJeName.set(n, set);
+      }
+
+      suggestionsPopover.replaceChildren();
+      eintraege.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'suggestion-item';
+        li.setAttribute('role', 'option');
+        li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+        li.dataset.ortFarbe = farben[index];
+        li.dataset.typ = 'stadt';
+
+        const main = document.createElement('span');
+        main.className = 'suggestion-main';
+        if (item.plz) {
+          const plzTeil = document.createElement('span');
+          plzTeil.textContent = item.plz;
+          main.appendChild(plzTeil);
+          main.appendChild(document.createTextNode(' '));
+        }
+        const nameTeil = document.createElement('span');
+        nameTeil.className = 'city-val';
+        nameTeil.textContent = item.name || item.city || '';
+        main.appendChild(nameTeil);
+        if (!item.plz && (item.plzCount || 0) > 1) {
+          const anzahl = document.createElement('span');
+          anzahl.className = 'city-sub';
+          anzahl.textContent = `(${item.plzCount} PLZs)`;
+          main.appendChild(anzahl);
+        }
+        li.appendChild(main);
+
+        const mehrfach = (kreiseJeName.get(item.name || item.city || '')?.size || 0) > 1;
+        const kreisName = mehrfach && item.plz ? AddressIntelligence.getKreis(item.plz) : '';
+        let extra = '';
+        if (kreisName) extra = `(${kreisName})`;
+        else if (item.state) extra = `(${BUNDESLAENDER[item.state] || item.state})`;
+        if (extra) {
+          const sub = document.createElement('span');
+          sub.className = 'district-val';
+          sub.textContent = extra;
+          li.appendChild(document.createTextNode(' '));
+          li.appendChild(sub);
+        }
+
+        li.addEventListener('mousedown', (ev) => {
+          ev.preventDefault();
+          /* Stadtsammelzeile ("Neustadt (9 PLZs)"): erst die PLZ zeigen. */
+          if ((item.plzCount || 0) > 1 && !item.plz) {
+            zeichneAbsender(AddressIntelligence.lookupCityPlzs(item.city), true);
+            return;
+          }
+          schreibeAbsender(item.plz || '', item.city || item.name || '');
+          setCaretToEnd(absOrtEl);
+          hidePopoverSafe(suggestionsPopover);
+        });
+        suggestionsPopover.appendChild(li);
+      });
+      showPopoverSafe(suggestionsPopover);
+    };
+
+    absOrtEl.addEventListener('input', () => {
+      const raw = Field.getValue(absOrtEl).trim();
+      if (absTimer) clearTimeout(absTimer);
+      if (raw.length < 3) {
+        hidePopoverSafe(suggestionsPopover);
+        return;
+      }
+      /* Fünf Ziffern: sofort PLZ + Ort, ohne Großkunden-Logik. */
+      if (/^\d{5}$/.test(raw)) {
+        const res = AddressIntelligence.lookupPlz(raw);
+        if (res) {
+          schreibeAbsender(res.plz, res.city);
+          hidePopoverSafe(suggestionsPopover);
+        }
+        return;
+      }
+      absTimer = setTimeout(() => {
+        const res = AddressIntelligence.resolveCityInput(raw, maxSuggestions());
+        zeichneAbsender(res.items, res.mode === 'city_plzs');
+      }, 120);
+    });
+  }
+
   // Case C: Eingabe im Firma-Feld (Großkunden & Behörden Direkt-Lookup)
   if (empfFirmaEl) {
     empfFirmaEl.addEventListener('input', () => {
@@ -393,12 +506,16 @@ export const GRUPPE_AB_PLZ = 8;
  * die 53840 zweimal da. Der Schluessel enthaelt den Typ, damit eine Behoerde
  * mit derselben PLZ nicht verschwindet.
  * @param {Array<any>} liste
+ * @param {number} [limit] Obergrenze der AUSGEGEBENEN Zeilen. Ohne sie lieferte
+ *   "neu" 38 Zeilen, obwohl die Liste auf 12 Treffer begrenzt war (gemessen
+ *   2026-11-22) — das Aufklappen passiert nach der Begrenzung.
  * @returns {Array<any>}
  */
-export function flacheVorschlaege(liste) {
+export function flacheVorschlaege(liste, limit = Infinity) {
   const out = [];
   const gesehen = new Set();
   for (const item of liste) {
+    if (out.length >= limit) break;
     const plzAnzahl = item.plzCount || 0;
     const ausklappen = item.typ === 'Stadt' && !item.isSinglePlz && plzAnzahl > 1 && plzAnzahl < GRUPPE_AB_PLZ;
     for (const eintrag of ausklappen ? AddressIntelligence.lookupCityPlzs(item.city) : [item]) {
@@ -406,6 +523,7 @@ export function flacheVorschlaege(liste) {
       if (gesehen.has(schluessel)) continue;
       gesehen.add(schluessel);
       out.push(eintrag);
+      if (out.length >= limit) break;
     }
   }
   return out;
@@ -484,7 +602,9 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       hidePopoverSafe(popoverEl);
     };
 
-    const eintraege = flacheVorschlaege(matches);
+    /* Exakte Stadt-Treffer (city_plzs) zeigen ALLE PLZ dieser Stadt; nur
+       gemischte Vorschlagslisten werden auf die Listengroesse gekappt. */
+    const eintraege = flacheVorschlaege(matches, isPlzList ? Infinity : maxSuggestions());
     const farben = farbenFuerListe(eintraege, (e) => (e.plz ? AddressIntelligence.getKreisKey(e.plz) : ''));
     /* Namen, die in dieser Liste in MEHREREN Kreisen vorkommen: nur dort zeigt
        die Zeile den Landkreis ("Neustadt (Landkreis Kelheim)"). Kommt der Name

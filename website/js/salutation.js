@@ -304,6 +304,10 @@ export class SalutationFeature {
     };
 
     el.addEventListener('focus', zeige);
+    /* Auch beim Tippen zeigen: ist das Feld schon fokussiert (z. B. nach dem
+       Laden), kam nie ein focus-Event - dann blieb die Liste aus (gemessen
+       2026-11-22 an echter Tastatureingabe). */
+    el.addEventListener('input', zeige);
     el.addEventListener('blur', () => {
       hidePopoverSafe(pop);
       el.setAttribute('aria-expanded', 'false');

@@ -213,6 +213,14 @@ AddressIntelligence.wireDOM = function wireDOM() {
   trackManualInput(empfOrtEl);
   if (empfFirmaEl) trackManualInput(empfFirmaEl);
 
+  /* Tab/Blur schliesst die Liste. Hover ist kein Zustand: ohne Fokus hat die
+     Liste nichts mehr anzuzeigen (gemeldet 2026-11-22). Mousedown auf einen
+     Eintrag ruft preventDefault, deshalb bleibt der Fokus beim Klick erhalten. */
+  for (const el of [empfOrtEl, empfFirmaEl]) {
+    if (!el) continue;
+    el.addEventListener('blur', () => hidePopoverSafe(suggestionsPopover));
+  }
+
   // Eingabe im Ort-Feld (Case A & B & Universelles Suchfeld)
   empfOrtEl.addEventListener('input', (/** @type {any} */ e) => {
     // Fiktive Testbrief-Adresse: nicht aufloesen, nicht ueberschreiben.
@@ -424,6 +432,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
       showPopoverSafe(suggestionsPopover);
     };
 
+    absOrtEl.addEventListener('blur', () => hidePopoverSafe(suggestionsPopover));
     absOrtEl.addEventListener('input', () => {
       const raw = Field.getValue(absOrtEl).trim();
       if (absTimer) clearTimeout(absTimer);
@@ -1301,6 +1310,7 @@ export function initAddressServices() {
      über `vorgewaermt` ohnehin idempotent. */
   inputAddressSearch.addEventListener('focus', waermeVerbindungVor);
   inputAddressSearch.addEventListener('input', waermeVerbindungVor);
+  inputAddressSearch.addEventListener('blur', () => hidePopoverSafe(addressSuggestions));
   if (document.activeElement === inputAddressSearch) waermeVerbindungVor();
 
   // Tastatursteuerung für das native Listbox-Popover
@@ -1668,6 +1678,7 @@ export function initAddressServices() {
       strassePopover.style.maxHeight = `${Math.max(220, Math.round(untenGrenze - oben - 8))}px`;
     };
 
+    absStrasseEl.addEventListener('blur', () => hidePopoverSafe(strassePopover));
     absStrasseEl.addEventListener('input', () => {
       if (absStrasseEl.hasAttribute('data-autofill-aus')) return;
       if (strasseTimer) clearTimeout(strasseTimer);

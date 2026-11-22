@@ -19,7 +19,7 @@
  * Kein Zeitstempel im Kopf: sonst ist die Datei bei jedem Lauf anders und
  * `--check` unbrauchbar. Verbindlich ist die Zahl der Treffer, nicht das Datum.
  */
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
@@ -89,7 +89,7 @@ function schreibzugriffe(rel) {
 /* ------------------------------------------------------------- 3) Marker */
 
 /**
- * @param {'data-seeded' | 'data-ready'} marker
+ * @param {string} marker
  */
 function markerRegeln(marker) {
   const out = [];
@@ -110,23 +110,38 @@ function messung() {
   const ordner = join(ROOT, 'batch/02-boot-pfad');
   const dateien = readdirSync(ordner)
     .filter((f) => f.startsWith('paint-probe-') && f.endsWith('.json'))
-    .sort();
+    /* Nach mtime, nicht nach Name: `-r5-all` und `-r5-local` sind
+       alphabetisch fast gleich, und ein alter Lauf mit anderem Profil darf
+       die aktuelle Messreihe nicht verdraengen. */
+    .map((f) => ({ f, t: statSync(join(ordner, f)).mtimeMs }))
+    .sort((a, b) => a.t - b.t)
+    .map((e) => e.f);
   if (dateien.length === 0) return null;
-  const roh = JSON.parse(readFileSync(join(ordner, dateien.at(-1)), 'utf-8'));
+  const gewaehlt = dateien.at(-1);
+  const roh = JSON.parse(readFileSync(join(ordner, gewaehlt), 'utf-8'));
   const zeilenOut = [];
   for (const [profil, e] of Object.entries(roh)) {
-    const laeufe = e.roh;
+    const laeufe = e.roh ?? [];
     const fp = laeufe.map((r) => r.fp).filter((v) => v !== null);
-    const rd = laeufe.map((r) => r.ready).filter((v) => v !== null);
     const median = (a) => {
+      if (!a.length) return null;
       const s = [...a].sort((x, y) => x - y);
       return s[Math.floor(s.length / 2)];
     };
+    /* Alte Messreihen (vor D2) fuehren `seeded` statt `applied`; das Blatt
+       soll auch dann lesbar bleiben. */
+    const applied = laeufe.map((r) => r.applied ?? r.seeded).filter((v) => v !== null);
+    const ttc = e.ttcMs ?? { median: median(applied), max: Math.max(...applied) };
+    const ttcMedian = ttc.median === null || ttc.median === undefined ? '—' : Math.round(ttc.median);
+    const ttcMax = ttc.max === null || ttc.max === undefined ? '—' : Math.round(ttc.max);
+    const vorPaint = e.appliedVorFirstPaint ?? e.seededVorFirstPaint ?? 0;
+    const sichtbar = e.sichtbarUnter2000ms ?? applied.filter((v) => v <= 2000).length;
+    const fpMedian = fp.length ? Math.round(median(fp)) : '—';
     zeilenOut.push(
-      `| ${profil} | ${e.laeufe} | ${e.seededVorFirstPaint}/${e.laeufe} | ${e.readyVorFirstPaint}/${e.laeufe} | ${Math.round(Math.min(...fp))}–${Math.round(Math.max(...fp))} | ${Math.round(median(fp))} | ${rd.length ? Math.round(median(rd)) : '—'} |`,
+      `| ${profil} | ${e.laeufe} | ${vorPaint}/${e.laeufe} | ${ttcMedian} | ${ttcMax} | ${sichtbar}/${e.laeufe} | ${fpMedian} |`,
     );
   }
-  return { datei: dateien.at(-1), tabelle: zeilenOut };
+  return { datei: gewaehlt, tabelle: zeilenOut };
 }
 
 /* -------------------------------------------------------------- Ausgabe */
@@ -484,11 +499,17 @@ ${(mp ? mp.important : [])
 }
 
 function scheibe05() {
-  /* Zustand und Restore: die vier Dateien, die am Rueckspielen beteiligt sind. */
+  /* Zustand und Restore: die Dateien, die am Rueckspielen beteiligt sind.
+     Seit D2 ist boot-state.js durch das Modul boot-values.js ersetzt; das
+     Blatt folgt dem Bestand, statt eine geloeschte Datei zu behaupten. */
+  const bootDatei = existsSync(join(ROOT, 'website/js/boot-values.js'))
+    ? { rel: 'website/js/boot-values.js', rolle: 'Der eine Wert-Writer vor dem Reveal (Modul)' }
+    : { rel: 'website/js/boot-state.js', rolle: 'Seeder vor dem ersten Paint (klassisches Skript)' };
   const DATEIEN05 = [
-    { rel: 'website/js/boot-state.js', rolle: 'Seeder vor dem ersten Paint (klassisches Skript)' },
+    bootDatei,
+    { rel: 'website/js/draft-model.js', rolle: 'Feld-Kern: Selektor, Sanitizer, istAn, ein Wert-Schreiber' },
     { rel: 'website/js/draft-manager.js', rolle: 'Entwurf laden, speichern, zuruecksetzen' },
-    { rel: 'website/js/persistence.js', rolle: 'DEFAULT_SETTINGS, STORAGE_KEYS, loadJSON/saveJSON, istAn' },
+    { rel: 'website/js/persistence.js', rolle: 'DEFAULT_SETTINGS, STORAGE_KEYS, loadJSON/saveJSON, istAn-Re-Export' },
     { rel: 'website/js/main.js', rolle: 'Boot-Reihenfolge (bootStep) und die Aufrufstellen' },
   ];
 
@@ -643,9 +664,9 @@ ${boolTreffer.map((b) => `- \`${b.datei}:${b.nr}\``).join('\n')}
 |---:|---|
 ${allowlist.map((a) => `| ${a.nr} | \`${esc(a.roh)}\` |`).join('\n')}
 
-Das ist die Allowlist, die der Seeder (\`boot-state.js\`) seit B69 ebenfalls
-benutzt — dort als lokale Kopie des Selektors, weil ein klassisches Skript
-nichts importieren kann.
+Das ist die Allowlist aus \`draft-model.js\`; der Restore prueft damit und
+\`applyDraftValues\` schreibt damit. Es gibt seit D2 keine zweite Kopie im
+Boot-Pfad — das gemeinsame Modul ist importfähig.
 `;
 }
 
@@ -1043,7 +1064,8 @@ nicht (A38).
 }
 
 const SKRIPTE = skripte();
-const DATEIEN = ['website/js/boot.js', 'website/js/boot-state.js', 'website/js/main.js'];
+const DATEIEN = ['website/js/boot.js', 'website/js/boot-state.js', 'website/js/boot-values.js', 'website/js/main.js']
+  .filter((rel) => existsSync(join(ROOT, rel)));
 
 const bloecke = [];
 if (SCHEIBE === '01') bloecke.push(scheibe01());
@@ -1069,7 +1091,8 @@ Klassische Skripte blockieren den Parser; Module laufen nach dem Parse.
 Gezählt werden **Aufrufstellen**, nicht Ausführungen: der Helfer \`lies()\` in
 \`boot-state.js\` hat eine Aufrufstelle und läuft zweimal (\`din_settings\`,
 \`din_draft_current\`). Genau diese Verwechslung machte das handgetippte Blatt
-falsch („2× JSON.parse", tatsächlich 3).
+falsch („2× JSON.parse", tatsächlich 3). Mit \`boot-values.js\` importiert der
+Wert-Writer; die Zahl der Aufrufstellen bleibt davon unberuehrt.
 `);
 
 for (const datei of SCHEIBE === '02' ? DATEIEN : []) {
@@ -1086,45 +1109,35 @@ ${treffer.map((t) => `| ${t.zeile} | ${t.was} | \`${t.ziel}\` | \`${esc(t.quelle
 }
 
 if (SCHEIBE === '02') {
-const seeded = markerRegeln('data-seeded');
-const ready = markerRegeln('data-ready');
-bloecke.push(`## 3. Marker im CSS
+const booting = markerRegeln('data-booting');
+bloecke.push(`## 3. Lifecycle-Marker im CSS
 
-\`data-seeded\` und \`data-ready\` sind keine Dubletten: \`seeded\` heisst „Zustand
-steht", \`data-ready\` heisst „Booten fertig oder aufgegeben (2-s-Timer in
-\`boot.js\`)". Die Messung in §4 zeigt, wie weit die beiden auseinanderliegen.
+Seit D2 gibt es genau EINEN Marker: \`data-booting\`. \`boot.js\` setzt ihn vor
+dem ersten Frame, der Wert-Writer entfernt ihn (oder das 1800-ms-Netz). Die
+frueheren Zwei-Marker-Modelle (Zustand + Freigabe) sind ersetzt.
 
 | Marker | Treffer in CSS |
-|---|---|
-| \`data-seeded\` | ${seeded.length} |
-| \`data-ready\` | ${ready.length} |
-
-### \`data-seeded\`
+|---|---:|
+| \`data-booting\` | ${booting.length} |
 
 | Datei | Zeile | Regel |
 |---|---:|---|
-${seeded.map((r) => `| \`${r.datei}\` | ${r.zeile} | \`${esc(r.quelle).slice(0, 100)}\` |`).join('\n')}
-
-### \`data-ready\`
-
-| Datei | Zeile | Regel |
-|---|---:|---|
-${ready.map((r) => `| \`${r.datei}\` | ${r.zeile} | \`${esc(r.quelle).slice(0, 100)}\` |`).join('\n')}
+${booting.map((r) => `| \`${r.datei}\` | ${r.zeile} | \`${esc(r.quelle).slice(0, 100)}\` |`).join('\n')}
 `);
 
 const m = messung();
-bloecke.push(`## 4. Messung: steht der Zustand vor dem ersten Paint?
+bloecke.push(`## 4. Messung: wann ist die Seite sichtbar (TTC)?
 
 Quelle: \`${m ? m.datei : 'keine paint-probe-*.json gefunden'}\` (erzeugt von
 \`tools/paint-probe.mjs\`, CDP, Cache aus, voller Entwurf).
 
-| Profil | Läufe | \`seeded\` vor Paint | \`ready\` vor Paint | Paint | Paint (Median) | \`ready\` (Median) |
+| Profil | Läufe | \`applied\` vor Paint | TTC Median | TTC max | sichtbar < 2 s | Paint (Median) |
 |---|---:|---:|---:|---:|---:|---:|
 ${m ? m.tabelle.join('\n') : '| — | — | — | — | — | — | — |'}
 
-Lesart: \`seeded\` steht in allen Profilen frueher als \`ready\`. Im Profil \`slow\`
-liegen **beide** nach dem Paint — der Body-End-Seeder ist dann von der
-Netzlieferung abhaengig, nicht von der Parse-Reihenfolge.
+Lesart: TTC ist die Zeit bis \`applied\` (Maske weg). Werte stehen per
+Konstruktion VOR dem Reveal; ein Wert nach dem Paint ist kein FOUC mehr,
+sondern ein Fehler im Wert-Writer.
 `);
 }
 

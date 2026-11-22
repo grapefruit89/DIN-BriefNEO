@@ -7,17 +7,17 @@ sind aus dem Quelltext gelesen; Groessen sind gemessen (`gzip -9`).
 
 | Datei | Zeile | Stelle |
 |---|---:|---|
-| `js/document.js` | 429 | `window.addEventListener('beforeprint', () => {` |
-| `js/main.js` | 186 | `window.addEventListener('beforeprint', () => {` |
-| `js/main.js` | 189 | `window.addEventListener('afterprint', () => {` |
-| `js/main.js` | 198 | `window.print();` |
+| `js/document.js` | 385 | `window.addEventListener('beforeprint', () => {` |
+| `js/main.js` | 221 | `window.addEventListener('beforeprint', () => {` |
+| `js/main.js` | 224 | `window.addEventListener('afterprint', () => {` |
+| `js/main.js` | 233 | `window.print();` |
 | `js/multipage-controller.js` | 119 | `window.addEventListener('beforeprint', aktualisieren);` |
-| `js/persistence.js` | 246 | `* Kontext-Stack für reentrante beforeprint/afterprint-Zyklen.` |
-| `js/persistence.js` | 247 | `* Verhindert Deadlocks und Metadaten-Leaks bei asynchronen oder mehrfa` |
-| `js/persistence.js` | 263 | `* Reentrant: Push auf den Kontext-Stack; ein verschachteltes beforepri` |
-| `js/draft-manager.js` | 557 | `document.title = betreff;` |
-| `js/persistence.js` | 278 | `document.title = fileName;` |
-| `js/persistence.js` | 350 | `document.title = restoreTitle;` |
+| `js/persistence.js` | 240 | `* Kontext-Stack für reentrante beforeprint/afterprint-Zyklen.` |
+| `js/persistence.js` | 241 | `* Verhindert Deadlocks und Metadaten-Leaks bei asynchronen oder mehrfa` |
+| `js/persistence.js` | 257 | `* Reentrant: Push auf den Kontext-Stack; ein verschachteltes beforepri` |
+| `js/draft-manager.js` | 487 | `document.title = betreff;` |
+| `js/persistence.js` | 272 | `document.title = fileName;` |
+| `js/persistence.js` | 344 | `document.title = restoreTitle;` |
 
 Der Druck laeuft **ausschliesslich** ueber `window.print()` — der
 Browser-Dialog erzeugt das PDF. Es gibt keinen eigenen PDF-Writer im Code.
@@ -26,31 +26,31 @@ Browser-Dialog erzeugt das PDF. Es gibt keinen eigenen PDF-Writer im Code.
 
 | Datei | Zeile | Regel |
 |---|---:|---|
-| `css/sheet-multipage.css` | 455 | `@page {` |
-| `css/sheet-multipage.css` | 473 | `@page :first {` |
-| `css/sheet-multipage.css` | 478 | `@page, nicht aus geklontem Padding (gemessen 2026-11-12). */` |
+| `css/sheet-multipage.css` | 445 | `@page {` |
+| `css/sheet-multipage.css` | 463 | `@page :first {` |
+| `css/sheet-multipage.css` | 468 | `@page, nicht aus geklontem Padding (gemessen 2026-11-12). */` |
 | `css/sheet.css` | 310 | `@page {` |
 
 ## 3. Export-Wege, die es heute gibt
 
 | Datei | Zeile | Stelle |
 |---|---:|---|
-| `js/persistence.js` | 657 | `* Exportiert das DIN-Brief-Payload über die File System Access API (sh` |
-| `js/persistence.js` | 663 | `export async function exportDocumentToFile(payload, fileName = buildLe` |
-| `js/persistence.js` | 667 | `const savePicker = typeof window !== 'undefined' ? /** @type {any} */` |
-| `js/persistence.js` | 694 | `const blob = new Blob([jsonContent], { type: 'application/json' });` |
-| `js/persistence.js` | 695 | `const url = URL.createObjectURL(blob);` |
-| `js/persistence.js` | 823 | `await exportDocumentToFile(payload);` |
-| `js/persistence.js` | 842 | `// Globaler Tastatur-Shortcut: Ctrl + S / Cmd + S triggert exportDocum` |
+| `js/persistence.js` | 631 | `* Exportiert das DIN-Brief-Payload über die File System Access API (sh` |
+| `js/persistence.js` | 637 | `export async function exportDocumentToFile(payload, fileName = buildLe` |
+| `js/persistence.js` | 641 | `const savePicker = typeof window !== 'undefined' ? /** @type {any} */` |
+| `js/persistence.js` | 667 | `const blob = new Blob([jsonContent], { type: 'application/json' });` |
+| `js/persistence.js` | 668 | `const url = URL.createObjectURL(blob);` |
+| `js/persistence.js` | 803 | `await exportDocumentToFile(payload);` |
+| `js/persistence.js` | 831 | `// Globaler Tastatur-Shortcut: Ctrl + S / Cmd + S triggert exportDocum` |
 
 ## 4. Was die Auslieferung wiegt
 
 | Gruppe | Dateien | roh | gzip |
 |---|---:|---:|---:|
-| JS | 22 | 404 KB | 134 KB |
-| CSS | 5 | 109 KB | 36 KB |
-| Rest (HTML/JSON/Fonts) | 11 | 289 KB | 137 KB |
-| **Summe** | 38 | **802 KB** | **307 KB** |
+| JS | 28 | 441 KB | 150 KB |
+| CSS | 5 | 114 KB | 37 KB |
+| Rest (HTML/JSON/Fonts) | 11 | 290 KB | 138 KB |
+| **Summe** | 44 | **844 KB** | **325 KB** |
 
 Die drei groessten Dateien:
 
@@ -58,7 +58,7 @@ Die drei groessten Dateien:
 |---|---:|---:|
 | `website/addons/testbrief/figuren.json` | 135.1 KB | 36.1 KB |
 | `website/fonts/michelangelus-regular.woff2` | 22.7 KB | 22.7 KB |
-| `website/addons/testbrief/testbrief.js` | 60.1 KB | 19.3 KB |
+| `website/addons/testbrief/testbrief.js` | 67.2 KB | 22.2 KB |
 
 ## 5. Content-Security-Policy (was geladen werden darf)
 

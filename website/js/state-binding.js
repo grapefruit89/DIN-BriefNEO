@@ -20,6 +20,7 @@
 
 import { Events, eventBus } from './core.js';
 import { collectDraft, draftFieldIds, EDITABLE_FIELD_SELECTOR, readField, writeField } from './document.js';
+import { setRootFlags } from './draft-model.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS } from './persistence.js';
 import { bindIds, createState, letterState, replace, setWert, snapshot } from './state.js';
 
@@ -132,9 +133,10 @@ export function render(ids, origin = 'logic') {
 
 /** Einziger Schreiber der CSS-Wahrheit für Anlagen/Fußzeile. */
 export function renderRootFlags() {
-  const root = document.documentElement;
-  root.setAttribute('data-anlagen', letterState.werte['toggle-anlagen'] === true ? 'true' : 'false');
-  root.setAttribute('data-fuss', letterState.werte['toggle-fuss'] === true ? 'true' : 'false');
+  setRootFlags({
+    anlagen: letterState.werte['toggle-anlagen'] === true,
+    fuss: letterState.werte['toggle-fuss'] === true,
+  });
 }
 
 /**

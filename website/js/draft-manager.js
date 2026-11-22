@@ -13,6 +13,12 @@
 import { AddressIntelligence } from './address.js';
 import { Constants, Events, eventBus } from './core.js';
 import { draftFieldIds, getCaretCharacterOffset, setCaretCharacterOffset } from './document.js';
+import {
+  clearBootFingerprint,
+  draftFingerprint,
+  normalizeDraftWire,
+  readBootFingerprint,
+} from './draft-model.js';
 import { Field } from './field.js';
 import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, takeJournal, toWire } from './state.js';
@@ -309,7 +315,14 @@ export class DraftManager {
     this.#redoStack = [];
     this.#letzterCaret = null;
     this.#hatBasis = true;
-    this.#loadWire(draft);
+    /* D2 Stufe 3: Hat der Boot-Writer genau diesen Stand bereits in den DOM
+       geschrieben, entfällt der zweite Schreibvorgang. Der Zustand wird
+       trotzdem vollständig aufgebaut (SSoT für Speichern/Undo); nur die
+       Projektion ist bedingt. Der Fingerprint wird einmalig verbraucht —
+       ein späterer Multi-Tab-Load schreibt wieder. */
+    const bereitsAngewendet = readBootFingerprint() === draftFingerprint(draft);
+    clearBootFingerprint();
+    this.#loadWire(draft, { skipDom: bereitsAngewendet });
     return true;
   }
 
@@ -327,32 +340,27 @@ export class DraftManager {
    * Setzt den Zustand aus einem Wire-Objekt und projiziert ihn in den DOM.
    * Enthält die beiden Daten-Migrationen, die vorher im DOM-Restore steckten.
    * @param {Record<string, string | boolean>} draft
+   * @param {{ skipDom?: boolean }} [options] skipDom = Werte stehen bereits
    */
-  #loadWire(draft) {
+  #loadWire(draft, { skipDom = false } = {}) {
     const feldIds = draftFieldIds(document);
-    const next = createState(draft, feldIds);
-
-    /* Migration: alte Drafts kennen `toggle-fuss` nicht. Vorhandener Text in
-       den Fußzeilenfeldern bedeutet "Fußzeile war an" — sonst wäre er
-       unsichtbar (Befund B11). */
-    if (!('toggle-fuss' in draft)) {
-      const fussFelder = ['fuss-firma', 'fuss-sitz', 'fuss-gericht', 'fuss-hrb', 'fuss-vorstand', 'fuss-gf',
-        'fuss-stnr', 'fuss-ustid', 'fuss-bank', 'fuss-iban', 'fuss-bic', 'fuss-anschrift'];
-      next.werte['toggle-fuss'] = fussFelder.some((id) => String(next.werte[id] ?? '').trim() !== '');
-      next.ids.add('toggle-fuss');
-    }
+    /* Migration (Alt-Entwürfe ohne `toggle-fuss`) liegt seit D2 in
+       draft-model.js — Boot und Restore leiten sie damit identisch ab. */
+    const next = createState(normalizeDraftWire(draft), feldIds);
 
     replace(letterState, next);
     bindIds(letterState, feldIds);
     AddressIntelligence.targetLock = null;
-    render([...letterState.ids], 'logic');
+    if (!skipDom) {
+      render([...letterState.ids], 'logic');
 
-    const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
-    if (pvSelect) {
-      // Auswahlliste folgt dem Feld — sonst zeigt sie nach einem Restore „kein“,
-      // während der Vermerk im Brief steht.
-      pvSelect.value = String(letterState.werte.vermerke ?? '').trim();
-      if (pvSelect.selectedIndex === -1) pvSelect.selectedIndex = 0;
+      const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
+      if (pvSelect) {
+        // Auswahlliste folgt dem Feld — sonst zeigt sie nach einem Restore „kein“,
+        // während der Vermerk im Brief steht.
+        pvSelect.value = String(letterState.werte.vermerke ?? '').trim();
+        if (pvSelect.selectedIndex === -1) pvSelect.selectedIndex = 0;
+      }
     }
     this.#setSaveStatus('saved');
   }

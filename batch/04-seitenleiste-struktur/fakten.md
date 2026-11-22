@@ -8,15 +8,15 @@ nicht mehr zum Quelltext passt.
 
 | Kennzahl | Wert |
 |---|---:|
-| Zeilen | 1309 |
-| Blöcke mit geschweifter Klammer (inkl. @media) | 187 |
-| ID-Selektoren | 96 |
-| `!important` | 3 |
-| `:has(` | 13 |
+| Zeilen | 1320 |
+| Blöcke mit geschweifter Klammer (inkl. @media) | 188 |
+| ID-Selektoren | 91 |
+| `!important` | 2 |
+| `:has(` | 11 |
 | `@media`-Blöcke | 5 |
 | verschiedene CSS-Eigenschaften | 99 |
-| selbst definierte Custom Properties | 3 |
-| benutzte Custom Properties | 33 |
+| selbst definierte Custom Properties | 4 |
+| benutzte Custom Properties | 39 |
 
 ## 2. Die Modus-Regeln (das ist der Strukturvertrag)
 

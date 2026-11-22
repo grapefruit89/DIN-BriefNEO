@@ -80,6 +80,18 @@
     }
     const randU = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-rand-u-30'));
     if (randU) randU.checked = settings.randU === 30;
+
+    /* 2b-ii. Statuszeile. Der echte Text entsteht in settings.js#rendereZustand,
+       das erst mit dem Modul laeuft - und dieses Skript gibt die Seite schon
+       davor frei (Reveal weiter unten). Ein Frame lang stand dort deshalb das
+       HTML-Fallback "Schrift: System". Hier derselbe Text aus denselben zwei
+       Quellen (Auswahlliste + gespeicherter Unterrand), bevor die Maske
+       aufgeht. settings.js bleibt die Anzeige-Wahrheit fuer Aenderungen. */
+    const zustand = document.getElementById('zustand-text');
+    if (zustand) {
+      const schriftName = (schrift?.selectedOptions?.[0]?.textContent || 'System').split('/')[0].trim();
+      zustand.textContent = `Schrift: ${schriftName} · Unterrand ${settings.randU === 30 ? 30 : 20} mm`;
+    }
     const testbrief = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
     if (testbrief) testbrief.checked = istAn(settings.pluginTestbrief);
     const geschaeft = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));
@@ -162,19 +174,32 @@
         .toLocaleString('de-DE', { dateStyle: 'long' });
     }
 
-    /* Signal fuer CSS: Zustand steht. Die Regler, deren Wert aus localStorage
-       kommt, sind bis hierher unsichtbar (siehe sidebar.css). NICHT an
-       data-ready haengen: das setzt main.js erst am Ende von initApp, also
-       ~20 ms nach dem ersten Paint — dann ploppen sie sichtbar nach
-       (gemessen 2026-11-12: FCP 56 ms, sichtbar erst 73 ms). */
-    /* Messmarke fuer tools/paint-probe.mjs: erlaubt den Zeitvergleich mit
-       firstPaint (B72). Kostet nichts und laeuft nur einmal. */
-    if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');
-    document.documentElement.setAttribute('data-seeded', 'true');
+    /* D2 Stufe 3: Fingerprint nur, wenn dieser Schreiber das Ergebnis von
+       applyDraftValues EXAKT hergestellt hat. Solange Rich-Text hier roh
+       eingehängt wird (Phase 5 ersetzt diesen Pfad durch boot-values.js),
+       gilt das nur für Entwürfe ohne Markup in Feldwerten und ohne
+       Fußzeilen-Migration. Alles andere schreibt der Restore nach — lieber
+       ein zweiter (sanitizender) Lauf als ein falsches „steht schon". */
+    const ohneMarkup = Object.values(draft).every((v) => typeof v !== 'string' || !v.includes('<'));
+    if (ohneMarkup && 'toggle-fuss' in draft) {
+      /** @type {Record<string, string>} */
+      const bootStore = /** @type {any} */ (globalThis);
+      bootStore.__dinBootFingerprint = JSON.stringify(draft);
+    }
+
+    /* Signal fuer CSS: der Wert-Writer ist fertig, die Maske darf weg. EIN
+       Token (data-booting), EIN Entferner zu diesem Zeitpunkt; main.js
+       entfernt denselben Marker spaeter nur noch idempotent als Netz. NICHT
+       an einen zweiten Marker haengen: genau das war das Zwei-Marker-Modell,
+       das D2 ersetzt. */
+    /* Messmarke fuer tools/paint-probe.mjs: `applied` ist der Zeitpunkt, an
+       dem der Wert-Writer fertig ist (= TTC). Kostet nichts, laeuft einmal. */
+    if (typeof performance !== 'undefined' && performance.mark) performance.mark('applied');
+    document.documentElement.removeAttribute('data-booting');
   } catch (e) {
     /* Kein Blocker: main.js stellt denselben Zustand gleich noch einmal her.
-       Aber nicht still: ohne Seeder bleiben die Regler bis data-ready
-       versteckt, und niemand sieht warum (B67). */
+       Aber nicht still: ohne Seeder bleibt die Maske bis zum Netz (1800 ms)
+       stehen, und niemand sieht warum (B67). */
     console.error('[Boot-State] Seeder fehlgeschlagen:', e);
   }
 })();

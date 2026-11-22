@@ -9,6 +9,7 @@ import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js'
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
+import { applyDraftValues, clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
 import { Field } from '../website/js/field.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
@@ -1699,22 +1700,21 @@ describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
   /* Kein DOM-Test moeglich: die Fixture laedt sheet-common.css nicht, und die
    * Regeln liegen in @scope (din-blatt). Geprueft wird deshalb der Vertrag im
    * Quelltext; der Beweis am laufenden Objekt steht im Commit (CDP-Messung). */
-  it('blendet Platzhalter bis zum Seeding aus (FOUC-Schutz)', async () => {
-    /* Anker ist seit 2026-11-14 `data-seeded` mit `data-ready` als Netz (B70).
-       Grund ist gemessen, nicht angenommen: `data-ready` kam in 21 von 30
-       lokalen Laeufen nach dem ersten Paint (6x CPU 29/30, langsames Netz
-       30/30, bis 1,9 s). Ein Platzhalter, der erst dann erscheint, fehlt bei
-       leeren Feldern sichtbar lange. Beide Marker bleiben noetig - faellt der
-       Seeder aus, setzt boot.js `data-ready` nach 2 s. */
-    const res = await fetch('/website/css/sheet-common.css');
-    const css = await res.text();
-    const netz = ':root:not([data-seeded="true"]):not([data-ready="true"])';
-    assert(css.includes(`${netz} & [data-placeholder]:empty::before`),
-      'contenteditable-Platzhalter haengt an data-seeded (Netz data-ready)');
-    assert(css.includes(`${netz} & textarea[data-feldtyp]::placeholder`),
-      'textarea-Platzhalter haengt an data-seeded (Netz data-ready)');
-    assert(!css.includes(':root:not([data-ready="true"]) & [data-placeholder]'),
-      'kein Platzhalter-Regelwerk mehr, das nur auf data-ready wartet');
+  it('genau eine Boot-Maske, geankert an data-booting (D2)', async () => {
+    /* D2 ersetzt das Zwei-Marker-Modell (`data-seeded` + `data-ready`) durch
+     * EINEN von JS gesetzten Marker. Die Maske deckt die ganze Shell ab;
+     * Platzhalter- und Sidebar-Sonderregeln sind entfallen, weil sie nur
+     * Text versteckten, den die Maske ohnehin verdeckt. */
+    const base = await (await fetch('/website/css/base.css')).text();
+    assert(base.includes(':root[data-booting="true"] #app-shell'),
+      'Maske haengt an data-booting und deckt die Shell');
+    assert(/:root\[data-booting="true"\] \*/.test(base),
+      'Transitions-Sperre haengt am selben Token');
+    for (const datei of ['/website/css/base.css', '/website/css/sidebar.css', '/website/css/sheet-common.css']) {
+      const css = await (await fetch(datei)).text();
+      assert(!css.includes('data-seeded'), `${datei}: kein data-seeded mehr`);
+      assert(!css.includes('data-ready'), `${datei}: kein data-ready mehr`);
+    }
   });
 });
 
@@ -1844,10 +1844,16 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     /* Befund B11: die Migration suchte '#geschaeftsangaben > [contenteditable]'.
        Seit dem Fusszeilen-Umbau (2026-11-12) stehen dort <input>, some() war
        immer false und Alt-Entwuerfe ohne toggle-fuss verloren die Fusszeile.
-       Seit D1 laeuft die Migration ueber die gespeicherten fuss-* Felder. */
-    const src = await (await fetch('/website/js/draft-manager.js')).text();
-    assert(src.includes('fussFelder') && src.includes("'toggle-fuss' in draft"), 'Fußzeilen-Migration liest die fuss-*-Felder');
-    assert(!src.includes("'#geschaeftsangaben > [contenteditable]'"), 'alter DOM-Selektor ist entfernt');
+       Seit D2 liegt die Ableitung in draft-model.js (Boot und Restore teilen
+       sie); der Restore ruft sie ueber normalizeDraftWire auf. */
+    const [model, manager] = await Promise.all([
+      (await fetch('/website/js/draft-model.js')).text(),
+      (await fetch('/website/js/draft-manager.js')).text()
+    ]);
+    assert(model.includes('FUSS_FELDER') && model.includes("'toggle-fuss' in wire"), 'Fußzeilen-Migration liest die fuss-*-Felder');
+    assert(manager.includes('normalizeDraftWire'), 'Restore nutzt die geteilte Ableitung');
+    assert(!manager.includes('fussFelder'), 'keine zweite Kopie der Fußzeilen-Migration im Restore');
+    assert(!manager.includes("'#geschaeftsangaben > [contenteditable]'"), 'alter DOM-Selektor ist entfernt');
   });
 
   it('boot-state.js seedet alle gespeicherten Regler und das Datum', async () => {
@@ -5109,6 +5115,43 @@ describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
   });
 });
 
+describe('D2: Fingerprint verhindert den zweiten Boot-Schreibvorgang', () => {
+  it('loadDraft schreibt den DOM nicht, wenn der Boot denselben Stand gemeldet hat', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const wire = { 'empfaenger-ort': 'BOOT-STAND' };
+    saveJSON(STORAGE_KEYS.draft, wire);
+    publishBootFingerprint(wire);
+
+    /* Der Boot hat den Wert gesetzt; wir stellen den DOM absichtlich auf einen
+       anderen Wert. Ohne Fingerprint wuerde loadDraft ihn ueberschreiben. */
+    el.textContent = 'DOM-BLEIBT';
+    const dm = new DraftManager();
+    assert(dm.loadDraft(), 'Entwurf geladen');
+    assertEqual(el.textContent, 'DOM-BLEIBT', 'kein zweiter DOM-Schreibvorgang');
+    assertEqual(letterState.werte['empfaenger-ort'], 'BOOT-STAND', 'Zustand ist trotzdem der Entwurf');
+    assertEqual(readBootFingerprint(), null, 'Fingerprint ist einmalig verbraucht');
+
+    /* Zweiter Load (Multi-Tab) schreibt wieder — der Fingerprint gilt nur fuer
+       den einen Boot. */
+    dm.loadDraft();
+    assertEqual(el.textContent, 'BOOT-STAND', 'zweiter Load projiziert in den DOM');
+    el.textContent = '';
+    dm.destroy();
+  });
+
+  it('ohne Fingerprint schreibt loadDraft den Entwurf in den DOM', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    saveJSON(STORAGE_KEYS.draft, { 'empfaenger-ort': 'AUS-DRAFT' });
+    clearBootFingerprint();
+    el.textContent = '';
+    const dm = new DraftManager();
+    dm.loadDraft();
+    assertEqual(el.textContent, 'AUS-DRAFT', 'ohne Fingerprint wird projiziert');
+    el.textContent = '';
+    dm.destroy();
+  });
+});
+
 describe('B4: Undo-Historie nach fremdem Entwurf', () => {
   it('loadDraft entwertet die Historie, Undo holt kein fremdes Dokument zurueck', () => {
     const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
@@ -5458,13 +5501,16 @@ describe('Ein/Aus-Schalter bleiben Haken, keine gestreckte Pille (2026-11-13)', 
 
 describe('Anlagen und Fusszeile als Root-Attribute (ADR-KISS-MINIMAL-JS, Weg 2)', () => {
   it('data-anlagen/data-fuss in JS gesetzt, CSS liest :root[data-...]', async () => {
-    /* D1: Schreiber sind boot.js (erster Frame) und state-binding.renderRootFlags();
-       draft-manager.js schreibt sie im Restore-Pfad (bis Stufe 4). */
-    for (const datei of ['/website/js/boot.js', '/website/js/state-binding.js']) {
+    /* D2: Die Wahrheit steht in draft-model.setRootFlags(); boot.js setzt die
+       Attribute vor dem ersten Frame selbst, state-binding.renderRootFlags()
+       delegiert an dieselbe Funktion. */
+    for (const datei of ['/website/js/boot.js', '/website/js/draft-model.js']) {
       const src = await (await fetch(datei)).text();
       assert(src.includes('data-anlagen'), `${datei} setzt data-anlagen`);
       assert(src.includes('data-fuss'), `${datei} setzt data-fuss`);
     }
+    const binder = await (await fetch('/website/js/state-binding.js')).text();
+    assert(binder.includes('setRootFlags'), 'Sitzungsschreiber delegiert an draft-model');
     const [common, multi] = await Promise.all([
       (await fetch('/website/css/sheet-common.css')).text(),
       (await fetch('/website/css/sheet-multipage.css')).text()
@@ -5713,12 +5759,32 @@ describe('Schalter-Semantik: eine Regel statt drei (B65)', () => {
     assertEqual(geprueft, 9);
   });
 
-  it('boot.js und boot-state.js tragen dieselbe Zeile (Ratsche)', async () => {
-    const zeile = 'const istAn = (v) => v !== false && v !== \'false\';';
-    const boot = await (await fetch('/website/js/boot.js')).text();
-    const seeder = await (await fetch('/website/js/boot-state.js')).text();
-    assert(boot.includes(zeile), 'boot.js: istAn-Zeile');
-    assert(seeder.includes(zeile), 'boot-state.js: istAn-Zeile');
+  it('istAn-Verhalten ist in jedem Boot-Schreiber identisch (kein Zeilenvergleich)', async () => {
+    /* Ersetzt die alte Ratsche „boot.js und boot-state.js tragen dieselbe
+       Zeile". Eine Ratsche auf Zeilengleichheit verhindert die Zusammenlegung;
+       geprueft wird stattdessen das Verhalten beider Fassungen gegen dieselbe
+       Wertematrix. Dateien ohne lokale Definition (Modul-Import) werden
+       uebersprungen — so ueberlebt der Test auch die Abloesung durch
+       boot-values.js. */
+    const matrix = [
+      [true, true], [false, false], [null, true], [undefined, true],
+      [0, true], [1, true], ['', true], ['true', true], ['false', false],
+    ];
+    for (const datei of ['/website/js/boot.js', '/website/js/boot-state.js']) {
+      const res = await fetch(datei);
+      if (!res.ok) continue;
+      const src = await res.text();
+      const treffer = src.match(/const istAn = \(v\) => ([^;]+);/);
+      if (!treffer) continue;
+      const fn = new Function('v', `return ${treffer[1]};`);
+      for (const [eingabe, erwartet] of matrix) {
+        assertEqual(fn(eingabe), erwartet, `${datei}: istAn(${JSON.stringify(eingabe)})`);
+      }
+    }
+    /* Kanonische Fassung bleibt die Referenz. */
+    assertEqual(istAn(false), false);
+    assertEqual(istAn('false'), false);
+    assertEqual(istAn(undefined), true);
   });
 
   it('settings.js benutzt istAn statt Boolean()/!== false', async () => {
@@ -5729,19 +5795,99 @@ describe('Schalter-Semantik: eine Regel statt drei (B65)', () => {
   });
 });
 
-describe('Draft-Feld-Selektor bleibt deckungsgleich (B69)', () => {
-  it('boot-state.js FELD_SELECTOR == document.js EDITABLE_FIELD_SELECTOR', async () => {
-    const src = await (await fetch('/website/js/boot-state.js')).text();
-    const treffer = src.match(/const FELD_SELECTOR =\s*'([^']+)'/);
-    assert(treffer !== null, 'FELD_SELECTOR in boot-state.js gefunden');
-    if (!treffer) return;
-    assertEqual(treffer[1], EDITABLE_FIELD_SELECTOR, 'Selektor identisch');
+describe('D2: ein Wert-Schreiber, eine Allowlist (ersetzt B69-Selektor-Ratsche)', () => {
+  it('applyDraftValues beschreibt nur Allowlist-Felder', () => {
+    /* Angriffs-Test statt Quelltext-Grep: ein manipulierter oder veralteter
+       Entwurf darf kein beliebiges Control beschreiben (B69). */
+    const ort = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const fremd = document.createElement('div');
+    fremd.id = 'kein-entwurfsfeld';
+    document.body.appendChild(fremd);
+    const knopf = /** @type {HTMLElement} */ (document.getElementById('btn-undo-reset'));
+    const knopfVorher = knopf.textContent;
+
+    applyDraftValues({
+      'empfaenger-ort': 'ERLAUBT',
+      'kein-entwurfsfeld': 'NICHT',
+      'btn-undo-reset': 'NICHT',
+      constructor: 'NICHT',
+      html: 'NICHT',
+    });
+
+    assertEqual(ort.textContent, 'ERLAUBT', 'Allowlist-Feld wird geschrieben');
+    assertEqual(fremd.textContent, '', 'fremdes div bleibt leer');
+    assertEqual(knopf.textContent, knopfVorher, 'Button bleibt unberuehrt');
+    ort.textContent = '';
+    fremd.remove();
   });
 
-  it('Seeder schreibt nur in Felder, die den Selektor matchen', async () => {
+  it('applyDraftValues sanitizt Rich-Text (Allowlist statt CSP-Vertrauen)', () => {
+    const text = /** @type {HTMLElement} */ (document.getElementById('brieftext'));
+    applyDraftValues({
+      brieftext: '<img src=x onerror="alert(1)"><b>fett</b><script>alert(2)</script>',
+    });
+    assertEqual(text.querySelector('img'), null, 'img wird entfernt');
+    assertEqual(text.querySelector('script'), null, 'script wird entfernt');
+    assert(text.innerHTML.includes('<b>fett</b>'), 'erlaubtes <b> bleibt');
+    assert(!text.innerHTML.includes('onerror'), 'kein Event-Handler');
+    text.replaceChildren();
+  });
+
+  it('boot.js setzt den Marker vor jedem Speicherzugriff und haelt das 1800-ms-Netz', async () => {
+    const src = await (await fetch('/website/js/boot.js')).text();
+    const marker = src.indexOf("setAttribute('data-booting'");
+    const speicher = src.indexOf('localStorage.getItem');
+    assert(marker > -1, 'boot.js setzt data-booting');
+    assert(speicher > -1 && marker < speicher, 'Marker steht vor dem ersten localStorage-Zugriff');
+    assert(/1800/.test(src), 'Netz laeuft nach 1800 ms');
+    assert(/removeAttribute\('data-booting'\)/.test(src), 'Netz entfernt denselben Marker');
+  });
+
+  it('kein zweiter Lifecycle-Marker in website/ (Ein-Token-Regel)', async () => {
+    const dateien = [
+      '/website/index.html',
+      '/website/css/base.css', '/website/css/sidebar.css', '/website/css/sheet-common.css',
+      '/website/js/boot.js', '/website/js/boot-state.js', '/website/js/boot-values.js',
+      '/website/js/main.js',
+    ];
+    for (const datei of dateien) {
+      const res = await fetch(datei);
+      if (!res.ok) continue; // boot-values.js existiert erst ab Phase 5
+      const src = await res.text();
+      assert(!src.includes('data-seeded'), `${datei}: kein data-seeded`);
+      assert(!src.includes('data-ready'), `${datei}: kein data-ready`);
+    }
+  });
+});
+
+describe('Statuszeile ohne FOUC (Reveal vor Modul-Init)', () => {
+  it('boot-state.js schreibt die Statuszeile VOR dem Reveal', async () => {
+    /* Der Befund: boot-state.js gibt die Seite frei (klassisch, Ende Body),
+       settings.js#rendereZustand laeuft erst als Modul danach. Ein Frame lang
+       stand dort das HTML-Fallback "Schrift: System". Der Test haelt die
+       Reihenfolge fest, nicht die Zeilengleichheit. */
     const src = await (await fetch('/website/js/boot-state.js')).text();
-    assert(src.includes('matches(FELD_SELECTOR)'), 'Allowlist im Schreibpfad');
-    assert(!src.includes('if (!el) continue;'), 'kein blanker getElementById-Pfad mehr');
+    const schreiben = src.indexOf("getElementById('zustand-text')");
+    const reveal = src.indexOf("removeAttribute('data-booting')");
+    assert(schreiben > -1, 'boot-state.js schreibt #zustand-text');
+    assert(reveal > -1, 'boot-state.js entfernt data-booting');
+    assert(schreiben < reveal, 'Statuszeile steht vor dem Reveal');
+  });
+
+  it('Format der Statuszeile ist in beiden Schreibern identisch', async () => {
+    /** @param {string} pfad */
+    const muster = async (pfad) => {
+      const src = await (await fetch(pfad)).text();
+      const treffer = src.match(/`Schrift: \$\{[^}]+\} · Unterrand \$\{[^}]+\} mm`/);
+      assert(treffer, `${pfad}: Format gefunden`);
+      if (!treffer) return '';
+      return treffer[0].replace(/\$\{[^}]+\}/g, '${X}');
+    };
+    assertEqual(
+      await muster('/website/js/settings.js'),
+      await muster('/website/js/boot-state.js'),
+      'gleicher Anzeigetext'
+    );
   });
 });
 

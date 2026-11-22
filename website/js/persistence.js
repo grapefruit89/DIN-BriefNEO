@@ -64,21 +64,14 @@ export const DEFAULT_SETTINGS = {
  * aus**; fehlt der Wert oder ist er `null`, gilt der Default der Einstellung —
  * für `marks` und `pluginTestbrief` ist das `true` (siehe DEFAULT_SETTINGS).
  *
- * Vorher lagen drei Semantiken nebeneinander: `asBool` (boot.js),
- * `!== false` (boot-state.js) und `Boolean()` (settings.js). Bei fehlendem
- * `pluginTestbrief` ergaben sie true / true / false — der Schalter sprang
- * beim Booten um, und `settings.js` überschrieb das Attribut mit dem
- * falschen Wert. `'false'` als String bleibt akzeptiert, damit ein von Hand
- * geschriebener Wert in localStorage nicht als „an" gelesen wird.
- *
- * `boot.js` und `boot-state.js` sind klassische Skripte und können nicht
- * importieren; sie tragen dieselbe Zeile lokal. Ein Test hält alle drei
- * Fassungen deckungsgleich (`test/all.js`, „Schalter-Semantik").
+ * Kanonische Heimat ist seit D2 `draft-model.js` (der gemeinsame Feld-Kern).
+ * Der Name bleibt hier re-exportiert, damit bestehende Importe unverändert
+ * funktionieren; `boot.js` importiert ihn inzwischen von dort.
  *
  * @param {unknown} v
  * @returns {boolean}
  */
-export const istAn = (v) => v !== false && v !== 'false';
+export { istAn } from './draft-model.js';
 
 /**
  * Zentrale LocalStorage-Schlüssel.
@@ -408,35 +401,22 @@ export const DINLETTER_FORMAT = 'dinletter';
  */
 
 /**
+ * Wandelt altes `<li>`-HTML in `\n`-Text (einmalige Draft-Migration).
+ * Kanonische Heimat ist seit D2 `draft-model.js`; der Name bleibt hier
+ * re-exportiert, weil Export/Import und Batch-Werkzeuge ihn unter diesem
+ * Modul kennen.
+ * @param {string} html
+ * @returns {string}
+ */
+export { stripHtmlToPlaintext } from './draft-model.js';
+
+/**
  * Kanonische Schema-Definition für Briefdokumente (Schema v5, Tuple-Format).
  * Definiert die exakte Index-Reihenfolge aller Dokumentenfelder im serialisierten Array.
  * Quelle ist `schema.js` (geteilt mit dem Sitzungszustand); Re-Export bleibt fuer
  * alle bestehenden Importeure (`persistence.js` ist weiter der Speicher-Einstieg).
  */
 export { DOCUMENT_SCHEMA_V5 };
-
-/**
- * Bereinigt HTML-Strings (wie <li> in Listenfeldern) zu lesbarem Plaintext für den JSON-Export.
- * @param {string} html
- * @returns {string}
- */
-export function stripHtmlToPlaintext(html) {
-  if (!html?.includes('<')) return html ? html.trim() : '';
-  let str = html
-    .replace(/<li[^>]*>/gi, '')
-    .replace(/<\/li>/gi, '\n')
-    .replace(/<br\s*\/?>/gi, '\n');
-  let prev;
-  do {
-    prev = str;
-    str = str.replace(/<[^>]+>/g, '');
-  } while (str !== prev);
-  return str
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join('\n');
-}
 
 /**
  * Baut das Export-Payload (Schema v4, Tuple-Format) aus einem Draft-Objekt und den Einstellungen.

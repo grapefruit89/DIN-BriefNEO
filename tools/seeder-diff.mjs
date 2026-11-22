@@ -9,7 +9,8 @@
  * Sprung: erst der Seeder-Wert, dann der Restore-Wert.
  *
  * Dieses Werkzeug schreibt je Fall einen Entwurf, laedt neu und vergleicht den
- * Feldzustand **im Moment von `data-seeded`** mit dem **bei `data-ready`**.
+ * Feldzustand **im Moment des Reveals** (Entfernen von `data-booting`) mit dem
+ * **nach `initApp`** (performance.mark('ready')).
  * Read-only fuer die App: nur `localStorage` (wird danach geleert).
  *
  * Aufruf:
@@ -130,8 +131,12 @@ const ev = async (expr) => {
   return r.result?.result?.value;
 };
 
-/* Snapshots im Moment der Marker. `setAttribute` ist der zuverlaessige Haken:
- * ein MutationObserver kann den Wert zwischen zwei Mikrotasks verpassen. */
+/* Snapshots im Moment der Marker. Seit D2 gibt es EINEN Lifecycle-Token:
+ * `data-booting` wird von boot.js gesetzt und vom Wert-Writer entfernt. Der
+ * Schnappschuss bei der Entfernung ist der Reveal-Zeitpunkt; der zweite
+ * Schnappschuss entsteht nach `initApp` (performance.mark('ready')).
+ * `setAttribute`/`removeAttribute` sind der zuverlaessige Haken: ein
+ * MutationObserver kann den Wert zwischen zwei Mikrotasks verpassen. */
 await send('Page.addScriptToEvaluateOnNewDocument', {
   source: `
     (() => {
@@ -154,6 +159,8 @@ await send('Page.addScriptToEvaluateOnNewDocument', {
         return out;
       };
       window.__snap = { seeded: null, ready: null, attach: null, marks: [] };
+      window.__snapNow = snap;
+      let sahBooting = false;
       /* Beides abfangen, weil ein dataset-Setter NICHT durch
        * Element.prototype.setAttribute laeuft (natives Setzen), ein
        * MutationObserver aber jede Attributaenderung sieht.
@@ -163,17 +170,18 @@ await send('Page.addScriptToEvaluateOnNewDocument', {
       const merke = () => {
         const r = document.documentElement;
         if (!r) return;
-        window.__snap.marks.push(r.dataset.seeded + '/' + r.dataset.ready);
-        if (r.dataset.seeded === 'true' && !window.__snap.seeded) window.__snap.seeded = snap();
-        if (r.dataset.ready === 'true' && !window.__snap.ready) window.__snap.ready = snap();
+        const booting = r.getAttribute('data-booting');
+        window.__snap.marks.push(booting);
+        if (booting === 'true') sahBooting = true;
+        if (sahBooting && booting !== 'true' && !window.__snap.seeded) window.__snap.seeded = snap();
       };
       const start = () => {
         if (!document.documentElement) { setTimeout(start, 0); return; }
         new MutationObserver(merke).observe(document.documentElement, {
           attributes: true,
-          attributeFilter: ['data-seeded', 'data-ready'],
+          attributeFilter: ['data-booting'],
         });
-        window.__snap.attach = { readyState: document.readyState, hadSeeded: document.documentElement.dataset.seeded ?? null };
+        window.__snap.attach = { readyState: document.readyState, hadBooting: document.documentElement.getAttribute('data-booting') };
         merke();
       };
       start();
@@ -182,8 +190,10 @@ await send('Page.addScriptToEvaluateOnNewDocument', {
 });
 
 await send('Page.navigate', { url: `${ORIGIN}/index.html?diff=${Date.now()}` });
+const istFertig = `!document.documentElement.hasAttribute('data-booting')`
+  + ` && performance.getEntriesByName('ready').length > 0`;
 for (let i = 0; i < 300; i++) {
-  if (await ev(`document.documentElement.dataset.ready === 'true'`).catch(() => false)) break;
+  if (await ev(istFertig).catch(() => false)) break;
   await new Promise((r) => setTimeout(r, 25));
 }
 
@@ -200,7 +210,7 @@ for (const fall of FAELLE) {
   await send('Page.navigate', { url: `${ORIGIN}/index.html?diff=${token}` });
   for (let i = 0; i < 400; i++) {
     const bereit = await ev(
-      `location.search.includes(${JSON.stringify(token)}) && document.documentElement.dataset.ready === 'true'`,
+      `location.search.includes(${JSON.stringify(token)}) && ${istFertig}`,
     ).catch(() => false);
     if (bereit) break;
     await new Promise((r) => setTimeout(r, 20));
@@ -210,7 +220,7 @@ for (const fall of FAELLE) {
   if (injiziert?.result?.identifier) {
     await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: injiziert.result.identifier });
   }
-  const schnapp = JSON.parse((await ev('JSON.stringify(window.__snap)')) ?? '{"seeded":null,"ready":null}');
+  const schnapp = JSON.parse((await ev('JSON.stringify({ ...window.__snap, ready: window.__snapNow() })')) ?? '{"seeded":null,"ready":null}');
   if (!schnapp.seeded || !schnapp.ready) {
     /* Ohne beide Proben ist "0 Abweichungen" eine Luege: zwei leere Mengen sind
      * gleich. Genau diese Falle hat am 2026-11-15 einmal ein falsches Gruen

@@ -4432,3 +4432,34 @@ ich das möglichst mit wenig JavaScript auskommt!" — plus: „Zahlen mit
 **Nachweis:** Schalter an → `display: block`, 352×718 px links neben der
 Seitenleiste, Werte `10.184 / 6.664 / 303`; × → `display: none`,
 `din_settings.debugPanel = false`. Tests 418/418, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Debug-Panel: Kopieren je Dropdown-Feld und Fehler-Ring
+
+**Nutzer-Vorgabe:** im Debug-Panel „die offene Liste gegen Copy-to-Clipboard für
+alle Dropdown-Felder" tauschen — je Feld das, was das Dropdown anbieten würde.
+
+**Umsetzung:**
+
+| Knopf | Quelle |
+|---|---|
+| Anrede | `salutationVarianten(name, firma, Stunde)` — mit Tonalität in Klammern |
+| Gruß | `SALUTATION_TONES[stil].closings` |
+| Ort Empf. / Abs. | `AddressIntelligence.resolveCityInput` bzw. `lookupPlz` (offline) |
+| Straße Empf. / Abs. | `strassenSuchPfad` + echter Abruf (ohne Cache — zeigt den Jetzt-Stand) |
+
+Dazu zwei weitere Knöpfe: **Zustand (.json)** (Debug-Werte + Brief-JSON +
+Fehler) und **Fehler (.txt)**. Der Eintrag „Offene Liste" zeigt nur noch
+Kennzahl, nicht mehr die Einträge.
+
+**Fehler-Ring:** neues Modul `website/js/log.js` (50 Einträge) fängt
+`console.error`, `console.warn`, `error`-Events und unbehandelte
+Promise-Ablehnungen ab; die Meldungen gehen unverändert an die Konsole.
+Installiert in `main.js` vor dem ersten Boot-Schritt, damit auch Boot-Fehler
+ankommen.
+
+**Nachweis:** alle sechs Knöpfe liefern Text (z. B. `Straße (Absender:
+Hauptstr)` → 4 Treffer). „Zustand (.json)" liefert 21 Debug-Zeilen, das
+Brief-JSON und den Fehler-Ring (`[{erzeugt, debug, brief, fehler}]`).
+Tests 419/419, Fitness 100 %.

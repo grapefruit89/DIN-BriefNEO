@@ -17,10 +17,14 @@
  * Bewusst NICHT: eigene Sonden, Zähler im Produktivpfad, Diagramme.
  */
 
+import { strassenSuchPfad } from './address.js';
 import { AddressIntelligence } from './address-data.js';
+import { collectDraft } from './document.js';
 import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
-import { loadJSON, STORAGE_KEYS } from './persistence.js';
+import { holeLog } from './log.js';
+import { buildDINLetterJSON, load, loadJSON, STORAGE_KEYS } from './persistence.js';
+import { SALUTATION_TONES, salutationVarianten } from './salutation.js';
 
 /** @param {number} bytes @returns {string} */
 const alsKb = (bytes) => `${formatZahl(Math.round(bytes / 102.4) / 10)} KB`;
@@ -45,9 +49,167 @@ function feldWert(id) {
 /** @type {ReturnType<typeof setInterval> | null} */
 let timer = null;
 
+/** @returns {Record<string, string>} alles, was im Panel steht */
+function leseWerte() {
+  /** @type {Record<string, string>} */
+  const werte = {};
+  for (const liste of document.querySelectorAll('#debug-panel dl')) {
+    const namen = liste.querySelectorAll('dt');
+    const werteEl = liste.querySelectorAll('dd');
+    namen.forEach((dt, i) => {
+      werte[dt.textContent.trim()] = werteEl[i]?.textContent || '';
+    });
+  }
+  return werte;
+}
+
+/**
+ * Was das Dropdown eines Feldes anbieten wuerde — pro Feld einzeln, damit man
+ * es nicht erst aufklappen und abtippen muss (Vorgabe 2026-11-22).
+ * @param {string} art
+ * @returns {Promise<{ titel: string, zeilen: string[] }>}
+ */
+async function dropdownInhalt(art) {
+  const feld = (/** @type {string} */ id) => {
+    const el = document.getElementById(id);
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) return el.value.trim();
+    return (el?.textContent || '').trim();
+  };
+
+  if (art === 'anrede') {
+    const varianten = salutationVarianten(
+      feld('empfaenger-name'),
+      feld('empfaenger-firma'),
+      aktuelleStunde()
+    );
+    return {
+      titel: `Anrede (${feld('empfaenger-name') || feld('empfaenger-firma') || 'ohne Empfänger'})`,
+      zeilen: varianten.map((v) => `${v.anrede}   [${v.ton}]`)
+    };
+  }
+
+  if (art === 'gruss') {
+    const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+    const ton = stil && stil.value in SALUTATION_TONES ? stil.value : 'formal';
+    return {
+      titel: `Grußformeln (${ton})`,
+      zeilen: [...SALUTATION_TONES[/** @type {keyof typeof SALUTATION_TONES} */ (ton)].closings]
+    };
+  }
+
+  if (art === 'ort-empf' || art === 'ort-abs') {
+    const wert = feld(art === 'ort-empf' ? 'empfaenger-ort' : 'absender-ort');
+    const titel = `Orte (${art === 'ort-empf' ? 'Empfänger' : 'Absender'}: ${wert || 'leer'})`;
+    if (wert.length < 3) return { titel, zeilen: ['(zu kurz — ab 3 Zeichen)'] };
+    if (/^\d{5}$/.test(wert)) {
+      const treffer = AddressIntelligence.lookupPlz(wert);
+      return { titel, zeilen: treffer ? [`${treffer.plz} ${treffer.city}`] : ['(keine PLZ gefunden)'] };
+    }
+    const res = AddressIntelligence.resolveCityInput(wert, 24);
+    const nurOrte = (res.items || []).filter((i) => (i.typ || 'Stadt') === 'Stadt');
+    return {
+      titel,
+      zeilen: nurOrte.length
+        ? nurOrte.slice(0, 40).map((i) => `${i.plz ? `${i.plz} ` : ''}${i.city || i.name || ''}${i.district ? ` · ${i.district}` : ''}`)
+        : ['(keine Treffer)']
+    };
+  }
+
+  /* Strasse: derselbe Pfad-Bauer wie die echte Suche, aber ohne Cache -
+     damit man sieht, was Geoapify JETZT liefern wuerde. */
+  const wert = feld(art === 'strasse-empf' ? 'empfaenger-strasse' : 'absender-strasse');
+  const titel = `Straße (${art === 'strasse-empf' ? 'Empfänger' : 'Absender'}: ${wert || 'leer'})`;
+  if (wert.length < 3) return { titel, zeilen: ['(zu kurz — ab 3 Zeichen)'] };
+  const key = load(STORAGE_KEYS.geoapifyKey, '');
+  if (!key) return { titel, zeilen: ['(kein Geoapify-Key gesetzt)'] };
+  try {
+    const antwort = await fetch(`https://api.geoapify.com${strassenSuchPfad(wert, key)}`);
+    const daten = await antwort.json();
+    const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
+    return {
+      titel,
+      zeilen: treffer.map((/** @type {any} */ r) => `${[r.street, r.housenumber].filter(Boolean).join(' ')} · ${[r.postcode, r.city].filter(Boolean).join(' ')}`)
+    };
+  } catch (err) {
+    return { titel, zeilen: [`(Abruf fehlgeschlagen: ${err instanceof Error ? err.message : String(err)})`] };
+  }
+}
+
+/** @param {unknown} wert @returns {string} */
+function alsJson(wert) {
+  try {
+    return JSON.stringify(wert, null, 2);
+  } catch {
+    return JSON.stringify(String(wert), null, 2);
+  }
+}
+
+/**
+ * @param {HTMLElement} knopf
+ * @param {() => Promise<void>} aktion
+ */
+function mitFeedback(knopf, aktion) {
+  const original = knopf.textContent;
+  knopf.addEventListener('click', async () => {
+    try {
+      await aktion();
+      knopf.textContent = '✓ Kopiert';
+    } catch (err) {
+      knopf.textContent = '✗ Fehler';
+      console.error('[Debug-panel] Kopieren fehlgeschlagen:', err);
+    }
+    setTimeout(() => {
+      knopf.textContent = original;
+    }, 2000);
+  });
+}
+
+function verdrahteKnoepfe() {
+  const jsonKnopf = document.getElementById('dbg-copy-json');
+  const logKnopf = document.getElementById('dbg-copy-log');
+  if (jsonKnopf) {
+    mitFeedback(jsonKnopf, async () => {
+      let erzeugt = '';
+      try {
+        erzeugt = Temporal.Now.zonedDateTimeISO('Europe/Berlin').toString();
+      } catch {
+        erzeugt = '';
+      }
+      const nutzlast = {
+        erzeugt,
+        debug: leseWerte(),
+        brief: buildDINLetterJSON(collectDraft),
+        fehler: holeLog()
+      };
+      await navigator.clipboard.writeText(alsJson(nutzlast));
+    });
+  }
+  for (const knopf of document.querySelectorAll('[data-dbg-liste]')) {
+    const art = /** @type {HTMLElement} */ (knopf).dataset.dbgListe || '';
+    mitFeedback(/** @type {HTMLElement} */ (knopf), async () => {
+      const inhalt = await dropdownInhalt(art);
+      const text = inhalt.zeilen.length
+        ? `${inhalt.titel}\n${'-'.repeat(inhalt.titel.length)}\n${inhalt.zeilen.join('\n')}`
+        : `${inhalt.titel}\n(leer)`;
+      await navigator.clipboard.writeText(text);
+    });
+  }
+
+  if (logKnopf) {
+    mitFeedback(logKnopf, async () => {
+      const log = holeLog();
+      const text = log.length
+        ? log.map((e) => `[${e.stufe}] #${e.nr} ${e.text}`).join('\n')
+        : 'Keine Fehler oder Warnungen im Ringpuffer.';
+      await navigator.clipboard.writeText(text);
+    });
+  }
+}
+
 /** Einmalige Initialisierung: Werte schreiben und sichtbarkeitsabhängig takten. */
 export function initDebugPanel() {
   if (timer) return;
+  verdrahteKnoepfe();
   aktualisiere();
   timer = setInterval(() => {
     /* Nur arbeiten, solange der Schalter an ist. (offsetParent taugt hier
@@ -88,6 +250,22 @@ export function aktualisiere() {
   const stunde = aktuelleStunde();
   setze('dbg-uhr', stunde === null ? '–' : `${String(stunde).padStart(2, '0')} Uhr`);
 
+  /* Fehler-Ring: Anzahl + die letzten Meldungen (kopierbar ueber den Knopf). */
+  const log = holeLog();
+  const fehler = log.filter((e) => e.stufe === 'error').length;
+  setze('dbg-fehler', log.length === 0 ? 'keine' : `${formatZahl(log.length)} (${formatZahl(fehler)} Fehler)`);
+  const logListe = document.getElementById('debug-log');
+  if (logListe) {
+    logListe.replaceChildren();
+    for (const e of log.slice(-6)) {
+      const dt = document.createElement('dt');
+      dt.textContent = `${e.stufe} #${e.nr}`;
+      const dd = document.createElement('dd');
+      dd.textContent = e.text;
+      logListe.append(dt, dd);
+    }
+  }
+
   /* Dynamischer Teil: belegte Adressfelder + offene Vorschlagsliste. */
   const felder = document.getElementById('debug-felder');
   if (!felder) return;
@@ -119,10 +297,9 @@ export function aktualisiere() {
 
   const popover = document.querySelector('[popover]:popover-open');
   if (popover) {
-    const eintraege = [...popover.querySelectorAll('li')]
-      .map((li) => (li.textContent || '').replace(/\s+/g, ' ').trim())
-      .filter(Boolean);
-    zeile('Offene Liste', `${popover.id || '(ohne id)'} · ${formatZahl(eintraege.length)}`);
-    for (const [i, eintrag] of eintraege.slice(0, 6).entries()) zeile(`  ${i + 1}`, eintrag);
+    const anzahl = popover.querySelectorAll('li').length;
+    zeile('Offene Liste', `${popover.id || '(ohne id)'} · ${formatZahl(anzahl)} Einträge`);
   }
+  /* Die Inhalte selbst holt man sich je Feld ueber die sechs Knoepfe oben -
+     abtippen war genau der Pain, den das Panel abstellen soll. */
 }

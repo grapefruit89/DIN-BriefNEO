@@ -10,7 +10,7 @@ import { DraftManager } from './draft-manager.js';
 import { Field } from './field.js';
 import { FontFeature } from './font-feature.js';
 import { applyLetterDate, formatTelefonnummer } from './format.js';
-/* js/main.js */
+import { installiereLog } from './log.js';
 import { initImportExport, MetadataService, requestPersistentStorage } from './persistence.js';
 import { SalutationFeature } from './salutation.js';
 import { SettingsManager } from './settings.js';
@@ -38,6 +38,10 @@ function syncPostvermerkFromSidebar(value) {
      applyValue schreibt Feld und DOM in einem Schritt. */
   applyValue('vermerke', val, 'logic');
 }
+
+/* Ringpuffer fuer Fehler/Warnungen: laeuft vor dem ersten Boot-Schritt, damit
+   auch ein Fehler waehrend initApp im Debug-Panel auftaucht. */
+installiereLog();
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);

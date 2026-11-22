@@ -1643,5 +1643,24 @@ aside select {
   margin: 0;
 }
 
+.debug-knoepfe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  margin: var(--space-xs) 0;
+}
+
+.debug-knoepfe .btn {
+  flex: 1 1 auto;
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: 0.68rem;
+}
+
+/* Sechs kleine Knoepfe in zwei Reihen: je Feld einer. */
+.debug-knoepfe-liste {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .debug-tabelle dt { color: var(--text-muted); white-space: nowrap; }
 .debug-tabelle dd { margin: 0; overflow-wrap: anywhere; }

@@ -4934,3 +4934,12 @@ fremde Features. `initDatePicker`, `initFormatSync`, `initStateBinding`,
 ihr eigenes Element bzw. pro Klick. Tabelle in `INIT-INVARIANTE.md`.
 
 Tests 409/409 (neu: 2 Degradations-Tests), Fitness 100 %.
+
+**Nachtrag (2026-11-22): Zonentitel „Brief" unsichtbar.** Das sichtbare
+`<h2 class="seitenleiste-h2">Brief</h2>` ist entfallen (Nutzerwunsch), die
+`.seitenleiste-h2`-Regel ebenfalls. Damit die h3-Gruppen keinen Waisen haben,
+bleibt die Überschrift als `sr-only` stehen und benennt die Zone per
+`aria-labelledby="zone-dokument-titel"`. Der Struktur-Test prüft jetzt die
+Absicht („jede Zone ist benannt") statt der Zahl der h2.
+Gemessen: `position: absolute`, 1×1 px, `clip: rect(0,0,0,0)` — optisch weg,
+für Screenreader vorhanden.

@@ -97,3 +97,23 @@ Zwei Tests halten die Invariante (in `test/all.js`):
 
 Wer eine `init*`-Funktion erweitert: **Test mit fehlendem Element** dazuschreiben.
 Ein Guard, der mehr als ein Feature abschaltet, fällt dort sofort auf.
+
+## Weitere geprüfte Muster (2026-11-22)
+
+Nach der Init-Invariante blieb die Frage: gibt es andere Stellen, die
+unbemerkt viel abschalten? Ergebnis der Suche:
+
+| Muster | Befund | Bewertung |
+|---|---|---|
+| **Boot-Kette** (`bootStep`) | `try/catch` pro Schritt, `console.error` + weiter; nur `critical: true` bricht | ✅ kein Kettenausfall |
+| **`localStorage.clear()`** | 0 Vorkommen in `website/js/` | ✅ |
+| **Stiller Speicherfehler** | `save()`/`saveJSON()` geben `bool` zurück; `draft-manager` publiziert `DOCUMENT_SAVED`/`DOCUMENT_SAVE_FAILED`, `settings.js` ebenso, `core.js:186` hört darauf | ✅ Quota-Fehler wird gemeldet, nicht verschluckt |
+| **`Promise.all` (Ortsdaten)** | `fetchGzipJson()` fängt selbst und liefert `null` — der optionale `grosskunden.json.gz` kann `orte.json.gz` nicht mitreißen | ✅ |
+| **`Promise.all` (Debug-Kopie)** | `dropdownInhalt()` fängt pro Feld | ✅ |
+| **Draft-Restore** (`applyDraftValues`) | `continue` statt `return` — ein fehlendes Feld überspringt nur sich selbst | ✅ |
+| **Import/Hydration** (`applyState`) | `try/catch` mit **Rollback** auf den alten RAM-Stand | ✅ |
+| **45 stille `catch {}`** | überwiegend `localStorage`-Wrapper (`load`, `remove`), optionale Features (Clipboard, Font, Signatur) und bewusst schweigende API-Pfade | ✅ kein Datenverlust-Pfad dabei |
+
+**Fazit:** Der gefährliche Typ — *ein* Guard schaltet *fremde* Features ab — ist
+beseitigt. Die verbleibenden Fehlerpfade sind entweder sichtbar (Boot-Fehler,
+`SAVE_FAILED`), rollback-fähig (Import) oder betreffen nur ihr eigenes Feature.

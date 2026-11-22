@@ -5459,29 +5459,40 @@ describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {
   /* Vorher: 0 Ueberschriften in der Leiste. Jetzt h1 (Seite) -> h2 (Zone)
      -> h3 (Gruppentitel). Regler-Labels bleiben <label>, sonst verliert das
      Control seine Beschriftung. */
-  it('vier Zonen-h2, zwei Gruppen-h3, keine Ueberspruenge', async () => {
+  it('jede Zone ist benannt (h2 oder aria-label), keine Gruppen ohne Titel', async () => {
+    /* Der sichtbare Zonentitel von "Brief" ist am 2026-11-22 entfallen; die
+       Zone nennt sich jetzt per aria-label. Der Test prueft deshalb die
+       ABSICHT (jede Zone hat einen Namen), nicht die Zahl der h2. */
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const aside = doc.querySelector('aside');
     assert(aside, 'Seitenleiste vorhanden');
     if (!aside) return;
-    const h2 = [...aside.querySelectorAll('h2')];
-    const h3 = [...aside.querySelectorAll('h3')];
-    /* Drei h2: Brief, Daten (sr-only), Status & Zuruecksetzen (sr-only).
-       Die Einstellungen-Zone hat keine sichtbare Ueberschrift mehr - der
-       Modus-Schalter darueber nennt sie bereits (2026-11-14). */
-    assertEqual(h2.length, 3, 'h2 je Zone ohne die doppelte Einstellungen-Zeile');
+
+    const zonen = [...aside.querySelectorAll('.seitenleiste-zone')];
+    assert(zonen.length >= 3, 'Zonen vorhanden');
+    for (const zone of zonen) {
+      const name =
+        (zone.getAttribute('aria-label') || '').trim() ||
+        (zone.querySelector('h2')?.textContent || '').trim();
+      assert(name.length > 0, `Zone benannt: ${zone.id || '(ohne id)'}`);
+    }
+
     assertEqual(
       doc.getElementById('zone-setup')?.getAttribute('aria-label'),
       'Einstellungen',
       'Zone behaelt ihren Namen als aria-label'
     );
+    assertEqual(
+      doc.getElementById('zone-dokument')?.getAttribute('aria-labelledby'),
+      'zone-dokument-titel',
+      'Brief-Zone wird von ihrer sr-only-Ueberschrift benannt'
+    );
+
+    const h3 = [...aside.querySelectorAll('h3')];
     assertEqual(h3.length, 2, 'h3 fuer die Gruppentitel, die keine Labels sind');
-    assert(h2.every((h) => h.textContent.trim().length > 0), 'h2 haben Text');
     assert(h3.every((h) => !h.hasAttribute('for')), 'h3 ist kein Label-Ersatz');
-    /* Reihenfolge im DOM: jeder h3 folgt einem h2, kein h3 am Anfang. */
-    const ueberschriften = [...aside.querySelectorAll('h2, h3')];
-    assertEqual(ueberschriften[0]?.tagName, 'H2', 'beginnt mit h2');
+    assertEqual([...aside.querySelectorAll('h2, h3')][0]?.tagName, 'H2', 'beginnt mit h2');
   });
 });
 

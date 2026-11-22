@@ -82,7 +82,7 @@ damit Falz- und Lochmarke physisch exakt sitzen.
 | Rücksendezeile | aus Absenderfeldern abgeleitet, aber editierbar — kein Read-only-Lock |
 | Einzeiler | `contenteditable="plaintext-only"` + `enforceLineLimits` (A55/A49) |
 | Storage | `localStorage`: `din_draft_current`, `din_settings`, `din_geoapify_key`, `din_local_addresses`, `din_sender_coords`, `din_schema_version`. Binär-Assets (Signaturbild, Schrift) als `Blob` in IndexedDB `briefneo-assets` |
-| Debug-UI | `debug-panel.js` nur per dynamischem `import()` — kein Lastpfad für Nutzer |
+| Debug-UI | **entfällt** — `debug-panel.js`, `debug-recorder.js` und `debug-json-panel.js` wurden am 2026-11-07 entfernt (Commit `ab9a78f`). Trigger war `?debug=autocomplete` bzw. `?debug=json`. Ein Ersatz ist nicht gebaut. |
 
 ## 4. Aus dem Altbestand verworfen
 

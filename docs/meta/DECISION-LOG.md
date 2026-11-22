@@ -5162,3 +5162,46 @@ exportieren()                 {ok:true, brief.format, brief.fields[…]}
 ```
 
 `website/llms.txt` nennt die API jetzt für Agenten. Tests: 5 neue Fälle (420).
+
+---
+
+## 2026-11-22 — Responsive Layout: `desktop.css` + `mobile.css`
+
+**Ausgangslage:** keine `max-width`-Media-Query. Auf 412 px (Pixel 9) war die
+Shell 1034 px breit (240 Leiste + 794 Blatt), `overflow: hidden` machte das
+Blatt zu 57 % abgeschnitten **und** unerreichbar.
+
+**Struktur:** Das Grid wurde aus `base.css` herausgezogen (dort steht nur noch
+`display: grid`), die Spalte lebt jetzt in `desktop.css`.
+
+| Datei | Media Query | Verhalten |
+|---|---|---|
+| `css/desktop.css` | `min-width: 700px` | Leiste links, Blatt rechts, Blattbereich schiebbar |
+| `css/mobile.css` | `max-width: 699px` | Leiste oben (deckend, `50dvh`, eigener Scroll), Blatt darunter schiebbar |
+
+**Warum 700 und nicht 900:** Bei 800×640 ist das Band-Layout (Leiste oben)
+schlechter als eine volle Leiste plus schiebbares Blatt — gemessen und im
+Screenshot verglichen. Unter 700 px ist das Band richtig.
+
+**Drei Fallen, alle gemessen:**
+
+1. **Der Flex-Container ist `#brief-ansicht`, nicht `#viewport`.** Ein
+   `justify-content` auf `#viewport` änderte nichts.
+2. **`sheet-multipage.css` setzt `justify-content: center !important`** mit
+   `#viewport:not([data-seiten]) #brief-ansicht` (2 IDs + Attribut). Eine
+   einfache Regel verliert; nötig ist gleiche Spezifität **plus** `!important`
+   und spätere Ladung:
+   ```css
+   #viewport:not([data-seiten]) #brief-ansicht,
+   #viewport[data-seiten="1"] #brief-ansicht { justify-content: flex-start !important; }
+   ```
+3. **`din-blatt` trägt `margin: 0 39.15px`** (auto) — bei Überlauf zentriert
+   das negativ. Deshalb `#viewport din-blatt { margin-inline: 0 }`.
+
+**Ergebnis (gemessen, `innerWidth` nach Emulation):**
+
+| Breite | Spalten | Blatt links | unter der Leiste | schiebbar | sichtbar |
+|---|---|---|---|---|---|
+| 640 | `640px` | 20 | nein | ja | 78 % |
+| 819 | `240px 579px` | **260** | **nein** | ja | 70 % |
+| 1152 | `240px 912px` | 299 (zentriert) | nein | nein | 100 % |

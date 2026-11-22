@@ -64,13 +64,17 @@ function leseWerte() {
 }
 
 /**
- * Was das Dropdown eines Feldes anbieten wuerde — pro Feld einzeln, damit man
- * es nicht erst aufklappen und abtippen muss (Vorgabe 2026-11-22).
+ * Was das Dropdown eines Feldes anbieten wuerde — je Feld mit **Feld-ID**,
+ * aktuellem Wert und allen Angeboten, damit eine KI die Ausgabe einer Instanz
+ * zuordnen kann (Vorgabe 2026-11-22).
+ *
+ * @typedef {{ id: string, aktuell: string, werte: string[] }} DropdownInhalt
  * @param {string} art
- * @returns {Promise<{ titel: string, zeilen: string[] }>}
+ * @returns {Promise<DropdownInhalt | null>}
  */
 async function dropdownInhalt(art) {
-  const feld = (/** @type {string} */ id) => {
+  /** @param {string} id @returns {string} */
+  const wert = (id) => {
     const el = document.getElementById(id);
     if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) return el.value.trim();
     return (el?.textContent || '').trim();
@@ -78,70 +82,14 @@ async function dropdownInhalt(art) {
 
   if (art === 'anrede') {
     const varianten = salutationVarianten(
-      feld('empfaenger-name'),
-      feld('empfaenger-firma'),
+      wert('empfaenger-name'),
+      wert('empfaenger-firma'),
       aktuelleStunde()
     );
     return {
-      titel: `Anrede (${feld('empfaenger-name') || feld('empfaenger-firma') || 'ohne Empfänger'})`,
-      zeilen: varianten.map((v) => `${v.anrede}   [${v.ton}]`)
-    };
-  }
-
-  if (art === 'alles') {
-    const [anreden, gruesse, ortEmpf, ortAbs, strEmpf, strAbs] = await Promise.all([
-      dropdownInhalt('anrede'),
-      dropdownInhalt('gruss'),
-      dropdownInhalt('ort-empf'),
-      dropdownInhalt('ort-abs'),
-      dropdownInhalt('strasse-empf'),
-      dropdownInhalt('strasse-abs')
-    ]);
-    const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-    return {
-      titel: 'Debug: Tonalität, Anrede, Gruß, Orte, Straßen',
-      zeilen: [
-        `Tonalität: ${stil?.value || '?'}`,
-        `Anrede jetzt: ${feld('anrede') || '(leer)'}`,
-        `Gruß jetzt:   ${feld('grussformel') || '(leer)'}`,
-        '',
-        `${anreden.titel}:`,
-        ...anreden.zeilen.map((z) => `  ${z}`),
-        '',
-        `${gruesse.titel}:`,
-        ...gruesse.zeilen.map((z) => `  ${z}`),
-        '',
-        `${ortEmpf.titel}:`,
-        ...ortEmpf.zeilen.map((z) => `  ${z}`),
-        '',
-        `${ortAbs.titel}:`,
-        ...ortAbs.zeilen.map((z) => `  ${z}`),
-        '',
-        `${strEmpf.titel}:`,
-        ...strEmpf.zeilen.map((z) => `  ${z}`),
-        '',
-        `${strAbs.titel}:`,
-        ...strAbs.zeilen.map((z) => `  ${z}`)
-      ]
-    };
-  }
-
-  if (art === 'anrede-gruss') {
-    const anreden = await dropdownInhalt('anrede');
-    const gruesse = await dropdownInhalt('gruss');
-    return {
-      titel: 'Anrede & Gruß',
-      zeilen: [
-        `Anrede jetzt: ${feld('anrede') || '(leer)'}`,
-        `Gruß jetzt:   ${feld('grussformel') || '(leer)'}`,
-        `Empfänger:    ${feld('empfaenger-name') || feld('empfaenger-firma') || '(leer)'}`,
-        '',
-        `Anreden (${anreden.zeilen.length}):`,
-        ...anreden.zeilen.map((z) => `  ${z}`),
-        '',
-        `Grüße (${gruesse.zeilen.length}):`,
-        ...gruesse.zeilen.map((z) => `  ${z}`)
-      ]
+      id: 'anrede',
+      aktuell: wert('anrede'),
+      werte: varianten.map((v) => `${v.anrede}   [${v.ton}]`)
     };
   }
 
@@ -149,53 +97,79 @@ async function dropdownInhalt(art) {
     const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
     const ton = stil && stil.value in SALUTATION_TONES ? stil.value : 'formal';
     return {
-      titel: `Grußformeln (${ton})`,
-      zeilen: [...SALUTATION_TONES[/** @type {keyof typeof SALUTATION_TONES} */ (ton)].closings]
+      id: 'grussformel',
+      aktuell: wert('grussformel'),
+      werte: [...SALUTATION_TONES[/** @type {keyof typeof SALUTATION_TONES} */ (ton)].closings]
     };
   }
 
   if (art === 'ort-empf' || art === 'ort-abs') {
-    const wert = feld(art === 'ort-empf' ? 'empfaenger-ort' : 'absender-ort');
-    const titel = `Orte (${art === 'ort-empf' ? 'Empfänger' : 'Absender'}: ${wert || 'leer'})`;
-    if (wert.length < 3) return { titel, zeilen: ['(zu kurz — ab 3 Zeichen)'] };
-    if (/^\d{5}$/.test(wert)) {
-      const treffer = AddressIntelligence.lookupPlz(wert);
-      return { titel, zeilen: treffer ? [`${treffer.plz} ${treffer.city}`] : ['(keine PLZ gefunden)'] };
+    const id = art === 'ort-empf' ? 'empfaenger-ort' : 'absender-ort';
+    const eingabe = wert(id);
+    if (eingabe.length < 3) return { id, aktuell: eingabe, werte: [] };
+    if (/^\d{5}$/.test(eingabe)) {
+      const treffer = AddressIntelligence.lookupPlz(eingabe);
+      return { id, aktuell: eingabe, werte: treffer ? [`${treffer.plz} ${treffer.city}`] : [] };
     }
-    const res = AddressIntelligence.resolveCityInput(wert, 24);
+    const res = AddressIntelligence.resolveCityInput(eingabe, 24);
     const nurOrte = (res.items || []).filter((i) => (i.typ || 'Stadt') === 'Stadt');
     return {
-      titel,
-      /* Wie im Dropdown: nur der ERSTE Stadtteil. Die Spalte enthaelt bei
-         manchen PLZ mehrere ("Zentrum, Castell, Nordstadt"); der Renderer
-         zeigt bewusst nur den ersten (2026-11-22). */
-      zeilen: nurOrte.length
-        ? nurOrte.slice(0, 40).map((i) => {
-            const erster = String(i.district || '').split(',')[0].trim();
-            return `${i.plz ? `${i.plz} ` : ''}${i.city || i.name || ''}${erster ? ` · ${erster}` : ''}`;
-          })
-        : ['(keine Treffer)']
+      id,
+      aktuell: eingabe,
+      /* Wie im Dropdown: nur der ERSTE Stadtteil (die Spalte enthaelt bei
+         manchen PLZ mehrere). */
+      werte: nurOrte.slice(0, 40).map((i) => {
+        const erster = String(i.district || '').split(',')[0].trim();
+        return `${i.plz ? `${i.plz} ` : ''}${i.city || i.name || ''}${erster ? ` · ${erster}` : ''}`;
+      })
     };
   }
 
-  /* Strasse: derselbe Pfad-Bauer wie die echte Suche, aber ohne Cache -
-     damit man sieht, was Geoapify JETZT liefern wuerde. */
-  const wert = feld(art === 'strasse-empf' ? 'empfaenger-strasse' : 'absender-strasse');
-  const titel = `Straße (${art === 'strasse-empf' ? 'Empfänger' : 'Absender'}: ${wert || 'leer'})`;
-  if (wert.length < 3) return { titel, zeilen: ['(zu kurz — ab 3 Zeichen)'] };
+  /* Strasse: derselbe Pfad-Bauer wie die echte Suche, aber ohne Cache. */
+  const id = art === 'strasse-empf' ? 'empfaenger-strasse' : 'absender-strasse';
+  const eingabe = wert(id);
+  if (eingabe.length < 3) return { id, aktuell: eingabe, werte: [] };
   const key = load(STORAGE_KEYS.geoapifyKey, '');
-  if (!key) return { titel, zeilen: ['(kein Geoapify-Key gesetzt)'] };
+  if (!key) return { id, aktuell: eingabe, werte: [] };
   try {
-    const antwort = await fetch(`https://api.geoapify.com${strassenSuchPfad(wert, key)}`);
+    const antwort = await fetch(`https://api.geoapify.com${strassenSuchPfad(eingabe, key)}`);
     const daten = await antwort.json();
     const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
     return {
-      titel,
-      zeilen: treffer.map((/** @type {any} */ r) => `${[r.street, r.housenumber].filter(Boolean).join(' ')} · ${[r.postcode, r.city].filter(Boolean).join(' ')}`)
+      id,
+      aktuell: eingabe,
+      werte: treffer.map(
+        (/** @type {any} */ r) =>
+          `${[r.street, r.housenumber].filter(Boolean).join(' ')} · ${[r.postcode, r.city].filter(Boolean).join(' ')}`
+      )
     };
-  } catch (err) {
-    return { titel, zeilen: [`(Abruf fehlgeschlagen: ${err instanceof Error ? err.message : String(err)})`] };
+  } catch {
+    return { id, aktuell: eingabe, werte: [] };
   }
+}
+
+/**
+ * Maschinenlesbarer Block: Feld-ID, aktueller Wert, Angebote. Der aktuelle
+ * Wert wird in der Liste markiert, damit sichtbar ist, was zusammenpasst.
+ * @param {DropdownInhalt} inhalt
+ * @returns {string[]}
+ */
+function blockText(inhalt) {
+  const zeilen = [
+    `feld id: ${inhalt.id}`,
+    `aktueller wert: ${inhalt.aktuell || '(leer)'}`,
+    `mögliche werte (${inhalt.werte.length}):`
+  ];
+  if (inhalt.werte.length === 0) {
+    zeilen.push('  (keine — Eingabe zu kurz, kein Key oder keine Treffer)');
+    return zeilen;
+  }
+  const aktuell = inhalt.aktuell.toLowerCase();
+  for (const eintrag of inhalt.werte) {
+    const marke = aktuell && eintrag.toLowerCase().startsWith(aktuell) ? '   <- aktuell' : '';
+    zeilen.push(`  - ${eintrag}${marke}`);
+  }
+  return zeilen;
 }
 
 /** @param {unknown} wert @returns {string} */
@@ -250,11 +224,26 @@ function verdrahteKnoepfe() {
   for (const knopf of document.querySelectorAll('[data-dbg-liste]')) {
     const art = /** @type {HTMLElement} */ (knopf).dataset.dbgListe || '';
     mitFeedback(/** @type {HTMLElement} */ (knopf), async () => {
-      const inhalt = await dropdownInhalt(art);
-      const text = inhalt.zeilen.length
-        ? `${inhalt.titel}\n${'-'.repeat(inhalt.titel.length)}\n${inhalt.zeilen.join('\n')}`
-        : `${inhalt.titel}\n(leer)`;
-      await navigator.clipboard.writeText(text);
+      /** @type {string[]} */
+      let zeilen;
+      if (art === 'alles' || art === 'anrede-gruss') {
+        const arten =
+          art === 'alles'
+            ? ['anrede', 'gruss', 'ort-empf', 'ort-abs', 'strasse-empf', 'strasse-abs']
+            : ['anrede', 'gruss'];
+        const bloecke = await Promise.all(arten.map((a) => dropdownInhalt(a)));
+        const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+        const titel = art === 'alles' ? 'Debug: alle Dropdown-Felder' : 'Anrede & Grußformel';
+        zeilen = [titel, '-'.repeat(titel.length), `Tonalität: ${stil?.value || '?'}`, ''];
+        for (const block of bloecke) {
+          if (!block) continue;
+          zeilen.push(...blockText(block), '');
+        }
+      } else {
+        const block = await dropdownInhalt(art);
+        zeilen = block ? blockText(block) : [`feld id: ${art}`, '(nicht verfügbar)'];
+      }
+      await navigator.clipboard.writeText(zeilen.join('\n').trimEnd());
     });
   }
 
@@ -339,6 +328,7 @@ export function aktualisiere() {
   setze('dbg-anrede-angebote', varianten.map((v) => v.anrede).join(' '));
   const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
   const ton = stil && stil.value in SALUTATION_TONES ? stil.value : 'formal';
+  setze('dbg-tonalitaet', ton);
   setze('dbg-gruss-angebote', `${SALUTATION_TONES[/** @type {keyof typeof SALUTATION_TONES} */ (ton)].closings.join(' · ')}`);
 
   /* Dynamischer Teil: belegte Adressfelder + offene Vorschlagsliste. */

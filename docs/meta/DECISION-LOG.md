@@ -4501,3 +4501,47 @@ dem Berlin-Fix, nicht ein Fehler.
 **Nachweis:** `Anrede & Gruß` liefert 6 Anreden mit `[formal|polite|casual]` und
 3 Grüße; `Ort Empf.` liefert `53111 Bonn · Zentrum` … `53255 Bonn`;
 Markentreffer bei dy = −5…+5 px. Tests 419/419, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Copy-Ausgabe maschinenlesbar, Knöpfe niedrigschwellig
+
+**Nutzer-Vorgabe:** „nur als niedrigschwelliges Copy to Clipboard", „Feld-ID
+dazupacken, damit eine KI die Instanz zuordnen kann", „was soll auf dem Knopf
+stehen?"
+
+**Begriffe (Antwort auf die Frage):**
+
+| Begriff | richtig? | Anmerkung |
+|---|---|---|
+| **Anrede** | ✅ | DIN-5008-Begriff |
+| **Grußformel** | ✅ | DIN-5008-Begriff; „Grußform" ist umgangssprachlich |
+| Anrede + Gruß zusammen | — | kein eigener Normbegriff; man sagt „Anrede und Grußformel" |
+| **Tonalität** | ⚠️ | unser internes Wort für die Stilebene (formal/polite/casual); linguistisch „Register" |
+
+**Umsetzung:** Sektion heißt „Anrede & Grußformel", der Knopf schlicht
+**„Kopieren"** (2 s danach „✓ Kopiert"), der Sammelknopf **„Alles kopieren"**.
+Das Panel zeigt weiter die lesbare Ansicht (Tonalität, Anrede jetzt, Gruß jetzt,
+Angebote); die **maschinenlesbare** Fassung entsteht nur in der Zwischenablage:
+
+```
+Anrede & Grußformel
+-------------------
+Tonalität: casual
+
+feld id: anrede
+aktueller wert: Hallo Frau Croft,
+mögliche werte (6):
+  - Sehr geehrte Frau Croft,   [formal]
+  …
+  - Hallo Frau Croft,   [casual]   <- aktuell
+
+feld id: grussformel
+aktueller wert: Beste Grüße
+mögliche werte (3):
+  - Beste Grüße   <- aktuell
+  …
+```
+
+`<- aktuell` markiert in beiden Listen den gerade gesetzten Wert — so sieht man
+auf einen Blick, was zusammenpasst. Tests 419/419, Fitness 100 %.

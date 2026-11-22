@@ -274,6 +274,10 @@ export class SalutationFeature {
     };
 
     const zeige = () => {
+      /* Steht die Liste schon, nichts neu bauen: replaceChildren bei jedem
+         Tastendruck liess sie kurz auf null Groesse schrumpfen und wieder
+         erscheinen (gemeldet 2026-11-22: "blitzt nur kurz auf"). */
+      if (pop.matches(':popover-open') && pop.childElementCount > 0) return;
       const varianten = salutationVarianten(this.#nameText());
       if (!varianten.length) return;
       const aktuell = Field.getValue(el).trim();

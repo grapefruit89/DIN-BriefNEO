@@ -5860,6 +5860,37 @@ describe('D2: ein Wert-Schreiber, eine Allowlist (ersetzt B69-Selektor-Ratsche)'
   });
 });
 
+describe('Statuszeile ohne FOUC (Reveal vor Modul-Init)', () => {
+  it('boot-state.js schreibt die Statuszeile VOR dem Reveal', async () => {
+    /* Der Befund: boot-state.js gibt die Seite frei (klassisch, Ende Body),
+       settings.js#rendereZustand laeuft erst als Modul danach. Ein Frame lang
+       stand dort das HTML-Fallback "Schrift: System". Der Test haelt die
+       Reihenfolge fest, nicht die Zeilengleichheit. */
+    const src = await (await fetch('/website/js/boot-state.js')).text();
+    const schreiben = src.indexOf("getElementById('zustand-text')");
+    const reveal = src.indexOf("removeAttribute('data-booting')");
+    assert(schreiben > -1, 'boot-state.js schreibt #zustand-text');
+    assert(reveal > -1, 'boot-state.js entfernt data-booting');
+    assert(schreiben < reveal, 'Statuszeile steht vor dem Reveal');
+  });
+
+  it('Format der Statuszeile ist in beiden Schreibern identisch', async () => {
+    /** @param {string} pfad */
+    const muster = async (pfad) => {
+      const src = await (await fetch(pfad)).text();
+      const treffer = src.match(/`Schrift: \$\{[^}]+\} · Unterrand \$\{[^}]+\} mm`/);
+      assert(treffer, `${pfad}: Format gefunden`);
+      if (!treffer) return '';
+      return treffer[0].replace(/\$\{[^}]+\}/g, '${X}');
+    };
+    assertEqual(
+      await muster('/website/js/settings.js'),
+      await muster('/website/js/boot-state.js'),
+      'gleicher Anzeigetext'
+    );
+  });
+});
+
 describe('B52 Addon-Plugin-Vertrag (Poka-Yoke)', () => {
   it('alle data-addon und data-addon-toggle im HTML existieren in der ADDON_REGISTRY', async () => {
     const { ADDON_REGISTRY } = await import('../website/js/addons.js');

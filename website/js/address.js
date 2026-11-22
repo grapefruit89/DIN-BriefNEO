@@ -309,13 +309,22 @@ AddressIntelligence.wireDOM = function wireDOM() {
         return;
       }
 
+      /* Grosse Stadt (Berlin 284 PLZ): eine Liste zeigen, aber nicht 284
+         Zeilen. Erste 24 PLZ + Hinweis auf den Rest. Wer die PLZ kennt, tippt
+         sie; wer sie nicht kennt, sieht so wenigstens den Anfang. */
       if (res.mode === 'city_plzs' && res.items.length > MAX_PLZ_PRO_STADT) {
-        suggestionsPopover.replaceChildren();
-        const hinweis = document.createElement('li');
-        hinweis.className = 'suggestion-hint';
-        hinweis.textContent = `${res.city}: ${res.items.length} Postleitzahlen — bitte PLZ eingeben`;
-        suggestionsPopover.appendChild(hinweis);
-        showPopoverSafe(suggestionsPopover);
+        /* Orte zuerst: die PLZ-Liste beginnt sonst mit lauter Großempfängern
+           (10098 Charité, 10099 HU ...) und Block 1 fehlte komplett. */
+        const rangVon = (/** @type {any} */ i) => ((i.typ || 'Stadt').toLowerCase() === 'stadt' ? 0 : 1);
+        const gezeigt = [...res.items].sort((a, b) => rangVon(a) - rangVon(b)).slice(0, maxSuggestions());
+        renderUniversalSuggestions(gezeigt, res.items.length, empfOrtEl, empfFirmaEl, empfStrasseEl, suggestionsPopover, null, true);
+        const rest = res.items.length - gezeigt.length;
+        if (rest > 0) {
+          const hinweis = document.createElement('li');
+          hinweis.className = 'suggestion-hint';
+          hinweis.textContent = `${res.city}: ${rest} weitere Postleitzahlen — bitte PLZ eingeben`;
+          suggestionsPopover.appendChild(hinweis);
+        }
         return;
       }
 
@@ -638,6 +647,11 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
 
     /** @param {any} item */
     const selectItem = (item) => {
+      /* Stadtteil-Gruppe (grosse Stadt): deren PLZ anzeigen. */
+      if (Array.isArray(item.plzs)) {
+        renderUniversalSuggestions(item.plzs, item.plzs.length, ortEl, firmaEl, strasseEl, popoverEl, anchorEl, true);
+        return;
+      }
       // Stadt mit mehreren PLZs: sofort die PLZ-Liste öffnen.
       if (item.typ === 'Stadt' && !item.isSinglePlz) {
         const plzs = AddressIntelligence.lookupCityPlzs(item.city);

@@ -34,7 +34,7 @@ import { Field } from './field.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { letterState, setMeta } from './state.js';
 import { applyValue, commitElement } from './state-binding.js';
-import { initVorschlagsliste } from './suggestion-list.js';
+import { initVorschlagsliste, passeAnBlattrand } from './suggestion-list.js';
 
 export {
   AddressData,
@@ -788,6 +788,9 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
     }
 
     bindListSelection(popoverEl, eintraege, selectItem);
+    /* So weit nach unten wie das Blatt erlaubt (20 mm Rand) — weniger
+       Scrollen bei langen Listen (Vorgabe 2026-11-22). */
+    passeAnBlattrand(popoverEl, /** @type {HTMLElement} */ (anchorEl || ortEl));
   };
 
   render();
@@ -1501,6 +1504,7 @@ export function initAddressServices() {
     }
 
     bindListSelection(addressSuggestions, renderedSuggestions, selectSuggestion);
+    if (inputAddressSearch) passeAnBlattrand(addressSuggestions, inputAddressSearch);
 
     showPopoverSafe(addressSuggestions);
   }
@@ -1521,6 +1525,7 @@ export function initAddressServices() {
     li.setAttribute('aria-selected', 'false');
     Field.setValue(li, text);
     addressSuggestions.appendChild(li);
+    if (inputAddressSearch) passeAnBlattrand(addressSuggestions, inputAddressSearch);
     showPopoverSafe(addressSuggestions);
   }
 
@@ -1612,20 +1617,18 @@ export function initAddressServices() {
     /* 20 mm = 75,6 px bei 96 dpi (DIN 5008 Rand). */
     const RAND = 76;
 
-    /** Haelt die Liste innerhalb des A4-Blatts (rechts 20 mm, unten 20 mm). */
+    /* Nur noch Breite/Position: die Hoehe bis 20 mm vor den Blatt-Unterrand
+       setzt `passeAnBlattrand` fuer ALLE Listen (suggestion-list.js). */
     const passeGroesse = (/** @type {HTMLElement} */ pop, /** @type {HTMLElement} */ feldEl) => {
       const feldRect = feldEl.getBoundingClientRect();
       const blatt = document.getElementById('kern')?.getBoundingClientRect();
       const linksGrenze = (blatt ? blatt.left : 0) + RAND;
       const rechtsGrenze = (blatt ? blatt.right : window.innerWidth) - RAND;
-      const untenGrenze = (blatt ? blatt.bottom : window.innerHeight) - RAND;
       const breite = Math.max(300, Math.min(420, rechtsGrenze - linksGrenze));
       const links = Math.max(linksGrenze, Math.min(feldRect.right - breite, rechtsGrenze - breite));
-      const oben = feldRect.bottom + 4;
       pop.style.left = `${Math.round(links)}px`;
-      pop.style.top = `${Math.round(oben)}px`;
+      pop.style.top = `${Math.round(feldRect.bottom + 4)}px`;
       pop.style.width = `${Math.round(breite)}px`;
-      pop.style.maxHeight = `${Math.max(220, Math.round(untenGrenze - oben - 8))}px`;
     };
 
     /** @param {string} text */

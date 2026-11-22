@@ -23,6 +23,44 @@
 
 import { hidePopoverSafe, showPopoverSafe } from './core.js';
 
+/** 20 mm = 75,6 px bei 96 dpi (DIN 5008 Blattrand, gemessen 2026-11-22). */
+export const BLATTRAND_PX = 76;
+
+/**
+ * Reine Rechnung: wie hoch darf eine Liste unter `oben` werden, ohne den
+ * Blattrand (20 mm) oder das Fenster zu verlassen?
+ * Listen sollen so weit nach unten gehen wie Platz ist — jede Zeile weniger
+ * Scrolling (Vorgabe 2026-11-22: "Hauptsache weniger scrollen").
+ * @param {{ oben: number, blattUnten?: number, viewportUnten: number, rand?: number }} lage
+ * @returns {number} nutzbare Hoehe in px (mindestens 220)
+ */
+export function blattrandHoehe({ oben, blattUnten, viewportUnten, rand = BLATTRAND_PX }) {
+  /* Der Blattrand zaehlt nur, solange das Blatt im Fenster sichtbar ist:
+     ragt es unten heraus, ist das Fensterende die Grenze. */
+  const unten = Math.min(blattUnten ?? viewportUnten, viewportUnten);
+  return Math.max(220, unten - rand - oben - 8);
+}
+
+/**
+ * Setzt die Hoehe einer Vorschlagsliste so, dass sie bis 20 mm vor den
+ * Blatt-Unterrand reicht (Blatt = `#kern`). Wird nicht geklemmt, wenn die
+ * Liste kuerzer ist — `max-height` deckelt nur.
+ * @param {HTMLElement} popover
+ * @param {HTMLElement} feldEl Ankerfeld (die Liste haengt darunter)
+ */
+export function passeAnBlattrand(popover, feldEl) {
+  if (!popover || !feldEl) return;
+  const feldRect = feldEl.getBoundingClientRect();
+  const blatt = document.getElementById('kern')?.getBoundingClientRect();
+  const hoehe = blattrandHoehe({
+    /* 4 px = Abstand des Popovers zum Feld (margin-top: var(--space-xs)). */
+    oben: feldRect.bottom + 4,
+    blattUnten: blatt?.bottom,
+    viewportUnten: window.innerHeight
+  });
+  popover.style.maxHeight = `${Math.round(hoehe)}px`;
+}
+
 /**
  * @typedef {object} Vorschlag
  * @property {string} text        Haupttext, z. B. "Kettelerstraße 5"
@@ -108,6 +146,9 @@ export function initVorschlagsliste(cfg) {
       });
       popover.appendChild(li);
     });
+    /* Standard: so hoch wie das Blatt es zulaesst; `cfg.groesse` darf
+       danach Breite/Position setzen (z. B. Strassenliste). */
+    passeAnBlattrand(popover, feld);
     if (cfg.groesse) cfg.groesse(popover, feld);
     showPopoverSafe(popover);
     feld.setAttribute('aria-expanded', 'true');
@@ -136,6 +177,7 @@ export function initVorschlagsliste(cfg) {
         li.className = 'suggestion-hint';
         li.textContent = cfg.leer;
         popover.appendChild(li);
+        passeAnBlattrand(popover, feld);
         if (cfg.groesse) cfg.groesse(popover, feld);
         showPopoverSafe(popover);
       } else {

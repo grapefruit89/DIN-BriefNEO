@@ -21,6 +21,7 @@ import { applyState, applyValue, commitElement, hydrateStateFromDom, initStateBi
 import { deriveSalutation, SALUTATION_TONES, salutationVarianten, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
+import { BLATTRAND_PX, blattrandHoehe } from '../website/js/suggestion-list.js';
 import { assert, assertEqual, describe, it, run } from './runner.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
@@ -2716,6 +2717,37 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
     // Gleiche Nachricht erneut triggern: Popover öffnet sich erneut
     eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Gleicher Fehler', type: 'warning' });
     assertEqual(container?.dataset.type, 'warning', 'Typ wird bei gleichem Text aktualisiert');
+  });
+});
+
+describe('Vorschlagslisten: Hoehe bis 20 mm vor den Blatt-Unterrand (2026-11-22)', () => {
+  it('rechnet die nutzbare Hoehe bis zum Blattrand', () => {
+    /* Gemessen im Browser: Blatt 37..1160, Ortfeld endet bei 277, Fenster 1197. */
+    assertEqual(BLATTRAND_PX, 76, '20 mm bei 96 dpi');
+    assertEqual(
+      blattrandHoehe({ oben: 281, blattUnten: 1160, viewportUnten: 1197 }),
+      1160 - 76 - 281 - 8,
+      'Blattrand ist die Grenze'
+    );
+  });
+
+  it('nimmt das Fensterende, wenn das Blatt unten herausragt', () => {
+    assertEqual(
+      blattrandHoehe({ oben: 281, blattUnten: 2000, viewportUnten: 900 }),
+      900 - 76 - 281 - 8,
+      'Fensterende statt unsichtbarem Blattrand'
+    );
+  });
+
+  it('ohne Blatt gilt das Fenster', () => {
+    assertEqual(
+      blattrandHoehe({ oben: 281, viewportUnten: 1197 }),
+      1197 - 76 - 281 - 8
+    );
+  });
+
+  it('bleibt bei mindestens 220 px, auch wenn kaum Platz ist', () => {
+    assertEqual(blattrandHoehe({ oben: 1000, blattUnten: 1100, viewportUnten: 1100 }), 220);
   });
 });
 

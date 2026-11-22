@@ -378,8 +378,15 @@ AddressIntelligence.wireDOM = function wireDOM() {
       );
 
     absOrtEl.addEventListener('blur', () => hidePopoverSafe(suggestionsPopover));
+    /* Wie beim Empfaenger: Loeschen ist Nutzerabsicht. Ohne diese Spur hat der
+       5-Ziffern-Zweig den Ort nach dem Loeschen sofort wieder eingesetzt
+       ("53111 B" -> "53111" -> "53111 Bonn", gemeldet 2026-11-22). */
+    let absUserEditing = false;
     absOrtEl.addEventListener('input', (/** @type {Event} */ ev) => {
       if (!(ev instanceof InputEvent) || !ev.inputType) return;
+      if (ev.inputType.startsWith('delete')) absUserEditing = true;
+      else if (ev.inputType === 'insertText' && /\d/.test(ev.data || '')) absUserEditing = false;
+
       const raw = Field.getValue(absOrtEl).trim();
       if (absTimer) clearTimeout(absTimer);
       if (raw.length < 3) {
@@ -393,11 +400,31 @@ AddressIntelligence.wireDOM = function wireDOM() {
           absTimer = null;
           if (Field.getValue(absOrtEl).trim() !== raw) return;
           const res = AddressIntelligence.lookupPlz(raw);
-          if (res) {
+          if (res && !absUserEditing) {
             schreibeAbsender(res.plz, res.city);
+            hidePopoverSafe(suggestionsPopover);
+          } else {
             hidePopoverSafe(suggestionsPopover);
           }
         }, 180);
+        return;
+      }
+      /* Drei oder vier Ziffern: PLZ-Praefix. Der Empfaenger hatte diesen Zweig
+         immer, der Absender nicht — "531" lieferte dort null Treffer, obwohl
+         "53111 Bonn" existiert (gemeldet 2026-11-22). */
+      const prefixMatch = raw.match(/^(\d{3,4})$/);
+      if (prefixMatch) {
+        const prefix = prefixMatch[1];
+        absTimer = setTimeout(() => {
+          absTimer = null;
+          const matches = AddressIntelligence.lookupPrefix(prefix, 15);
+          if (matches.length > 0) {
+            const isPlzList = matches.every((/** @type {any} */ m) => m.isSinglePlz && m.plz);
+            zeichneAbsender(matches, isPlzList);
+          } else {
+            hidePopoverSafe(suggestionsPopover);
+          }
+        }, 120);
         return;
       }
       absTimer = setTimeout(() => {

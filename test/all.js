@@ -2858,6 +2858,39 @@ describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
 });
 
 
+
+describe('Absender-Ort: PLZ-Praefix und Loeschen (2026-11-22)', () => {
+  /* Vorher hatte nur der Empfaenger den 3-4-Ziffern-Zweig (lookupPrefix) und
+     die userEditing-Spur. "531" im Absender-Feld lieferte null Treffer, und
+     nach dem Loeschen setzte der 5-Ziffern-Zweig den Ort sofort wieder ein. */
+  it('lookupPrefix kennt "531" (Bonn)', async () => {
+    await AddressIntelligence.init();
+    const treffer = AddressIntelligence.lookupPrefix('531', 15);
+    assert(treffer.length > 0, 'Praefix 531 liefert Orte');
+    assert(
+      treffer.some((t) => String(t.city || '').startsWith('Bonn')),
+      'Bonn ist dabei'
+    );
+  });
+
+  it('Absender-Handler nutzt Praefix-Suche und die Loesch-Spur (Ratsche)', async () => {
+    /* Der Handler haengt in einer Closure von initAddressServices() und laesst
+       sich im Testkontext nicht zuverlaessig ausloesen (Top-Layer-Popover).
+       Diese Ratsche haelt fest, dass die beiden Zweige im Absender-Block
+       stehen; das Verhalten selbst ist im Browser gemessen:
+         "531"   -> 4 Treffer, "Bonn - 21 PLZs"
+         "53111" -> "53111 Bonn"
+         "53111 B" + delete -> "53111" (kein Autofill) */
+    const src = await (await fetch('/website/js/address.js')).text();
+    const start = src.indexOf('const absOrtEl = feld(\'absender-ort\')');
+    const ende = src.indexOf('// Case C: Eingabe im Firma-Feld', start);
+    assert(start > -1 && ende > start, 'Absender-Block gefunden');
+    const block = src.slice(start, ende);
+    assert(block.includes('lookupPrefix'), 'Praefix-Suche im Absender-Zweig');
+    assert(block.includes('absUserEditing'), 'Loesch-Spur im Absender-Zweig');
+  });
+});
+
 describe('Init degradiert statt abzubrechen (Invariante 2026-11-22)', () => {
   it('initSenderSync: ohne #unterschrift spiegelt der Name weiter', () => {
     /* Der fruehere Guard verlangte ALLE fuenf Felder. Fehlte eines, fiel die

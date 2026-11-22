@@ -4998,3 +4998,30 @@ Gemessen:
 Der Empfänger-Fall ist unverändert (die Liste war immer inhaltsbreit und bleibt
 im Blatt) — nur der erzwungene 300-px-Minimum im schmalen Infoblock ist weg.
 Cache-Buster live24.
+
+**Korrektur 3 (2026-11-22): Absender-Ort ohne PLZ-Präfix und ohne Lösch-Spur.**
+Nutzer: „ich tippe hier 531, bekomme kein Dropdown" und „53111 B, noch ein
+Zeichen löschen — steht direkt wieder 53111 Bonn".
+
+Beides waren Lücken im **Absender**-Zweig; der Empfänger hatte sie von Anfang an:
+
+| Fall | Empfänger | Absender (vorher) |
+|---|---|---|
+| 3–4 Ziffern (`531`) | `lookupPrefix('531')` → 6 Treffer („Bonn · 21 PLZs") | nur `resolveCityInput('531')` → **0 Treffer** |
+| Löschen im 5-Ziffern-Feld | `userEditing` verhindert das Ergänzen | 180 ms später wieder `53111 Bonn` |
+
+Jetzt hat der Absender-Zweig denselben Präfix-Pfad (`lookupPrefix`) und eine
+eigene `absUserEditing`-Spur (delete → true, Ziffer eingetippt → false).
+
+**Gemessen (Browser):**
+
+```
+"531"    → 4 Treffer, erster "Bonn · 21 PLZs"
+"53111"  → "53111 Bonn" (Autofill wie beim Empfänger)
+"53111 B" + Backspace → bleibt "53111" (kein Wiedereinsetzen)
+```
+
+**Tests:** `lookupPrefix('531')` liefert Bonn; eine Ratsche hält fest, dass
+`lookupPrefix` und `absUserEditing` im Absender-Block stehen (der Handler hängt
+in einer Closure und lässt sich im Testkontext nicht zuverlässig auslösen —
+das Verhalten ist im Browser gemessen). 412 Tests.

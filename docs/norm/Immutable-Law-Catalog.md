@@ -27,6 +27,13 @@ supersedes: []
 depends_on: []
 ---
 
+> **Einordnung des Namens.** Was hier „Law" heißt, ist in der Architekturpraxis
+> **Architecture Invariants** bzw. **Policy-as-Code** (Vorbild: ArchUnit): Regeln
+> mit IDs, die maschinell geprüft werden (`tools/reconciliation.js`,
+> `tools/build_db.js`). „Law" ist die bewusst strenge Selbstbindung des Projekts —
+> nicht zu verwechseln mit dem fachlichen Regelwerk (DIN 5008), das in
+> `docs/norm/din5008.md` steht. Siehe `docs/meta/SEMANTIC-ANCHORS.md`.
+
 # DIN-BriefNEO — Architectural Law: MUST-USE vs. ANTIPATTERN
 
 **Status:** Bindend. Änderungen nur per ADR und menschlichem Entscheid.

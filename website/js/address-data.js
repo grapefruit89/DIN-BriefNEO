@@ -449,6 +449,10 @@ export class AddressIntelligence {
   static firmenIndex = null;
 
   /** @type {{ plz?: string, city: string } | null} */
+  /* Etabliert: *sticky search context* — die zuletzt gewaehlte Stadt als
+     Kontext fuer die naechste Suche (Strasse/Anschrift). Der Name "Lock"
+     stammt aus der Sperr-Funktion, nicht aus Nebenlaeufigkeit; siehe
+     docs/meta/SEMANTIC-ANCHORS.md, Abschnitt 3. */
   static targetLock = null;
 
   /** @type {boolean} */

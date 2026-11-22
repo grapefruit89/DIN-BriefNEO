@@ -54,6 +54,7 @@ summary: "Kanonische LLM-Map, Verzeichnis-Inventar und Task-to-File-Matrix für 
 | :--- | :--- |
 | **Höchste Autorität** | [`docs/norm/Immutable-Law-Catalog.md`](docs/norm/Immutable-Law-Catalog.md) |
 | **Vollständiger Wegweiser** | [`docs/meta/AUFGABEN-WEGWEISER.md`](docs/meta/AUFGABEN-WEGWEISER.md) |
+| **Begriff & Konzept je Baustein** | [`docs/meta/SEMANTIC-ANCHORS.md`](docs/meta/SEMANTIC-ANCHORS.md) |
 | **Lokaler Dev-Server / CDP** | Port `8088` (`./tools/start.sh`) · Chromium DevTools Port `9222` |
 | **Budget-Gates** | `AGENTS.md` ≤ 70 Z / 500 W · `map.md` ≤ 100 Z / 700 W / 5.500 B |
 | **Geschützter Mülleimer** | `.trash/` (Invariante von `build_db.js`, niemals löschen) |

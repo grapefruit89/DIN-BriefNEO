@@ -486,6 +486,10 @@ export const GRUPPE_AB_PLZ = 8;
 /**
  * Klappt Stadt-Zeilen mit wenigen PLZs direkt in die Liste aus.
  *
+ * Name vs. Zweck (docs/meta/SEMANTIC-ANCHORS.md, Abschnitt 3): "flach" meint
+ * die DATENFORM (Sammelzeilen zu Einzelzeilen), das Muster heisst
+ * **Progressive Disclosure**.
+ *
  * Muster: **Progressive Disclosure** — grosse Staedte bleiben eine Zeile
  * ("Neustadt · 9 PLZs"), kleine klappen sofort auf. Ueber `GRUPPE_AB_PLZ`
  * entscheidet die Datenlage, nicht die Ansicht.

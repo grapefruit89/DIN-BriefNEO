@@ -908,15 +908,23 @@ export class AddressIntelligence {
       return a.localeCompare(b, 'de');
     });
 
-    return sorted.map(plz => ({
-      plz,
-      name: canonicalCity,
-      city: canonicalCity,
-      typ: 'Stadt',
-      district: AddressIntelligence.getDistrict(plz),
-      state: AddressIntelligence.getState(plz),
-      isSinglePlz: true
-    }));
+    return sorted.map(plz => {
+      /* Nur REINE Großempfänger-PLZ tragen die Organisation als Namen. Ein
+         normaler Stadtbezirk (53111 Bonn) hat zwar auch einen Großkunden-
+         Eintrag, bleibt aber die Stadt. Erkennungsmerkmal in den Daten: die
+         Ortsteil-Spalte steht dort auf "Großempfänger". */
+      const gk = AddressIntelligence.grosskunden.get(plz);
+      const istGE = /empfänger/i.test(AddressIntelligence.getDistrict(plz) || '');
+      return {
+        plz,
+        name: (istGE && gk?.name) ? gk.name : canonicalCity,
+        city: canonicalCity,
+        typ: (istGE && gk?.typ) ? gk.typ : 'Stadt',
+        district: AddressIntelligence.getDistrict(plz),
+        state: AddressIntelligence.getState(plz),
+        isSinglePlz: true
+      };
+    });
   }
 
   /**

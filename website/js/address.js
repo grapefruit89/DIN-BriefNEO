@@ -380,8 +380,10 @@ AddressIntelligence.wireDOM = function wireDOM() {
         const kreisName = mehrfach && item.plz ? AddressIntelligence.getKreis(item.plz) : '';
         let extra = '';
         if (kreisName) extra = `· ${kreisName}`;
-        else if (item.district) extra = `· ${item.district}`;
-        else if (item.state) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
+        else if (item.district) {
+          const teile = String(item.district).split(',').map((t) => t.trim()).filter(Boolean);
+          extra = teile.length > 1 ? `· ${teile[0]} +${teile.length - 1}` : `· ${teile[0] || item.district}`;
+        } else if (item.state) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
         if (extra) {
           const sub = document.createElement('span');
           sub.className = 'district-val';
@@ -641,7 +643,9 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
       /* Ortsfarbe: verschiedene Orte = verschiedene Toene, gleiche Stadt
          durchgehend gleich (siehe farbenFuerListe). */
-      li.dataset.ortFarbe = farben[index];
+      /* Großempfänger/Behörden bekommen KEINE Ortsfarbe: sie sind keine Orte,
+         und eine lange Liste davon soll ruhig bleiben (2026-11-22). */
+      li.dataset.ortFarbe = (item.typ || 'Stadt') === 'Stadt' ? farben[index] : '0';
 
       // Typ als Datum ins Markup; das Aussehen entscheidet das CSS (beide Listen).
       const typLower = (item.typ || '').toLowerCase();
@@ -696,7 +700,13 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       if (kreisName) {
         extraText = `· ${kreisName}`;
       } else if (item.district) {
-        extraText = `· ${item.district}`;
+        /* Ortsteil-Listen wie "Heiderhof, Muffendorf, Pennenfeld, Schweinheim"
+           wurden abgeschnitten. Jetzt: erster Teil + "+N", voller Text im
+           Tooltip. Eine Zeile, kein Abschneiden, keine zweite Zeile. */
+        const teile = String(item.district).split(',').map((t) => t.trim()).filter(Boolean);
+        extraText = teile.length > 1
+          ? `· ${teile[0]} +${teile.length - 1}`
+          : `· ${teile[0] || item.district}`;
       } else if (stateName) {
         extraText = `· ${stateName}`;
       }

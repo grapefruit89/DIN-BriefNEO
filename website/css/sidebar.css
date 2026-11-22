@@ -1165,6 +1165,8 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 }
 /* Zwoelf Toene im Goldwinkel-Abstand (137,5 Grad): benachbarte Eintraege liegen
    weit auseinander, gleiche Stadt behaelt ihren Ton (Vergabe in address.js). */
+/* 0 = kein Ort (Großempfänger/Behörde): neutraler Balken, ruhige Zeile. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="0"] { --ort-ton: oklch(0.72 0.01 250); }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.62 0.17 138); }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.62 0.17 275); }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.62 0.17 53); }

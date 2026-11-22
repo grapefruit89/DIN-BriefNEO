@@ -5277,3 +5277,73 @@ JS) — also toter CSS, 9 Zeilen entfernt statt modernisiert.
 **Was der Bericht vorher zeigte:** 0 Vendor-Prefixes, 0 `clear`/`zoom`/
 `expression`/`progid` — das CSS war bereits sauber. Die Verbotsliste hält es
 so.
+
+---
+
+## 2026-11-23 — Liberation Sans als Vanilla-Standard, Schriften aus `fonts/`
+
+**Nutzer:** „ich möchte das der komplette brief Default Vanilla ein
+eingedampftes Liberation Sans Font Subset hat."
+
+### Was jetzt ausgeliefert wird
+
+Im Repo liegen genau zwei Familien, beide DACH-eingedampft:
+
+| Datei | Quelle | Größe |
+|---|---|---|
+| `liberation-sans-regular.woff2` | LiberationSans-Regular.ttf (401,1 KB) | 17 560 B |
+| `liberation-sans-bold.woff2` | LiberationSans-Bold.ttf (404,7 KB) | 17 004 B |
+| `inter_18pt-regular.woff2` | Inter_18pt-Regular.ttf (334,6 KB) | 15 208 B |
+| `inter_18pt-bold.woff2` | Inter_18pt-Bold.ttf (336,1 KB) | 15 664 B |
+
+**Warum Liberation Sans Standard ist:** DIN 5008 Kap. 20.7.1 nennt Arial und
+Helvetica ausdrücklich. Liberation Sans ist die freie, **metrisch identische**
+Umsetzung — gemessen: Breite von „Hamburgefonstiv MMM 12345 äöüß" bei 40 px ist
+in beiden **638,1 px**. Ein Brief bricht also zeilenweise wie ein Arial-Brief um.
+
+Der Stack wurde dafür getrennt:
+
+```css
+--font-system-stack: "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+--font-brief-stack:  "Test-Liberation", "Liberation Sans", Arial, ...;
+```
+
+Vorher stand `Aptos`, `Segoe UI`, `-apple-system` vorn — gemessen ergab
+`font-family: "Aptos"` **593,7 px** statt 638,1 px. Damit brach derselbe Brief
+auf Windows, macOS und Linux unterschiedlich um.
+
+### Lokale Schriften (`<repo>/fonts/`)
+
+`fonts/` ist gitignoriert; das Verzeichnis ist die Wahrheit:
+
+- `tools/static-server.mjs` liefert die Liste unter `/__fonts`
+  (`.woff2` vor `.ttf`, Inter/Liberation ausgeblendet, weil schon ausgeliefert).
+- `website/js/font-feature.js` baut daraus die Gruppe „Nur lokal (fonts/, n)"
+  und lädt per `FontFace`-API.
+- Auf GitHub Pages gibt es den Endpunkt nicht (404) → Gruppe fehlt, keine 404
+  auf Schriften. Aptos und Michelangelus sind damit aus dem HTML und aus
+  `FONT_PRESETS` entfernt.
+
+Nebenbefund: `.gitignore` hatte `fonts/` ohne führenden Schrägstrich — das
+Muster traf auch `website/fonts/` und hätte neue ausgelieferte Schriften stumm
+gesperrt. Jetzt `/fonts/`.
+
+### Systemschriften-Liste
+
+166 Familien auf diesem Rechner. Neu:
+
+- Blacklist für Emoji/Symbol/Icons (Muster deckt Windows, macOS, Linux ab).
+- Monospace wird **gemessen** (`iiii` == `MMMM`), nicht am Namen erkannt —
+  „Hack" und „TeX Gyre Cursor" heißen nicht „Mono".
+- Suchfeld über der Auswahl filtert live; Label zeigt „Systemschriften (n)".
+- Gegenprobe mit Attrappe: 10 Namen rein → 3 übrig (C059, Liberation Sans,
+  Noto Sans), 7 aussortiert.
+
+### Pfeiltasten
+
+Chrome rendert das Select mit `appearance: base-select`. Bei **geschlossener**
+Liste ändern ArrowUp/ArrowDown den Wert nicht mehr (gemessen: Tastendruck kommt
+an, `change` bleibt aus). `font-feature.js` fängt die Tasten jetzt selbst ab
+(Arrow, PageUp/Down, Home/End), setzt `selectedIndex` und löst `change` aus.
+Vorschau ist auf 120 ms entprellt, damit Durchblättern nicht jede Stufe lädt
+und speichert.

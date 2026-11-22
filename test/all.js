@@ -4272,7 +4272,7 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
-  it('schaltet über applyFontPreset auf Inter, Aptos und Michelangelus um', () => {
+  it('schaltet über applyFontPreset zwischen Inter und dem Standard um', () => {
     const sel = /** @type {HTMLSelectElement} */ (document.getElementById('select-schriftart'));
     const sm = new SettingsManager();
     const ff = new FontFeature(sm);
@@ -4280,25 +4280,20 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
     assertEqual(sel.value, 'inter');
     assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Inter'), 'Inter aktiv');
 
-    ff.applyFontPreset('aptos');
-    assertEqual(sel.value, 'aptos');
-    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Aptos'), 'Aptos aktiv');
-
-    ff.applyFontPreset('michelangelus');
-    assertEqual(sel.value, 'michelangelus');
-    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Michelangelus'), 'Michelangelus aktiv');
-
     ff.applyFontPreset('default');
     assertEqual(sel.value, 'default');
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
-  it('exportiert FONT_PRESETS mit allen 4 Vorgaben', () => {
+  it('exportiert FONT_PRESETS mit den mitgelieferten Vorgaben', () => {
     assertEqual(typeof FONT_PRESETS, 'object');
     assertEqual(FONT_PRESETS.default, '');
     assert(FONT_PRESETS.inter.includes('Test-Inter'), 'Test-Inter Preset vorhanden');
-    assert(FONT_PRESETS.aptos.includes('Test-Aptos'), 'Test-Aptos Preset vorhanden');
-    assert(FONT_PRESETS.michelangelus.includes('Test-Michelangelus'), 'Test-Michelangelus Preset vorhanden');
+    /* Aptos und Michelangelus sind seit 2026-11-23 nicht mehr mitgeliefert:
+       Lizenz (Microsoft / kommerziell). Sie kommen zur Laufzeit aus dem
+       lokalen Ordner fonts/ ueber /__fonts, nicht als Preset. */
+    assertEqual(FONT_PRESETS.aptos, undefined, 'Aptos ist kein Preset mehr');
+    assertEqual(FONT_PRESETS.michelangelus, undefined, 'Michelangelus ist kein Preset mehr');
   });
 
   it('erzwingt 400 KB Obergrenze in Constants.LIMITS', () => {

@@ -4,7 +4,7 @@
 // No-Cache-Header. Damit kann kein Browser eine alte JS-Version aus dem Cache
 // ziehen — die frühere ?v=panelsN-Pflege in test/index.html ist überflüssig.
 
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
@@ -84,6 +84,63 @@ function findeFontsOrdner(root) {
   }
 }
 
+/**
+ * Entwickler-Komfort: listet die Schriften, die NUR lokal in `<repo>/fonts/`
+ * liegen (Lizenz — Aptos ist Microsoft, Michelangelus kommerziell — oder
+ * eigene Testschriften). `fonts/` ist komplett gitignoriert, also ist der
+ * Ordner die Wahrheit und nicht eine Liste im HTML.
+ *
+ * Auf einem fremden Webserver gibt es diesen Endpunkt nicht (404): die Auswahl
+ * bleibt dann auf den mitgelieferten Schriften, und es wird keine Datei
+ * angefordert, die dort gar nicht liegt.
+ *
+ * @param {string | null} ordner
+ * @returns {{ datei: string, name: string, familie: string }[]}
+ */
+function liesLokaleSchriften(ordner) {
+  if (!ordner) return [];
+  const ERLAUBT = new Set(['.woff2', '.ttf', '.otf']);
+  /* Was bereits ausgeliefert wird, ist keine "lokale Testschrift": Inter und
+     Liberation Sans liegen als Subset in website/fonts/. Ihre Quelldateien
+     hier mitzulisten wuerde nur Doppel-Eintraege erzeugen. */
+  const AUSGELIEFERT = /^(inter|liberationsans)/i;
+  let dateien;
+  try {
+    dateien = readdirSync(ordner);
+  } catch {
+    return [];
+  }
+  /** @type {Map<string, { datei: string, ext: string }>} */
+  const gewaehlt = new Map();
+  for (const datei of dateien) {
+    if (datei.startsWith('.')) continue;
+    const ext = path.extname(datei).toLowerCase();
+    if (!ERLAUBT.has(ext)) continue;
+    const stem = datei.slice(0, -ext.length);
+    if (AUSGELIEFERT.test(stem)) continue;
+    /* Schluessel klein schreiben: sonst gelten "Aptos.ttf" und "aptos.woff2"
+       als zwei Schriften (real passiert am 2026-11-23). */
+    const schluessel = stem.toLowerCase().replace(/[\s_]+/g, '-');
+    const vorher = gewaehlt.get(schluessel);
+    /* woff2 gewinnt gegen ttf/otf: kleiner und ohne Umwandlung nutzbar. */
+    if (!vorher || (ext === '.woff2' && vorher.ext !== '.woff2')) {
+      gewaehlt.set(schluessel, { datei, ext, stem });
+    }
+  }
+  return [...gewaehlt.values()]
+    .map(({ datei, stem }) => {
+      const name = stem
+        .replace(/[-_]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .split(' ')
+        .map((wort) => wort.charAt(0).toUpperCase() + wort.slice(1))
+        .join(' ');
+      return { datei, name, familie: `Lokal-${name.replace(/[^A-Za-z0-9]+/g, '-')}` };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+}
+
 export async function startStaticServer(root, wunschPort = 0) {
   const fontsOrdner = findeFontsOrdner(root);
   const server = http.createServer((req, res) => {
@@ -95,6 +152,11 @@ export async function startStaticServer(root, wunschPort = 0) {
         return;
       }
       res.writeHead(200, { ...NO_CACHE, 'Content-Type': 'text/plain; charset=utf-8' }).end(key);
+      return;
+    }
+    if (url.pathname === '/__fonts') {
+      const liste = liesLokaleSchriften(fontsOrdner);
+      res.writeHead(200, { ...NO_CACHE, 'Content-Type': 'application/json; charset=utf-8' }).end(JSON.stringify(liste));
       return;
     }
     let pfad;

@@ -17,19 +17,65 @@ import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistenc
 /** @typedef {import('./settings.js').SettingsManager} SettingsManager */
 
 /**
- * Lokale DIN-5008 Testschriften (eingedampft)
+ * Mitgelieferte DIN-5008-Testschriften (eingedampft, liegen in
+ * `website/fonts/`). Schriften, die nur lokal in `<repo>/fonts/` liegen,
+ * stehen hier bewusst NICHT: sie kommen zur Laufzeit über `/__fonts`
+ * (siehe `ladeLokaleSchriften`) und funktionieren nur im Dev-Server.
  * @type {Record<string, string>}
  */
 export const FONT_PRESETS = {
   default: '',
-  inter: '"Test-Inter", sans-serif',
-  aptos: '"Test-Aptos", sans-serif',
-  michelangelus: '"Test-Michelangelus", serif'
+  /* Fallback bewusst Liberation Sans/Arial: das DACH-Subset hat keine
+     franzoesischen Akzente — "Renée" bekommt so das e mit derselben
+     Konstruktion, nicht aus einer fremden Ersatzschrift. */
+  inter: '"Test-Inter", "Liberation Sans", Arial, sans-serif'
 };
+
+/**
+ * Schriften, die im Brief nichts zu suchen haben: Emoji-, Symbol- und
+ * Icon-Fonts. Die Muster decken Windows (`Segoe UI Emoji`, `Webdings`),
+ * macOS (`Apple Color Emoji`) und Linux (`Noto Color Emoji`, `Unifont`) ab.
+ * Die Liste kommt vom Betriebssystem, deshalb muss sie markenuebergreifend
+ * sein — ein reiner Linux-Filter waere auf dem naechsten Rechner blind.
+ */
+const SYSTEM_FONT_BLACKLIST =
+  /emoji|symbol|dingbat|webding|wingding|marlett|font awesome|material (icon|symbol)|twemoji|unifont|lastresort|notdef/i;
+
+/** Monospace-Verdacht am Namen — schneller Vorfilter vor der Messung. */
+const MONO_NAME = /mono|\bcode\b|courier|consol|terminal|fixed|typewriter|iosevka|cursor/i;
+
+/** @type {CanvasRenderingContext2D | null} */
+let messKontext = null;
+
+/**
+ * Misst, ob eine Familie dicktengleich setzt. Namenslisten sind unvollstaendig:
+ * „Hack" oder „TeX Gyre Cursor" heissen nicht „Mono". Messen funktioniert auf
+ * jedem Betriebssystem, weil `queryLocalFonts()` keine Metadaten mitliefert.
+ * @param {string} family
+ * @returns {boolean}
+ */
+function istMonospace(family) {
+  try {
+    if (!messKontext) messKontext = document.createElement('canvas').getContext('2d');
+    if (!messKontext) return false;
+    messKontext.font = `40px ${JSON.stringify(family)}`;
+    const i = messKontext.measureText('iiii').width;
+    const m = messKontext.measureText('MMMM').width;
+    if (!(i > 0) || !(m > 0)) return false;
+    return Math.abs(i - m) < 0.01 * Math.max(i, m);
+  } catch {
+    return false;
+  }
+}
 
 export class FontFeature {
   /** @type {SettingsManager | null} */
   #settingsManager;
+
+  /** Entprellung fuer die Pfeiltasten-Vorschau (siehe #vorschau). */
+  #vorschauTimer = 0;
+  /** Zaehler, damit eine spaete Anfrage die neuere nicht ueberschreibt. */
+  #vorschauToken = 0;
 
   /**
    * @param {SettingsManager | { settings: any, updateSettings?: () => void } | null} [settingsManager]
@@ -49,6 +95,18 @@ export class FontFeature {
     /** @type {FontFace | null} */
     this.activeSystemFace = null;
 
+    /** Lokale Testschriften aus `<repo>/fonts/`: Dateiname -> Familie. */
+    this.lokaleSchriften = new Map();
+    /** @type {FontFace | null} */
+    this.activeLokalFace = null;
+
+    /** Suchfeld ueber der Auswahl (filtert nur die Systemschriften). */
+    this.filterFeld = /** @type {HTMLInputElement | null} */ (document.getElementById('schrift-filter'));
+    /** @type {HTMLOptGroupElement | null} */
+    this.systemGruppe = null;
+    /** @type {string[]} */
+    this.systemSchriften = [];
+
     /** @type {FontFace | null} */
     this.activeFontFace = null;
     /** @type {string | null} */
@@ -61,6 +119,7 @@ export class FontFeature {
     this.attachListeners();
     this.initFontInjection();
     this.#initSystemFonts();
+    void this.ladeLokaleSchriften();
     this.isReady = true;
   }
 
@@ -117,16 +176,56 @@ export class FontFeature {
     if (!this.selectFont) return;
     const alt = this.selectFont.querySelector('optgroup[data-systemschriften]');
     if (alt) alt.remove();
+
+    /* Vor dem Aufbau filtern: Emoji/Symbol/Icon raus (Namensmuster, deckt
+       Windows/macOS/Linux ab) und Monospace raus (gemessen, nicht geraten —
+       „Hack" und „TeX Gyre Cursor" heissen nicht „Mono", sind es aber). */
+    this.systemSchriften = [...this.systemFonts.keys()]
+      .filter((familie) => !SYSTEM_FONT_BLACKLIST.test(familie))
+      .filter((familie) => !MONO_NAME.test(familie))
+      .filter((familie) => !istMonospace(familie))
+      .sort((a, b) => a.localeCompare(b, 'de'));
+
     const gruppe = document.createElement('optgroup');
     gruppe.setAttribute('data-systemschriften', '');
-    gruppe.label = 'Systemschriften (lokal)';
-    for (const family of [...this.systemFonts.keys()].sort((a, b) => a.localeCompare(b, 'de'))) {
+    this.systemGruppe = gruppe;
+    this.selectFont.append(gruppe);
+
+    if (this.filterFeld) {
+      this.filterFeld.hidden = this.systemSchriften.length === 0;
+      this.filterFeld.value = '';
+    }
+    this.#filtereSystemschriften();
+  }
+
+  /**
+   * Filtert die gebaute Liste auf die Sucheingabe. Die Optionen werden neu
+   * geschrieben statt einzelne `hidden` zu setzen — Zuverlaessigkeit vor
+   * Sparsamkeit: ein `hidden` auf `<option>` wird je nach Chrome-Version
+   * unterschiedlich ernst genommen.
+   */
+  #filtereSystemschriften() {
+    const gruppe = this.systemGruppe;
+    if (!gruppe) return;
+    const suche = (this.filterFeld?.value || '').trim().toLowerCase();
+    const treffer = suche ? this.systemSchriften.filter((f) => f.toLowerCase().includes(suche)) : this.systemSchriften;
+
+    gruppe.replaceChildren();
+    for (const familie of treffer) {
       const option = document.createElement('option');
-      option.value = `sys:${family}`;
-      option.textContent = family;
+      option.value = `sys:${familie}`;
+      option.textContent = familie;
       gruppe.append(option);
     }
-    this.selectFont.append(gruppe);
+    gruppe.label = suche
+      ? `Systemschriften (${treffer.length} von ${this.systemSchriften.length})`
+      : `Systemschriften (${this.systemSchriften.length})`;
+
+    /* Eine bereits gewaehlte Systemschrift soll die Suche ueberleben. */
+    const gewaehlt = this.settings.previewFont;
+    if (typeof gewaehlt === 'string' && gewaehlt.startsWith('sys:') && treffer.includes(gewaehlt.slice(4)) && this.selectFont) {
+      this.selectFont.value = gewaehlt;
+    }
   }
 
   /**
@@ -157,13 +256,109 @@ export class FontFeature {
     }
   }
 
+  /* --- Lokale Testschriften (Ordner <repo>/fonts/) ------------------------
+   * `fonts/` ist komplett gitignoriert, also dürfen dort Schriften liegen, die
+   * nicht ins Repo gehören (Lizenz, eigene Tests). Der Ordner ist die Wahrheit:
+   * der Dev-Server listet ihn unter `/__fonts`, die App baut daraus die Auswahl.
+   * In Produktion gibt es den Endpunkt nicht (404) — dann fehlt die Gruppe und
+   * es wird keine Datei angefordert, die dort gar nicht liegt. Kein Fehler. */
+  async ladeLokaleSchriften() {
+    let liste = null;
+    try {
+      const antwort = await fetch('/__fonts', { cache: 'no-store' });
+      if (antwort.ok) liste = await antwort.json();
+    } catch {
+      liste = null;
+    }
+    const vorhanden = Array.isArray(liste)
+      ? liste.filter((eintrag) => eintrag && typeof eintrag.datei === 'string')
+      : [];
+
+    if (this.selectFont && vorhanden.length > 0 && !this.selectFont.querySelector('optgroup[data-lokal]')) {
+      const gruppe = document.createElement('optgroup');
+      gruppe.setAttribute('data-lokal', '');
+      gruppe.label = `Nur lokal (fonts/, ${vorhanden.length})`;
+      for (const eintrag of vorhanden) {
+        this.lokaleSchriften.set(eintrag.datei, eintrag.familie || `Lokal-${eintrag.datei}`);
+        const option = document.createElement('option');
+        option.value = `lokal:${eintrag.datei}`;
+        option.textContent = eintrag.name || eintrag.datei;
+        gruppe.append(option);
+      }
+      this.selectFont.append(gruppe);
+    }
+
+    const gespeichert = this.settings.previewFont;
+    if (typeof gespeichert === 'string' && gespeichert.startsWith('lokal:')) {
+      if (vorhanden.length > 0) {
+        this.applyFontPreset(gespeichert);
+      } else {
+        /* Die Datei ist weg (anderer Rechner, oder der lokale Ordner fehlt).
+           Ehrlich zurueck auf Standard statt still auf eine fremde Schrift. */
+        this.settings.previewFont = 'default';
+        if (this.selectFont) this.selectFont.value = 'default';
+        this.#applyPresetCss('default');
+        this.#saveSettings();
+      }
+    }
+  }
+
+  /**
+   * Laedt eine Datei aus `<repo>/fonts/` als FontFace. Der Pfad `/fonts/...`
+   * zeigt im Dev-Server auf das Repo-Wurzelverzeichnis — derselbe Ursprung
+   * wie `/__fonts`.
+   * @param {string} datei
+   */
+  async #applyLokaleFont(datei) {
+    const familie = this.lokaleSchriften.get(datei);
+    if (!familie) return;
+    if (this.activeLokalFace) {
+      document.fonts.delete(this.activeLokalFace);
+      this.activeLokalFace = null;
+    }
+    try {
+      const face = new FontFace(familie, `url(/fonts/${encodeURIComponent(datei)})`);
+      await face.load();
+      document.fonts.add(face);
+      this.activeLokalFace = face;
+      document.documentElement.style.setProperty(
+        '--active-font-family',
+        `"${familie}", var(--font-brief-stack)`,
+      );
+    } catch (e) {
+      console.warn('[FontFeature] lokale Schrift nicht ladbar:', e);
+      notify(Constants.TOASTS.FONT.FORMAT_ERROR, 'error');
+    }
+  }
+
+  /**
+   * Entprellte Vorschau fuer die Pfeiltasten. Haelt jemand die Taste, wird
+   * nicht fuer jede Stufe eine Datei geladen, sondern erst 120 ms nach dem
+   * Stehenbleiben; eine neuere Anfrage macht die aeltere wertlos (Token).
+   * @param {string} val
+   * @param {boolean} speichern
+   */
+  #vorschau(val, speichern) {
+    const token = ++this.#vorschauToken;
+    if (this.#vorschauTimer) clearTimeout(this.#vorschauTimer);
+    this.#vorschauTimer = setTimeout(() => {
+      this.#vorschauTimer = 0;
+      if (token !== this.#vorschauToken) return;
+      this.applyFontPreset(val, { speichern });
+    }, 120);
+  }
+
   applyInitialFont() {
     const gespeichert = this.settings.previewFont || 'default';
     /* Eine Systemschrift ueberlebt den Reload nicht: die Liste entsteht erst
        auf Klick (Berechtigung). Bliebe der Wert stehen, zeigte die Auswahl
        leer und der Brief still die Standardschrift — dann lieber gleich
-       zurueck auf `default`, sichtbar und ehrlich. */
-    const waehlbar = gespeichert in FONT_PRESETS || gespeichert === 'default';
+       zurueck auf `default`, sichtbar und ehrlich.
+       Lokale Schriften aus `fonts/` werden dagegen geladen: ihre Liste kommt
+       vom Dev-Server (siehe ladeLokaleSchriften) und ist beim naechsten Start
+       wieder da. Fehlt sie trotzdem, raeumt ladeLokaleSchriften den Wert auf. */
+    const istLokal = typeof gespeichert === 'string' && gespeichert.startsWith('lokal:');
+    const waehlbar = gespeichert in FONT_PRESETS || gespeichert === 'default' || istLokal;
     const activePreset = waehlbar ? gespeichert : 'default';
     if (!waehlbar) {
       this.settings.previewFont = 'default';
@@ -285,30 +480,46 @@ export class FontFeature {
   }
 
   /**
-   * Schaltet zwischen lokalen Test-Schriftarten (Inter, Aptos, Michelangelus)
-   * und dem Standard-System-Stack um.
+   * Schaltet die Briefschrift um.
+   *
+   * Drei Sorten Wert:
+   * - `default` / ein Key aus FONT_PRESETS → mitgelieferte Schrift (CSS-Variable)
+   * - `sys:<Familie>` → installierte Systemschrift, als FontFace geladen
+   * - `lokal:<Datei>` → Schrift aus `<repo>/fonts/`, ebenfalls als FontFace
+   *
    * @param {string} val
+   * @param {{ speichern?: boolean }} [optionen] `speichern: false` fuer die
+   *   Vorschau beim Durchblaettern — dann bleibt localStorage unberuehrt.
    */
-  applyFontPreset(val) {
-    /* Systemschriften laufen an den Presets vorbei: `sys:<Familie>` wird als
-       FontFace geladen, nicht als fester Stack. */
+  applyFontPreset(val, { speichern = true } = {}) {
     if (typeof val === 'string' && val.startsWith('sys:')) {
-      const family = val.slice(4);
-      this.settings.previewFont = val;
-      void this.#applySystemFont(family);
-      this.#saveSettings();
+      if (speichern) {
+        this.settings.previewFont = val;
+        this.#saveSettings();
+      }
+      void this.#applySystemFont(val.slice(4));
+      return;
+    }
+    if (typeof val === 'string' && val.startsWith('lokal:')) {
+      if (speichern) {
+        this.settings.previewFont = val;
+        this.#saveSettings();
+      }
+      void this.#applyLokaleFont(val.slice(6));
       return;
     }
     const choice = val in FONT_PRESETS ? val : 'default';
-    this.settings.previewFont = choice;
-    if (this.selectFont) {
-      this.selectFont.value = choice;
+    if (speichern) {
+      this.settings.previewFont = choice;
+      if (this.selectFont) {
+        this.selectFont.value = choice;
+      }
+      this.#saveSettings();
     }
 
     if (!this.activeFontFace) {
       this.#applyPresetCss(choice);
     }
-    this.#saveSettings();
   }
 
   resetFont() {
@@ -333,9 +544,65 @@ export class FontFeature {
 
   attachListeners() {
     if (this.selectFont) {
-      this.selectFont.addEventListener('change', (e) => {
-        const val = /** @type {HTMLSelectElement} */ (e.target).value;
-        this.applyFontPreset(val);
+      /* `change` kommt beim Bestaetigen, `input` schon bei jeder Pfeiltaste im
+         offenen Dropdown. Beides abhoeren: so laesst sich die Liste mit den
+         Pfeiltasten durchblaettern, waehrend der Brief rechts live wechselt.
+         Gespeichert wird nur beim `change` — Blaettern ist kein Entschluss. */
+      for (const ereignis of ['input', 'change']) {
+        this.selectFont.addEventListener(ereignis, (e) => {
+          const val = /** @type {HTMLSelectElement} */ (e.target).value;
+          this.#vorschau(val, ereignis === 'change');
+        });
+      }
+
+      /* Pfeiltasten bei GESCHLOSSENER Liste. Chrome rendert das Select seit
+         2025 mit `appearance: base-select`; dort bewegen ArrowUp/ArrowDown
+         den Wert nicht mehr, sondern nur den Seitenlauf (gemessen 2026-11-23:
+         Tastendruck kommt an, `change` bleibt aus). Deshalb selbst schritt-
+         weise weitergehen — die Vorschau haengt am `change`, das wir ausloesen. */
+      this.selectFont.addEventListener('keydown', (e) => {
+        if (!this.selectFont) return;
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
+        const anzahl = this.selectFont.options.length;
+        if (anzahl === 0) return;
+        const jetzt = Math.max(0, this.selectFont.selectedIndex);
+        let ziel = jetzt;
+        switch (e.key) {
+          case 'ArrowDown':
+            ziel = Math.min(anzahl - 1, jetzt + 1);
+            break;
+          case 'ArrowUp':
+            ziel = Math.max(0, jetzt - 1);
+            break;
+          case 'PageDown':
+            ziel = Math.min(anzahl - 1, jetzt + 10);
+            break;
+          case 'PageUp':
+            ziel = Math.max(0, jetzt - 10);
+            break;
+          case 'Home':
+            ziel = 0;
+            break;
+          case 'End':
+            ziel = anzahl - 1;
+            break;
+          default:
+            return;
+        }
+        e.preventDefault();
+        if (ziel === jetzt) return;
+        this.selectFont.selectedIndex = ziel;
+        /* `change` von Hand: die Statuszeile der Einstellungen haengt daran,
+           und der Listener oben zieht die Vorschau entprellt nach. */
+        this.selectFont.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+
+    if (this.filterFeld) {
+      let timer = 0;
+      this.filterFeld.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => this.#filtereSystemschriften(), 80);
       });
     }
 

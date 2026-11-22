@@ -226,14 +226,14 @@
           <div class="seitenleiste-setup-content">
             <div class="seitenleiste-field-group">
               <label for="select-schriftart" class="seitenleiste-sub-label">Schriftart / Stil:</label>
+              <input type="search" id="schrift-filter" class="input-field w-full" placeholder="Schrift suchen …"
+                     aria-label="Systemschriften filtern" autocomplete="off" spellcheck="false" hidden>
               <select id="select-schriftart" class="seitenleiste-select w-full" aria-label="Schriftart für DIN-Brief wählen">
                 <optgroup label="System-Standard">
-                  <option value="default" selected>Liberation Sans / System-UI</option>
+                  <option value="default" selected>Liberation Sans (18pt DIN-Subset)</option>
                 </optgroup>
-                <optgroup label="Test-Schriften (Lokal)">
+                <optgroup label="Mitgeliefert (im Repo)">
                   <option value="inter">Inter (18pt DIN-Subset)</option>
-                  <option value="aptos">Aptos (Lokal)</option>
-                  <option value="michelangelus">Michelangelus (Serife)</option>
                 </optgroup>
               </select>
               <button type="button" id="btn-schrift-aktion" class="btn w-full" data-font-state="empty">

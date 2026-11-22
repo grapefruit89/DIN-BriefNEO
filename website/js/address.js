@@ -334,7 +334,14 @@ AddressIntelligence.wireDOM = function wireDOM() {
 
     /** @param {Array<any>} liste @param {boolean} [alle] */
     const zeichneAbsender = (liste, alle = false) => {
-      const eintraege = flacheVorschlaege(liste, alle ? Infinity : maxSuggestions());
+      /* Nur Orte. Eine Stadt bringt aus lookupCityPlzs auch ihre Großempfänger
+         mit (Firmen/Behörden) — die gehören nicht in den Absender
+         (gemeldet 2026-11-22). */
+      const nurOrte = liste.filter((e) => (e.typ || 'Stadt') === 'Stadt');
+      const eintraege = flacheVorschlaege(nurOrte, alle ? Infinity : maxSuggestions());
+      /* Bundesland nur bei gemischten Listen ("· Nordrhein-Westfalen" an
+         einzelnen Bonn-Zeilen war Rauschen). */
+      const staaten = new Set(eintraege.map((e) => e.state || '').filter(Boolean));
       if (!eintraege.length) {
         hidePopoverSafe(suggestionsPopover);
         return;
@@ -386,7 +393,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
         else if (item.district) {
           const erster = String(item.district).split(',')[0].trim();
           extra = `· ${erster || item.district}`;
-        } else if (item.state) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
+        } else if (item.state && staaten.size > 1) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
         /* Badge sagt bereits, dass es eine Firma/Behörde ist. */
         if (!istOrt) extra = '';
         if (extra) {

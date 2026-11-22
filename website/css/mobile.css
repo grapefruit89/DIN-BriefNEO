@@ -1,10 +1,6 @@
 /* @adr [[ADR-CSS]]  */
 /**
- * mobile.css — Layout unter 700 px (Handy): Seitenleiste oben, Blatt darunter.
- *
- * Zwischen 700 und 1100 px bleibt es bei Sidebar links (desktop.css) mit
- * schiebbarem Blatt: gemessen 2026-11-22 ist das Band-Layout bei 800x640
- * schlechter als eine volle Leiste plus schiebbares Blatt.
+ * mobile.css — Layout unter 900 px: Seitenleiste oben, Blatt darunter.
  *
  * Warum: Auf 412 px (Pixel 9) ist die Desktop-Shell 1034 px breit (240 px
  * Leiste + 794 px Blatt). Mit `overflow: hidden` war das Blatt zu 57 %
@@ -12,19 +8,20 @@
  *
  * A43-konform: kein Dokument-Scroll, sondern internes Scrollen in zwei
  * abgegrenzten Bereichen — Leiste oben, Blatt unten.
+ *
+ * WICHTIG: Diese Datei fasst NUR schmale Viewports an. Ab 900 px gilt
+ * unveraendert das Desktop-Layout aus `base.css`.
  */
-@media (max-width: 699px) {
+@media (max-width: 899px) {
   #app-shell {
     grid-template-columns: 1fr;
-    /* Leiste so hoch wie noetig, Blatt nimmt den Rest. */
     grid-template-rows: auto 1fr;
   }
 
-  /* Die Leiste darf nicht die halbe Hoehe fressen: eigener Scrollbereich. */
   aside.seitenleiste,
   #seitenleiste {
     max-inline-size: none;
-    /* Deckend, nicht Glas: mobil liegt die Leiste UEBER dem Blatt, mit
+    /* Deckend, nicht Glas: mobil liegt die Leiste ueber dem Blatt, mit
        backdrop-filter schien der Brief durch (gemessen 2026-11-22). */
     background: var(--bg-seitenleiste);
     backdrop-filter: none;
@@ -34,7 +31,7 @@
     border-bottom: 1px solid var(--border-color);
   }
 
-  /* Das Blatt bleibt in Originalgroesse (DIN-Maßstab), ist aber schiebbar. */
+  /* Das Blatt bleibt in Originalgroesse (DIN-Massstab), ist aber schiebbar. */
   #viewport {
     overflow: auto;
     align-items: flex-start;
@@ -43,9 +40,9 @@
     overscroll-behavior: contain;
   }
 
-  /* Gleiche Spezifitaet wie sheet-multipage.css (dort steht center !important
-     mit `:not([data-seiten])` bzw. `[data-seiten="1"]`); spaeter geladen,
-     deshalb gewinnt diese Regel bei knappem Platz. */
+  /* `sheet-multipage.css` setzt justify-content:center !important mit
+     `#viewport:not([data-seiten]) #brief-ansicht` — dagegen hilft nur gleiche
+     Spezifitaet plus spaetere Ladung. */
   #viewport:not([data-seiten]) #brief-ansicht,
   #viewport[data-seiten="1"] #brief-ansicht {
     justify-content: flex-start !important;
@@ -54,5 +51,4 @@
   #viewport din-blatt {
     margin-inline: 0;
   }
-
 }

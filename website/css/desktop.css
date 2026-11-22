@@ -1,61 +1,18 @@
 /* @adr [[ADR-CSS]]  */
 /**
- * desktop.css — Layout ab 700 px: Seitenleiste links, Blatt rechts.
+ * desktop.css — Layout ab 900 px: Seitenleiste links, Blatt rechts.
  *
- * Zwischen 900 und 1040 px fehlen bis zu 134 px fuer Blatt (794) + Leiste
- * (240). Deshalb ist der Blattbereich hier SCHIEBBAR statt abgeschnitten:
- * A43 erlaubt internes Scrollen in abgegrenzter UI (gemessen 2026-11-22:
- * bei 1000 px lag das Blatt sonst 74 px ausserhalb).
+ * Diese Datei bestaetigt nur, was `base.css` ohnehin setzt. Sie existiert als
+ * Gegenstueck zu `mobile.css`, damit die Aufteilung eine Entscheidung pro
+ * Datei ist — und damit ein spaeterer Umbau hier ansetzen kann, ohne die
+ * Basis zu beruehren.
  *
- * Die Shell (`#app-shell`) ist ein Grid. Die Spaltenbreite steht hier und
- * nicht mehr in `base.css`, damit `mobile.css` sie ohne `!important` kippen
- * kann: eine Entscheidung, eine Datei, eine Media Query.
+ * Bewusst OHNE Aenderung an Blatt-Position, Zentrierung oder Overflow: das
+ * Desktop-Layout bleibt exakt wie vor dem Responsive-Umbau (Nutzer:
+ * "mach das sofort wieder richtig", 2026-11-22).
  */
-@media (min-width: 700px) {
+@media (min-width: 900px) {
   #app-shell {
     grid-template-columns: var(--seitenleiste-breite) 1fr;
-  }
-
-  #viewport {
-    /* Internes Scrollen (A43 erlaubt es): passt das Blatt nicht, schiebt man
-       es, statt es abzuschneiden. */
-    overflow-x: auto;
-    overscroll-behavior: contain;
-  }
-  /* Blatt zentrieren, aber NICHT bei Ueberlauf: `justify-content: center`
-     schiebt ein zu breites Blatt nach links UNTER die Seitenleiste (gemessen
-     2026-11-22: links=123 bei Viewport-Anfang 240). Auto-Margins kollabieren
-     bei Platzmangel auf 0 -> linksbuendig und schiebbar. */
-  #viewport {
-    justify-content: flex-start;
-  }
-
-  /* Die Zentrierung sitzt eine Ebene tiefer: `#brief-ansicht` ist der
-     Flex-Container des Blattes, nicht `#viewport` (gemessen 2026-11-22:
-     justify-content:center dort schob das Blatt bei 819 px auf x=133 —
-     unter die Seitenleiste). Bei knappem Platz linksbuendig + schiebbar. */
-  /* Gleiche Spezifitaet wie sheet-multipage.css (dort steht center !important
-     mit `:not([data-seiten])` bzw. `[data-seiten="1"]`); spaeter geladen,
-     deshalb gewinnt diese Regel bei knappem Platz. */
-  #viewport:not([data-seiten]) #brief-ansicht,
-  #viewport[data-seiten="1"] #brief-ansicht {
-    justify-content: flex-start !important;
-  }
-
-  #viewport din-blatt {
-    margin-inline: 0;
-  }
-
-
-}
-
-/* Ab hier passt Blatt (794 px) + Leiste (240 px) ohne Scrollen: zentrieren. */
-@media (min-width: 1100px) {
-  #brief-ansicht {
-    justify-content: center;
-  }
-
-  #kern {
-    margin: auto;
   }
 }

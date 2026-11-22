@@ -4283,3 +4283,22 @@ die String-Form von `setTimeout`/`setInterval`, `insertAdjacentHTML` und `docume
 `[CRITICAL] [W8] Verstoss … A65`; mit `new Date().getTime()` → B2/A48 schlägt an.
 Nach dem Entfernen: 52 Regeln, 0 Verstöße. Produktivcode war bereits sauber
 (0 Treffer für alle fünf Muster).
+
+---
+
+## 2026-11-22 — A66–A68: die Modell-Reflexe aus dem Law Catalog heraushalten
+
+**Nutzer-Vorgabe:** „mehr Sachen draufpacken, die eine normale LLM immer und immer
+wieder einbauen möchte, weil es halt das etablierte LLM-Wissen ist."
+
+**Neu (alle maschinell geprüft, Produktivcode war bereits sauber):**
+
+| Law | Verbot | Regel | Typischer Modell-Reflex |
+|---|---|---|---|
+| **A66** | kein Fremd-Framework und keine Utility-Bibliothek (kein React, kein Vue, kein Svelte, kein Angular, kein jQuery, kein lodash, kein axios, kein Tailwind) | **W9** | „nimm dafür eine Bibliothek" |
+| **A67** | CommonJS/Bundler-Artefakte (`require(`, `module.exports`, `process.env`, `__dirname`) | **W10** | „baue eine Build-Pipeline" |
+| **A68** | `alert()`, `confirm()`, `prompt()` als UI | **W11** | „nimm `confirm()` für die Rückfrage" |
+
+**Rot-Nachweis:** eine Temp-Datei mit `import … from 'lodash/debounce'`, `require('x')`
+und `confirm()/alert()` löste **drei** CRITICAL-Treffer aus (W9, W10, W11); nach dem
+Entfernen 55 Regeln, 0 Verstöße.

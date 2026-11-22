@@ -1,5 +1,5 @@
 {
-  "version": "1.1.2",
+  "version": "1.2.0",
   "layer": "web",
   "id_space": "JSON-IDs (W*) bleiben. Normative IDs nur in catalog_ref.",
   "description": "Web-Mechanik-Sonden. Farbe ist Policy-Warnung, kein Hex-Verbot. Norm: Immutable-Law-Catalog.",
@@ -126,6 +126,54 @@
       "category": "javascript",
       "description": "Dynamische Codeausfuehrung und HTML-Injektion (eval, new Function, String-Timer, insertAdjacentHTML, document.write) ist Catalog HARD BAN A65 (XSS/CSP-Pfad, im Debugger nicht schrittweise verfolgbar). Ersatz: createElement/textContent/setHTML(), Timer mit Funktionsreferenz.",
       "pattern": "\\beval\\s*\\(|\\bnew\\s+Function\\s*\\(|\\binsertAdjacentHTML\\s*\\(|\\bdocument\\.write\\s*\\(|\\b(?:setTimeout|setInterval)\\s*\\(\\s*['\\\"`]",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "W9",
+      "catalog_ref": [
+        "A66"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Fremd-Framework oder Utility-Bibliothek importiert (A66). Zero-Dependency-Doktrin: native DOM-, fetch- und ES-Modul-APIs. Typischer Modell-Reflex: 'nimm dafuer eine Bibliothek'.",
+      "pattern": "\\bfrom\\s+['\\\"](?:react|vue|svelte|angular|preact|alpinejs|jquery|lodash|underscore|ramda|axios|tailwindcss|bootstrap|bulma)(?:['\\\"/])",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "W10",
+      "catalog_ref": [
+        "A67"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "CommonJS/Bundler-Artefakt im Browser-Code (A67): require(), module.exports, process.env, __dirname. Ersatz: native ES-Module.",
+      "pattern": "\\brequire\\s*\\(|\\bmodule\\.exports\\b|\\bprocess\\.env\\b|\\b__dirname\\b",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "W11",
+      "catalog_ref": [
+        "A68"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "alert()/confirm()/prompt() als UI (A68). Ersatz: <dialog class=glass-dialog> oder Popover + Toast.",
+      "pattern": "\\balert\\s*\\(|\\bconfirm\\s*\\(|\\bprompt\\s*\\(",
       "file_patterns": [
         "*.js"
       ],

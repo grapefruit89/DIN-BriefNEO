@@ -4182,3 +4182,32 @@ Absender-Liste 110,6…190 mm, Straßen-Liste 110,6…190 mm, alle mit Unterkant
 
 **Grenze der Regel:** Die Sidebar-Listen (Anschrift-Suche, Zwischenablage) liegen
 nicht auf dem Blatt; für sie bleibt das Fenster der Bezug.
+
+---
+
+## 2026-11-22 — Geoapify-Treffer im Ringspeicher (512 KB, `localStorage`)
+
+**Vorschlag des Users:** „um abrufe zu sparen sollten wir vielleicht alle ergebnisse
+die wir bekommen speichern? also ringspeicher? vllt 1mb?" — entschieden: **512 KB**.
+
+**Gemessen (gleiche Anfrage):**
+
+| Variante | je Suchbegriff | Einträge je MB |
+|---|---|---|
+| Geoapify-Rohantwort | 9,8 KB | ~104 |
+| nur `street, housenumber, postcode, city, country_code` | 0,4 KB | ~2.900 |
+
+**Wo:** `localStorage` — strukturierte Daten gehören per Gesetz **S1** dorthin;
+**A34** verbietet IndexedDB für strukturierte Daten (Ausnahme bleibt
+`binary-storage.js` für Binär-Assets). Ein eigener IndexedDB-Store wäre ein
+Gesetzesbruch gewesen.
+
+**Umsetzung:** `website/js/geo-cache.js` (neu), FNV-1a-Hash als Schlüssel,
+Index `{h,b,l,t}` im RAM und verzögert geschrieben (400 ms, plus `pagehide`),
+Verdrängung nach Alter, Kollisionsschutz über die Originalschlüssel-Länge.
+`address.js` hält die Session-Map davor und kürzt Straßentreffer beim Ablegen.
+
+**Nachweis:** Ein Suchbegriff belegt 428 Byte. Nach einem **Reload** liefert
+derselbe Begriff die Liste mit **0 API-Abrufen** (567 ms ab erstem Tastendruck,
+davon 350 ms Tippen + 180 ms Debounce); kalt kostet derselbe Begriff ~500–600 ms
+Netz zusätzlich. Tests 406/406, Fitness 100 %.

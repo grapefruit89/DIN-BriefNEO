@@ -31,6 +31,7 @@ import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
 import { setCaretToEnd } from './document.js';
 import { Field } from './field.js';
+import { geoCacheHole, geoCacheSetze } from './geo-cache.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { letterState, setMeta } from './state.js';
 import { applyValue, commitElement } from './state-binding.js';
@@ -1258,13 +1259,16 @@ export function initAddressServices() {
     throw letzterFehler ?? new Error('Kein Geoapify-Host erreichbar');
   }
 
-  // Geoapify In-Memory Cache (LRU: Treffer ruecken nach vorn)
+  /* Zwei Ebenen: Session-Map (sofort, LRU) und ein Ring im localStorage, der
+     auch einen Reload ueberlebt (geo-cache.js, 512 KB). Strasse-Treffer werden
+     dafuer auf die Felder gekuerzt, die die Liste braucht: 9,8 KB -> 0,4 KB je
+     Suchbegriff (gemessen 2026-11-22), 1 MB fasst damit ~2.900 statt ~104. */
   /** @type {Map<string, AddressEntry[]>} */
   const apiCache = new Map();
   const CACHE_MAX = 100;
 
   /** @param {string} key @returns {AddressEntry[] | undefined} */
-  function cacheHole(key) {
+  function mapHole(key) {
     const wert = apiCache.get(key);
     if (wert) {
       apiCache.delete(key);
@@ -1274,12 +1278,54 @@ export function initAddressServices() {
   }
 
   /** @param {string} key @param {AddressEntry[]} wert */
-  function cacheSetze(key, wert) {
+  function mapSetze(key, wert) {
     if (apiCache.size >= CACHE_MAX) {
       const aeltester = apiCache.keys().next().value;
       if (typeof aeltester === 'string') apiCache.delete(aeltester);
     }
     apiCache.set(key, wert);
+  }
+
+  /** @param {string} key @returns {AddressEntry[] | undefined} */
+  function cacheHole(key) {
+    const ausMap = mapHole(key);
+    if (ausMap) return ausMap;
+    const roh = /** @type {any} */ (geoCacheHole(key));
+    if (!roh || !Array.isArray(roh.d)) return undefined;
+    /* Im Ring liegen Strasse-Treffer als Zeilen [street, hausnr, plz, ort, land]
+       (9,8 KB -> 0,4 KB), Adressfelder-Treffer unveraendert als Objekte. */
+    const wert = /** @type {AddressEntry[]} */ (
+      roh.art === 'strasse'
+        ? roh.d.map((/** @type {any[]} */ r) => ({
+            street: r[0],
+            housenumber: r[1],
+            postcode: r[2],
+            city: r[3],
+            country_code: r[4]
+          }))
+        : roh.d
+    );
+    mapSetze(key, wert);
+    return wert;
+  }
+
+  /** @param {string} key @param {AddressEntry[]} wert */
+  function cacheSetze(key, wert) {
+    mapSetze(key, wert);
+    if (key.startsWith('strasse:')) {
+      geoCacheSetze(key, {
+        art: 'strasse',
+        d: wert.map((/** @type {any} */ r) => [
+          r.street || '',
+          r.housenumber || '',
+          r.postcode || '',
+          r.city || '',
+          r.country_code || ''
+        ])
+      });
+    } else {
+      geoCacheSetze(key, { art: 'adresse', d: wert });
+    }
   }
 
   /* Verbindung vorwaermen, sobald der Nutzer das Feld anfasst: der erste
@@ -1690,6 +1736,9 @@ export function initAddressServices() {
     const initStrasse = (feldId, ortId) => {
       const el = feld(feldId);
       if (!el) return;
+      /* Erster Tastendruck: Socket vorwaermen (derselbe Weg wie beim
+         Adress-Suchfeld, kein externer Verweis im HTML -> A38 bleibt gruen). */
+      el.addEventListener('focus', waermeVerbindungVor);
       initVorschlagsliste({
         feld: el,
         popover: strassePopover,

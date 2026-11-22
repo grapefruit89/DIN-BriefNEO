@@ -22,6 +22,7 @@ import { deriveSalutation, SALUTATION_TONES, salutationVarianten, SalutationEngi
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
 import { BLATTRAND_PX, blattrandHoehe } from '../website/js/suggestion-list.js';
+import { geoCacheGroesse, geoCacheHash, geoCacheHole, geoCacheLeeren, geoCacheSetze, RING_MAX_BYTES } from '../website/js/geo-cache.js';
 import { assert, assertEqual, describe, it, run } from './runner.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
@@ -2710,6 +2711,56 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
     // Gleiche Nachricht erneut triggern: Popover öffnet sich erneut
     eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Gleicher Fehler', type: 'warning' });
     assertEqual(container?.dataset.type, 'warning', 'Typ wird bei gleichem Text aktualisiert');
+  });
+});
+
+describe('Geo-Cache: Ringspeicher im localStorage (2026-11-22)', () => {
+  it('hasht gleiche Texte gleich und verschiedene verschieden', () => {
+    assertEqual(geoCacheHash('strasse:hauptstr'), geoCacheHash('strasse:hauptstr'));
+    assert(geoCacheHash('strasse:hauptstr') !== geoCacheHash('strasse:hauptstrasse'), 'kein Gleichlauf');
+    assert(/^[0-9a-z]+$/.test(geoCacheHash('bonn')), 'Base36');
+  });
+
+  it('legt Werte ab und liest sie wieder', () => {
+    try {
+      geoCacheLeeren();
+      geoCacheSetze('strasse:hauptstr', { art: 'strasse', d: [['Hauptstraße', '', '53229', 'Bonn', 'de']] });
+      const wert = /** @type {any} */ (geoCacheHole('strasse:hauptstr'));
+      assertEqual(wert?.art, 'strasse');
+      assertEqual(wert?.d?.[0]?.[0], 'Hauptstraße');
+      assertEqual(geoCacheHole('strasse:unbekannt'), undefined, 'Miss bleibt Miss');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('verdraengt das Aelteste und bleibt unter dem Deckel', () => {
+    try {
+      geoCacheLeeren();
+      const fuell = 'x'.repeat(2048);
+      for (let i = 0; i < 400; i++) {
+        geoCacheSetze(`strasse:begriff${i}`, { art: 'strasse', d: [[fuell, '', '', '', '']] });
+      }
+      const groesse = geoCacheGroesse();
+      assert(groesse.bytes <= RING_MAX_BYTES, `Deckel gehalten (${groesse.bytes} <= ${RING_MAX_BYTES})`);
+      assert(groesse.eintraege > 0, 'Ring ist nicht leer');
+      assertEqual(geoCacheHole('strasse:begriff0'), undefined, 'aeltester Eintrag ist weg');
+      assert(geoCacheHole('strasse:begriff399') !== undefined, 'neuester Eintrag ist da');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('vertraegt einen kaputten Index', () => {
+    try {
+      localStorage.setItem('geo_cache_index_v1', 'kein json {');
+      /* Neuer Modulzustand ist nicht erzwingbar; der Ring muss trotzdem
+         antworten statt zu werfen. */
+      assertEqual(geoCacheHole('strasse:egal'), undefined);
+    } finally {
+      localStorage.removeItem('geo_cache_index_v1');
+      geoCacheLeeren();
+    }
   });
 });
 

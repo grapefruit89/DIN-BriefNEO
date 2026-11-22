@@ -1,0 +1,247 @@
+// @ts-check
+// @adr [[ADR-JS]] {Geo-Cache}
+// @guide [[din-5008-css-architektur]]
+
+/**
+ * @file geo-cache.js — Ringspeicher für Geoapify-Treffer.
+ *
+ * Warum: Jeder Suchbegriff kostet einen Abruf (gemessen 2026-11-22: 350–550 ms,
+ * mit schweren Parametern bis 1,8 s). Die Session-Map in `address.js` half nur
+ * bis zum nächsten Reload. Dieser Ring hält die Treffer dauerhaft im
+ * `localStorage` — strukturierte Daten gehören dort hin (Gesetz S1;
+ * IndexedDB ist für strukturierte Daten per A34 verboten).
+ *
+ * Speicherplatz: Die Rohantwort wiegt 9,8 KB je Suchbegriff, die Felder, die
+ * die Liste braucht, 0,4 KB — 1 MB fasst damit ~2.900 statt ~104 Begriffe.
+ * Der Ring ist auf 512 KB gedeckelt und verdrängt das Älteste zuerst.
+ *
+ * Aufbau:
+ *   localStorage['geo_cache_v1:<hash>']  = der Wert (JSON)
+ *   localStorage['geo_cache_index_v1']   = [{h, b, l, t}, …]  (nur Verwaltung)
+ * Der Index wird im RAM geführt und verzögert geschrieben (512 KB Index bei
+ * jedem Tastendruck zu serialisieren wäre teurer als der Nutzen).
+ */
+
+/** Deckel des Rings in Bytes (UTF-16, also ×2 pro Zeichen). */
+export const RING_MAX_BYTES = 512 * 1024;
+
+const WERT_PREFIX = 'geo_cache_v1:';
+const INDEX_KEY = 'geo_cache_index_v1';
+
+/**
+ * @typedef {object} IndexEintrag
+ * @property {number} b Bytes (Wert + Schluessel)
+ * @property {number} l Laenge des Originalschluessels (Kollisionsschutz)
+ * @property {number} t Zeitpunkt des Schreibens
+ */
+
+/** @type {Map<string, IndexEintrag> | null} */
+let index = null;
+let gesamtBytes = 0;
+/* Reihenfolge statt Uhrzeit: die Date-API ist im Produktcode per A48 verboten
+   (Gate-Fund 2026-11-22). Ein Zaehler reicht — fuer die Verdrängung zaehlt nur,
+   was frueher geschrieben wurde. */
+let zaehler = 0;
+/** @type {any} */
+let indexTimer = null;
+
+/**
+ * 32-Bit-FNV-1a als Base36. Reine Funktion (testbar).
+ * Kollisionen sind bei ~3.000 Einträgen selten; die Laenge des
+ * Originalschluessels im Index entlarvt sie zusätzlich.
+ * @param {string} text
+ * @returns {string}
+ */
+export function geoCacheHash(text) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(36);
+}
+
+/**
+ * Laedt den Index einmalig aus dem localStorage. Kaputte oder fremde Daten
+ * werden verworfen — der Cache ist eine Beschleunigung, kein Datenbestand.
+ * @returns {Map<string, IndexEintrag>}
+ */
+function ladeIndex() {
+  if (index) return index;
+  index = new Map();
+  gesamtBytes = 0;
+  try {
+    const roh = localStorage.getItem(INDEX_KEY);
+    if (!roh) return index;
+    const liste = JSON.parse(roh);
+    if (!Array.isArray(liste)) return index;
+    for (const e of liste) {
+      if (!e || typeof e.h !== 'string' || !Number.isFinite(e.b)) continue;
+      const t = Number(e.t) || 0;
+      if (t > zaehler) zaehler = t;
+      index.set(e.h, { b: Number(e.b), l: Number(e.l) || 0, t });
+      gesamtBytes += Number(e.b);
+    }
+  } catch {
+    index = new Map();
+    gesamtBytes = 0;
+  }
+  return index;
+}
+
+/** Schreibt den Index jetzt (Tests, `pagehide`). */
+export function geoCacheFlush() {
+  if (!index) return;
+  if (indexTimer) {
+    clearTimeout(indexTimer);
+    indexTimer = null;
+  }
+  try {
+    const liste = [...index.entries()].map(([h, e]) => ({ h, b: e.b, l: e.l, t: e.t }));
+    localStorage.setItem(INDEX_KEY, JSON.stringify(liste));
+  } catch {
+    /* Quota oder Privatmodus: dann bleibt der Ring eben unsichtbar. */
+  }
+}
+
+function planeIndex() {
+  if (indexTimer) return;
+  indexTimer = setTimeout(() => {
+    indexTimer = null;
+    geoCacheFlush();
+  }, 400);
+}
+
+/**
+ * Verdrängt die ältesten Einträge, bis `noetig` zusätzliche Bytes hineinpassen.
+ * @param {number} [noetig=0]
+ */
+function verdraenge(noetig = 0) {
+  const idx = ladeIndex();
+  if (gesamtBytes + noetig <= RING_MAX_BYTES) return;
+  const nachAlter = [...idx.entries()].sort((a, b) => a[1].t - b[1].t);
+  for (const [h, e] of nachAlter) {
+    if (gesamtBytes + noetig <= RING_MAX_BYTES) break;
+    try {
+      localStorage.removeItem(WERT_PREFIX + h);
+    } catch {
+      /* ignorieren: der Index raeumt auf */
+    }
+    idx.delete(h);
+    gesamtBytes -= e.b;
+  }
+}
+
+/**
+ * Legt einen Wert in den Ring.
+ * @param {string} schluessel
+ * @param {unknown} wert JSON-serialisierbar
+ */
+export function geoCacheSetze(schluessel, wert) {
+  if (!schluessel) return;
+  let json = '';
+  try {
+    json = JSON.stringify(wert);
+  } catch {
+    return;
+  }
+  const hash = geoCacheHash(schluessel);
+  const bytes = (WERT_PREFIX.length + hash.length + json.length) * 2;
+  try {
+    localStorage.setItem(WERT_PREFIX + hash, json);
+  } catch {
+    /* Quota: Platz schaffen und einmal erneut versuchen. */
+    verdraenge(bytes);
+    try {
+      localStorage.setItem(WERT_PREFIX + hash, json);
+    } catch {
+      return;
+    }
+  }
+  const idx = ladeIndex();
+  const alt = idx.get(hash);
+  if (alt) gesamtBytes -= alt.b;
+  zaehler += 1;
+  idx.set(hash, { b: bytes, l: schluessel.length, t: zaehler });
+  gesamtBytes += bytes;
+  verdraenge();
+  planeIndex();
+}
+
+/**
+ * Liest einen Wert aus dem Ring.
+ * @param {string} schluessel
+ * @returns {unknown}
+ */
+export function geoCacheHole(schluessel) {
+  if (!schluessel) return undefined;
+  const idx = ladeIndex();
+  const hash = geoCacheHash(schluessel);
+  const eintrag = idx.get(hash);
+  /* Laenge muss passen: sonst ist es eine Hash-Kollision und kein Treffer. */
+  if (!eintrag || eintrag.l !== schluessel.length) return undefined;
+  let roh = null;
+  try {
+    roh = localStorage.getItem(WERT_PREFIX + hash);
+  } catch {
+    return undefined;
+  }
+  if (roh === null) {
+    idx.delete(hash);
+    gesamtBytes -= eintrag.b;
+    planeIndex();
+    return undefined;
+  }
+  try {
+    return JSON.parse(roh);
+  } catch {
+    try {
+      localStorage.removeItem(WERT_PREFIX + hash);
+    } catch {
+      /* ignorieren */
+    }
+    idx.delete(hash);
+    gesamtBytes -= eintrag.b;
+    planeIndex();
+    return undefined;
+  }
+}
+
+/**
+ * Belegung des Rings (fuer Diagnose und Tests).
+ * @returns {{ eintraege: number, bytes: number, maxBytes: number }}
+ */
+export function geoCacheGroesse() {
+  const idx = ladeIndex();
+  return { eintraege: idx.size, bytes: gesamtBytes, maxBytes: RING_MAX_BYTES };
+}
+
+/** Leert den Ring vollstaendig (Einstellungen, Tests). */
+export function geoCacheLeeren() {
+  const idx = ladeIndex();
+  for (const h of idx.keys()) {
+    try {
+      localStorage.removeItem(WERT_PREFIX + h);
+    } catch {
+      /* ignorieren */
+    }
+  }
+  idx.clear();
+  gesamtBytes = 0;
+  try {
+    localStorage.removeItem(INDEX_KEY);
+  } catch {
+    /* ignorieren */
+  }
+  if (indexTimer) {
+    clearTimeout(indexTimer);
+    indexTimer = null;
+  }
+}
+
+/* Beim Verlassen der Seite den Index nachziehen: die verzögerte Schreibung
+   würde sonst die letzten Suchbegriffe verlieren. `typeof window`-Guard, weil
+   das Adress-Korpus-Gate (test/corpus/run.js) die Module in Node laedt. */
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', geoCacheFlush);
+}

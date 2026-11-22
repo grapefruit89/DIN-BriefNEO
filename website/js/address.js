@@ -144,6 +144,11 @@ export function bindListSelection(popoverEl, items, select) {
 /* 24 statt 12: das Popover reicht bis kurz vor den Blattrand (~25 Zeilen). */
 const maxSuggestions = () => (window.innerWidth < SUGGESTION_BREAKPOINT_PX ? 10 : 24);
 
+/* Ab dieser PLZ-Zahl wird eine Stadt nicht mehr aufgeloest: 284 Zeilen
+   "10115 Berlin" ohne Zusatz sind unbrauchbar (gemeldet 2026-11-22). Der
+   Nutzer tippt dann die Postleitzahl. */
+const MAX_PLZ_PRO_STADT = 40;
+
 /** Listener-Register (ersetzt data-wired am Ort-Feld). */
 let adressfelderVerdrahtet = false;
 
@@ -301,6 +306,16 @@ AddressIntelligence.wireDOM = function wireDOM() {
         setCaretToEnd(empfOrtEl);
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
         clearPopover();
+        return;
+      }
+
+      if (res.mode === 'city_plzs' && res.items.length > MAX_PLZ_PRO_STADT) {
+        suggestionsPopover.replaceChildren();
+        const hinweis = document.createElement('li');
+        hinweis.className = 'suggestion-hint';
+        hinweis.textContent = `${res.city}: ${res.items.length} Postleitzahlen — bitte PLZ eingeben`;
+        suggestionsPopover.appendChild(hinweis);
+        showPopoverSafe(suggestionsPopover);
         return;
       }
 
@@ -592,9 +607,11 @@ export function farbenFuerListe(eintraege, kreisVon) {
   let naechste = 1;
   return eintraege.map((eintrag) => {
     const kreis = eintrag.kreisKey || (kreisVon ? kreisVon(eintrag) : '') || '';
-    /* Stadtteile bekommen eigene Toene: innerhalb einer Stadt (Bonn) war alles
-       gruen und die 19 Bezirke liessen sich nicht unterscheiden (2026-11-22). */
-    const stadtteil = eintrag.district || '';
+    /* Stadtteile bekommen eigene Toene (Bonn war vorher komplett gruen).
+       Schluessel ist der ERSTE Stadtteil: die Spalte listet je PLZ mehrere
+       ("Friedrichshain, Kreuzberg"), wodurch derselbe Stadtteil mehrere Toene
+       bekam (gemeldet 2026-11-22: Friedrichshain in 4 Farben). */
+    const stadtteil = String(eintrag.district || '').split(',')[0].trim();
     const ort = `${eintrag.city || eintrag.name || ''}|${eintrag.state || ''}|${kreis}|${stadtteil}`;
     if (!jeOrt.has(ort)) {
       jeOrt.set(ort, String(naechste));

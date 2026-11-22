@@ -130,7 +130,7 @@ Soweit nicht anders markiert: HARD BAN.
 
 | # | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- |
-| A48 | `new Date()`, `Date.parse`, `Date.now`, `.getTime()` als Zeitquelle in `website/`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` in `website/` | HARD BAN im Produkt. Gilt für `website/**`. `tools/`, `agent/` dürfen `Date` nutzen. Legacy-Date-Libraries bleiben projektweit verboten. |
+| A48 | **jede** Date-API in `website/`: `new Date()`, `Date.parse`, `Date.now`, `.getTime()`, `.getFullYear()`, `.getMonth()`, `.getDate()`, `.getHours()`, `.getMinutes()`, `.getSeconds()`, `.toISOString()`, `.toLocaleDateString()`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` (`Temporal.Now.zonedDateTimeISO('Europe/Berlin')`, `Temporal.PlainDate`, `Temporal.PlainTime`) | HARD BAN im Produkt (verschärft 2026-11-22: auch die **Methoden**, nicht nur die Konstruktoren — sonst kommt Date über `input.getFullYear()` zurück). Gilt für `website/**`. `tools/`, `agent/` und Tests dürfen `Date` nutzen, aber nicht an Produktivcode durchreichen. Legacy-Date-Libraries bleiben projektweit verboten. |
 | A50 | `Temporal.Now.plainDateISO()` (und andere `Temporal.Now`-Ableitungen) **ohne explizite IANA-Zeitzone** in `website/` | `Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString()` — zentral in `51-persistence.js` (`currentISODate()`), referenziert statt neu geschrieben | Ohne Zone nutzt `plainDateISO()` die System-Zeitzone (UTC in CI/VMs/Servern); zwischen 00:00 und ~02:00 deutscher Zeit liefert sie den Vortag → Dateiname/Metadaten widersprechen dem Briefdatum. „Heute" lebt in genau einem Modul (Single Source of Truth). |
 
 ### Color, CSS, Struktur

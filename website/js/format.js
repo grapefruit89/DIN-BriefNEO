@@ -125,25 +125,13 @@ function getKnownPrefixLength(digits) {
   return 0;
 }
 
-/**
- * Prüft auf ein gültiges gregorianisches Kalenderdatum ohne Legacy-Date-Objekt (ADR-JS / B2).
- * @param {number} year
- * @param {number} month
- * @param {number} day
- * @returns {boolean}
- */
-function isValidCalendarDate(year, month, day) {
-  if (month < 1 || month > 12 || day < 1 || year < 1000 || year > 9999) return false;
-  const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-  const daysInMonth = [0, 31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  return day <= daysInMonth[month];
-}
 
 /**
  * Formatiert ein Datum nach DIN 5008 § 11.4.
- * Unterstützt ISO-Format (JJJJ-MM-TT via Temporal), DIN-alphanumerisch (z. B. "4. September 2026")
- * und DIN-numerisch (TT.MM.JJJJ mit optional führender Null am Tag).
- * @param {string | number | any} input
+ * Nimmt ein `Temporal.PlainDate` oder einen String (ISO "2026-09-04" bzw.
+ * "04.09.2026"). Kein Date, keine zweite Formatwahrheit: Zahlen, Monatsnamen
+ * und die Gültigkeitsprüfung kommen ausschließlich aus Temporal.
+ * @param {Temporal.PlainDate | string | null | undefined} input
  * @param {{ format?: 'numeric' | 'alpha' | 'iso', pad?: boolean }} [opts]
  * @returns {string}
  */
@@ -151,72 +139,51 @@ export function formatDatum(input, opts = {}) {
   const { format = 'numeric', pad = true } = opts;
   if (!input) return String(input ?? '');
 
-  let year = 0;
-  let month = 0;
-  let day = 0;
+  /** @type {Temporal.PlainDate | null} */
+  let datum = null;
 
-  if (typeof Temporal !== 'undefined' && typeof Temporal.PlainDate !== 'undefined' && input instanceof Temporal.PlainDate) {
-    year = input.year;
-    month = input.month;
-    day = input.day;
-  } else if (input && typeof input.getFullYear === 'function') {
-    year = input.getFullYear();
-    month = input.getMonth() + 1;
-    day = input.getDate();
+  if (input instanceof Temporal.PlainDate) {
+    datum = input;
   } else if (typeof input === 'string') {
     const trimmed = input.trim();
     const isoMatch = trimmed.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s].*)?$/);
     const deMatch = trimmed.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-
     if (isoMatch) {
-      year = Number.parseInt(isoMatch[1], 10);
-      month = Number.parseInt(isoMatch[2], 10);
-      day = Number.parseInt(isoMatch[3], 10);
+      datum = bauePlainDate(Number(isoMatch[1]), Number(isoMatch[2]), Number(isoMatch[3]));
     } else if (deMatch) {
-      day = Number.parseInt(deMatch[1], 10);
-      month = Number.parseInt(deMatch[2], 10);
-      year = Number.parseInt(deMatch[3], 10);
-    } else {
-      return input;
+      datum = bauePlainDate(Number(deMatch[3]), Number(deMatch[2]), Number(deMatch[1]));
     }
-  } else {
-    return String(input);
   }
 
-  if (!isValidCalendarDate(year, month, day)) {
-    return typeof input === 'string' ? input : String(input);
-  }
+  /* Was kein gueltiges PlainDate ergibt, geht unveraendert zurueck — der
+     Nutzer sieht seine Eingabe statt "NaN" oder eines erfundenen Datums. */
+  if (!datum) return typeof input === 'string' ? input : String(input);
 
-  if (typeof Temporal !== 'undefined' && typeof Temporal.PlainDate !== 'undefined') {
-    const pd = new Temporal.PlainDate(year, month, day);
-    if (format === 'iso') {
-      return pd.toString();
-    }
-    if (format === 'alpha') {
-      return pd.toLocaleString('de-DE', { dateStyle: 'long' });
-    }
-    // DIN-numerisch (TT.MM.JJJJ)
-    return pd.toLocaleString('de-DE', {
-      day: pad ? '2-digit' : 'numeric',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  }
+  if (format === 'iso') return datum.toString();
+  if (format === 'alpha') return datum.toLocaleString('de-DE', { dateStyle: 'long' });
+  // DIN-numerisch (TT.MM.JJJJ)
+  return datum.toLocaleString('de-DE', {
+    day: pad ? '2-digit' : 'numeric',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
 
-  // Fallback (z. B. Node.js CLI-Runner ohne Temporal-Flag)
-  if (format === 'iso') {
-    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+/**
+ * Kalender-Wahrheit an genau einer Stelle. `overflow: 'reject'` verhindert
+ * stilles Zurechtbiegen (31. Februar -> 28.); der frueher eigene
+ * `isValidCalendarDate`-Schieber ist damit ersetzt, nicht verdoppelt.
+ * @param {number} jahr
+ * @param {number} monat
+ * @param {number} tag
+ * @returns {Temporal.PlainDate | null}
+ */
+function bauePlainDate(jahr, monat, tag) {
+  try {
+    return Temporal.PlainDate.from({ year: jahr, month: monat, day: tag }, { overflow: 'reject' });
+  } catch {
+    return null;
   }
-  if (format === 'alpha') {
-    const monatsNamen = [
-      '', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-      'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
-    ];
-    return `${day}. ${monatsNamen[month]} ${year}`;
-  }
-  const dayStr = pad ? String(day).padStart(2, '0') : String(day);
-  const monthStr = String(month).padStart(2, '0');
-  return `${dayStr}.${monthStr}.${year}`;
 }
 
 /**
@@ -237,11 +204,8 @@ export function formatUhrzeit(input, opts = {}) {
   let s = null;
   let parsedSuffix = suffix;
 
-  if (input && typeof input.getHours === 'function') {
-    h = input.getHours();
-    m = input.getMinutes();
-    s = input.getSeconds();
-  } else if (typeof input === 'string') {
+  /* Kein Date: Uhrzeiten kommen als String ("08:05", "14:30:45 Uhr"). */
+  if (typeof input === 'string') {
     const trimmed = input.trim();
     const match = trimmed.match(/^(\d{1,2})[:.](\d{2})(?:[:.](\d{2}))?(?:\s*(uhr))?$/i);
     if (!match) return input;

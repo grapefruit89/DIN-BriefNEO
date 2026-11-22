@@ -4729,3 +4729,51 @@ aufgedeckt; jetzt steht `{ overflow: 'reject' }`, damit ungültige Eingaben
 
 **Tests:** 7 neue Fälle (Monatstage, Schaltjahr, Montag-Start, Monatsnamen,
 drei Schreibweisen, ungültige Daten → null, `heute()`). Gesamt 432.
+
+---
+
+## 2026-11-22 — Date getötet: Temporal ist die einzige Zeitquelle
+
+**Vorgabe:** „Temporal ist König, töte Date()".
+
+**Befund vorher:** kein `new Date(`/`Date.now(` in `website/` — aber zwei
+Hintertüren, durch die Date wieder hereinkam:
+
+| Stelle | was sie tat |
+|---|---|
+| `format.js` `formatDatum` | `input.getFullYear()` / `.getMonth()` / `.getDate()` — ein Date-Objekt wurde formatiert |
+| `format.js` `formatUhrzeit` | `input.getHours()` / `.getMinutes()` / `.getSeconds()` |
+| `format.js` `isValidCalendarDate` | eigener Schaltjahr-Schieber (zweite Kalender-Wahrheit) |
+| `format.js` Node-Fallback | `monatsNamen`-Array (zweite Format-Wahrheit) |
+
+Die Date-Zweige wurden **nur von zwei Tests** benutzt, nicht vom Produktivcode.
+
+**Jetzt:**
+
+- `formatDatum` nimmt `Temporal.PlainDate` oder String (ISO / TT.MM.JJJJ),
+  parst über `bauePlainDate()` mit **`overflow: 'reject'`** und formatiert
+  ausschließlich mit `toLocaleString('de-DE', …)`.
+- `isValidCalendarDate` und der Monatsnamen-Fallback sind **gelöscht** —
+  Temporal entscheidet, ob ein Datum existiert.
+- `formatUhrzeit` nimmt nur noch Strings.
+- **A48 verschärft:** verboten sind jetzt auch `.getFullYear()`, `.getMonth()`,
+  `.getDate()`, `.getHours()`, `.getMinutes()`, `.getSeconds()`,
+  `.toISOString()`, `.toLocaleDateString()` — sonst kommt Date über die
+  Methoden zurück. `tools/antipatterns/base.json` (B2) und der Law Catalog
+  sind nachgezogen.
+
+**Gemessen (Browser, 2026-11-22):**
+
+```
+Boot           "22. November 2026"
+Kalender-Klick "9. November 2026"
+alpha          "4. September 2026"
+numerisch      "04.09.2026"
+iso            "2026-09-04"
+ungültig       "31.02.2026"  (unverändert, kein erfundenes Datum)
+Uhrzeit        "08:05"
+Log            0 Meldungen
+```
+
+`grep -n "new Date|Date.now|getFullYear|getMonth()|getDate()|getHours" website/js/*.js`
+→ **0 Treffer**. Tests 432/432, Fitness 100 %.

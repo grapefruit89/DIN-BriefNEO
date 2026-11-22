@@ -4640,7 +4640,9 @@ describe('formatDatum (DIN 5008 § 11.4)', () => {
   it('formatiert ISO-Datum deterministisch', () => {
     assertEqual(formatDatum('2026-09-04', { format: 'iso' }), '2026-09-04');
     assertEqual(formatDatum('04.09.2026', { format: 'iso' }), '2026-09-04');
-    assertEqual(formatDatum(new Date(2026, 8, 4), { format: 'iso' }), '2026-09-04');
+    assertEqual(formatDatum(Temporal.PlainDate.from('2026-09-04'), { format: 'iso' }), '2026-09-04');
+    /* Kein Date mehr (A48): ein Date-Objekt wird nicht mehr interpretiert. */
+    assert(formatDatum(/** @type {any} */ (new Date(2026, 8, 4))) !== '2026-09-04', 'Date wird nicht formatiert');
   });
 
   it('formatiert DIN-alphanumerisch mit langem Monatsnamen', () => {
@@ -4668,13 +4670,11 @@ describe('formatUhrzeit (DIN 5008 § 11.5)', () => {
     assertEqual(formatUhrzeit('5:30'), '05:30');
     assertEqual(formatUhrzeit('05:30'), '05:30');
     assertEqual(formatUhrzeit('17:00'), '17:00');
-    assertEqual(formatUhrzeit(new Date(2026, 0, 1, 8, 5)), '08:05');
   });
 
   it('unterstützt Suffix und Sekunden', () => {
     assertEqual(formatUhrzeit('5:30', { suffix: 'Uhr' }), '05:30 Uhr');
     assertEqual(formatUhrzeit('5:30 Uhr'), '05:30 Uhr');
-    assertEqual(formatUhrzeit(new Date(2026, 0, 1, 14, 30, 45), { seconds: true }), '14:30:45');
     assertEqual(formatUhrzeit('14:30:45', { seconds: true, suffix: 'Uhr' }), '14:30:45 Uhr');
   });
 

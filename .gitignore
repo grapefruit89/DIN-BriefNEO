@@ -52,3 +52,12 @@ test/traces/*.json
 # man die Datei committen, hiesse sie nach dem Commit wieder anders als HEAD.
 batch/**/merge.txt
 batch/**/verweise/
+
+# Nicht-Inter-Fonts: NUR lokal, nie im Repo (Lizenz: Aptos = Microsoft,
+# Michelangelus = kommerziell). Auf GitHub darf ausschliesslich Inter liegen.
+website/fonts/*
+!website/fonts/inter_18pt-regular.woff2
+!website/fonts/inter_18pt-bold.woff2
+fonts/*
+!fonts/README.md
+!fonts/subset_fonts.py

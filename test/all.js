@@ -6156,6 +6156,29 @@ describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
     assert(!texte.includes('Liebe Herr Mustermann,'));
   });
 
+  it('DIN 5008 Zeichensetzung: Komma nach der Anrede, kein Zeichen nach der Grussformel', () => {
+    /* Vorlage 2026-11-22: "Nach der Anrede folgt ein Komma, nach der
+       Grussformel steht kein Satzzeichen (weder Komma noch Punkt)." */
+    const faelle = [
+      salutationVarianten('Frau Erika Mustermann'),
+      salutationVarianten('Herr Peter Mustermann'),
+      salutationVarianten('', 'Croft Holdings GmbH'),
+      salutationVarianten(''),
+      salutationVarianten('Frau Erika Mustermann', '', 8)
+    ];
+    for (const liste of faelle) {
+      for (const { anrede } of liste) {
+        assert(anrede.endsWith(','), `Anrede endet mit Komma: "${anrede}"`);
+        assert(!/[.!?;:]/.test(anrede.slice(0, -1)), `kein weiteres Satzzeichen: "${anrede}"`);
+      }
+    }
+    for (const ton of Object.values(SALUTATION_TONES)) {
+      const closing = ton.closing;
+      assert(!/[.,!?;:]$/.test(closing), `Grussformel ohne Satzzeichen: "${closing}"`);
+    }
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Erika Mustermann', formality: 'formal' }), 'Sehr geehrte Frau Mustermann,');
+  });
+
   it('Tageszeit-Gruss: Morgen 5-10, Tag 11-17, Abend 18-4', () => {
     assertEqual(tageszeitGruss(8), 'Guten Morgen');
     assertEqual(tageszeitGruss(10), 'Guten Morgen');

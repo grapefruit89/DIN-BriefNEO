@@ -88,6 +88,63 @@ async function dropdownInhalt(art) {
     };
   }
 
+  if (art === 'alles') {
+    const [anreden, gruesse, ortEmpf, ortAbs, strEmpf, strAbs] = await Promise.all([
+      dropdownInhalt('anrede'),
+      dropdownInhalt('gruss'),
+      dropdownInhalt('ort-empf'),
+      dropdownInhalt('ort-abs'),
+      dropdownInhalt('strasse-empf'),
+      dropdownInhalt('strasse-abs')
+    ]);
+    const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+    return {
+      titel: 'Debug: Tonalität, Anrede, Gruß, Orte, Straßen',
+      zeilen: [
+        `Tonalität: ${stil?.value || '?'}`,
+        `Anrede jetzt: ${feld('anrede') || '(leer)'}`,
+        `Gruß jetzt:   ${feld('grussformel') || '(leer)'}`,
+        '',
+        `${anreden.titel}:`,
+        ...anreden.zeilen.map((z) => `  ${z}`),
+        '',
+        `${gruesse.titel}:`,
+        ...gruesse.zeilen.map((z) => `  ${z}`),
+        '',
+        `${ortEmpf.titel}:`,
+        ...ortEmpf.zeilen.map((z) => `  ${z}`),
+        '',
+        `${ortAbs.titel}:`,
+        ...ortAbs.zeilen.map((z) => `  ${z}`),
+        '',
+        `${strEmpf.titel}:`,
+        ...strEmpf.zeilen.map((z) => `  ${z}`),
+        '',
+        `${strAbs.titel}:`,
+        ...strAbs.zeilen.map((z) => `  ${z}`)
+      ]
+    };
+  }
+
+  if (art === 'anrede-gruss') {
+    const anreden = await dropdownInhalt('anrede');
+    const gruesse = await dropdownInhalt('gruss');
+    return {
+      titel: 'Anrede & Gruß',
+      zeilen: [
+        `Anrede jetzt: ${feld('anrede') || '(leer)'}`,
+        `Gruß jetzt:   ${feld('grussformel') || '(leer)'}`,
+        `Empfänger:    ${feld('empfaenger-name') || feld('empfaenger-firma') || '(leer)'}`,
+        '',
+        `Anreden (${anreden.zeilen.length}):`,
+        ...anreden.zeilen.map((z) => `  ${z}`),
+        '',
+        `Grüße (${gruesse.zeilen.length}):`,
+        ...gruesse.zeilen.map((z) => `  ${z}`)
+      ]
+    };
+  }
+
   if (art === 'gruss') {
     const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
     const ton = stil && stil.value in SALUTATION_TONES ? stil.value : 'formal';
@@ -109,8 +166,14 @@ async function dropdownInhalt(art) {
     const nurOrte = (res.items || []).filter((i) => (i.typ || 'Stadt') === 'Stadt');
     return {
       titel,
+      /* Wie im Dropdown: nur der ERSTE Stadtteil. Die Spalte enthaelt bei
+         manchen PLZ mehrere ("Zentrum, Castell, Nordstadt"); der Renderer
+         zeigt bewusst nur den ersten (2026-11-22). */
       zeilen: nurOrte.length
-        ? nurOrte.slice(0, 40).map((i) => `${i.plz ? `${i.plz} ` : ''}${i.city || i.name || ''}${i.district ? ` · ${i.district}` : ''}`)
+        ? nurOrte.slice(0, 40).map((i) => {
+            const erster = String(i.district || '').split(',')[0].trim();
+            return `${i.plz ? `${i.plz} ` : ''}${i.city || i.name || ''}${erster ? ` · ${erster}` : ''}`;
+          })
         : ['(keine Treffer)']
     };
   }
@@ -265,6 +328,18 @@ export function aktualisiere() {
       logListe.append(dt, dd);
     }
   }
+
+  /* Anrede & Gruß: was jetzt drinsteht und was sonst noch angeboten wird —
+     so sieht man direkt, welche Formen zusammengehoeren. */
+  const anredeFeld = feldWert('anrede');
+  const grussFeld = feldWert('grussformel');
+  setze('dbg-anrede-jetzt', anredeFeld || '(leer)');
+  setze('dbg-gruss-jetzt', grussFeld || '(leer)');
+  const varianten = salutationVarianten(feldWert('empfaenger-name'), feldWert('empfaenger-firma'), stunde);
+  setze('dbg-anrede-angebote', varianten.map((v) => v.anrede).join(' '));
+  const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+  const ton = stil && stil.value in SALUTATION_TONES ? stil.value : 'formal';
+  setze('dbg-gruss-angebote', `${SALUTATION_TONES[/** @type {keyof typeof SALUTATION_TONES} */ (ton)].closings.join(' · ')}`);
 
   /* Dynamischer Teil: belegte Adressfelder + offene Vorschlagsliste. */
   const felder = document.getElementById('debug-felder');

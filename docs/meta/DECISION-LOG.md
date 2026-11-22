@@ -4463,3 +4463,41 @@ ankommen.
 Hauptstr)` → 4 Treffer). „Zustand (.json)" liefert 21 Debug-Zeilen, das
 Brief-JSON und den Fehler-Ring (`[{erzeugt, debug, brief, fehler}]`).
 Tests 419/419, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Brushing & Linking am Blatt, Copy-Block im Debug-Panel
+
+**1. Blatt ↔ Einstellungen (Nutzerwunsch: „wie ein Hover, aber an anderer Stelle").**
+Reines CSS über `:has()`, kein Zustand, kein JS:
+
+| Zeiger auf | hebt hervor |
+|---|---|
+| `din-falzmarke-1/2`, `din-lochmarke` | Schalterzeile „Falz- & Lochmarken" |
+| `din-anlagenvermerk` | Zeile „Anlagen" |
+| `din-geschaeftsangaben` | Zeile „Fußzeile (§ 35a)" |
+| und jeweils umgekehrt | die Blatt-Elemente (2 px gestrichelt) |
+
+**Fund dabei:** die Marken sind **1 px hohe** Linien (45×1 bzw. 30×1 px) und
+stehen auf `pointer-events: none` (sheet.css:120). Ohne Gegenmaßnahme ist der
+Hover nicht erreichbar. Das `::after` der Marke bekommt `inset: -6px -2px` und
+`pointer-events: auto` — Trefferfläche 49×13 px, im linken Blattrand, wo kein
+Text liegt (Textklick bleibt bei `din-kern`).
+
+**2. Debug-Panel: „Anrede & Gruß" gebündelt.**
+Ein Block zeigt jetzt *aktuell* **und** *Angebot*: `Anrede jetzt`, `Gruß jetzt`,
+`Empfänger`, dann alle Anreden (mit Tonalität) und die Grüße der aktuellen
+Tonalität. Dazu ein Knopf, der das Paar kopiert.
+
+**3. „Copy to Clipboard"-Sektion** mit einem Knopf **Alles** (Tonalität, Anrede,
+Gruß, Orte Empf./Abs., Straßen Empf./Abs.) plus die vier Einzelknöpfe.
+
+**4. Kopierausgabe spiegelt jetzt das Dropdown.** Vorher stand der *ganze*
+Stadtteil-String (`· Zentrum, Castell, Nordstadt`), das Dropdown zeigt nur den
+ersten. Jetzt identisch. Die Zeilen **ohne** Stadtteil (`53103 Bonn`,
+`53255 Bonn`) stehen weiter am Ende — das ist die NULLS-LAST-Gruppierung aus
+dem Berlin-Fix, nicht ein Fehler.
+
+**Nachweis:** `Anrede & Gruß` liefert 6 Anreden mit `[formal|polite|casual]` und
+3 Grüße; `Ort Empf.` liefert `53111 Bonn · Zentrum` … `53255 Bonn`;
+Markentreffer bei dy = −5…+5 px. Tests 419/419, Fitness 100 %.

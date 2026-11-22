@@ -1643,6 +1643,26 @@ aside select {
   margin: 0;
 }
 
+.debug-block {
+  margin: var(--space-xs) 0;
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--border-color);
+}
+
+.debug-block-kopf {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-2xs);
+}
+
+.debug-block-kopf strong { flex: 1; font-size: 0.7rem; }
+
+.debug-block-kopf .btn {
+  padding: 0 var(--space-2xs);
+  font-size: 0.7rem;
+}
+
 .debug-knoepfe {
   display: flex;
   flex-wrap: wrap;
@@ -1664,3 +1684,41 @@ aside select {
 
 .debug-tabelle dt { color: var(--text-muted); white-space: nowrap; }
 .debug-tabelle dd { margin: 0; overflow-wrap: anywhere; }
+
+/* ---------------------------------------------------------------------------
+   BRUSHING & LINKING (2026-11-22): Zeiger auf ein Blatt-Element hebt die
+   zugehoerige Schalterzeile hervor - und umgekehrt. Reines CSS ueber :has(),
+   kein Zustand, kein JavaScript, nichts gespeichert. Die Marken sind 12 mm
+   breit (data-w in mm), also gut treffbar; die Gegenrichtung (Zeile -> Blatt)
+   ist der groessere Treffer.
+   --------------------------------------------------------------------------- */
+/* Die Marken sind 1 px hohe Linien (gemessen 45x1 bzw. 30x1 px) und stehen
+   auf `pointer-events: none` (sheet.css:120), damit sie keine Textklicks
+   abfangen. Fuer den Hover bekommt nur das ::after eine Trefferflaeche —
+   6 px um die Linie, im linken Blattrand, wo kein Text liegt. */
+:is(din-falzmarke-1, din-falzmarke-2, din-lochmarke)::after {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+  pointer-events: auto;
+}
+
+body:has(:is(din-falzmarke-1, din-falzmarke-2, din-lochmarke):hover)
+  .seitenleiste-switch-row:has(#toggle-falzmarken),
+body:has(din-anlagenvermerk:hover) .seitenleiste-switch-row:has(#toggle-anlagen),
+body:has(din-geschaeftsangaben:hover) .seitenleiste-switch-row:has(#toggle-fuss) {
+  background: color-mix(in oklch, var(--accent-color) 10%, transparent);
+  outline: 1px dashed var(--accent-color);
+  outline-offset: -1px;
+  border-radius: var(--radius-sm);
+}
+
+body:has(#toggle-falzmarken:is(:hover, :focus-visible), label[for="toggle-falzmarken"]:hover)
+  :is(din-falzmarke-1, din-falzmarke-2, din-lochmarke),
+body:has(#toggle-anlagen:is(:hover, :focus-visible), label[for="toggle-anlagen"]:hover)
+  din-anlagenvermerk,
+body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover)
+  din-geschaeftsangaben {
+  outline: 2px dashed var(--accent-color);
+  outline-offset: 2px;
+}

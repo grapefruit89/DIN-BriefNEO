@@ -126,6 +126,8 @@ function planeIndex() {
   }, 400);
 }
 
+/* @review 2026-11-22 Verdrängung ist LFU (n aufsteigend, dann Alter) - nicht
+   LRU. Wer hier auf Alter umstellt, kippt den Nutzen des Rings. */
 /**
  * Verdrängt Einträge, bis `noetig` zusätzliche Bytes hineinpassen.
  * Reihenfolge: **nie gewählte zuerst**, dann die am längsten unbenutzten.
@@ -232,6 +234,8 @@ export function geoCacheHole(schluessel) {
  * die Verdrängung nichts wert (Vorgabe 2026-11-22).
  * @param {string} schluessel
  */
+/* @review 2026-11-22 Admission-Signal: NUR die Uebernahme ins Feld zaehlt.
+   Aufrufer: beiWahl der Strassenliste und selectSuggestion der Sidebar-Suche. */
 export function geoCacheZaehle(schluessel) {
   if (!schluessel) return;
   const idx = ladeIndex();

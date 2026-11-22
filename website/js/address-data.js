@@ -906,6 +906,9 @@ export class AddressIntelligence {
 
     const filtered = prefix ? plausibel.filter(p => p.startsWith(prefix)) : plausibel;
 
+    /* @review 2026-11-22 Gruppierung der PLZ-Liste (Stadtteile als Block, ohne
+       Stadtteil nach unten). Betrifft 11 Staedte; Test 'Stadtteile stehen als
+       Block zusammen'. */
     /* Muster: `ORDER BY stadtteil NULLS LAST, plz` (SQL:2003) — erst die
        Gruppen mit Wert, die ohne Wert ans Ende. Gruppieren statt nur sortieren
        (gemeldet 2026-11-22: "Berlin ist noch

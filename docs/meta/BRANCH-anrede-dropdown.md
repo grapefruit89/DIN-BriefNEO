@@ -119,6 +119,19 @@ git diff --stat main...HEAD       # 14 Dateien
 
 ---
 
+## 2b. Review-Unterlage (Stand nach 37 Commits)
+
+`docs/meta/REVIEW-anrede-dropdown.md` ist die vollständige Liste aller
+angefassten Stellen: Datei → Funktion → Änderung → **Risiko** → Prüfung,
+dazu die heißen Stellen, Klickketten und Sollwerte im Browser.
+
+Im Code markieren `@review 2026-11-22`-Kommentare die Stellen, an denen ein
+späterer Eingriff leicht etwas kaputt macht:
+
+```bash
+grep -rn "@review 2026-11-22" website/ | cut -d: -f1 | sort | uniq -c
+```
+
 ## 3. Verifikation (jeder Punkt in < 1 min)
 
 ```bash

@@ -1040,6 +1040,12 @@ input[type="checkbox"][switch] {
 #hinweis-v4[data-type="info"]    { border-left: var(--space-xs) solid var(--c-primary); }
 #hinweis-v4[data-type="warning"] { border-left: var(--space-xs) solid var(--c-warning); }
 
+/* @review 2026-11-22 PFLICHTLISTE: Jedes neue Vorschlags-Popover MUSS in die
+   folgenden :is()-Sammelselektoren (Position, Glas-Look, Zeilen, Hover).
+   Fehlt es dort, greifen die UA-Popover-Defaults (position: fixed, inset: 0,
+   margin: auto) und die Liste sitzt zentriert im Fenster statt am Feld —
+   genau so bei #gruss-vorschlaege passiert (gemessen 114..279 mm). */
+
 /* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) {
   position: absolute;

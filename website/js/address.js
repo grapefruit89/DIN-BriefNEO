@@ -636,6 +636,9 @@ export function farbenFuerListe(eintraege, kreisVon) {
  *   `nurOrte`: Firmen/Behoerden ausblenden (Absender). `beiWahl`: eigene
  *   Auswahl-Logik; `true` = behandelt.
  */
+/* @review 2026-11-22 EINZIGER Renderer fuer Ortslisten (Empfaenger + Absender).
+   Optionen: nurOrte (keine Firmen im Absender), beiWahl (eigene Auswahl).
+   Nicht wieder eine zweite Kopie daneben bauen. */
 function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasseEl, popoverEl, anchorEl = null, isPlzList = false, optionen = {}) {
   const render = () => {
     popoverEl.replaceChildren();
@@ -1745,6 +1748,9 @@ export function initAddressServices() {
       wert: r
     });
 
+    /* @review 2026-11-22 EIN Abruf fuer beide Strassenfelder (initStrasse ruft
+       diese Funktion zweimal). AbortController bricht die Vorabfrage ab;
+       leere Treffer werden als Negative-Cache abgelegt. */
     /** @param {string} text */
     const holeStrassen = async (text) => {
       if (text.length < 3 || !navigator.onLine) return [];

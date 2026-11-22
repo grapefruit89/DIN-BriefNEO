@@ -108,6 +108,9 @@ export function klemmeAnSatzspiegel(popover, feldEl) {
  *   bleiben die Treffer des ersten Buchstabens stehen (gemessen 2026-11-22).
  * @returns {{ zerstoeren: () => void }}
  */
+/* @review 2026-11-22 Bedien-Geruest fuer ALLE Listen (Anrede, Strasse, Gruss):
+   Klick/Pfeile/Enter/Escape/Blur, Debounce, Untrusted-Guard. Aenderungen hier
+   wirken auf drei Felder gleichzeitig. Siehe docs/meta/REVIEW-anrede-dropdown.md */
 export function initVorschlagsliste(cfg) {
   const feld = typeof cfg.feld === 'string' ? document.getElementById(cfg.feld) : cfg.feld;
   const popover =
@@ -237,6 +240,8 @@ export function initVorschlagsliste(cfg) {
        das liess alle Listen kurz aufblitzen (gemeldet 2026-11-22: "Testbrief
        triggert auch alle Dropdowns"). Tests, die InputEvent mit inputType
        senden, laufen weiter. */
+    /* @review 2026-11-22 Nur echte Eingaben oeffnen: der Testbrief fuellt per
+       new Event('input') ohne inputType und liess sonst alle Listen aufblitzen. */
     if (!(ev instanceof InputEvent) || !ev.inputType) return;
     unterdrueckt = false;
     verzoegert();

@@ -89,6 +89,9 @@ export function tageszeitGruss(stunde) {
  * @param {number | null} [stunde] aktuelle Stunde 0-23; null = neutral
  * @returns {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>}
  */
+/* @review 2026-11-22 Herzstueck der Anrede: 5 Varianten mit Person, 5 mit Firma
+   (Team-Formen), 3-4 ohne alles; je drei Grussformeln pro Ton (#initGruesse).
+   Doppelte werden ohne Satzzeichen erkannt. */
 export function salutationVarianten(rawName, rawFirma = '', stunde = null) {
   const name = String(rawName || '').trim();
   const firma = String(rawFirma || '').trim();

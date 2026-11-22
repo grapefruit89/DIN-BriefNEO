@@ -241,6 +241,19 @@ function feldWert(el) {
 }
 
 /**
+ * Stadt aus dem Landkreis-Namen — nur bei KREISFREIEN Staedten eindeutig
+ * ("Kreisfreie Stadt Bonn" -> "Bonn"). Landkreise sind mehrdeutig
+ * ("Landkreis Muenchen" enthaelt viele Gemeinden), dort kommt '' zurueck.
+ * @param {string} plz
+ * @returns {string}
+ */
+function stadtAusKreis(plz) {
+  const kreis = AddressIntelligence.getKreis(plz);
+  const m = /^(?:Kreisfreie Stadt|Stadt)\s+(.+?)(?:,.*)?$/.exec(kreis || '');
+  return m ? m[1].trim() : '';
+}
+
+/**
  * Erzeugt den Ort-Index (Stadtname -> Liste von PLZs) (Case B).
  * @param {Map<string, string>} plzToCityMap
  * @returns {Map<string, string[]>}
@@ -679,16 +692,22 @@ export class AddressIntelligence {
     // REGEL 1: Wenn <= 15 Treffer -> alle PLZs direkt anzeigen
     if (matches.length <= 15) {
       const sortedMatches = matches.toSorted((a, b) => a.plz.localeCompare(b.plz, 'de'));
-      return sortedMatches.map(m => ({
-        plz: m.plz,
-        name: m.city,
-        city: m.city,
-        typ: 'Stadt',
-        district: AddressIntelligence.getDistrict(m.plz),
-        state: AddressIntelligence.getState(m.plz),
-        plzCount: 1,
-        isSinglePlz: true
-      }));
+      return sortedMatches.map(m => {
+        /* Grossempfaenger-PLZ: die Organisation ist der Name, die Stadt steht
+           im Ort. Sonst sah "53249 HUK-Coburg" aus wie eine Stadt (2026-11-22). */
+        const gk = AddressIntelligence.grosskunden.get(m.plz);
+        const stadt = stadtAusKreis(m.plz);
+        return {
+          plz: m.plz,
+          name: gk?.name || m.city,
+          city: gk && stadt ? stadt : m.city,
+          typ: gk?.typ || 'Stadt',
+          district: AddressIntelligence.getDistrict(m.plz),
+          state: AddressIntelligence.getState(m.plz),
+          plzCount: 1,
+          isSinglePlz: true
+        };
+      });
     }
 
     // REGEL 2: Wenn > 15 Treffer -> Stadt-Zusammenfassung nach Häufigkeit
@@ -698,16 +717,21 @@ export class AddressIntelligence {
       return a[0].localeCompare(b[0], 'de');
     });
 
-    return sorted.slice(0, limit).map(([city, plzs]) => ({
-      plz: plzs.length === 1 ? plzs[0] : undefined,
-      name: city,
-      city: city,
-      typ: 'Stadt',
-      district: plzs.length === 1 ? AddressIntelligence.getDistrict(plzs[0]) : '',
-      state: plzs.length === 1 ? AddressIntelligence.getState(plzs[0]) : '',
-      plzCount: plzs.length,
-      isSinglePlz: plzs.length === 1
-    }));
+    return sorted.slice(0, limit).map(([city, plzs]) => {
+      const einer = plzs.length === 1 ? plzs[0] : '';
+      const gk = einer ? AddressIntelligence.grosskunden.get(einer) : null;
+      const stadt = einer ? stadtAusKreis(einer) : '';
+      return {
+        plz: einer || undefined,
+        name: gk?.name || city,
+        city: gk && stadt ? stadt : city,
+        typ: gk?.typ || 'Stadt',
+        district: einer ? AddressIntelligence.getDistrict(einer) : '',
+        state: einer ? AddressIntelligence.getState(einer) : '',
+        plzCount: plzs.length,
+        isSinglePlz: plzs.length === 1
+      };
+    });
   }
 
   /**

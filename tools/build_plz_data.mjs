@@ -242,6 +242,27 @@ async function run() {
     console.log(`      Kreis-Daten: ${mergedMap.size - ohneKreis} von ${mergedMap.size} PLZ abgedeckt`);
   }
 
+  /* Ortsnamen, die keine Staedte sind. Bei Grossempfaenger-PLZ steht in der
+     Quelle der Firmen-/Stellenname in der Orts-Spalte ("HUK-Coburg",
+     "Kundenservice Paket", "Deutsche Post AG Zentrale"). In der Vorschlagsliste
+     sieht das aus wie eine Stadt und wirkt unserioes (gemeldet 2026-11-22).
+     Bei KREISFREIEN Staedten nennt der Kreis die Stadt eindeutig - nur dort
+     wird ersetzt. Landkreise sind mehrdeutig (Landkreis Muenchen enthaelt
+     viele Gemeinden), dort bleibt der Name unangetastet. */
+  const INSTITUTION = /(GmbH|mbH|\bAG\b|\bKG\b|e\.V\.|Klinikum|Bibliothek|Universität|Hochschule|IHK|AOK|BKK|IKK|Finanzamt|Jobcenter|Landratsamt|Stadtverwaltung|Versicherung|Bank|Sparkasse|Verlag|Kammer|Kasse|Post AG|Telekom|Rundfunk|Deutsche Bahn)/;
+  let stadtKorrigiert = 0;
+  for (const [plz, eintrag] of mergedMap) {
+    const m = /^(Kreisfreie Stadt|Stadt)\s+(.+)$/.exec(eintrag.kreis || '');
+    if (!m) continue;
+    const stadt = m[2].trim();
+    if (!INSTITUTION.test(eintrag.ort) || eintrag.ort.trim().toLowerCase() === stadt.toLowerCase()) continue;
+    mergedMap.set(plz, { ...eintrag, ort: stadt });
+    stadtKorrigiert++;
+  }
+  if (stadtKorrigiert > 0) {
+    console.log(`      Ortsnamen aus dem Kreis ersetzt: ${stadtKorrigiert} (Grossempfaenger-PLZ)`);
+  }
+
   // 4. Columnar Projection & Sortierung
   console.log('[3/5] Erzeuge sortierte Columnar-Projektion...');
   const sorted = Array.from(mergedMap.entries()).sort(([a], [b]) => a.localeCompare(b, 'de', { numeric: true }));

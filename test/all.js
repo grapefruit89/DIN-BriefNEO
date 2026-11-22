@@ -3052,9 +3052,11 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
   it('Test 22: "bonn" → sofort PLZ-Dropdown mit allen 38 PLZs (53111 an 1. Stelle)', () => {
     const res = AddressIntelligence.resolveCityInput('bonn');
     assertEqual(res.mode, 'city_plzs');
-    assertEqual(res.items.length, 38);
+    assertEqual(res.items.length, 39);
     assertEqual(res.city, 'Bonn');
-    assertEqual(res.items[0].plz, '53111');
+    /* 53103 ist seit der Ortsnamen-Korrektur (2026-11-22) Teil der Bonn-Gruppe
+       — vorher hiess die PLZ "Stadt Bonn" und fiel aus der Liste. */
+    assertEqual(res.items[0].plz, '53103');
   });
 
   /* Vertragsaenderung 2026-11-12: Praefixe fuellen nicht mehr sofort. Wer
@@ -3198,10 +3200,10 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
       { input: 'b',     expectItems: 0 },
       { input: 'bo',    expectItems: 0 },
       { input: 'bon',   expectItems: 8,  expectFirstItem: /Bonn/,     isStadtListe: true },
-      { input: 'bonn',  expectItems: 38, expectFirstItem: /53111/,    isPlzListe: true,
+      { input: 'bonn',  expectItems: 39, expectFirstItem: /53103/,    isPlzListe: true,
         expectNotContains: ['Bondelum', 'Bondorf', 'Bönen', 'Bonstetten', 'BonusCard'] },
       { input: 'bon',   expectItems: 8,  expectFirstItem: /Bonn/,     isStadtListe: true,  isDelete: true },
-      { input: 'bonn',  expectItems: 38, expectFirstItem: /53111/,    isPlzListe: true },
+      { input: 'bonn',  expectItems: 39, expectFirstItem: /53103/,    isPlzListe: true },
       { input: 'b',     expectItems: 0,  isDelete: true },
       { input: '',      expectItems: 0,  isDelete: true, popoverClosed: true },
     ];
@@ -3246,16 +3248,16 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     const items = [...popover.querySelectorAll('li')].map(li => li.textContent?.trim() || '');
 
     // 1. Reihenfolge
-    assertEqual(items[0].startsWith('53111'), true);
-    assertEqual(items[1].startsWith('53113'), true);
-    assertEqual(items[2].startsWith('53115'), true);
+    assertEqual(items[0].startsWith('53103'), true);
+    assertEqual(items[1].startsWith('53111'), true);
+    assertEqual(items[2].startsWith('53113'), true);
 
-    // 2. Stadtteile
-    assertEqual(items[0], '53111 Bonn (Zentrum, Castell, Nordstadt)');
-    assert(items[1].includes('(Gronau'), '53113 hat Stadtteile');
+    // 2. Stadtteile (ohne Klammern)
+    assertEqual(items[1], '53111 Bonn · Zentrum, Castell, Nordstadt');
+    assert(items[2].includes('· Gronau'), '53113 hat Stadtteile');
 
     // 3. Vollständigkeit
-    assertEqual(items.length, 38);
+    assertEqual(items.length, 39);
   });
 
   it('Test 30b: "bonndorf" füllt sofort "79848 Bonndorf" und schließt Dropdown', async () => {
@@ -3319,7 +3321,9 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
         inputType: step.isDelete ? 'deleteContentBackward' : 'insertText',
         data: step.isDelete ? undefined : '4'
       }));
-      await new Promise(r => setTimeout(r, 50));
+      /* 220 ms: die 5-Ziffern-Ergaenzung wartet 180 ms, damit Weitertippen
+         nicht verdoppelt (2026-11-22). */
+      await new Promise(r => setTimeout(r, 220));
       assertEqual(ortEl.textContent, step.expectValue, `Schritt ${idx + 1} ("${step.text}"): Wert = "${step.expectValue}"`);
     }
 
@@ -3330,7 +3334,7 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
       inputType: 'insertText',
       data: '4'
     }));
-    await new Promise(r => setTimeout(r, 50));
+    await new Promise(r => setTimeout(r, 220));
     assertEqual(ortEl.textContent, '53884 Feldpostleitstelle Mechernich', 'Frisch getipptes 53884 füllt wieder');
   });
 

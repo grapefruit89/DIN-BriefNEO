@@ -242,31 +242,38 @@ AddressIntelligence.wireDOM = function wireDOM() {
     const plzMatch = rawText.match(/^(\d{5})$/);
     if (plzMatch) {
       const plz = plzMatch[1];
-      const res = AddressIntelligence.lookupPlz(plz);
-      if (res && !userEditing) {
-        const completed = `${res.plz} ${res.city}`;
-        applyValue('empfaenger-ort', completed, 'auto');
+      /* 180 ms warten: tippt der Nutzer weiter ("53250 Bonn"), wird nicht
+         mitten im Wort ergaenzt ("53250 Bonn Bonn", gemeldet 2026-11-22).
+         Wer bei den fuenf Ziffern stehen bleibt, sieht die Ergaenzung sofort. */
+      if (ortDebounceTimer) clearTimeout(ortDebounceTimer);
+      ortDebounceTimer = setTimeout(() => {
+        ortDebounceTimer = null;
+        if (Field.getValue(empfOrtEl).trim() !== plz) return;
+        const res = AddressIntelligence.lookupPlz(plz);
+        if (res && !userEditing) {
+          const completed = `${res.plz} ${res.city}`;
+          applyValue('empfaenger-ort', completed, 'auto');
 
-        AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
+          AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
 
-        // Großkunde / Behörde Automatik
-        if (res.isGrosskunde && res.grosskunde) {
-          if (empfFirmaEl && (!Field.getValue(empfFirmaEl).trim() || letterState.meta['empfaenger-firma']?.herkunft === 'auto')) {
-            applyValue('empfaenger-firma', res.grosskunde.name, 'auto');
+          // Großkunde / Behörde Automatik
+          if (res.isGrosskunde && res.grosskunde) {
+            if (empfFirmaEl && (!Field.getValue(empfFirmaEl).trim() || letterState.meta['empfaenger-firma']?.herkunft === 'auto')) {
+              applyValue('empfaenger-firma', res.grosskunde.name, 'auto');
+            }
+            if (empfStrasseEl && !Field.getValue(empfStrasseEl).trim()) {
+              empfStrasseEl.setAttribute('data-placeholder', '(Großempfänger – Straße entfällt)');
+            }
           }
-          if (empfStrasseEl && !Field.getValue(empfStrasseEl).trim()) {
-            empfStrasseEl.setAttribute('data-placeholder', '(Großempfänger – Straße entfällt)');
-          }
+
+          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+          clearPopover();
+        } else {
+          // Keine PLZ gefunden oder Nutzer editiert/löscht gerade -> KEIN Auto-Fill!
+          clearPopover();
         }
-
-        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-        clearPopover();
-        return;
-      } else {
-        // Keine PLZ gefunden oder Nutzer editiert/löscht gerade (userEditing === true) -> KEIN Auto-Fill!
-        clearPopover();
-        return;
-      }
+      }, 180);
+      return;
     }
 
     // Case 2: 3–4 Ziffern -> Sofortige Präfix-Suche
@@ -364,7 +371,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
         if (!item.plz && (item.plzCount || 0) > 1) {
           const anzahl = document.createElement('span');
           anzahl.className = 'city-sub';
-          anzahl.textContent = `(${item.plzCount} PLZs)`;
+          anzahl.textContent = `· ${item.plzCount} PLZs`;
           main.appendChild(anzahl);
         }
         li.appendChild(main);
@@ -372,8 +379,9 @@ AddressIntelligence.wireDOM = function wireDOM() {
         const mehrfach = (kreiseJeName.get(item.name || item.city || '')?.size || 0) > 1;
         const kreisName = mehrfach && item.plz ? AddressIntelligence.getKreis(item.plz) : '';
         let extra = '';
-        if (kreisName) extra = `(${kreisName})`;
-        else if (item.state) extra = `(${BUNDESLAENDER[item.state] || item.state})`;
+        if (kreisName) extra = `· ${kreisName}`;
+        else if (item.district) extra = `· ${item.district}`;
+        else if (item.state) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
         if (extra) {
           const sub = document.createElement('span');
           sub.className = 'district-val';
@@ -405,13 +413,18 @@ AddressIntelligence.wireDOM = function wireDOM() {
         hidePopoverSafe(suggestionsPopover);
         return;
       }
-      /* Fünf Ziffern: sofort PLZ + Ort, ohne Großkunden-Logik. */
+      /* Fünf Ziffern: PLZ + Ort, ohne Großkunden-Logik. Ebenfalls 180 ms
+         Verzoegerung, damit Weitertippen nicht ergaenzt wird. */
       if (/^\d{5}$/.test(raw)) {
-        const res = AddressIntelligence.lookupPlz(raw);
-        if (res) {
-          schreibeAbsender(res.plz, res.city);
-          hidePopoverSafe(suggestionsPopover);
-        }
+        absTimer = setTimeout(() => {
+          absTimer = null;
+          if (Field.getValue(absOrtEl).trim() !== raw) return;
+          const res = AddressIntelligence.lookupPlz(raw);
+          if (res) {
+            schreibeAbsender(res.plz, res.city);
+            hidePopoverSafe(suggestionsPopover);
+          }
+        }, 180);
         return;
       }
       absTimer = setTimeout(() => {
@@ -666,7 +679,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       } else if (!item.isSinglePlz && (item.plzCount || 0) > 1) {
         const countSub = document.createElement('span');
         countSub.className = 'city-sub';
-        Field.setValue(countSub, `(${item.plzCount} PLZs)`);
+        Field.setValue(countSub, `· ${item.plzCount} PLZs`);
         leftWrapper.appendChild(countSub);
       }
 
@@ -676,15 +689,16 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       const stateCode = item.state || (item.plz ? AddressIntelligence.getState(item.plz) : '');
       const stateName = stateCode ? (BUNDESLAENDER[stateCode] || stateCode) : '';
 
+      /* Zusatz ohne Klammern: "· Zentrum, Castell" statt "(Zentrum, Castell)". */
       let extraText = '';
       const mehrfach = (kreiseJeName.get(item.name || item.city || '')?.size || 0) > 1;
       const kreisName = mehrfach && item.plz ? AddressIntelligence.getKreis(item.plz) : '';
       if (kreisName) {
-        extraText = `(${kreisName})`;
+        extraText = `· ${kreisName}`;
       } else if (item.district) {
-        extraText = `(${item.district})`;
+        extraText = `· ${item.district}`;
       } else if (stateName) {
-        extraText = `(${stateName})`;
+        extraText = `· ${stateName}`;
       }
 
       if (extraText) {

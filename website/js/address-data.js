@@ -901,10 +901,39 @@ export class AddressIntelligence {
     });
 
     const filtered = prefix ? plausibel.filter(p => p.startsWith(prefix)) : plausibel;
+
+    /* Gruppieren statt nur sortieren (gemeldet 2026-11-22: "Berlin ist noch
+       Chaos"): Rein nach PLZ standen die Stadtteile kreuz und quer, weil jede
+       PLZ ihren eigenen Stadtteil traegt ("10318 Karlshorst", dann vier PLZ
+       ohne Stadtteil, dann "10405 Prenzlauer Berg"; Moabit/Tiergarten
+       wechselten sich ab). Jetzt: erst die PLZ MIT Stadtteil, Stadtteile
+       zusammenhaengend, Bloecke nach ihrer kleinsten PLZ; dann die PLZ ohne
+       Stadtteil. Betrifft 11 Staedte mit gemischten Daten (Berlin, Hamburg,
+       Muenchen, Koeln, Bonn ...).
+       "Grossempfaenger" ist ein Datenplatzhalter, kein Stadtteil - diese Zeilen
+       zaehlen als "ohne" und bleiben wie bisher nach PLZ bei den uebrigen. */
+    /** @param {string} plz @returns {string} */
+    const stadtteil = (plz) => {
+      const d = AddressIntelligence.getDistrict(plz) || '';
+      return /empfänger/i.test(d) ? '' : String(d).split(',')[0].trim();
+    };
+    /** @type {Map<string, string>} Stadtteil -> kleinste PLZ (Blockreihenfolge) */
+    const erstePlz = new Map();
+    for (const p of filtered) {
+      const s = stadtteil(p);
+      if (s && !erstePlz.has(s)) erstePlz.set(s, p);
+    }
+
     const sorted = filtered.toSorted((a, b) => {
       const isSonderA = !AddressIntelligence.districts.has(a) && AddressIntelligence.grosskunden.has(a) ? 1 : 0;
       const isSonderB = !AddressIntelligence.districts.has(b) && AddressIntelligence.grosskunden.has(b) ? 1 : 0;
       if (isSonderA !== isSonderB) return isSonderA - isSonderB;
+      const sa = stadtteil(a);
+      const sb = stadtteil(b);
+      if (!sa !== !sb) return sa ? -1 : 1;
+      if (sa && sb && sa !== sb) {
+        return String(erstePlz.get(sa)).localeCompare(String(erstePlz.get(sb)), 'de');
+      }
       return a.localeCompare(b, 'de');
     });
 

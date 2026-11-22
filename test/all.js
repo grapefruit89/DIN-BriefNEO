@@ -3055,8 +3055,14 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assertEqual(res.items.length, 39);
     assertEqual(res.city, 'Bonn');
     /* 53103 ist seit der Ortsnamen-Korrektur (2026-11-22) Teil der Bonn-Gruppe
-       — vorher hiess die PLZ "Stadt Bonn" und fiel aus der Liste. */
-    assertEqual(res.items[0].plz, '53103');
+       — vorher hiess die PLZ "Stadt Bonn" und fiel aus der Liste.
+       Seit der Stadtteil-Gruppierung (2026-11-22) steht oben der erste Block
+       mit Stadtteil (53111 Zentrum); 53103 hat keinen und steht hinten. */
+    assertEqual(res.items[0].plz, '53111');
+    assert(
+      res.items.some((/** @type {any} */ i) => i.plz === '53103'),
+      '53103 bleibt Teil der Bonn-Gruppe'
+    );
   });
 
   /* Vertragsaenderung 2026-11-12: Praefixe fuellen nicht mehr sofort. Wer
@@ -3175,6 +3181,25 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assert(resNoris !== null, '10910 existiert in Grosskunden/Orte');
     assertEqual(resNoris?.city, 'Berlin', '10910 gehört zu Berlin');
     assertEqual(resNoris?.grosskunde?.name, 'norisbank GmbH');
+  });
+
+  it('Test 27b: Stadtteile stehen als Block zusammen, PLZ ohne Stadtteil am Ende', () => {
+    /** @param {any} eintrag */
+    const stadtteil = (eintrag) => {
+      const d = eintrag.district || '';
+      return /empfänger/i.test(d) ? '' : String(d).split(',')[0].trim();
+    };
+    const berlin = AddressIntelligence.lookupCityPlzs('Berlin');
+    const ersteOhne = berlin.findIndex((i) => stadtteil(i) === '');
+    assert(ersteOhne > 0, 'es gibt Stadtteil-Zeilen und Zeilen ohne');
+    assert(
+      berlin.slice(ersteOhne).every((i) => stadtteil(i) === ''),
+      'ohne Stadtteil nur am Ende'
+    );
+    const bloecke = berlin.map(stadtteil).filter(Boolean);
+    const wechsel = bloecke.filter((s, i) => s !== bloecke[i - 1]);
+    assertEqual(new Set(wechsel).size, wechsel.length, 'kein Stadtteil in zwei Bloecken');
+    assertEqual(stadtteil(berlin[0]), 'Mitte', 'erster Block: kleinste PLZ (10115 Mitte)');
   });
 
   it('Test 28: Bereinigte Datenquellen: 45195 Essen, 60651 Frankfurt am Main, 96039 Bamberg in grosskunden', () => {

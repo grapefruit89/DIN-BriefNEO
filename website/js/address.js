@@ -332,7 +332,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
       /* initSenderSync haengt an DOCUMENT_CHANGED (bisher nur Undo/Redo/Reset).
          Ohne dieses Signal blieb die Ruecksendezeile leer, wenn der Ort aus der
          Vorschlagsliste kam statt getippt zu werden (gemeldet 2026-11-22). */
-      eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto' });
+      eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-ort' });
       eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     };
 
@@ -910,10 +910,14 @@ export function initSenderSync() {
   /* Nur eine Zeile mit drei Teilen laesst sich feldweise spiegeln. Wer etwas
      Freies hineinschreibt ("EIGENE ZEILE VON HAND"), behaelt sie komplett. */
   let strukturiert = true;
-  /** @param {string} text */
-  const setzeSegmente = (text) => {
+  /**
+   * @param {string} text
+   * @param {boolean} [manuell] true = Nutzer hat getippt (dann entscheidet die
+   *   Struktur, ob feldweise gespiegelt werden darf); false = wir lesen nur.
+   */
+  const setzeSegmente = (text, manuell = false) => {
     const teile = String(text || '').split(' • ');
-    strukturiert = teile.length >= 3 || String(text || '').trim() === '';
+    if (manuell) strukturiert = teile.length >= 3 || String(text || '').trim() === '';
     segmente = [0, 1, 2].map((i) => (teile[i] ?? '').trim());
   };
   setzeSegmente(lies(absender));
@@ -952,7 +956,7 @@ export function initSenderSync() {
      stehen, bis das zugehoerige Absenderfeld wieder angefasst wird. */
   absender.addEventListener('input', () => {
     if (schreibeGerade) return;
-    setzeSegmente(lies(absender));
+    setzeSegmente(lies(absender), true);
     setMeta(letterState, 'rucksendeangabe', { herkunft: 'manuell' });
   });
 
@@ -977,11 +981,20 @@ export function initSenderSync() {
   infoStreet.addEventListener('input', () => spiegleFeld(1, lies(infoStreet)));
   infoCity.addEventListener('input', () => spiegleFeld(2, lies(infoCity)));
 
-  eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
-    /* Undo/Redo/Reset oder eine Auswahl aus der Ortsliste haben den Zustand
-       gesetzt: Segmente daraus neu aufbauen und die Maschinenschrift
-       nachziehen. */
-    setzeSegmente(lies(absender));
+  eventBus.subscribe(Events.DOCUMENT_CHANGED, (/** @type {any} */ payload) => {
+    /* Undo/Redo/Reset: Segmente aus dem Zustand neu lesen.
+       Auswahl aus einer Vorschlagsliste (payload.feld): NUR dieses Segment
+       nachziehen - sonst blieb die Zeile beim getippten Fragment stehen
+       (gemeldet 2026-11-22: "Kettelers" statt "Kettelerstrasse"). */
+    if (payload?.feld === 'absender-name') {
+      spiegleFeld(0, lies(infoName));
+    } else if (payload?.feld === 'absender-strasse') {
+      spiegleFeld(1, lies(infoStreet));
+    } else if (payload?.feld === 'absender-ort') {
+      spiegleFeld(2, lies(infoCity));
+    } else {
+      setzeSegmente(lies(absender));
+    }
     spiegleUnterschrift();
   });
 }
@@ -1675,7 +1688,7 @@ export function initAddressServices() {
               if (ortFeld && !Field.getValue(ortFeld).trim() && (r.postcode || r.city)) {
                 applyValue('absender-ort', `${r.postcode || ''} ${r.city || ''}`.trim(), 'auto');
               }
-              eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto' });
+              eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-strasse' });
               eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
               hidePopoverSafe(strassePopover);
             });

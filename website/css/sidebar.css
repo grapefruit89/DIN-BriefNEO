@@ -1195,6 +1195,12 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Typ-Kennzeichnung ohne Badge: Schrift und Balken tragen die Farbe.
    Das :is() hebt die Spezifität über `#liste li { color: … }`. */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
+/* Strassen-Vorschlaege: neutraler Balken. Vorher trugen sie die Standardfarbe
+   (blau) und sahen aus wie Firmen (gemeldet 2026-11-22). */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="adresse"] {
+  --ort-ton: oklch(0.62 0.02 250);
+  color: var(--text-primary);
+}
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="firma"] {
   --ort-ton: oklch(0.56 0.17 255);
   color: oklch(45% 0.16 255);

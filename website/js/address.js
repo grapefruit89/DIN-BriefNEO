@@ -1614,4 +1614,78 @@ export function initAddressServices() {
       }, 500);
     });
   }
+
+  /* Strassen-Vorschlaege fuer den Absender (Geoapify). Ohne API-Key oder ohne
+     Netz bleibt es beim Tippen — offline-first (ADR-006). */
+  const absStrasseEl = feld('absender-strasse');
+  const strassePopover = feld('plz-suggestions-popover');
+  if (absStrasseEl && strassePopover) {
+    /** @type {any} */
+    let strasseTimer = null;
+
+    absStrasseEl.addEventListener('input', () => {
+      if (absStrasseEl.hasAttribute('data-autofill-aus')) return;
+      if (strasseTimer) clearTimeout(strasseTimer);
+      const text = Field.getValue(absStrasseEl).trim();
+      if (text.length < 3 || !navigator.onLine) {
+        hidePopoverSafe(strassePopover);
+        return;
+      }
+      strasseTimer = setTimeout(async () => {
+        const key = load(STORAGE_KEYS.geoapifyKey, '');
+        if (!key) {
+          hidePopoverSafe(strassePopover);
+          return;
+        }
+        const ort = Field.getValue(feld('absender-ort')).trim();
+        const query = [text, ort].filter(Boolean).join(', ');
+        const coords = /** @type {{ lat: number, lon: number } | null} */ (
+          loadJSON(STORAGE_KEYS.senderCoords, null)
+        );
+        let pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=6&format=json&filter=countrycode:de`;
+        if (coords?.lat && coords?.lon) pfad += `&bias=proximity:${coords.lon},${coords.lat}`;
+        try {
+          const { antwort } = await holeJsonMitFailover(pfad, new AbortController());
+          if (!antwort.ok) return;
+          const daten = await antwort.json();
+          const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
+          if (!treffer.length) {
+            hidePopoverSafe(strassePopover);
+            return;
+          }
+          strassePopover.replaceChildren();
+          for (const r of treffer) {
+            const li = document.createElement('li');
+            li.className = 'suggestion-item';
+            li.dataset.typ = 'adresse';
+            const main = document.createElement('span');
+            main.className = 'suggestion-main';
+            const name = document.createElement('span');
+            name.className = 'city-val';
+            name.textContent = [r.street, r.housenumber].filter(Boolean).join(' ');
+            const sub = document.createElement('span');
+            sub.className = 'city-sub';
+            sub.textContent = `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`;
+            main.append(name, sub);
+            li.append(main);
+            li.addEventListener('mousedown', (ev) => {
+              ev.preventDefault();
+              applyValue('absender-strasse', name.textContent, 'auto');
+              const ortFeld = feld('absender-ort');
+              if (ortFeld && !Field.getValue(ortFeld).trim() && (r.postcode || r.city)) {
+                applyValue('absender-ort', `${r.postcode || ''} ${r.city || ''}`.trim(), 'auto');
+              }
+              eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto' });
+              eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+              hidePopoverSafe(strassePopover);
+            });
+            strassePopover.append(li);
+          }
+          showPopoverSafe(strassePopover);
+        } catch (err) {
+          console.debug('[Address] Strassen-Vorschlaege fehlgeschlagen:', err);
+        }
+      }, 350);
+    });
+  }
 }

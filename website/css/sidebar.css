@@ -1088,9 +1088,17 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
   position-anchor: --anchor-firma;
 }
 
-/* Absender-Ort: dieselbe Liste, aber unter dem Absenderfeld. */
+/* Absender-Ort und -Strasse: dieselbe Liste, aber unter dem jeweiligen Feld. */
 #absender-ort {
   anchor-name: --anchor-absender-ort;
+}
+
+#absender-strasse {
+  anchor-name: --anchor-absender-strasse;
+}
+
+body:has(#absender-strasse:focus) #plz-suggestions-popover {
+  position-anchor: --anchor-absender-strasse;
 }
 
 body:has(#absender-ort:focus) #plz-suggestions-popover {

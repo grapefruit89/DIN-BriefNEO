@@ -1124,9 +1124,9 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   display: flex;
   align-items: baseline;
   gap: var(--space-xs);
-  /* flex: 1 1 auto, nicht 0 0 auto: sonst waechst die Zeile ueber den Rand
-     hinaus und wird hart abgeschnitten (gemessen 2026-11-22, 10 px Ueberlauf). */
-  flex: 1 1 auto;
+  /* 0 1 auto: NICHT wachsen (sonst rutscht der Zusatz an den rechten Rand),
+     aber schrumpfen duerfen (sonst Ueberlauf und harte Kante). */
+  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
 }
@@ -1154,9 +1154,9 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   display: flex;
   gap: var(--space-sm);
   align-items: baseline;
-  /* Schrumpfen statt ueberlaufen: sonst wird die Zeile rechts hart
-     abgeschnitten (gemessen 2026-11-22 an Postbank-Eintraegen). */
-  flex: 1 1 auto;
+  /* Schrumpfen statt ueberlaufen, aber nicht wachsen: der Zusatz bleibt
+     direkt hinter dem Namen (gemessen 2026-11-22). */
+  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
 }
@@ -1192,16 +1192,18 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   color: oklch(45% 0.16 255);
 }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="behoerde"] {
-  --ort-ton: oklch(0.58 0.15 150);
-  color: oklch(42% 0.13 150);
+  /* Behörden: Anthrazit. Kein Ortston liegt so dunkel und unbunt -
+     dadurch mit keiner Ortsfarbe verwechselbar. */
+  --ort-ton: oklch(0.34 0.01 260);
+  color: oklch(40% 0.02 260);
 }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="gericht"] {
-  --ort-ton: oklch(0.52 0.01 250);
-  color: oklch(40% 0 0);
+  --ort-ton: oklch(0.34 0.01 260);
+  color: oklch(40% 0.02 260);
 }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="institution"] {
-  --ort-ton: oklch(0.58 0.16 40);
-  color: oklch(45% 0.14 40);
+  --ort-ton: oklch(0.56 0.17 255);
+  color: oklch(45% 0.16 255);
 }
 
 /* Ortsfarbe: gleiche Stadt = gleicher Ton, sanft hinterlegt plus 3px-Balken.

@@ -641,7 +641,38 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
 
     /* Exakte Stadt-Treffer (city_plzs) zeigen ALLE PLZ dieser Stadt; nur
        gemischte Vorschlagslisten werden auf die Listengroesse gekappt. */
-    const eintraege = flacheVorschlaege(matches, isPlzList ? Infinity : maxSuggestions());
+    /* Reihenfolge: erst Orte (Stadtteile), dann Behörden/Gerichte, dann Firmen.
+       Innerhalb der Blöcke bleibt die Trefferreihenfolge erhalten. */
+    const rang = (/** @type {any} */ e) => {
+      const t = (e.typ || 'Stadt').toLowerCase();
+      if (t === 'stadt') return 0;
+      if (t === 'behörde' || t === 'behoerde' || t === 'gericht') return 1;
+      return 2;
+    };
+    const eintraege = flacheVorschlaege(matches, isPlzList ? Infinity : maxSuggestions())
+      .toSorted((a, b) => rang(a) - rang(b));
+
+    /* Bundesland nur, wenn es die Zeile von den anderen desselben Namens
+       unterscheidet: bei "frankfurt am main" sind 114 Zeilen Hessen, zwei
+       tragen faelschlich NW — nur die beiden bekommen den Zusatz. */
+    /** @type {Map<string, Map<string, number>>} */
+    const staatenJeName = new Map();
+    for (const e of eintraege) {
+      const n = e.name || e.city || '';
+      const st = e.state || '';
+      if (!st) continue;
+      let m = staatenJeName.get(n);
+      if (!m) { m = new Map(); staatenJeName.set(n, m); }
+      m.set(st, (m.get(st) || 0) + 1);
+    }
+    /** @param {any} e @param {string} st */
+    const zeigeStaat = (e, st) => {
+      const m = staatenJeName.get(e.name || e.city || '');
+      if (!m || m.size < 2) return false;
+      let max = 0;
+      for (const c of m.values()) if (c > max) max = c;
+      return (m.get(st) || 0) < max;
+    };
     const farben = farbenFuerListe(eintraege, (e) => (e.plz ? AddressIntelligence.getKreisKey(e.plz) : ''));
     /* Namen, die in dieser Liste in MEHREREN Kreisen vorkommen: nur dort zeigt
        die Zeile den Landkreis ("Neustadt (Landkreis Kelheim)"). Kommt der Name
@@ -723,7 +754,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
            Alle Ortsteile stehen im Tooltip. */
         const erster = String(item.district).split(',')[0].trim();
         extraText = `· ${erster || item.district}`;
-      } else if (stateName) {
+      } else if (stateName && zeigeStaat(item, stateCode)) {
         extraText = `· ${stateName}`;
       }
 

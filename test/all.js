@@ -5936,15 +5936,24 @@ describe('Ortssuche: Stadt schlaegt Ortsteil (2026-11-22)', () => {
 });
 
 describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
-  it('liefert drei Stile, je mit Namen und allgemein — ohne Doppelte', () => {
+  it('mit Namen nur die benannten Formen (keine "Damen und Herren")', () => {
     const v = salutationVarianten('Frau Erika Mustermann');
     const texte = v.map((x) => x.anrede);
     assertEqual(new Set(texte).size, texte.length, 'keine doppelten Texte');
-    assert(texte.includes('Sehr geehrte Frau Mustermann,'), 'foermlich mit Namen');
-    assert(texte.includes('Guten Tag Frau Mustermann,'), 'hoeflich mit Namen');
-    assert(texte.includes('Hallo Frau Mustermann,'), 'locker mit Namen');
-    assert(texte.includes(SALUTATION_TONES.formal.salutationDefault), 'allgemeine Form');
-    assertEqual(v.length, 6, 'drei Stile x zwei Formen');
+    assert(texte.includes('Sehr geehrte Frau Mustermann,'), 'foermlich');
+    assert(texte.includes('Sehr verehrte Frau Mustermann,'), 'sehr foermlich');
+    assert(texte.includes('Guten Tag Frau Mustermann,'), 'hoeflich');
+    assert(texte.includes('Hallo Frau Mustermann,'), 'locker');
+    assert(texte.includes('Liebe Frau Mustermann,'), 'persoenlich');
+    assert(!texte.includes(SALUTATION_TONES.formal.salutationDefault), 'keine allgemeine Form');
+    assertEqual(v.length, 5);
+  });
+
+  it('maennliche Anrede bekommt "Sehr verehrter" und "Lieber"', () => {
+    const texte = salutationVarianten('Herr Peter Mustermann').map((x) => x.anrede);
+    assert(texte.includes('Sehr verehrter Herr Mustermann,'));
+    assert(texte.includes('Lieber Herr Mustermann,'));
+    assert(!texte.includes('Liebe Herr Mustermann,'));
   });
 
   it('ohne Namen nur die allgemeinen Formen', () => {

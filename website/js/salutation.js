@@ -44,8 +44,9 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
 
 /**
  * Alle Anrede-Varianten zum aktuellen Empfaenger, fuer die Auswahl am Feld.
- * Drei Stile, je mit Namen (wenn vorhanden) und in der allgemeinen Form.
- * Doppelte Texte (z. B. wenn kein Name vorliegt) werden entfernt.
+ * Mit Empfaengernamen NUR die Formen mit Namen (die allgemeinen waeren hier
+ * falsch), dazu je Stil eine Variante mit anderem Tonfall (sehr verehrt /
+ * liebe(r)). Ohne Namen nur die allgemeinen Formen. Doppelte werden entfernt.
  * @param {string} rawName
  * @returns {Array<{ anrede: string, style: 'formal'|'polite'|'casual' }>}
  */
@@ -62,8 +63,25 @@ export function salutationVarianten(rawName) {
     out.push({ anrede: text, style });
   };
   for (const style of STYLES) {
-    if (name) dazu(deriveSalutation(name, style), style);
-    dazu(SALUTATION_TONES[style].salutationDefault, style);
+    if (!name) {
+      /* Ohne Empfaengernamen sind die allgemeinen Formen die einzigen, die
+         stimmen koennen. */
+      dazu(SALUTATION_TONES[style].salutationDefault, style);
+      continue;
+    }
+    const basis = deriveSalutation(name, style);
+    dazu(basis, style);
+    /* Erweiterungen, die dieselbe Stil-Gruppe (und damit denselben Gruss)
+       behalten: foermlicher bzw. persoenlicher als die Standardform. */
+    if (style === 'formal') {
+      if (basis.startsWith('Sehr geehrte')) dazu(basis.replace('Sehr geehrte', 'Sehr verehrte'), style);
+      if (basis.startsWith('Sehr geehrter')) dazu(basis.replace('Sehr geehrter', 'Sehr verehrter'), style);
+    }
+    if (style === 'casual') {
+      if (basis.startsWith('Hallo Frau')) dazu(basis.replace('Hallo Frau', 'Liebe Frau'), style);
+      else if (basis.startsWith('Hallo Herr')) dazu(basis.replace('Hallo Herr', 'Lieber Herr'), style);
+      else dazu(basis.replace('Hallo', 'Liebe'), style);
+    }
   }
   return out;
 }

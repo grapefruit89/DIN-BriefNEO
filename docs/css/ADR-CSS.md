@@ -211,8 +211,7 @@ Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die Top-Layer-Overlay
   * Formular-Controls gestaltet mit nativem `appearance: base-select`, `::picker(select)` und `::picker-icon`.
   * Semantische HTML-Switches (`input[type="checkbox"][switch]`) für Hilfslinien und Anlagen.
 * **CSS Anchor Positioning für schwebende UI (W3C Standard):**
-  * `#format-toolbar`: Verankert an `--selection-anchor` mit `position-area: top center; position-try-fallbacks: flip-block;`.
-  * `#anschrift-vorschlaege`: Verankert an `--anchor-anschrift-suche` (Geoapify Remote-Vorschläge).
+  * `#anschrift-vorschlaege` und `#plz-suggestions-popover`: Verankert per `top/left: anchor()`; die Klasse `.autocomplete-dropdown` traegt nur noch das Aussehen, keine Position (2026-11-22).
   * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
 * **Hoehe der Vorschlagslisten (Regel 2026-11-22, Nutzer-Vorgabe):**
   * Jede Vorschlagsliste geht **so weit nach unten, wie Platz ist** — bis **20 mm vor den Blatt-Unterrand** (`#kern`), mindestens 220 px, nie über das Fensterende hinaus. Lange Listen (Berlin: 284 PLZ) sollen weniger gescrollt werden.

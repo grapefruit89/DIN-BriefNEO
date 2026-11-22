@@ -361,19 +361,21 @@ fieldset.seitenleiste-field-group > legend {
 
 #clipboard-candidates-popover {
   position-anchor: --clipboard-btn;
+  /* Ohne Inset faellt ein Popover auf die UA-Position zurueck (gemessen
+     2026-11-22: x=2011, y=1090 statt am Button x=16, y=289). */
+  top: anchor(bottom);
+  left: anchor(left);
   width: max(anchor-size(width), 280px);
+  max-height: min(200px, 40vh);
 }
 
-/* Glassmorphic Dropdown for Geoapify address suggestions */
+/* Gemeinsames Aussehen beider Sidebar-Listen (Anschrift-Suche, Zwischenablage).
+   Position und Groesse stehen NUR in den ID-Regeln darunter: die Klasse setzte
+   frueher zusaetzlich position-area/width/max-height fuer die Anschrift-Liste,
+   die dieselben Dinge schon per anchor() bekommt (zwei Systeme gleichzeitig,
+   aufgeloest 2026-11-22). */
 .autocomplete-dropdown {
   position: absolute;
-  position-anchor: --anchor-anschrift-suche;
-  position-area: bottom span-x;
-  position-try-fallbacks: flip-block;
-  top: auto;
-  left: auto;
-  width: anchor-size(width);
-  max-height: 200px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
@@ -1043,7 +1045,8 @@ input[type="checkbox"][switch] {
 
 /* position-area loeste hier falsch auf (gemessen 2026-11-13: das Popover
    landete bei x=1497 statt x=16, also unten rechts am Schirm). Mit
-   anchor()-Funktionen sitzt es direkt unter dem Feld. */
+   anchor()-Funktionen sitzt es direkt unter dem Feld. Deshalb kommt Position
+   ausschliesslich von hier und nicht mehr aus .autocomplete-dropdown. */
 #anschrift-vorschlaege {
   position-anchor: --anchor-anschrift-suche;
   top: anchor(bottom);

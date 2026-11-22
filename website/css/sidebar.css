@@ -1499,3 +1499,59 @@ aside select {
    Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
    setzt SettingsManager.#applyPlugins() aus din_settings. */
 :root[data-plugin-testbrief="false"] #btn-testbrief { display: none; }
+
+/* Debug-Panel (nur per ?debug geladen, 2026-11-22). Bewusst klein: eine
+   Tabelle, zwei Knoepfe, unten links ueber der Seitenleiste. */
+.debug-panel {
+  position: fixed;
+  /* Rechts der Seitenleiste statt darueber: kein z-index-Kampf, und die
+     Seitenleiste bleibt bedienbar. --seitenleiste-breite ist der Token der Shell. */
+  left: calc(var(--seitenleiste-breite, 290px) + var(--space-md));
+  bottom: var(--space-md);
+  z-index: 1;              /* liegt ueber dem Blatt, unter Dialogen/Top-Layer */
+  max-width: 22rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.debug-kopf {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.debug-kopf strong { flex: 1; font-size: 0.7rem; }
+
+.debug-kopf button {
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.debug-tabelle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.1rem var(--space-sm);
+  margin: 0;
+}
+
+.debug-tabelle dt { color: var(--text-muted); white-space: nowrap; }
+.debug-tabelle dd { margin: 0; overflow-wrap: anywhere; }

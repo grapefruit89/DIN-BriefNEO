@@ -201,6 +201,16 @@ function initApp() {
   });
   bootStep('Addons', () => initAddonDispatcher());
 
+  /* ?debug -> kleines Selbstauskunfts-Panel (dynamischer Import: kein
+     Lastpfad fuer normale Nutzer, keine Zeile im Produktivverhalten). */
+  if (new URLSearchParams(location.search).has('debug')) {
+    bootStep('Debug-Panel', () => {
+      import('./debug-panel.js')
+        .then((m) => m.mountDebugPanel())
+        .catch((err) => console.debug('[Debug-panel] konnte nicht laden:', err));
+    });
+  }
+
   bootStep('Darstellung freigeben', () => {
     /* Idempotentes Netz: boot-state.js hat die Maske bereits entfernt. Steht
        sie hier noch (Seeder ausgefallen), wird sie jetzt freigegeben. Der
@@ -220,6 +230,13 @@ function initApp() {
     let metaCtx = null;
     window.addEventListener('beforeprint', () => {
       metaCtx = MetadataService.prepare();
+      /* Einfacher Druckzaehler fuer das Debug-Panel (kein Produktivwert). */
+      try {
+        const bisher = Number(localStorage.getItem('din_print_count') || '0') || 0;
+        localStorage.setItem('din_print_count', String(bisher + 1));
+      } catch {
+        /* Speicher voll/gesperrt: der Zaehler ist nicht wichtig genug fuer eine Meldung. */
+      }
     });
     window.addEventListener('afterprint', () => {
       if (metaCtx) {

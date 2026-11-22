@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung, strassenSuchPfad } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung, strassenSuchPfad, ermittleGeoBias, GEO_BIAS_TTL_MS } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -2876,6 +2876,83 @@ describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
   it('Naehe ist ueberschreibbar (targetLock statt Bonn)', () => {
     const pfad = strassenSuchPfad('Ringstr', 'KEY', { lon: 8.5, lat: 47.4 });
     assert(/bias=proximity%3A8.5%2C47.4/.test(pfad), 'eigene Naehe');
+  });
+});
+
+describe('Straßen-Nähe: woher der Bias kommt (2026-11-22)', () => {
+  /**
+   * @param {{ ok: boolean, status?: number, json?: () => Promise<unknown> }} antwort
+   * @param {() => Promise<{ quelle: string, lat?: number, lon?: number, ort?: string }>} fn
+   */
+  const mitFetch = async (antwort, fn) => {
+    const original = window.fetch;
+    /** @type {string[]} */
+    const aufrufe = [];
+    // @ts-ignore - Test-Stub, absichtlich schmaler als fetch
+    window.fetch = (/** @type {any} */ url) => {
+      aufrufe.push(String(url));
+      return Promise.resolve(antwort);
+    };
+    try {
+      return { ergebnis: await fn(), aufrufe };
+    } finally {
+      window.fetch = original;
+    }
+  };
+
+  it('nimmt die Absender-PLZ zuerst — ohne jede Netzanfrage', async () => {
+    localStorage.setItem(STORAGE_KEYS.senderCoords, JSON.stringify({ lat: 50.81, lon: 7.15 }));
+    const { ergebnis, aufrufe } = await mitFetch(
+      { ok: false },
+      () => ermittleGeoBias('KEY')
+    );
+    assertEqual(ergebnis.quelle, 'absender', 'PLZ schlaegt IP');
+    assertEqual(ergebnis.lat, 50.81);
+    assertEqual(aufrufe.length, 0, 'kein Netz, wenn die PLZ bekannt ist');
+    localStorage.removeItem(STORAGE_KEYS.senderCoords);
+  });
+
+  it('holt den IP-Standort einmal und nimmt ihn danach aus dem Cache', async () => {
+    const antwort = {
+      ok: true,
+      json: async () => ({ location: { latitude: 50.8, longitude: 7.21184 }, city: { name: 'Siegburg' } })
+    };
+    const erster = await mitFetch(antwort, () => ermittleGeoBias('KEY'));
+    assertEqual(erster.ergebnis.quelle, 'ip');
+    assertEqual(erster.aufrufe.length, 1, 'genau ein Abruf');
+    assert(/ipinfo/.test(erster.aufrufe[0]), 'Geoapify-IP-Endpunkt');
+
+    const zweiter = await mitFetch(antwort, () => ermittleGeoBias('KEY'));
+    assertEqual(zweiter.aufrufe.length, 0, 'zweiter Aufruf kommt aus dem Cache');
+    assertEqual(zweiter.ergebnis.ort, 'Siegburg');
+    localStorage.removeItem(STORAGE_KEYS.geoBias);
+  });
+
+  it('ohne Key bleibt Bonn (kein Netz)', async () => {
+    const { ergebnis, aufrufe } = await mitFetch({ ok: false }, () => ermittleGeoBias(''));
+    assertEqual(ergebnis.quelle, 'standard');
+    assertEqual(aufrufe.length, 0, 'ohne Key wird nicht gefragt');
+  });
+
+  it('HTTP-Fehler faellt auf Bonn zurueck und schreibt keinen Cache', async () => {
+    const { ergebnis } = await mitFetch({ ok: false, status: 404 }, () => ermittleGeoBias('KEY'));
+    assertEqual(ergebnis.quelle, 'standard');
+    assertEqual(localStorage.getItem(STORAGE_KEYS.geoBias), null, 'kein falscher Cache');
+  });
+
+  it('ein Standort aelter als 24 h wird neu geholt', async () => {
+    localStorage.setItem(
+      STORAGE_KEYS.geoBias,
+      JSON.stringify({ lat: 1, lon: 2, ts: Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds - GEO_BIAS_TTL_MS - 1000 })
+    );
+    const antwort = {
+      ok: true,
+      json: async () => ({ location: { latitude: 50.8, longitude: 7.21 }, city: { name: 'Siegburg' } })
+    };
+    const { ergebnis, aufrufe } = await mitFetch(antwort, () => ermittleGeoBias('KEY'));
+    assertEqual(ergebnis.quelle, 'ip');
+    assertEqual(aufrufe.length, 1, 'abgelaufener Cache wird ersetzt');
+    localStorage.removeItem(STORAGE_KEYS.geoBias);
   });
 });
 

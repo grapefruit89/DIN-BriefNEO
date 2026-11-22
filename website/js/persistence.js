@@ -85,6 +85,7 @@ export const STORAGE_KEYS = {
   geoapifyKey: 'din_geoapify_key',
   addresses: 'din_local_addresses',
   senderCoords: 'din_sender_coords',
+  geoBias: 'din_geo_bias',
   schema: 'din_schema_version'
 };
 

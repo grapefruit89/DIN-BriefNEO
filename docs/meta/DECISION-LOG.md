@@ -4608,3 +4608,47 @@ Same-Origin-Praezisierung ergaenzt. Fitness wieder 100,0 %.
 **Nebenbefund, nicht geaendert:** der Scanner erfasst nackte
 `import '…'`-Anweisungen und `url(…)` ohne Anfuehrungszeichen nicht
 (vorbestehende Luecke, unabhaengig von dieser Aenderung).
+
+---
+
+## 2026-11-22 — Straßensuche: Nähe aus Absender-PLZ, dann IP, dann Bonn
+
+**Problem (Nutzer):** Straßennamen gibt es tausendfach. „Idealerweise wäre es,
+wenn zuerst Straßennamen angezeigt werden, die beim Benutzer in der Nähe sind."
+PLZ und Stadt laufen lokal über die eingebaute JSON; nur die Straße braucht
+Geoapify — und damit gibt es in genau dem Moment, in dem die Frage entsteht,
+auch einen Key.
+
+**Drei Stufen, in dieser Reihenfolge (`ermittleGeoBias`, address.js):**
+
+| Stufe | Quelle | Netzanfragen | Genauigkeit |
+|---|---|---|---|
+| 1 | `din_sender_coords` — Koordinaten der **Absender-PLZ**, entstehen beim Tippen der PLZ (address.js:1743) | **0** | exakt |
+| 2 | `/v1/ipinfo` (Geoapify), 24 h in `din_geo_bias` | 1 pro Tag | Stadt-Ebene, gemessen ~5 km |
+| 3 | `STRASSEN_BIAS` (Bonn) | 0 | Notnagel |
+
+**Kein neuer Empfänger:** `/v1/ipinfo` geht an dieselbe Adresse wie jede
+Straßensuche, und die IP sieht Geoapify dort ohnehin. Kein Standortdialog, keine
+Browser-Freigabe, kein `navigator.geolocation`.
+
+**Kein Filter:** der Punkt geht als `bias=proximity:` in die Query. Geoapify:
+„bias influences ranking without excluding matches" — alle Treffer bleiben.
+
+**Einmal je Sitzung:** `geoBiasLauf` (Promise) hält das Ergebnis; scheitert der
+IP-Weg, wird der Lauf verworfen und ein späterer Versuch darf neu.
+
+**Gemessen (2026-11-22, Debug-Profil, Standort Troisdorf):**
+
+| Prüfung | Ergebnis |
+|---|---|
+| `/v1/ipinfo` | HTTP 200, 127 ms, `Siegburg (Wolsdorf)`, `50.8 / 7.21184` |
+| Such-URL | `…&type=street&filter=countrycode:de&bias=proximity:7.21184,50.8` |
+| Treffer „Gartenstraße" | Siegburg, Sankt Augustin, Lohmar, Hennef — **8 Treffer, 0 ipinfo-Aufrufe** (Cache) |
+| gleicher Begriff, Bias Hamburg | Hamburg, Schenefeld, Halstenbek, Ellerbek → Bias wirkt eindeutig |
+| Cache-Hit in der Geo-Suche | gar kein Netz-Request (Bias wird nicht gebraucht) |
+
+**A48/A50:** die Zeitstempel nutzen `Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds`
+— `Date.now()` ist per A48 verboten, `Temporal.Now` ohne IANA-Zone per A50.
+
+**Tests:** 5 neue Fälle (PLZ vor IP ohne Netz, IP einmal + Cache, ohne Key Bonn,
+HTTP 404 → Bonn ohne Cache, Cache älter als 24 h wird erneuert). Gesamt 424.

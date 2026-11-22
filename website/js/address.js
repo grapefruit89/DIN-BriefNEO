@@ -537,6 +537,71 @@ export function flacheVorschlaege(liste, limit = Number.POSITIVE_INFINITY) {
 export const STRASSEN_BIAS = Object.freeze({ lon: 7.0982068, lat: 50.73743 });
 
 /**
+ * Wie lange ein per IP ermittelter Standort gilt. Ein Tag reicht: der Punkt
+ * soll die Naehe gewichten, nicht einen Aufenthaltsverlauf aufzeichnen.
+ */
+export const GEO_BIAS_TTL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Naehe-Punkt fuer die Strassensuche — drei Stufen, keine davon ein neuer
+ * Empfaenger:
+ *
+ *   1. `din_sender_coords` — Koordinaten der **Absender-PLZ**. Sie entstehen
+ *      lokal beim Tippen der PLZ (address.js:1743) und kosten 0 Netzanfragen.
+ *      Das ist der genaueste Punkt, den die App ohne Zutun hat.
+ *   2. IP-Standort ueber Geoapify (`/v1/ipinfo`), 24 h zwischengespeichert.
+ *      Derselbe Empfaenger wie jede Strassensuche, dieselbe Datenkategorie
+ *      (die IP sieht Geoapify ohnehin bei jeder Suche) — kein neuer Abfluss.
+ *      Gemessen 2026-11-22: Stadt-Ebene, ~5 km genau (Troisdorf -> Siegburg).
+ *   3. Bonn (`STRASSEN_BIAS`) — nur wenn weder PLZ noch Key noch Netz da ist.
+ *
+ * Der Punkt geht als `bias=proximity:` in die Suche und **schraenkt nichts
+ * ein**: Geoapify dokumentiert "bias influences ranking without excluding
+ * matches" (Address Autocomplete API). Alle Treffer bleiben, die nahen oben.
+ *
+ * @param {string} key
+ * @returns {Promise<{ lat: number, lon: number, quelle: 'absender' | 'ip' | 'standard', ort?: string, ts?: number }>}
+ */
+export async function ermittleGeoBias(key) {
+  const absender = /** @type {{ lat?: number, lon?: number } | null} */ (
+    loadJSON(STORAGE_KEYS.senderCoords, null)
+  );
+  if (typeof absender?.lat === 'number' && typeof absender?.lon === 'number') {
+    return { lat: absender.lat, lon: absender.lon, quelle: 'absender' };
+  }
+
+  const zwischen = /** @type {{ lat?: number, lon?: number, ts?: number, ort?: string } | null} */ (
+    loadJSON(STORAGE_KEYS.geoBias, null)
+  );
+  if (
+    typeof zwischen?.lat === 'number' &&
+    typeof zwischen?.lon === 'number' &&
+    Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds - Number(zwischen.ts || 0) < GEO_BIAS_TTL_MS
+  ) {
+    return /** @type {any} */ ({ ...zwischen, quelle: 'ip' });
+  }
+
+  if (!key) return { ...STRASSEN_BIAS, quelle: 'standard' };
+
+  try {
+    const antwort = await fetch(`https://api.geoapify.com/v1/ipinfo?apiKey=${encodeURIComponent(key)}`);
+    if (!antwort.ok) return { ...STRASSEN_BIAS, quelle: 'standard' };
+    const daten = await antwort.json();
+    const lat = daten?.location?.latitude;
+    const lon = daten?.location?.longitude;
+    if (typeof lat !== 'number' || typeof lon !== 'number') {
+      return { ...STRASSEN_BIAS, quelle: 'standard' };
+    }
+    const eintrag = { lat, lon, quelle: 'ip', ort: daten?.city?.name || '', ts: Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds };
+    saveJSON(STORAGE_KEYS.geoBias, eintrag);
+    return /** @type {any} */ (eintrag);
+  } catch {
+    /* offline, CSP oder kein Netz: Bonn bleibt der Notnagel. */
+    return { ...STRASSEN_BIAS, quelle: 'standard' };
+  }
+}
+
+/**
  * Query fuer die Strassen-Autovervollstaendigung (Geoapify).
  * `type=street` und ein kleines Limit sind der ganze Geschwindigkeits-
  * unterschied (gemessen 2026-11-22, gleiche Leitung):
@@ -1774,6 +1839,8 @@ export function initAddressServices() {
     /* @review 2026-11-22 EIN Abruf fuer beide Strassenfelder (initStrasse ruft
        diese Funktion zweimal). AbortController bricht die Vorabfrage ab;
        leere Treffer werden als Negative-Cache abgelegt. */
+    /** @type {Promise<{ lat: number, lon: number, quelle: string }> | null} */
+    let geoBiasLauf = null;
     /** @param {string} text */
     const holeStrassen = async (text) => {
       if (text.length < 3 || !navigator.onLine) return [];
@@ -1790,8 +1857,13 @@ export function initAddressServices() {
       strassenController?.abort();
       strassenController = new AbortController();
       try {
+        /* Einmal ermitteln, nicht je Tastendruck. Scheitert der IP-Weg,
+           wird der Lauf verworfen, damit ein spaeterer Versuch neu darf. */
+        geoBiasLauf ??= ermittleGeoBias(key);
+        const bias = await geoBiasLauf;
+        if (bias.quelle === 'standard') geoBiasLauf = null;
         const { antwort } = await holeMitFailover(
-          strassenSuchPfad(text, key),
+          strassenSuchPfad(text, key, bias),
           strassenController
         );
         if (!antwort.ok) return [];

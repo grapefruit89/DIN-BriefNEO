@@ -64,6 +64,28 @@ function leseWerte() {
 }
 
 /**
+ * Woher die Strassensuche ihre Naehe nimmt — eine Zeile, damit im Kopiertext
+ * steht, welcher Punkt gerade wirkt (Absender-PLZ, IP oder Bonn).
+ * @returns {string}
+ */
+function biasText() {
+  const absender = /** @type {{ lat?: number, lon?: number } | null} */ (
+    loadJSON(STORAGE_KEYS.senderCoords, null)
+  );
+  if (typeof absender?.lat === 'number' && typeof absender?.lon === 'number') {
+    return `Absender-PLZ ${absender.lat.toFixed(2)}/${absender.lon.toFixed(2)} (lokal, 0 Requests)`;
+  }
+  const ip = /** @type {{ lat?: number, lon?: number, ts?: number, ort?: string } | null} */ (
+    loadJSON(STORAGE_KEYS.geoBias, null)
+  );
+  if (typeof ip?.lat === 'number' && typeof ip?.lon === 'number') {
+    const stunden = Math.max(0, Math.round((Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds - Number(ip.ts || 0)) / 3_600_000));
+    return `${ip.ort || 'IP'} ${ip.lat.toFixed(2)}/${ip.lon.toFixed(2)} (ip, vor ${stunden} h)`;
+  }
+  return 'Bonn 50.74/7.10 (Standard - keine PLZ, kein IP-Standort)';
+}
+
+/**
  * Was das Dropdown eines Feldes anbieten wuerde — je Feld mit **Feld-ID**,
  * aktuellem Wert und allen Angeboten, damit eine KI die Ausgabe einer Instanz
  * zuordnen kann (Vorgabe 2026-11-22).
@@ -234,7 +256,13 @@ function verdrahteKnoepfe() {
         const bloecke = await Promise.all(arten.map((a) => dropdownInhalt(a)));
         const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
         const titel = art === 'alles' ? 'Debug: alle Dropdown-Felder' : 'Anrede & Grußformel';
-        zeilen = [titel, '-'.repeat(titel.length), `Tonalität: ${stil?.value || '?'}`, ''];
+        zeilen = [
+          titel,
+          '-'.repeat(titel.length),
+          `Tonalität: ${stil?.value || '?'}`,
+          `Bias: ${biasText()}`,
+          ''
+        ];
         for (const block of bloecke) {
           if (!block) continue;
           zeilen.push(...blockText(block), '');

@@ -1122,9 +1122,11 @@ input[type="checkbox"][switch] {
   position-anchor: --anchor-ort;
   top: anchor(bottom);
   left: anchor(left);
-  min-width: max(300px, anchor-size(width));
-  /* Breiter: lange Organisationsnamen brauchten mehr Platz (2026-11-22).
-     Gedeckelt auf den Blatt-Textbereich (165 mm), nicht auf das Fenster. */
+  /* Mindestens so breit wie das Feld, nicht breiter erzwungen: die frueheren
+     300 px standen im Infoblock (Feld 246 px) 54 px ueber und ragten nach
+     links ueber die Ruecksendezeile (gemeldet 2026-11-22). Lange
+     Organisationsnamen wachsen weiter auf, bis 165 mm (Blatt-Textbereich). */
+  min-width: anchor-size(width);
   max-width: 165mm;
   /* Fallback, falls das JS nicht laeuft. Beim Oeffnen setzt
      passeAnBlattrand() die Hoehe exakt bis 20 mm vor den Blatt-Unterrand

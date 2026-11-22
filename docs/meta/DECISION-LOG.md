@@ -4978,3 +4978,23 @@ für anrede/gruss/strasse → der Test hätte den Fehler gemeldet.
 
 **Offen (nicht kaputt):** der `.autocomplete-dropdown`-Block (3 Regeln) wird
 von keinem HTML-Element mehr genutzt — toter CSS, kein Fehler.
+
+**Korrektur 2 (2026-11-22): Ortspopover zu breit.** `#plz-suggestions-popover`
+hatte `min-width: max(300px, anchor-size(width))`. Im Infoblock ist das
+Absender-Feld nur **246 px** breit — die Liste stand 54 px über und ragte nach
+links über die Rücksendezeile.
+
+Jetzt: `min-width: anchor-size(width)` (mindestens Feldbreite, nach oben offen
+bis 165 mm, damit lange Organisationsnamen weiter Platz haben).
+
+Gemessen:
+
+| Feld | Feldbreite | Popover | rechtsbündig | Überstand |
+|---|---|---|---|---|
+| `#absender-ort` | 246 | **246** | ja | 0 |
+| `#empfaenger-ort` | 302 | 460 (Inhalt der Bonn-Liste) | nein, wächst nach rechts | 0 |
+| `#empfaenger-strasse` | 302 | 302 | ja | 0 |
+
+Der Empfänger-Fall ist unverändert (die Liste war immer inhaltsbreit und bleibt
+im Blatt) — nur der erzwungene 300-px-Minimum im schmalen Infoblock ist weg.
+Cache-Buster live24.

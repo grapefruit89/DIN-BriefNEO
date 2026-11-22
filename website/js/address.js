@@ -35,7 +35,7 @@ import { geoCacheHole, geoCacheSetze, geoCacheZaehle } from './geo-cache.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { letterState, setMeta } from './state.js';
 import { applyValue, commitElement } from './state-binding.js';
-import { initVorschlagsliste, passeAnBlattrand } from './suggestion-list.js';
+import { initVorschlagsliste, klemmeAnSatzspiegel } from './suggestion-list.js';
 
 export {
   AddressData,
@@ -79,7 +79,7 @@ export function feld(id) {
  * @param {1 | -1} richtung
  * @returns {number} neuer Index
  */
-function bewegeAuswahl(items, von, richtung) {
+function navigiereListe(items, von, richtung) {
   const naechster = von < 0
     ? (richtung > 0 ? 0 : items.length - 1)
     : (von + richtung + items.length) % items.length;
@@ -450,10 +450,10 @@ AddressIntelligence.wireDOM = function wireDOM() {
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      bewegeAuswahl(/** @type {HTMLElement[]} */ (items), currentIndex, 1);
+      navigiereListe(/** @type {HTMLElement[]} */ (items), currentIndex, 1);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      bewegeAuswahl(/** @type {HTMLElement[]} */ (items), currentIndex, -1);
+      navigiereListe(/** @type {HTMLElement[]} */ (items), currentIndex, -1);
     } else if (e.key === 'Enter') {
       if (items.length > 0) {
         e.preventDefault();
@@ -847,7 +847,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
     bindListSelection(popoverEl, eintraege, selectItem);
     /* So weit nach unten wie das Blatt erlaubt (20 mm Rand) — weniger
        Scrollen bei langen Listen (Vorgabe 2026-11-22). */
-    passeAnBlattrand(popoverEl, /** @type {HTMLElement} */ (anchorEl || ortEl));
+    klemmeAnSatzspiegel(popoverEl, /** @type {HTMLElement} */ (anchorEl || ortEl));
   };
 
   render();
@@ -1101,7 +1101,7 @@ export function initAddressServices() {
    * Generation noch die aktuelle ist (B3-03): der Abort greift nur, wenn
    * danach ein NEUER Request startet — bei "Feld geleert" oder "< 3 Zeichen"
    * startet keiner, und die alte Antwort blieb stehen. */
-  let suchGeneration = 0;
+  let anfrageKennung = 0;
   /** @type {any} */
   let debounceSearchTimeout = null;
   /** @type {any} */
@@ -1272,7 +1272,7 @@ export function initAddressServices() {
    * @param {AbortController} controller
    * @returns {Promise<{ antwort: Response, host: string }>}
    */
-  async function holeJsonMitFailover(pfad, controller) {
+  async function holeMitFailover(pfad, controller) {
     let letzterFehler = null;
     for (const host of GEOAPIFY_HOSTS) {
       try {
@@ -1393,7 +1393,7 @@ export function initAddressServices() {
       event.preventDefault();
       const optionen = /** @type {HTMLElement[]} */ (Array.from(addressSuggestions.querySelectorAll('[role=option]')));
       const richtung = /** @type {1 | -1} */ (key === 'ArrowDown' ? 1 : -1);
-      activeSuggestionIndex = bewegeAuswahl(optionen, activeSuggestionIndex, richtung);
+      activeSuggestionIndex = navigiereListe(optionen, activeSuggestionIndex, richtung);
       inputAddressSearch.setAttribute('aria-activedescendant', `anschrift-vorschlag-${activeSuggestionIndex}`);
     } else if (key === 'Enter' && activeSuggestionIndex >= 0) {
       event.preventDefault();
@@ -1408,7 +1408,7 @@ export function initAddressServices() {
   inputAddressSearch.addEventListener('input', () => {
     clearTimeout(debounceSearchTimeout);
     const query = inputAddressSearch.value.trim();
-    const generation = ++suchGeneration;
+    const generation = ++anfrageKennung;
 
     if (query.length < 3) {
       if (activeAbortController) activeAbortController.abort();
@@ -1426,7 +1426,7 @@ export function initAddressServices() {
        verzeichnis dazu - es kennt Orte, PLZ, Ortsteile und Firmen, aber
        KEINE Strassennamen. Strassen brauchen weiter den Key. */
     const offlineMatches = sucheOffline(query);
-    const sofort = mischeNachRelevanz([localMatches, offlineMatches], query);
+    const sofort = fusioniereNachRelevanz([localMatches, offlineMatches], query);
 
     if (!sofort.length && !load(STORAGE_KEYS.geoapifyKey, '')) {
       zeigeSuchHinweis('Keine Treffer im Ortsverzeichnis. Strassen suchen braucht einen API-Schlüssel (Einstellungen).');
@@ -1473,7 +1473,7 @@ export function initAddressServices() {
     }
 
     try {
-      const { antwort: response } = await holeJsonMitFailover(pfad, activeAbortController);
+      const { antwort: response } = await holeMitFailover(pfad, activeAbortController);
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           save(STORAGE_KEYS.geoapifyKey, '');
@@ -1521,7 +1521,7 @@ export function initAddressServices() {
       letzterAdressSchluessel = cacheKey;
       /* Ueberholte Antwort verwerfen: der Nutzer hat inzwischen weitergetippt
        * oder das Feld geleert (B3-03). */
-      if (generation !== suchGeneration) return;
+      if (generation !== anfrageKennung) return;
       mergeAndRender(localMatches, parsedSuggestions, query);
     } catch (err) {
       const error = /** @type {Error} */ (err);
@@ -1543,7 +1543,7 @@ export function initAddressServices() {
    * @param {string} query
    * @returns {AddressEntry[]}
    */
-  function mischeNachRelevanz(quellen, query) {
+  function fusioniereNachRelevanz(quellen, query) {
     /** @type {AddressEntry[]} */
     const combined = [];
     for (const quelle of quellen) {
@@ -1562,7 +1562,7 @@ export function initAddressServices() {
    * @param {string} query
    */
   function mergeAndRender(localMatches, remoteMatches, query) {
-    renderSuggestions(mischeNachRelevanz([localMatches, remoteMatches], query), query, true);
+    renderSuggestions(fusioniereNachRelevanz([localMatches, remoteMatches], query), query, true);
   }
 
   /**
@@ -1615,7 +1615,7 @@ export function initAddressServices() {
     }
 
     bindListSelection(addressSuggestions, renderedSuggestions, selectSuggestion);
-    if (inputAddressSearch) passeAnBlattrand(addressSuggestions, inputAddressSearch);
+    if (inputAddressSearch) klemmeAnSatzspiegel(addressSuggestions, inputAddressSearch);
 
     showPopoverSafe(addressSuggestions);
   }
@@ -1636,7 +1636,7 @@ export function initAddressServices() {
     li.setAttribute('aria-selected', 'false');
     Field.setValue(li, text);
     addressSuggestions.appendChild(li);
-    if (inputAddressSearch) passeAnBlattrand(addressSuggestions, inputAddressSearch);
+    if (inputAddressSearch) klemmeAnSatzspiegel(addressSuggestions, inputAddressSearch);
     showPopoverSafe(addressSuggestions);
   }
 
@@ -1733,7 +1733,7 @@ export function initAddressServices() {
     let letzterStrassenSchluessel = '';
 
     /** @param {any} r Geoapify-Treffer @returns {{ text: string, zusatz: string, wert: any }} */
-    const alsVorschlag = (r) => ({
+    const zuVorschlag = (r) => ({
       text: [r.street, r.housenumber].filter(Boolean).join(' '),
       zusatz: `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`,
       wert: r
@@ -1750,12 +1750,12 @@ export function initAddressServices() {
       /* Auch eine LEERE Trefferliste ist ein Ergebnis: sonst fragt jeder
          erneute Tastendruck dieselbe nichtsnutzige Zeichenfolge wieder an
          (Vorgabe 2026-11-22: "alle Ergebnisse speichern"). */
-      if (ausCache) return ausCache.map(alsVorschlag);
+      if (ausCache) return ausCache.map(zuVorschlag);
 
       strassenController?.abort();
       strassenController = new AbortController();
       try {
-        const { antwort } = await holeJsonMitFailover(
+        const { antwort } = await holeMitFailover(
           strassenSuchPfad(text, key),
           strassenController
         );
@@ -1767,7 +1767,7 @@ export function initAddressServices() {
           return [];
         }
         cacheSetze(schluessel, /** @type {any} */ (treffer));
-        return treffer.map(alsVorschlag);
+        return treffer.map(zuVorschlag);
       } catch (err) {
         /* Abbruch ist kein Fehler: der naechste Tastendruck fragt neu. */
         if (/** @type {Error} */ (err)?.name !== 'AbortError') {

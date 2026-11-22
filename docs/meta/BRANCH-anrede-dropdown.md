@@ -81,7 +81,7 @@ git diff --stat main...HEAD       # 14 Dateien
 
 | Datei | Stelle | Inhalt |
 |---|---|---|
-| `website/js/suggestion-list.js` | `blattrandHoehe()`, `passeAnBlattrand()`, `BLATTRAND_PX = 76` | Höhe bis 20 mm vor Unterkante **der ersten Seite** (`#kern` bei Mehrseiten = Multicol über alle Seiten → darum `top + width × 297/210`) |
+| `website/js/suggestion-list.js` | `satzspiegelHoehe()`, `klemmeAnSatzspiegel()`, `BLATTRAND_PX = 76` | Höhe bis 20 mm vor Unterkante **der ersten Seite** (`#kern` bei Mehrseiten = Multicol über alle Seiten → darum `top + width × 297/210`) |
 | `website/css/sidebar.css` | `#plz-suggestions-popover`, `#anrede-vorschlaege`, `#strasse-vorschlaege` | `max-width: 165 mm` (210 − 25 − 20), Fallback-Höhe 165 mm |
 | `website/css/sidebar.css` | `body:has(#absender-ort:focus) …`, `#strasse-vorschlaege`, `body:has(#empfaenger-strasse:focus) …` | Infoblock-Felder rechtsbündig (`right: anchor(right)`), Empfänger-Straße linksbündig |
 | `website/css/sheet-multipage.css` | `:root:has(#btn-rand-u-30:checked)` | `--rand-u: 30mm` rein per CSS |

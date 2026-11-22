@@ -21,7 +21,7 @@ import { applyState, applyValue, commitElement, hydrateStateFromDom, initStateBi
 import { deriveSalutation, SALUTATION_TONES, salutationVarianten, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
-import { BLATTRAND_PX, blattrandHoehe } from '../website/js/suggestion-list.js';
+import { BLATTRAND_PX, satzspiegelHoehe } from '../website/js/suggestion-list.js';
 import { geoCacheGroesse, geoCacheHash, geoCacheHole, geoCacheLeeren, geoCacheNutzung, geoCacheSetze, geoCacheZaehle, RING_MAX_BYTES } from '../website/js/geo-cache.js';
 import { assert, assertEqual, describe, it, run } from './runner.js';
 
@@ -2853,7 +2853,7 @@ describe('Vorschlagslisten: Hoehe bis 20 mm vor den Blatt-Unterrand (2026-11-22)
     /* Gemessen im Browser: Blatt 37..1160, Ortfeld endet bei 277, Fenster 1197. */
     assertEqual(BLATTRAND_PX, 76, '20 mm bei 96 dpi');
     assertEqual(
-      blattrandHoehe({ oben: 281, blattUnten: 1160, viewportUnten: 1197 }),
+      satzspiegelHoehe({ oben: 281, blattUnten: 1160, viewportUnten: 1197 }),
       1160 - 76 - 281 - 8,
       'Blattrand ist die Grenze'
     );
@@ -2861,7 +2861,7 @@ describe('Vorschlagslisten: Hoehe bis 20 mm vor den Blatt-Unterrand (2026-11-22)
 
   it('bleibt am Blatt, auch wenn es unten aus dem Fenster ragt', () => {
     assertEqual(
-      blattrandHoehe({ oben: 281, blattUnten: 2000, viewportUnten: 900 }),
+      satzspiegelHoehe({ oben: 281, blattUnten: 2000, viewportUnten: 900 }),
       2000 - 76 - 281 - 8,
       'Blatt-Unterrand gilt, nicht das Fenster'
     );
@@ -2869,13 +2869,13 @@ describe('Vorschlagslisten: Hoehe bis 20 mm vor den Blatt-Unterrand (2026-11-22)
 
   it('ohne Blatt gilt das Fenster', () => {
     assertEqual(
-      blattrandHoehe({ oben: 281, viewportUnten: 1197 }),
+      satzspiegelHoehe({ oben: 281, viewportUnten: 1197 }),
       1197 - 76 - 281 - 8
     );
   });
 
   it('bleibt bei mindestens 220 px, auch wenn kaum Platz ist', () => {
-    assertEqual(blattrandHoehe({ oben: 1000, blattUnten: 1100, viewportUnten: 1100 }), 220);
+    assertEqual(satzspiegelHoehe({ oben: 1000, blattUnten: 1100, viewportUnten: 1100 }), 220);
   });
 });
 

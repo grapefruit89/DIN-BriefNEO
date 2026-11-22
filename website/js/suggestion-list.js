@@ -43,7 +43,7 @@ export const BLATTRAND_PX = 76;
  * @param {{ oben: number, blattUnten?: number, viewportUnten: number, rand?: number }} lage
  * @returns {number} nutzbare Hoehe in px (mindestens 220)
  */
-export function blattrandHoehe({ oben, blattUnten, viewportUnten, rand = BLATTRAND_PX }) {
+export function satzspiegelHoehe({ oben, blattUnten, viewportUnten, rand = BLATTRAND_PX }) {
   /* Kein min(Fenster, Blatt) mehr: das Fenster hat hier nichts zu melden.
      Liegt der Blatt-Unterrand ausserhalb des Sichtbereichs, reicht die Liste
      dorthin - beim Scrollen folgt sie dem Feld. */
@@ -62,7 +62,7 @@ export function blattrandHoehe({ oben, blattUnten, viewportUnten, rand = BLATTRA
  * @param {HTMLElement} popover
  * @param {HTMLElement} feldEl Ankerfeld (die Liste haengt darunter)
  */
-export function passeAnBlattrand(popover, feldEl) {
+export function klemmeAnSatzspiegel(popover, feldEl) {
   if (!popover || !feldEl) return;
   const feldRect = feldEl.getBoundingClientRect();
   const blatt = document.getElementById('kern')?.getBoundingClientRect();
@@ -71,7 +71,7 @@ export function passeAnBlattrand(popover, feldEl) {
      Unterkante liegt dann auf Seite 2, 3, ... A4 ist 210 x 297 mm, also
      laesst sich die Seitenhoehe aus der Breite ableiten. */
   const ersteSeiteUnten = blatt ? blatt.top + (blatt.width * 297) / 210 : undefined;
-  const hoehe = blattrandHoehe({
+  const hoehe = satzspiegelHoehe({
     /* 4 px = Abstand des Popovers zum Feld (margin-top: var(--space-xs)). */
     oben: feldRect.bottom + 4,
     blattUnten: ersteSeiteUnten,
@@ -171,7 +171,7 @@ export function initVorschlagsliste(cfg) {
     });
     /* Standard: so hoch wie das Blatt es zulaesst; `cfg.groesse` darf
        danach Breite/Position setzen (z. B. Strassenliste). */
-    passeAnBlattrand(popover, feld);
+    klemmeAnSatzspiegel(popover, feld);
     if (cfg.groesse) cfg.groesse(popover, feld);
     showPopoverSafe(popover);
     feld.setAttribute('aria-expanded', 'true');
@@ -200,7 +200,7 @@ export function initVorschlagsliste(cfg) {
         li.className = 'suggestion-hint';
         li.textContent = cfg.leer;
         popover.appendChild(li);
-        passeAnBlattrand(popover, feld);
+        klemmeAnSatzspiegel(popover, feld);
         if (cfg.groesse) cfg.groesse(popover, feld);
         showPopoverSafe(popover);
       } else {

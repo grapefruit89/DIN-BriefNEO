@@ -45,7 +45,7 @@ depends_on: []
 | **Immutable-Law-Catalog**, Regeln A34/S1/P10, maschinell geprüft | *Executable Architecture Rules* / *Policy-as-Code* (Vorbild ArchUnit) | `docs/norm/Immutable-Law-Catalog.md`, `tools/reconciliation.js` |
 | **HARD BAN + moderner Ersatz** (51 Regeln) | *Deprecation Registry* | `tools/reconciliation.js --only-rules` |
 | **Wegweiser-Gate** (neues Modul muss dokumentiert sein) | *Traceability Matrix* / *Docs-as-Code* | `tools/repo-map-check.mjs` |
-| **Satzspiegel** (25/20/20 mm als Bezug der Listen) | Satzspiegel — Fachbegriff der Typografie, kein Methodenanker | `website/js/suggestion-list.js` `passeAnBlattrand` |
+| **Satzspiegel** (25/20/20 mm als Bezug der Listen) | Satzspiegel — Fachbegriff der Typografie, kein Methodenanker | `website/js/suggestion-list.js` `klemmeAnSatzspiegel` |
 | **KNOWN FAIL** im Korpus | *Accepted Baseline* / *Characterization Test* | `test/corpus/run.js` |
 
 ## 2. Anders benannt, gleiches Konzept
@@ -79,6 +79,21 @@ Zuruf.
 | `targetLock` | `sticky search context` | „Lock" klingt nach Nebenläufigkeit/Sperre; gemeint ist „zuletzt gewählte Stadt als Suchkontext" | ~7 Stellen (`address.js`, `address-data.js`, `draft-manager.js`, README) |
 | `Immutable-Law-Catalog` | *Architecture Invariants* / *Constitution* | „Law" kollidiert mit dem echten Regelwerk DIN 5008; gemeint sind Architektur-Invarianten | Dateiname + viele Doku-Verweise — **nicht** empfohlen |
 | `flacheVorschlaege` | `progressive disclosure` | Der Name beschreibt die Datenform, nicht den Zweck (Sammelzeilen ausklappen) | 2 Aufrufer + 1 Test — günstig |
+
+### 3b. Umbenannt am 2026-11-22 (Bedeutung unverändert)
+
+| vorher | jetzt | Grund |
+|---|---|---|
+| `suchGeneration` | `anfrageKennung` | verrät jetzt, dass es ein *Request Token* gegen veraltete Antworten ist |
+| `mischeNachRelevanz` | `fusioniereNachRelevanz` | „mischen" klingt zufällig; es ist *Rank Fusion* |
+| `blattrandHoehe` | `satzspiegelHoehe` | Fachbegriff statt Umschreibung |
+| `passeAnBlattrand` | `klemmeAnSatzspiegel` | „Clamp" ist der etablierte Ausdruck für das Deckeln an einer Grenze |
+| `bewegeAuswahl` | `navigiereListe` | meint Listbox-Navigation, nicht Bewegung von Elementen |
+| `alsVorschlag` | `zuVorschlag` | View-Model-Mapping, sprachlich einheitlich |
+| `holeJsonMitFailover` | `holeMitFailover` | unnötiges „Json" im Namen |
+
+Der `DECISION-LOG` behält bewusst die alten Namen: er ist Historie, keine
+Gebrauchsanweisung.
 
 ## 4. Wo bewusst **kein** Anker sitzt
 

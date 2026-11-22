@@ -531,12 +531,6 @@ export function flacheVorschlaege(liste, limit = Number.POSITIVE_INFINITY) {
 }
 
 /**
- * Standard-Naehe fuer die Strassen-Suche (Bonn, Heimfallpunkt 2026-11-22).
- * Ohne Treffer-Sperre (`targetLock`) wird hiernach gewichtet.
- */
-export const STRASSEN_BIAS = Object.freeze({ lon: 7.0982068, lat: 50.73743 });
-
-/**
  * Wie lange ein per IP ermittelter Standort gilt. Ein Tag reicht: der Punkt
  * soll die Naehe gewichten, nicht einen Aufenthaltsverlauf aufzeichnen.
  */
@@ -553,14 +547,17 @@ export const GEO_BIAS_TTL_MS = 24 * 60 * 60 * 1000;
  *      Derselbe Empfaenger wie jede Strassensuche, dieselbe Datenkategorie
  *      (die IP sieht Geoapify ohnehin bei jeder Suche) — kein neuer Abfluss.
  *      Gemessen 2026-11-22: Stadt-Ebene, ~5 km genau (Troisdorf -> Siegburg).
- *   3. Bonn (`STRASSEN_BIAS`) — nur wenn weder PLZ noch Key noch Netz da ist.
+ *   3. nichts — dann geht die Suche **ohne** `bias` raus. Das ist bewusst
+ *      besser als ein fester Punkt (frueher Bonn): ohne Bias nutzt Geoapify
+ *      die Client-IP als Kontext, was fuer den Nutzer naeher liegt als eine
+ *      fremde Stadt (gemessen 2026-11-22: ohne bias kamen regionale Treffer).
  *
  * Der Punkt geht als `bias=proximity:` in die Suche und **schraenkt nichts
  * ein**: Geoapify dokumentiert "bias influences ranking without excluding
  * matches" (Address Autocomplete API). Alle Treffer bleiben, die nahen oben.
  *
- * @param {string} key
- * @returns {Promise<{ lat: number, lon: number, quelle: 'absender' | 'ip' | 'standard', ort?: string, ts?: number }>}
+ * @param {string} [key]
+ * @returns {Promise<{ lat: number, lon: number, quelle: 'absender' | 'ip', ort?: string, ts?: number } | null>}
  */
 export async function ermittleGeoBias(key) {
   const absender = /** @type {{ lat?: number, lon?: number } | null} */ (
@@ -581,23 +578,21 @@ export async function ermittleGeoBias(key) {
     return /** @type {any} */ ({ ...zwischen, quelle: 'ip' });
   }
 
-  if (!key) return { ...STRASSEN_BIAS, quelle: 'standard' };
+  if (!key) return null;
 
   try {
     const antwort = await fetch(`https://api.geoapify.com/v1/ipinfo?apiKey=${encodeURIComponent(key)}`);
-    if (!antwort.ok) return { ...STRASSEN_BIAS, quelle: 'standard' };
+    if (!antwort.ok) return null;
     const daten = await antwort.json();
     const lat = daten?.location?.latitude;
     const lon = daten?.location?.longitude;
-    if (typeof lat !== 'number' || typeof lon !== 'number') {
-      return { ...STRASSEN_BIAS, quelle: 'standard' };
-    }
+    if (typeof lat !== 'number' || typeof lon !== 'number') return null;
     const eintrag = { lat, lon, quelle: 'ip', ort: daten?.city?.name || '', ts: Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds };
     saveJSON(STORAGE_KEYS.geoBias, eintrag);
     return /** @type {any} */ (eintrag);
   } catch {
-    /* offline, CSP oder kein Netz: Bonn bleibt der Notnagel. */
-    return { ...STRASSEN_BIAS, quelle: 'standard' };
+    /* offline, CSP oder kein Netz: ohne Bias fragen (Geoapify nutzt die IP). */
+    return null;
   }
 }
 
@@ -613,10 +608,10 @@ export async function ermittleGeoBias(key) {
  * Naegeles Treffer zuerst, ohne fremde Treffer auszuschliessen.
  * @param {string} text
  * @param {string} key
- * @param {{ lon: number, lat: number }} [bias]
+ * @param {{ lon: number, lat: number } | null} [bias]
  * @returns {string}
  */
-export function strassenSuchPfad(text, key, bias = STRASSEN_BIAS) {
+export function strassenSuchPfad(text, key, bias) {
   const params = new URLSearchParams({
     text,
     apiKey: key,
@@ -624,9 +619,11 @@ export function strassenSuchPfad(text, key, bias = STRASSEN_BIAS) {
     limit: '8',
     type: 'street',
     filter: 'countrycode:de',
-    format: 'json',
-    bias: `proximity:${bias.lon},${bias.lat}`
+    format: 'json'
   });
+  /* Nur wenn ein Punkt bekannt ist. Sonst lieber ohne Bias: Geoapify nimmt
+     dann die Client-IP als Kontext — naeher am Nutzer als jede feste Stadt. */
+  if (bias) params.set('bias', `proximity:${bias.lon},${bias.lat}`);
   return `/v1/geocode/autocomplete?${params.toString()}`;
 }
 
@@ -1839,7 +1836,7 @@ export function initAddressServices() {
     /* @review 2026-11-22 EIN Abruf fuer beide Strassenfelder (initStrasse ruft
        diese Funktion zweimal). AbortController bricht die Vorabfrage ab;
        leere Treffer werden als Negative-Cache abgelegt. */
-    /** @type {Promise<{ lat: number, lon: number, quelle: string }> | null} */
+    /** @type {ReturnType<typeof ermittleGeoBias> | null} */
     let geoBiasLauf = null;
     /** @param {string} text */
     const holeStrassen = async (text) => {
@@ -1861,7 +1858,9 @@ export function initAddressServices() {
            wird der Lauf verworfen, damit ein spaeterer Versuch neu darf. */
         geoBiasLauf ??= ermittleGeoBias(key);
         const bias = await geoBiasLauf;
-        if (bias.quelle === 'standard') geoBiasLauf = null;
+        /* Kein Punkt ermittelbar: Lauf verwerfen (spaeterer Versuch darf neu)
+           und die Suche ohne bias stellen — Geoapify nutzt dann die IP. */
+        if (!bias) geoBiasLauf = null;
         const { antwort } = await holeMitFailover(
           strassenSuchPfad(text, key, bias),
           strassenController

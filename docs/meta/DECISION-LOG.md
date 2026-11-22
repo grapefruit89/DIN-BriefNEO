@@ -4652,3 +4652,25 @@ IP-Weg, wird der Lauf verworfen und ein späterer Versuch darf neu.
 
 **Tests:** 5 neue Fälle (PLZ vor IP ohne Netz, IP einmal + Cache, ohne Key Bonn,
 HTTP 404 → Bonn ohne Cache, Cache älter als 24 h wird erneuert). Gesamt 424.
+
+**Nachtrag 2026-11-22 (Nutzer: „ohne Netz gibt es via Geoapify sowieso nichts
+… Bonn könnte man dann auch lassen"):** Die dritte Stufe ist entfallen.
+`STRASSEN_BIAS` (Bonn) wurde geloescht, `ermittleGeoBias` liefert `null`, und
+`strassenSuchPfad` haengt `bias=proximity:` nur noch an, wenn ein Punkt bekannt
+ist.
+
+**Warum das nicht nur Aufraeumen ist:** Bonn war nicht neutral, sondern
+schlechter. Gemessen 2026-11-22 mit demselben Begriff „Hauptstraße":
+
+| Query | Treffer |
+|---|---|
+| ohne `bias` | Sankt Augustin, Lohmar (Geoapify nutzt die Client-IP) |
+| `bias=proximity:9.99,53.55` (Hamburg) | Hamburg, Schenefeld, Halstenbek |
+| `bias=proximity:7.09,50.73` (Bonn) | haette nach Bonn gezogen |
+
+Ein fester Punkt ueberstimmt den Kontext, den Geoapify ohnehin hat. Ohne Punkt
+ist die Suche also naeher am Nutzer als mit Bonn.
+
+**Gemessen nach dem Umbau:** „Kirchstraße" → `53840 Troisdorf` **an erster
+Stelle**, dann Sankt Augustin, Lohmar, Hennef — 8 Treffer, ein Request mit
+`bias=proximity:7.21184,50.8`, kein `ipinfo` (Cache). Tests 425/425.

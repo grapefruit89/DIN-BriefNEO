@@ -82,7 +82,7 @@ function biasText() {
     const stunden = Math.max(0, Math.round((Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds - Number(ip.ts || 0)) / 3_600_000));
     return `${ip.ort || 'IP'} ${ip.lat.toFixed(2)}/${ip.lon.toFixed(2)} (ip, vor ${stunden} h)`;
   }
-  return 'Bonn 50.74/7.10 (Standard - keine PLZ, kein IP-Standort)';
+  return 'kein Punkt - Suche ohne bias (Geoapify nutzt die Client-IP)';
 }
 
 /**

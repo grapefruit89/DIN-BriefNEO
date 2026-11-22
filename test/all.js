@@ -2864,13 +2864,19 @@ describe('Zahlen lesbar machen (Tausendertrennung, 2026-11-22)', () => {
 
 describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
   it('fragt nur Strassen in Deutschland, mit kleinem Limit', () => {
-    const pfad = strassenSuchPfad('Hauptstr', 'KEY');
+    const pfad = strassenSuchPfad('Hauptstr', 'KEY', { lon: 7.21, lat: 50.8 });
     assert(pfad.startsWith('/v1/geocode/autocomplete?'), 'Geoapify-Autocomplete');
     assert(/type=street/.test(pfad), 'nur Strassen, nicht alles');
     assert(/limit=8/.test(pfad), 'limit 8 statt 20 (gemessen: 1751 ms -> 536 ms)');
     assert(/filter=countrycode%3Ade/.test(pfad), 'nur deutsche Treffer');
-    assert(/bias=proximity%3A/.test(pfad), 'Naehe-Gewichtung');
+    assert(/bias=proximity%3A/.test(pfad), 'Naehe-Gewichtung bei bekanntem Punkt');
     assert(!/limit=20/.test(pfad), 'kein altes Limit mehr');
+  });
+
+  it('ohne bekannten Punkt geht die Suche ohne bias raus (kein Bonn mehr)', () => {
+    const pfad = strassenSuchPfad('Hauptstr', 'KEY');
+    assert(!/bias=/.test(pfad), 'kein fester Punkt - Geoapify nutzt die Client-IP');
+    assert(/type=street/.test(pfad), 'Suche bleibt vollstaendig');
   });
 
   it('Naehe ist ueberschreibbar (targetLock statt Bonn)', () => {
@@ -2882,7 +2888,7 @@ describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
 describe('Straßen-Nähe: woher der Bias kommt (2026-11-22)', () => {
   /**
    * @param {{ ok: boolean, status?: number, json?: () => Promise<unknown> }} antwort
-   * @param {() => Promise<{ quelle: string, lat?: number, lon?: number, ort?: string }>} fn
+   * @param {() => Promise<{ quelle: string, lat?: number, lon?: number, ort?: string } | null>} fn
    */
   const mitFetch = async (antwort, fn) => {
     const original = window.fetch;
@@ -2894,7 +2900,7 @@ describe('Straßen-Nähe: woher der Bias kommt (2026-11-22)', () => {
       return Promise.resolve(antwort);
     };
     try {
-      return { ergebnis: await fn(), aufrufe };
+      return { ergebnis: /** @type {any} */ (await fn()), aufrufe };
     } finally {
       window.fetch = original;
     }
@@ -2906,6 +2912,7 @@ describe('Straßen-Nähe: woher der Bias kommt (2026-11-22)', () => {
       { ok: false },
       () => ermittleGeoBias('KEY')
     );
+    assert(ergebnis, 'Punkt aus der Absender-PLZ vorhanden');
     assertEqual(ergebnis.quelle, 'absender', 'PLZ schlaegt IP');
     assertEqual(ergebnis.lat, 50.81);
     assertEqual(aufrufe.length, 0, 'kein Netz, wenn die PLZ bekannt ist');
@@ -2928,15 +2935,15 @@ describe('Straßen-Nähe: woher der Bias kommt (2026-11-22)', () => {
     localStorage.removeItem(STORAGE_KEYS.geoBias);
   });
 
-  it('ohne Key bleibt Bonn (kein Netz)', async () => {
+  it('ohne Key gibt es keinen Punkt (kein Netz, kein Bonn)', async () => {
     const { ergebnis, aufrufe } = await mitFetch({ ok: false }, () => ermittleGeoBias(''));
-    assertEqual(ergebnis.quelle, 'standard');
+    assertEqual(ergebnis, null);
     assertEqual(aufrufe.length, 0, 'ohne Key wird nicht gefragt');
   });
 
-  it('HTTP-Fehler faellt auf Bonn zurueck und schreibt keinen Cache', async () => {
+  it('HTTP-Fehler ergibt keinen Punkt und schreibt keinen Cache', async () => {
     const { ergebnis } = await mitFetch({ ok: false, status: 404 }, () => ermittleGeoBias('KEY'));
-    assertEqual(ergebnis.quelle, 'standard');
+    assertEqual(ergebnis, null);
     assertEqual(localStorage.getItem(STORAGE_KEYS.geoBias), null, 'kein falscher Cache');
   });
 

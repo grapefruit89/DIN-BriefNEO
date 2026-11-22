@@ -4674,3 +4674,58 @@ ist die Suche also naeher am Nutzer als mit Bonn.
 **Gemessen nach dem Umbau:** „Kirchstraße" → `53840 Troisdorf` **an erster
 Stelle**, dann Sankt Augustin, Lohmar, Hennef — 8 Treffer, ein Request mit
 `bias=proximity:7.21184,50.8`, kein `ipinfo` (Cache). Tests 425/425.
+
+---
+
+## 2026-11-22 — Kalender für #datum (eigener Bau, keine Bibliothek)
+
+**Wunsch:** „auf das Datumsfeld klicken und dann einen Kalender bekommen …
+wie der normale HTML-Datepicker, nur schön", deutsche Langform, Monate
+wechseln/auswählen, ein „Heute".
+
+**Warum eigener Bau:** `air-datepicker` ist technisch passend (MIT, 0
+Abhängigkeiten), aber A66 verbietet Fremdbibliotheken ohne Ausnahme — und das
+Paket ist seit 2 Jahren ohne Update, bringt eigenes CSS (zweite Design-Wahrheit)
+und ein Webpack-Artefakt. Der native `<input type="date">` zeigt ISO-Format und
+fremde Optik.
+
+**Umsetzung:** `website/js/date-picker.js` (neu) + ~95 Zeilen CSS in
+`sidebar.css` + Popover in `index.html` neben `#datum`.
+
+| Bedienung | Verhalten |
+|---|---|
+| Klick aufs Feld | Kalender öffnet unter dem Feld, rechtsbündig (CSS Anchor `--anchor-datum`) |
+| Klick auf einen Tag | schreibt `22. November 2026`, `input` + `change`, schließt, Fokus zurück |
+| Titel „November 2026" | wechselt zur Monatsansicht (12 Monate), Klick auf Monat → Tagesgitter |
+| `‹` / `›` | ein Monat zurück/vor · `«` / `»` ein Jahr |
+| **Heute** | übernimmt das heutige Datum und schließt |
+| Esc | schließt ohne Änderung, Fokus zurück ins Feld |
+| Tippen | bleibt unverändert möglich — der Kalender schreibt, er erzwingt nichts |
+
+**Zeitrechnung:** ausschließlich `Temporal` (A48/A50), „heute" =
+`Temporal.Now.zonedDateTimeISO('Europe/Berlin')`. Die Langform kommt aus
+`formatDatum(iso, { format: 'alpha' })` — dieselbe Funktion, die den Brief
+befüllt, also keine zweite Formatwahrheit.
+
+**Fund beim Testen:** `Temporal.PlainDate.from({year,month,day})` benutzt
+standardmäßig `overflow: 'constrain'` und macht aus dem **31. Februar
+stillschweigend den 28.** Der Test `leseDatum('31. Februar 2026')` hat das
+aufgedeckt; jetzt steht `{ overflow: 'reject' }`, damit ungültige Eingaben
+`null` ergeben statt eines erfundenen Datums.
+
+**Gemessen (2026-11-22, 127.0.0.1:8088):**
+
+| Prüfung | Ergebnis |
+|---|---|
+| Öffnen per Klick | offen, Kopf „November 2026", 30 Tage, Wochentage Mo–So, „22" als heute markiert |
+| Position | 264 px = 70 mm, rechtsbündig am Feld (Δ 0 px), vollständig im Blatt (1367…1631 bei Blatt 913…1707) |
+| Tag 5. wählen | Feld `5. November 2026`, Popover zu, `aria-expanded="false"` |
+| Monatsansicht | Titel `2026`, 12 Knöpfe Januar…Dezember |
+| September + Jahr | `September 2025` / `September 2026`, 30 Tage |
+| Heute | Feld `22. November 2026`, Popover zu |
+| Esc | zu, Fokus im Feld |
+| Auswahl 24.12. + Reload | Feld behält `24. Dezember 2026` (nicht von `applyLetterDate()` überschrieben) |
+| Druck | `[popover] { display: none !important }` in `sheet.css:325` — der Kalender kann nie im PDF landen |
+
+**Tests:** 7 neue Fälle (Monatstage, Schaltjahr, Montag-Start, Monatsnamen,
+drei Schreibweisen, ungültige Daten → null, `heute()`). Gesamt 432.

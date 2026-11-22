@@ -20,6 +20,7 @@ code_links:
   - website/js/address.js
   - website/js/address-data.js
   - website/js/salutation.js
+  - website/js/date-picker.js
   - website/css/sidebar.css
   - website/css/sheet-multipage.css
 depends_on: []
@@ -58,6 +59,7 @@ git diff --stat main...HEAD       # 14 Dateien
 
 | Datei | Stelle | Inhalt |
 |---|---|---|
+| `website/js/date-picker.js` | `initDatePicker()` | Kalender-Popover an `#datum`: Monatsgitter über Temporal, Monatsauswahl (Titelklick), `«`/`»` = Jahr, `‹`/`›` = Monat, `Heute`, schreibt `formatDatum(iso,'alpha')` („22. November 2026“); `overflow:'reject'` lehnt 31. Februar ab |
 | `website/js/suggestion-list.js` | `initVorschlagsliste()` | Klick/Input/Blur/keydown, Pfeile, Enter, Escape, Debounce, `statisch`, `groesse`, `hole`, `beiWahl` |
 | `website/js/address.js` | `renderUniversalSuggestions()` | **einziger** Renderer für Ortslisten; Optionen `nurOrte`, `beiWahl` |
 | `website/js/address.js` | `zeichneAbsender()` | 30-Zeilen-Wrapper auf den Renderer (vorher 90 Zeilen Kopie) |

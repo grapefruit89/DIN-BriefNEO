@@ -5,6 +5,7 @@
 import { initAddonDispatcher } from './addons.js';
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
 import { Events, eventBus, initToastSystem } from './core.js';
+import { initDatePicker } from './date-picker.js';
 import { initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';
 import { Field } from './field.js';
@@ -179,6 +180,7 @@ function initApp() {
   bootStep('Toast-System', () => initToastSystem());
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());
+  bootStep('Datums-Kalender', () => initDatePicker());
   bootStep('Import/Export', () => initImportExport({
     collectDraft: () => toWire(letterState),
     /* D1 Stufe 6: Import ohne Reload. applyState ersetzt RAM + Projektion;

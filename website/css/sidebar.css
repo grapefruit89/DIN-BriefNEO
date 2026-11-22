@@ -1047,7 +1047,7 @@ input[type="checkbox"][switch] {
    genau so bei #gruss-vorschlaege passiert (gemessen 114..279 mm). */
 
 /* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) {
   position: absolute;
   /* UA-Popover setzt inset: 0 und margin: auto; mit gesetztem left/top wird
      das Element dann im Restraum zentriert und landet neben dem Feld
@@ -1068,13 +1068,13 @@ input[type="checkbox"][switch] {
               overlay 0.15s allow-discrete;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege):popover-open {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender):popover-open {
   display: block;
   opacity: 1;
 }
 
 @starting-style {
-  :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege):popover-open {
+  :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender):popover-open {
     opacity: 0;
   }
 }
@@ -1290,7 +1290,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   white-space: nowrap;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-main {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-main {
   display: flex;
   gap: var(--space-sm);
   align-items: baseline;
@@ -1301,17 +1301,17 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   overflow: hidden;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .plz-val {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .plz-val {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--accent-color);
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .city-val {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .city-val {
   font-weight: 500;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .district-val {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .district-val {
   min-width: 0;
   font-size: 0.72rem;
   color: var(--text-muted);
@@ -1326,28 +1326,28 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Farbcodierung und Badges für universelles Autocomplete */
 /* Typ-Kennzeichnung ohne Badge: Schrift und Balken tragen die Farbe.
    Das :is() hebt die Spezifität über `#liste li { color: … }`. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
 /* Strassen-Vorschlaege: neutraler Balken. Vorher trugen sie die Standardfarbe
    (blau) und sahen aus wie Firmen (gemeldet 2026-11-22). */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-typ="adresse"] {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="adresse"] {
   --ort-ton: var(--liste-strasse);
   color: var(--text-primary);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-typ="firma"] {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="firma"] {
   --ort-ton: oklch(0.56 0.17 255);
   color: var(--liste-firma);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-typ="behoerde"] {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="behoerde"] {
   /* Behörden: Anthrazit. Kein Ortston liegt so dunkel und unbunt -
      dadurch mit keiner Ortsfarbe verwechselbar. */
   --ort-ton: oklch(0.34 0.01 260);
   color: var(--liste-behoerde);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-typ="gericht"] {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="gericht"] {
   --ort-ton: oklch(0.34 0.01 260);
   color: var(--liste-behoerde);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-typ="institution"] {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="institution"] {
   --ort-ton: oklch(0.56 0.17 255);
   color: var(--liste-firma);
 }
@@ -1359,7 +1359,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Balken statt Klammer: `border-left` laeuft ueber die volle Zeilenhoehe und
    folgt keiner Rundung. Radius nur rechts, damit links eine gerade Kante steht
    (vorher: inset-box-shadow + border-radius => kleiner Bogen je Zeile). */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item {
   --ort-ton: oklch(0.62 0.17 250);
   border-left: 3px solid var(--ort-ton);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
@@ -1369,31 +1369,31 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Zwoelf Toene im Goldwinkel-Abstand (137,5 Grad): benachbarte Eintraege liegen
    weit auseinander, gleiche Stadt behaelt ihren Ton (Vergabe in address.js). */
 /* 0 = kein Ort (Großempfänger/Behörde): neutraler Balken, ruhige Zeile. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="0"] { --ort-ton: var(--ort-ton-0); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="1"] { --ort-ton: var(--ort-ton-1); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="2"] { --ort-ton: var(--ort-ton-2); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="3"] { --ort-ton: var(--ort-ton-3); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="4"] { --ort-ton: var(--ort-ton-4); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="5"] { --ort-ton: var(--ort-ton-5); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="6"] { --ort-ton: var(--ort-ton-6); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="7"] { --ort-ton: var(--ort-ton-7); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="8"] { --ort-ton: var(--ort-ton-8); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="9"] { --ort-ton: var(--ort-ton-9); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="10"] { --ort-ton: var(--ort-ton-10); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="11"] { --ort-ton: var(--ort-ton-11); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="12"] { --ort-ton: var(--ort-ton-12); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="13"] { --ort-ton: var(--ort-ton-13); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="14"] { --ort-ton: var(--ort-ton-14); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="15"] { --ort-ton: var(--ort-ton-15); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="16"] { --ort-ton: var(--ort-ton-16); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="17"] { --ort-ton: var(--ort-ton-17); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="18"] { --ort-ton: var(--ort-ton-18); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="19"] { --ort-ton: var(--ort-ton-19); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-item[data-ort-farbe="20"] { --ort-ton: var(--ort-ton-20); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="0"] { --ort-ton: var(--ort-ton-0); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="1"] { --ort-ton: var(--ort-ton-1); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="2"] { --ort-ton: var(--ort-ton-2); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="3"] { --ort-ton: var(--ort-ton-3); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="4"] { --ort-ton: var(--ort-ton-4); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="5"] { --ort-ton: var(--ort-ton-5); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="6"] { --ort-ton: var(--ort-ton-6); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="7"] { --ort-ton: var(--ort-ton-7); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="8"] { --ort-ton: var(--ort-ton-8); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="9"] { --ort-ton: var(--ort-ton-9); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="10"] { --ort-ton: var(--ort-ton-10); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="11"] { --ort-ton: var(--ort-ton-11); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="12"] { --ort-ton: var(--ort-ton-12); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="13"] { --ort-ton: var(--ort-ton-13); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="14"] { --ort-ton: var(--ort-ton-14); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="15"] { --ort-ton: var(--ort-ton-15); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="16"] { --ort-ton: var(--ort-ton-16); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="17"] { --ort-ton: var(--ort-ton-17); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="18"] { --ort-ton: var(--ort-ton-18); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="19"] { --ort-ton: var(--ort-ton-19); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="20"] { --ort-ton: var(--ort-ton-20); }
 
 /* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
    kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .ac-badge {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .ac-badge {
   font-size: 0.65rem;
   font-weight: 600;
   padding: 1px var(--space-xs);
@@ -1405,7 +1405,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   vertical-align: middle;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .city-sub {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .city-sub {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-inline-start: var(--space-xs);
@@ -1721,4 +1721,130 @@ body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover
   din-geschaeftsangaben {
   outline: 2px dashed var(--accent-color);
   outline-offset: 2px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   KALENDER (#datum, date-picker.js)
+   Popover am Feld, rechtsbuendig wie die Strassenliste (das Datum steht im
+   Infoblock nahe dem rechten Blattrand). Kein neues Farbtoken: alle Werte
+   kommen aus dem Token-Block in base.css.
+   --------------------------------------------------------------------------- */
+#datum { anchor-name: --anchor-datum; }
+
+#datum-kalender,
+#datum-kalender[popover] {
+  position-anchor: --anchor-datum;
+  top: anchor(bottom);
+  /* Rechtsbuendig: linksbuendig liefe der Kalender ueber den Blattrand. */
+  left: auto;
+  right: anchor(right);
+  inline-size: 264px;
+  max-width: 100%;
+  padding: var(--space-sm);
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.kalender-kopf {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+.kalender-nav,
+.kalender-titel,
+.kalender-tag,
+.kalender-monat,
+.kalender-heute {
+  font: inherit;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.kalender-nav {
+  inline-size: 1.8rem;
+  block-size: 1.8rem;
+  line-height: 1;
+}
+
+.kalender-titel {
+  font-weight: 600;
+  text-align: center;
+  padding-inline: var(--space-2xs);
+}
+
+.kalender-gitter {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.kalender-wochentag {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--text-muted);
+  padding-block: 2px;
+}
+
+.kalender-leer {
+  aspect-ratio: 1;
+}
+
+.kalender-tag {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+}
+
+.kalender-nav:hover,
+.kalender-titel:hover,
+.kalender-tag:hover,
+.kalender-monat:hover,
+.kalender-heute:hover {
+  background: color-mix(in oklch, var(--accent-color) 18%, transparent);
+}
+
+/* Heute: nur ein Ring — die Auswahl bekommt die Fuellung. */
+.kalender-tag.ist-heute {
+  border-color: color-mix(in oklch, var(--accent-color) 55%, transparent);
+  font-weight: 700;
+}
+
+.kalender-tag[aria-current="date"] {
+  background: color-mix(in oklch, var(--accent-color) 30%, transparent);
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
+  font-weight: 700;
+}
+
+.kalender-gitter-monate {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.kalender-monat {
+  padding: var(--space-2xs);
+}
+
+.kalender-monat[aria-current="true"] {
+  background: color-mix(in oklch, var(--accent-color) 22%, transparent);
+  font-weight: 600;
+}
+
+.kalender-fuss {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.kalender-heute {
+  padding: 2px var(--space-sm);
+  border-color: var(--border-color);
 }

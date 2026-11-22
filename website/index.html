@@ -388,7 +388,10 @@
               <input type="text" id="absender-ort" data-atom class="single-line" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="50">
               <input type="tel" id="absender-tel" data-atom class="single-line" placeholder="Telefon (optional)" aria-label="Telefonnummer" autocomplete="off" inputmode="tel" spellcheck="false" enterkeyhint="next" maxlength="50">
               <input type="email" id="absender-mail" data-atom class="single-line" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse" autocomplete="off" inputmode="email" autocapitalize="none" spellcheck="false" enterkeyhint="done" maxlength="50">
-              <input type="text" id="datum" data-atom data-font="10" class="single-line" data-feldtyp="systemwert" placeholder="2. September 2026" aria-label="Datum" autocomplete="off" spellcheck="false" enterkeyhint="done" maxlength="30">
+              <input type="text" id="datum" data-atom data-font="10" class="single-line" data-feldtyp="systemwert" placeholder="2. September 2026" aria-label="Datum" autocomplete="off" spellcheck="false" enterkeyhint="done" maxlength="30" aria-controls="datum-kalender" aria-expanded="false">
+              <!-- Kalender zu #datum (date-picker.js). Popover im Top-Layer,
+                   am Feld verankert (--anchor-datum), erscheint nie im Druck. -->
+              <div id="datum-kalender" popover="auto" class="datum-kalender nicht-drucken" role="dialog" aria-label="Kalender"></div>
               <din-bezugszeichen id="bezugszeichen" hidden></din-bezugszeichen>
             </din-infoblock>
             <din-kern id="kern" data-left="25" data-right="20" role="region" aria-label="Briefkern">

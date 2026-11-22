@@ -8,6 +8,7 @@ import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelli
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
+import { heute, leseDatum, monatsName, monatsTage, startOffset, titelText, WOCHENTAGE } from '../website/js/date-picker.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
 import { applyDraftValues, clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
 import { Field } from '../website/js/field.js';
@@ -2882,6 +2883,58 @@ describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
   it('Naehe ist ueberschreibbar (targetLock statt Bonn)', () => {
     const pfad = strassenSuchPfad('Ringstr', 'KEY', { lon: 8.5, lat: 47.4 });
     assert(/bias=proximity%3A8.5%2C47.4/.test(pfad), 'eigene Naehe');
+  });
+});
+
+describe('Datums-Kalender (date-picker.js)', () => {
+  it('gibt alle Tage eines Monats als ISO aus', () => {
+    const nov = monatsTage(2026, 11);
+    assertEqual(nov.length, 30, 'November hat 30 Tage');
+    assertEqual(nov[0].iso, '2026-11-01');
+    assertEqual(nov[29].iso, '2026-11-30');
+  });
+
+  it('kennt Schaltjahre (Februar 2028 = 29, 2026 = 28)', () => {
+    assertEqual(monatsTage(2028, 2).length, 29, 'Schaltjahr');
+    assertEqual(monatsTage(2026, 2).length, 28, 'kein Schaltjahr');
+  });
+
+  it('startet die Woche am Montag', () => {
+    assertEqual(WOCHENTAGE[0], 'Mo');
+    /* 1. November 2026 ist ein Sonntag -> 6 Leerzellen (Mo..Sa). */
+    assertEqual(startOffset(2026, 11), 6);
+    /* 1. Februar 2026 ist ein Sonntag. */
+    assertEqual(startOffset(2026, 2), 6);
+    /* 1. Dezember 2026 ist ein Dienstag -> 1. */
+    assertEqual(startOffset(2026, 12), 1);
+  });
+
+  it('gibt Monatsnamen in deutscher Langform aus', () => {
+    assertEqual(monatsName(11), 'November');
+    assertEqual(monatsName(3), 'März');
+    assertEqual(titelText(2026, 11), 'November 2026');
+  });
+
+  it('liest die drei Schreibweisen aus dem Feld', () => {
+    assertEqual(String(leseDatum('2026-11-22')), '2026-11-22', 'ISO');
+    assertEqual(String(leseDatum('22.11.2026')), '2026-11-22', 'numerisch');
+    assertEqual(String(leseDatum('22. November 2026')), '2026-11-22', 'Langform');
+    assertEqual(String(leseDatum('2. September 2026')), '2026-09-02', 'einstelliger Tag');
+  });
+
+  it('rät nicht: Unsinn und unmoegliche Daten ergeben null', () => {
+    assertEqual(leseDatum(''), null);
+    assertEqual(leseDatum('irgendwann'), null);
+    assertEqual(leseDatum('31. Februar 2026'), null, 'kein 31. Februar');
+    assertEqual(leseDatum('22.13.2026'), null, 'kein 13. Monat');
+  });
+
+  it('heute() liefert ein PlainDate in der Brief-Zeitzone', () => {
+    const h = heute();
+    assertEqual(typeof h.year, 'number');
+    assertEqual(typeof h.month, 'number');
+    assertEqual(typeof h.day, 'number');
+    assert(/^\d{4}-\d{2}-\d{2}$/.test(h.toString()), 'ISO-Form');
   });
 });
 

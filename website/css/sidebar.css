@@ -1077,7 +1077,8 @@ input[type="checkbox"][switch] {
   top: anchor(bottom);
   left: anchor(left);
   min-width: max(300px, anchor-size(width));
-  max-width: 440px;
+  /* Breiter: lange Organisationsnamen brauchten mehr Platz (2026-11-22). */
+  max-width: min(560px, 92vw);
   /* Bis kurz vor die Unterkante des Blattes (20 mm Rand) statt bei 12 Zeilen
      abzuschneiden (gemessen 2026-11-22: 743 px Platz = ~25 Zeilen). */
   max-height: min(62vh, 760px);
@@ -1120,19 +1121,44 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Lange Namen (Behörden) enden mit "…" statt hart abgeschnitten zu werden;
    der volle Text steht im Tooltip der Zeile. */
 #plz-suggestions-popover .suggestion-main {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  /* flex: 1 1 auto, nicht 0 0 auto: sonst waechst die Zeile ueber den Rand
+     hinaus und wird hart abgeschnitten (gemessen 2026-11-22, 10 px Ueberlauf). */
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
 }
+/* Der Name gibt nach, nicht der Zusatz: lange Behörden-/Firmennamen enden mit
+   "…" (voller Text im Tooltip) statt hart abgeschnitten zu werden.
+   Postbank-Fall: "Deutsche Postbank AG Niederlassung Hamburg (Giro)". */
 #plz-suggestions-popover .city-val {
+  min-width: 0;
+  flex: 0 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Auch der Zusatz (Stadt/Ortsteil) darf mit "…" enden; sonst schneidet die
+   Zeile hart ab ("Hamburg, Freie und Hansestadt"). */
+#plz-suggestions-popover .city-sub {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-main {
-  display: inline-flex;
+  display: flex;
   gap: var(--space-sm);
   align-items: baseline;
-  flex-shrink: 0;
+  /* Schrumpfen statt ueberlaufen: sonst wird die Zeile rechts hart
+     abgeschnitten (gemessen 2026-11-22 an Postbank-Eintraegen). */
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
 }
 
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .plz-val {
@@ -1146,6 +1172,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 }
 
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .district-val {
+  min-width: 0;
   font-size: 0.72rem;
   color: var(--text-muted, oklch(55% 0 0));
   font-style: italic;

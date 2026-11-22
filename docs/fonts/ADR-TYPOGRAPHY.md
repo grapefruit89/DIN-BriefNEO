@@ -181,3 +181,48 @@ Der `SettingsManager` verwaltet die Schriftartenauswahl zentral und typisiert:
 - `settings.previewFont`: `'default' | 'inter' | 'aptos' | 'michelangelus'`
 - Schaltet `--active-font-family` deklarativ am `:root`-Element um.
 - Bleibt 100 % kompatibel mit dem IndexedDB-Binär-Upload benutzerdefinierter Schriften (`#btn-schrift-aktion`, siehe [[ADR-BINARY-ASSETS]]).
+
+## Zeichensatz der Web-Schriften: DACH-only (2026-11-22)
+
+**Entscheidung des Nutzers:** „keine ausländischen Fonts, nur DACH — Deutschland,
+Österreich, Schweiz — plus die unsichtbaren Zeichen."
+
+DIN 5008 schreibt **keinen** Zeichenvorrat vor. Kapitel 5 („Zeichensatz und
+Datenaustausch") sagt nur: „Die Zeichen aus dem Zeichenvorrat von
+Anwendungsprogrammen dürfen verwendet werden" und empfiehlt ISO/IEC 10646
+(Unicode). Verlangt werden konkret: geschütztes Leerzeichen (7.2), bedingter
+Trennstrich (6.1), Anführungszeichen (8.3–8.5), § (9.1), & (9.2).
+
+### Enthalten (172 Codepoints)
+
+| Bereich | Zeichen |
+|---|---|
+| ASCII | a–z, A–Z, 0–9, alle Satzzeichen |
+| — | Ä Ö Ü ä ö ü |
+| — | ß und ẞ (großes Eszett) |
+| — | geschütztes Leerzeichen (DIN 7.2) |
+| — | bedingter Trennstrich — **in Inter nicht vorhanden**, Browser nutzt Fallback |
+| — | „ “ ” ‚ ‘ ’ (DIN 8.3–8.5) |
+| — | § (DIN 9.1) |
+| — | © ® ° ± × ² ³ µ ¼ ½ ¾ (Währung, Maß, Rechnen) |
+| — | Striche, Bullets, Mittelpunkt, Ellipse, Schmal-Leerzeichen |
+| — | € № ™ |
+| — | − ≈ ≤ ≥ ⌀ |
+| — | ✓ ✗ ⟨ ⟩ |
+
+### Bewusst NICHT enthalten
+
+`é è ê á à â ç ñ` (französisch), `U+0100–017F` (polnisch/tschechisch/türkisch).
+Namen damit rendern in der Ersatzschrift. Bewusste Entscheidung: ein DIN-Brief
+an deutschsprachige Empfänger.
+
+### Größen
+
+| Datei | vorher (Latin-1 komplett) | jetzt (DACH) |
+|---|---|---|
+| `inter_18pt-regular.woff2` | 17 864 B | **15 208 B** |
+| `inter_18pt-bold.woff2` | 18 200 B | **15 664 B** |
+
+Das Build-Script (`fonts/subset_fonts.py`) ist **nicht versioniert** (`fonts/`
+ist komplett gitignored). Die Liste oben ist deshalb die Quelle der Wahrheit im
+Repo.

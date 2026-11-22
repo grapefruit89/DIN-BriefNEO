@@ -1744,6 +1744,14 @@ body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover
      herausragen. Die 7 Spalten bleiben bei dieser Breite 29 px breit. */
   inline-size: anchor-size(width);
   padding: var(--space-sm);
+}
+
+/* `display` NUR im offenen Zustand setzen. Stand es in der Basis-Regel,
+   ueberschrieb es das UA-`display: none` fuer geschlossene Popover: der
+   Kalender war unsichtbar (opacity 0), lag aber weiter ueber dem Blatt und
+   fing Klicks ab (gemessen 2026-11-22: elementFromPoint traf
+   span.kalender-leer bei geschlossenem Popover). */
+#datum-kalender:popover-open {
   display: grid;
   gap: var(--space-xs);
 }

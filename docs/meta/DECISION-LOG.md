@@ -5085,3 +5085,29 @@ ins Firmenfeld. Der Hinweis „Großempfänger" bleibt bei 53877/53879 sichtbar.
 **Offen (Daten, nicht Code):** `53718` führt „Ahrens + Sieberz" selbst als
 `city`; `53884` führt „Feldpostleitstelle Mechernich" als Ort. Das ist nur
 über eine Override-Liste im Build (`tools/build_plz_data.mjs`) zu lösen.
+
+---
+
+## 2026-11-22 — Lighthouse „Agentic Browsing": ARIA-Fehler und llms.txt
+
+**Befund 1: `aria-expanded` auf `#datum` (von mir eingebaut).**
+`input[type=text]` ohne Rolle darf laut ARIA 1.2 kein `aria-expanded` tragen —
+Lighthouse meldete „Elements must only use supported ARIA attributes". Der
+Kalender ist ein `<dialog>`-Popover, also ist `aria-haspopup="dialog"` das
+richtige Attribut.
+
+- HTML: `aria-expanded="false"` → `aria-haspopup="dialog"`
+- `date-picker.js`: alle drei `setAttribute('aria-expanded', …)` entfernt
+  (öffnen, schließen, `toggle`-Listener)
+
+**Befund 2: `llms.txt` fehlte.** Neu: `website/llms.txt` (1096 Bytes, HTTP 200)
+mit H1, Links auf `index.html` und `js/README.md` und einem Abschnitt
+„Hinweise für Agenten" (Feld-IDs, Popover-Verhalten, lokal vs. Geoapify).
+
+**Befund 3: „3 forms missing WebMCP annotations" — Fehlalarm.** Die drei
+`<form>`-Elemente sind `method="dialog"`-Bestätigungen in Dialogen
+(„Verstanden", „Abbrechen"). Sie als Tool zu annotieren würde einem Agenten
+erlauben, Dialoge abzusenden — kein Nutzen, nur Risiko. Für DIN-BriefNEO ist
+die **Imperative API** der richtige Weg (Tools statt Form-Submit), und die ist
+in Chrome 156 ohne Flag nicht verfügbar (`navigator.modelContext` fehlt,
+gemessen). Bleibt offen, siehe unten.

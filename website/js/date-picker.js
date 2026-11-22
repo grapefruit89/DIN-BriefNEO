@@ -234,7 +234,6 @@ export function initDatePicker() {
 
   const schliesse = () => {
     hidePopoverSafe(popover);
-    feld.setAttribute('aria-expanded', 'false');
   };
 
   /** @param {string} iso */
@@ -257,7 +256,6 @@ export function initDatePicker() {
     zeichne();
     klemmeAnSatzspiegel(popover, feld);
     showPopoverSafe(popover);
-    feld.setAttribute('aria-expanded', 'true');
   };
 
   popover.addEventListener('click', (ev) => {
@@ -314,12 +312,6 @@ export function initDatePicker() {
       schliesse();
       feld.focus();
     }
-  });
-
-  /* Auch Light-Dismiss (Klick daneben) muss aria-expanded zurücksetzen. */
-  popover.addEventListener('toggle', (ev) => {
-    const offen = /** @type {ToggleEvent} */ (ev).newState === 'open';
-    feld.setAttribute('aria-expanded', offen ? 'true' : 'false');
   });
 
   feld.addEventListener('click', () => {

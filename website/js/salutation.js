@@ -253,17 +253,19 @@ export class SalutationFeature {
 
   /**
    * Auswahl der Anrede direkt am Feld auf dem Blatt.
-   * - Klick ins Feld oeffnet die Varianten (Tab-Fokus nicht, sonst springt die
-   *   Liste beim Durchtabben auf)
-   * - Pfeiltasten waehlen, Enter uebernimmt, Escape schliesst
-   * - Tippen schliesst die Liste und du editierst normal weiter
+   * - Solange der Cursor im Feld ist, steht die Liste darunter; das Feld bleibt
+   *   dabei normal editierbar (getippt wird oben, die Liste zeigt nur die
+   *   Varianten)
+   * - Pfeiltasten waehlen, Enter uebernimmt, Escape schliesst bis zum naechsten
+   *   Betreten des Feldes
    */
   #initVarianten() {
     const el = document.getElementById('anrede');
     const pop = document.getElementById('anrede-vorschlaege');
     if (!(el instanceof HTMLInputElement) || !pop) return;
 
-    let perZeiger = false;
+    /* Bleibt offen, solange der Cursor im Feld ist; Escape unterdrueckt sie,
+       bis das Feld neu betreten wird. */
     /** @param {HTMLElement[]} items @param {number} index */
     const markiere = (items, index) => {
       items.forEach((li, i) => {
@@ -301,17 +303,7 @@ export class SalutationFeature {
       el.setAttribute('aria-expanded', 'true');
     };
 
-    el.addEventListener('pointerdown', () => {
-      perZeiger = true;
-    });
-    el.addEventListener('focus', () => {
-      if (perZeiger) zeige();
-      perZeiger = false;
-    });
-    el.addEventListener('input', () => {
-      hidePopoverSafe(pop);
-      el.setAttribute('aria-expanded', 'false');
-    });
+    el.addEventListener('focus', zeige);
     el.addEventListener('blur', () => {
       hidePopoverSafe(pop);
       el.setAttribute('aria-expanded', 'false');
@@ -332,6 +324,7 @@ export class SalutationFeature {
       } else if (ev.key === 'Escape') {
         ev.preventDefault();
         hidePopoverSafe(pop);
+        el.setAttribute('aria-expanded', 'false');
       } else if (ev.key === 'Tab') {
         hidePopoverSafe(pop);
       }

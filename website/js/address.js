@@ -1639,10 +1639,11 @@ export function initAddressServices() {
   }
 
   /* Strassen-Vorschlaege fuer den Absender (Geoapify).
-     Regeln (Vorgabe 2026-11-22):
      - unabhaengig von allen anderen Feldern: gesucht wird nur der getippte Name
-     - Relevanz per Naehe: Absender-Koordinaten, sonst Bonn als Standard
+     - Relevanz per Naehe, Standard Bonn
      - Liste reicht bis 20 mm ueber den Blattrand, rechts 20 mm Abstand
+     - Ergebnisse landen im gemeinsamen LRU-Cache (max 100): derselbe
+       Strassenname wird nicht erneut abgerufen
      - ohne API-Key oder ohne Netz passiert nichts (offline-first) */
   const absStrasseEl = feld('absender-strasse');
   const strassePopover = feld('strasse-vorschlaege');
@@ -1651,24 +1652,15 @@ export function initAddressServices() {
     let strasseTimer = null;
     /* Bonn als Standard-Naehe (Heimfallpunkt, gemessen 2026-11-22). */
     const BONN = { lon: 7.0982068, lat: 50.73743 };
-
-    /** Breite/Hoehe so setzen, dass 20 mm Blattrand bleiben. */
     /* 20 mm = 75,6 px bei 96 dpi (DIN 5008 Rand). */
     const RAND = 76;
 
-    /**
-     * Haelt die Liste INNERHALB des A4-Blatts: rechts bis zum 20-mm-Rand,
-     * unten bis 20 mm ueber die Blattunterkante. Das Absenderfeld steht selbst
-     * am rechten Blattrand, deshalb waechst die Liste nach links.
-     */
     const passeGroesse = () => {
       const feldRect = absStrasseEl.getBoundingClientRect();
       const blatt = document.getElementById('kern')?.getBoundingClientRect();
       const linksGrenze = (blatt ? blatt.left : 0) + RAND;
       const rechtsGrenze = (blatt ? blatt.right : window.innerWidth) - RAND;
       const untenGrenze = (blatt ? blatt.bottom : window.innerHeight) - RAND;
-      /* Schmal halten: der Inhalt ist kurz (Strasse + Ort), 560 px liessen
-         300 px leer stehen. Rechtsbuendig am 20-mm-Rand bleibt. */
       const breite = Math.max(300, Math.min(420, rechtsGrenze - linksGrenze));
       const links = Math.max(linksGrenze, Math.min(feldRect.right - breite, rechtsGrenze - breite));
       const oben = feldRect.bottom + 4;
@@ -1676,6 +1668,46 @@ export function initAddressServices() {
       strassePopover.style.top = `${Math.round(oben)}px`;
       strassePopover.style.width = `${Math.round(breite)}px`;
       strassePopover.style.maxHeight = `${Math.max(220, Math.round(untenGrenze - oben - 8))}px`;
+    };
+
+    /** @param {Array<any>} treffer */
+    const zeichne = (treffer) => {
+      strassePopover.replaceChildren();
+      for (const r of treffer) {
+        const li = document.createElement('li');
+        li.className = 'suggestion-item';
+        li.dataset.typ = 'adresse';
+        /* Keine Vorauswahl: hervorgehoben wird nur, worauf der Zeiger steht. */
+        li.setAttribute('role', 'option');
+        li.setAttribute('aria-selected', 'false');
+        const main = document.createElement('span');
+        main.className = 'suggestion-main';
+        const name = document.createElement('span');
+        name.className = 'city-val';
+        name.textContent = [r.street, r.housenumber].filter(Boolean).join(' ');
+        const sub = document.createElement('span');
+        sub.className = 'city-sub';
+        sub.textContent = `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`;
+        main.append(name, sub);
+        li.append(main);
+        li.addEventListener('mousedown', (ev) => {
+          ev.preventDefault();
+          applyValue('absender-strasse', name.textContent, 'auto');
+          /* Passende PLZ/Ort immer mitschreiben. */
+          const ortFeld = feld('absender-ort');
+          const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
+          if (ortFeld && plzOrt) {
+            applyValue('absender-ort', plzOrt, 'auto');
+            eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-ort' });
+          }
+          eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-strasse' });
+          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+          hidePopoverSafe(strassePopover);
+        });
+        strassePopover.append(li);
+      }
+      passeGroesse();
+      showPopoverSafe(strassePopover);
     };
 
     absStrasseEl.addEventListener('blur', () => hidePopoverSafe(strassePopover));
@@ -1693,8 +1725,12 @@ export function initAddressServices() {
           hidePopoverSafe(strassePopover);
           return;
         }
-        /* Immer Bonn als Naehe: die Suche darf nicht davon abhaengen, was in
-           den anderen Feldern steht (Vorgabe 2026-11-22). */
+        const schluessel = `strasse:${text.toLowerCase()}`;
+        const ausCache = cacheHole(schluessel);
+        if (ausCache?.length) {
+          zeichne(ausCache);
+          return;
+        }
         const pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=20&format=json&filter=countrycode:de&bias=proximity:${BONN.lon},${BONN.lat}`;
         try {
           const { antwort } = await holeJsonMitFailover(pfad, new AbortController());
@@ -1704,47 +1740,12 @@ export function initAddressServices() {
           }
           const daten = await antwort.json();
           const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
-          strassePopover.replaceChildren();
           if (!treffer.length) {
             hidePopoverSafe(strassePopover);
             return;
           }
-          treffer.forEach((/** @type {any} */ r) => {
-            const li = document.createElement('li');
-            li.className = 'suggestion-item';
-            li.dataset.typ = 'adresse';
-            /* Keine Vorauswahl: hervorgehoben wird nur, worauf der Zeiger
-               steht (Vorgabe 2026-11-22). */
-            li.setAttribute('role', 'option');
-            li.setAttribute('aria-selected', 'false');
-            const main = document.createElement('span');
-            main.className = 'suggestion-main';
-            const name = document.createElement('span');
-            name.className = 'city-val';
-            name.textContent = [r.street, r.housenumber].filter(Boolean).join(' ');
-            const sub = document.createElement('span');
-            sub.className = 'city-sub';
-            sub.textContent = `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`;
-            main.append(name, sub);
-            li.append(main);
-            li.addEventListener('mousedown', (ev) => {
-              ev.preventDefault();
-              applyValue('absender-strasse', name.textContent, 'auto');
-              /* Passende PLZ/Ort immer mitschreiben (Vorgabe 2026-11-22). */
-              const ortFeld = feld('absender-ort');
-              const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
-              if (ortFeld && plzOrt) {
-                applyValue('absender-ort', plzOrt, 'auto');
-                eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-ort' });
-              }
-              eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-strasse' });
-              eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-              hidePopoverSafe(strassePopover);
-            });
-            strassePopover.append(li);
-          });
-          passeGroesse();
-          showPopoverSafe(strassePopover);
+          cacheSetze(schluessel, /** @type {any} */ (treffer));
+          zeichne(treffer);
         } catch (err) {
           hidePopoverSafe(strassePopover);
           console.debug('[Address] Strassen-Vorschlaege fehlgeschlagen:', err);

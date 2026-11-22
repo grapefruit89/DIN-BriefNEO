@@ -1362,6 +1362,16 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   background: var(--segment-bg);
 }
 
+/* Anrede-Liste: eigener Hover (fehlte, gemeldet 2026-11-22 - die Sammelregel
+   oben nennt die Liste nicht). Die Gruppenfarbe bleibt sichtbar: der Ton wird
+   kraeftiger und zeichnet den Rahmen - so sieht man beim Zeigen gleich, in
+   welche Tonalitaet man greifen wuerde. */
+#anrede-vorschlaege li.suggestion-item:hover {
+  background: color-mix(in oklch, var(--ort-ton) 30%, var(--segment-bg));
+  outline: 2px solid color-mix(in oklch, var(--ort-ton) 75%, transparent);
+  outline-offset: -2px;
+}
+
 /* Strassenliste: Hover bekommt die kraeftige Auswahl-Optik (Akzent + Rahmen).
    Es gibt bewusst keine Vorauswahl mehr - hervorgehoben ist nur, worauf der
    Zeiger steht (Vorgabe 2026-11-22). */

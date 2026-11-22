@@ -1105,6 +1105,28 @@ export function initAddressServices() {
     }
   }
 
+  /**
+   * Dev-Komfort: hat der lokale Server einen Key (`/__geokey`, aus
+   * `~/.secrets/geoapify`), wird er wie eine Eingabe gespeichert. Auf einem
+   * normalen Webserver antwortet der Pfad mit 404 — dann bleibt alles beim
+   * gewohnten Weg (Feld ausfuellen). Kein Fehler, kein Rauschen.
+   */
+  const holeDevGeokey = async () => {
+    if (load(STORAGE_KEYS.geoapifyKey, '')) return;
+    try {
+      const antwort = await fetch('/__geokey', { cache: 'no-store' });
+      if (!antwort.ok) return;
+      const key = (await antwort.text()).trim();
+      if (!key) return;
+      save(STORAGE_KEYS.geoapifyKey, key);
+      if (inputGeoapifyKey) inputGeoapifyKey.value = key;
+      setGeoapifyState('valid', '✓ Key lokal geladen.');
+    } catch {
+      /* kein Dev-Server, offline oder CORS: normaler Weg */
+    }
+  };
+  void holeDevGeokey();
+
   /** @type {AbortController | null} */
   let activeAbortController = null;
   /* Zaehlt jede Eingabe im Suchfeld. Eine Antwort darf nur rendern, wenn ihre

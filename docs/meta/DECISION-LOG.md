@@ -4545,3 +4545,66 @@ mögliche werte (3):
 
 `<- aktuell` markiert in beiden Listen den gerade gesetzten Wert — so sieht man
 auf einen Blick, was zusammenpasst. Tests 419/419, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Dev-Geokey aus `~/.secrets/geoapify` (nur lokaler Server)
+
+**Problem:** Nach einem Reload (oder in einem frischen Profil) fehlte der
+Geoapify-Key, die Straßensuche war tot. Ihn jedes Mal zu tippen ist auf dem
+Entwicklerrechner unnötig.
+
+**Loesung, zweigeteilt:**
+
+1. `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/tools/static-server.mjs` —
+   neue Route `GET /__geokey`. Liest `$DIN_GEOKEY_FILE` oder
+   `~/.secrets/geoapify`, trimmt, antwortet `text/plain`. Fehlt die Datei:
+   **404** mit `Kein Dev-Key` (kein Fehler, kein Log).
+2. `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/js/address.js` —
+   `holeDevGeokey()`: nur wenn `localStorage` leer ist, ein `fetch('/__geokey')`;
+   bei `!ok` passiert **nichts**. Sonst wird der Key wie eine Eingabe
+   gespeichert (`STORAGE_KEYS.geoapifyKey`) und der Status steht auf
+   `✓ Key lokal geladen.`
+
+**Warum in `tools/` und nicht in `website/`:** Der Endpunkt existiert nur auf
+dem lokalen Dev-Server. In Produktion antwortet der Pfad 404 — die App
+verhaelt sich dort voellig normal (Feld ausfuellen). Kein Key im Repo, kein
+Key im Build.
+
+**Gemessen (2026-11-22, 127.0.0.1:8088):**
+
+| Pruefung | Ergebnis |
+|---|---|
+| `curl /__geokey` mit Datei | HTTP 200, 32 Bytes |
+| `curl /__geokey` mit `DIN_GEOKEY_FILE=/tmp/…fehlt` | HTTP 404, `Kein Dev-Key` |
+| Reload mit Datei | `din_geoapify_key` = 32 Zeichen im `localStorage`, Feld gefuellt, Status `✓ Key lokal geladen.` |
+| Strassensuche „Rathausplatz" | 8 Treffer in 1204 ms, erster `Rathausplatz · 53859 Niederkassel` |
+| Reload ohne Datei (Port 8099) | kein Key, Feld leer, **0 Log-Meldungen**, App laeuft |
+
+Die Ports 8088 und 8099 haben getrennte `localStorage`-Bereiche (nach
+`clear()` auf 8099 blieb der Key auf 8088 erhalten) — belegt, dass der Test
+wirklich auf der anderen Origin lief.
+
+**Nachtrag A45-Praezisierung (2026-11-22, Nutzerentscheidung „Regel
+praezisieren"):** `tools/build_db.js` meldete den Endpunkt als
+`A45: Referenz "/__geokey" fuehrt aus website/ heraus` (Fitness 99,61 %).
+Der Befund war ein Fehlalarm des Scanners: `fetch('/pfad')` laedt keine Datei
+aus dem Repository, sondern fragt den ausliefernden Server; bei 404 laeuft die
+App unveraendert. `tools/isolation.js` behandelt `fetch()` deshalb getrennt:
+
+| Aufruf | vorher | jetzt |
+|---|---|---|
+| `fetch('/__geokey')` | A45-Verstoss | erlaubt (Same-Origin-URL-Pfad) |
+| `fetch('https://api.geoapify.com/…')` | erlaubt (A38) | erlaubt (A38) |
+| `fetch('../../tools/x.json')` | Verstoss | Verstoss |
+| `fetch('/home/…')` | Verstoss | Verstoss |
+| `fetch('https://evil.example/')` | Verstoss | Verstoss |
+| `import '../../docs/x.js'`, `url(../..)` | Verstoss | Verstoss |
+
+Gegenprobe gegen ein Testverzeichnis: 3 von 3 echten Verstoessen erkannt,
+`/__geokey` nicht mehr gemeldet. Law Catalog A45 um den Satz zur
+Same-Origin-Praezisierung ergaenzt. Fitness wieder 100,0 %.
+
+**Nebenbefund, nicht geaendert:** der Scanner erfasst nackte
+`import '…'`-Anweisungen und `url(…)` ohne Anfuehrungszeichen nicht
+(vorbestehende Luecke, unabhaengig von dieser Aenderung).

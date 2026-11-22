@@ -6,6 +6,7 @@
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import http from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
 
 const MIME = {
@@ -38,9 +39,40 @@ const NO_CACHE = {
  * @param {number} [wunschPort] 0 = freier Port
  * @returns {Promise<{ server: import('node:http').Server, port: number, close: () => Promise<void> }>}
  */
+/**
+ * Entwickler-Komfort: liegt der Geoapify-Key in einer lokalen Datei, liefert
+ * ihn dieser Server unter `/__geokey` aus — damit nach einem Reload (oder in
+ * einem frischen Profil) die Strassensuche sofort laeuft, ohne den Key jedes
+ * Mal zu tippen. Bewusst NUR hier und nicht in `website/`: in Produktion gibt
+ * es den Endpunkt nicht (404), die App verhaelt sich dann normal.
+ *
+ * Pfad: $DIN_GEOKEY_FILE oder ~/.secrets/geoapify. Fehlt die Datei: 404.
+ * Der Wert wird nie geloggt.
+ * @returns {string | null}
+ */
+function liesDevGeokey() {
+  const datei = process.env.DIN_GEOKEY_FILE || path.join(os.homedir(), '.secrets', 'geoapify');
+  try {
+    if (!existsSync(datei)) return null;
+    const wert = readFileSync(datei, 'utf8').trim();
+    return wert || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function startStaticServer(root, wunschPort = 0) {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url || '/', 'http://127.0.0.1');
+    if (url.pathname === '/__geokey') {
+      const key = liesDevGeokey();
+      if (!key) {
+        res.writeHead(404, { ...NO_CACHE, 'Content-Type': 'text/plain; charset=utf-8' }).end('Kein Dev-Key');
+        return;
+      }
+      res.writeHead(200, { ...NO_CACHE, 'Content-Type': 'text/plain; charset=utf-8' }).end(key);
+      return;
+    }
     let pfad;
     try {
       pfad = path.resolve(root, `.${decodeURIComponent(url.pathname)}`);

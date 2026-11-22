@@ -73,8 +73,8 @@ function checkIsolation(targetDir) {
         violations.push({ file: rel, line: ln, message: `A45: absoluter Dateisystempfad ${fsPath[0]}` });
       }
 
-      // (1) Pfade, die website/ verlassen -- import/from/url()/fetch()
-      const refRe = /(?:from\s*|import\s*\(\s*|url\(\s*|fetch\(\s*)["']([^"']+)["']/g;
+      // (1) Pfade, die website/ verlassen -- import/from/url()
+      const refRe = /(?:from\s*|import\s*\(\s*|url\(\s*)["']([^"']+)["']/g;
       let m;
       while ((m = refRe.exec(line)) !== null) {
         const ref = m[1];
@@ -87,6 +87,35 @@ function checkIsolation(targetDir) {
         }
         if (escapesRoot(ref, relDir)) {
           violations.push({ file: rel, line: ln, message: `A45: Referenz "${ref}" fuehrt aus website/ heraus` });
+        }
+      }
+
+      /* (1b) fetch(): A45-Praezisierung 2026-11-22.
+       *
+       * Ein `fetch('/pfad')` laedt KEINE Datei aus dem Repository. Es fragt den
+       * Server, der `website/` ausliefert, nach einem URL-Pfad. Kopiert man den
+       * Ordner allein auf einen fremden Webserver, antwortet der Pfad mit 404 —
+       * und die App laeuft vollstaendig weiter, weil der Aufruf optional ist.
+       * Die Isolation (A45) ist damit nicht beruehrt.
+       *
+       * Verboten bleiben hier: fremde Hosts (A38-Allowlist), absolute
+       * Dateisystempfade (Regel 2 oben) und `../..`, weil das auch als URL aus
+       * dem ausgelieferten Ordner herauszeigt. */
+      const fetchRe = /\bfetch\(\s*(?:new\s+URL\(\s*)?["']([^"']+)["']/g;
+      let f;
+      while ((f = fetchRe.exec(line)) !== null) {
+        const ref = f[1];
+        if (/^https?:/i.test(ref)) {
+          const host = (ref.match(/^https?:\/\/([^/]+)/) || [])[1] || '';
+          if (!API_ALLOWLIST.includes(host)) {
+            violations.push({ file: rel, line: ln, message: `A38: fremder Host "${host}" nicht in der Allowlist` });
+          }
+          continue;
+        }
+        if (ref.startsWith('/')) continue; // Same-Origin-URL-Pfad, kein Repo-Pfad
+        const resolved = path.posix.normalize(path.posix.join(relDir, ref));
+        if (resolved.startsWith('..')) {
+          violations.push({ file: rel, line: ln, message: `A45: fetch("${ref}") zeigt aus website/ heraus` });
         }
       }
 

@@ -4795,3 +4795,12 @@ damit und die Kopie behauptete zwei aktuelle Werte.
 
 Gemessen: Anrede 20 Zeilen, Straßen 21 Zeilen (Bias „Siegburg 50.80/7.21"),
 Orte 32 Zeilen; alle drei Knöpfe zeigen „✓ Kopiert".
+
+**Nachtrag (2026-11-22):** Die sichtbare Tabelle im Block „Anrede & Grußformel"
+ist entfallen — es bleibt **nur der Knopf**. Damit zeigt das Debug-Panel genau
+drei Zeilen (Anrede & Grußformel, Straßen, PLZ + Ort), jede mit „Copy to
+Clipboard"; die Werte stehen ausschließlich in der Zwischenablage.
+Der JS-Block, der `dbg-tonalitaet`/`dbg-anrede-*`/`dbg-gruss-*` füllte, ist
+mitgelöscht — sonst wäre er toter Code gegen nicht mehr existierende Elemente.
+Gemessen: 0 alte `dd`-IDs, 3 Blöcke, Kopie unverändert (Tonalität + 6 Anreden),
+0 Log-Meldungen.

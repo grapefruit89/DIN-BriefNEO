@@ -357,19 +357,6 @@ export function aktualisiere() {
     }
   }
 
-  /* Anrede & Gruß: was jetzt drinsteht und was sonst noch angeboten wird —
-     so sieht man direkt, welche Formen zusammengehoeren. */
-  const anredeFeld = feldWert('anrede');
-  const grussFeld = feldWert('grussformel');
-  setze('dbg-anrede-jetzt', anredeFeld || '(leer)');
-  setze('dbg-gruss-jetzt', grussFeld || '(leer)');
-  const varianten = salutationVarianten(feldWert('empfaenger-name'), feldWert('empfaenger-firma'), stunde);
-  setze('dbg-anrede-angebote', varianten.map((v) => v.anrede).join(' '));
-  const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-  const ton = stil && stil.value in SALUTATION_TONES ? stil.value : 'formal';
-  setze('dbg-tonalitaet', ton);
-  setze('dbg-gruss-angebote', `${SALUTATION_TONES[/** @type {keyof typeof SALUTATION_TONES} */ (ton)].closings.join(' · ')}`);
-
   /* Dynamischer Teil: belegte Adressfelder + offene Vorschlagsliste. */
   const felder = document.getElementById('debug-felder');
   if (!felder) return;

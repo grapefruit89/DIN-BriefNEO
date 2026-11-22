@@ -5878,6 +5878,26 @@ describe('D2: ein Wert-Schreiber, eine Allowlist (ersetzt B69-Selektor-Ratsche)'
   });
 });
 
+describe('Ortssuche: Stadt schlaegt Ortsteil (2026-11-22)', () => {
+  it('"neustad" liefert Staedte, keine Hamburger Stadtteile', async () => {
+    const { AddressIntelligence } = await import('../website/js/address.js');
+    await AddressIntelligence.init();
+    const res = AddressIntelligence.resolveCityInput('neustad', 12);
+    const namen = res.items.map((i) => `${i.name || i.city} ${i.district || ''}`);
+    assert(namen.some((n) => n.startsWith('Neustadt')), 'Stadt Neustadt ist dabei');
+    assert(!namen.some((n) => n.includes('Hamburg')), `kein Hamburg-Treffer (${namen.slice(0, 4).join(' | ')})`);
+    assert(!namen.some((n) => n.includes('Koeln') || n.includes('Köln')), 'kein Koeln-Treffer');
+  });
+
+  it('Ortsteil-Suche funktioniert weiter, wenn keine Stadt passt', async () => {
+    const { AddressIntelligence } = await import('../website/js/address.js');
+    await AddressIntelligence.init();
+    const res = AddressIntelligence.resolveCityInput('roisdorf', 12);
+    const namen = res.items.map((i) => `${i.name || i.city} ${i.district || ''}`);
+    assert(namen.some((n) => n.includes('Bornheim')), `Ortsteil-Treffer bleibt (${namen.join(' | ')})`);
+  });
+});
+
 describe('Statuszeile ohne FOUC (Reveal vor Modul-Init)', () => {
   it('boot-state.js schreibt die Statuszeile VOR dem Reveal', async () => {
     /* Der Befund: boot-state.js gibt die Seite frei (klassisch, Ende Body),

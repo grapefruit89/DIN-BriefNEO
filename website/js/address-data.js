@@ -759,12 +759,15 @@ export class AddressIntelligence {
     }
 
     /* 1b. Ortsteile: "Roisdorf" -> 53332 Bornheim. Die Spalte `district`
-       fuehrt sie als Text; der Index macht sie durchsuchbar. Sie stehen NACH
-       den Staedten, damit "troisdorf" weiter die Stadt zuerst zeigt. */
+       fuehrt sie als Text; der Index macht sie durchsuchbar.
+       NUR als Rueckfall: gibt es einen Stadt-Treffer, sind Ortsteile falsch.
+       Gemeldet 2026-11-22: "neustad" listete neben den Neustadt-Staedten auch
+       "Hamburg (Neustadt)" und "Koeln (Neustadt-Nord)" - wer Neustadt tippt,
+       meint die Stadt, nicht ein Viertel. */
     /** @type {typeof cityItems} */
     const ortsteilItems = [];
     const schonDrin = new Set(cityItems.map((i) => `${i.plz || ''}|${i.city}`));
-    for (const [ortsteil, treffer] of AddressIntelligence.ortsteilIndex) {
+    for (const [ortsteil, treffer] of (cityItems.length > 0 ? [] : AddressIntelligence.ortsteilIndex)) {
       if (!ortsteil.startsWith(searchPrefix)) continue;
       for (const eintrag of treffer) {
         const schluessel = `${eintrag.plz}|${eintrag.city}`;

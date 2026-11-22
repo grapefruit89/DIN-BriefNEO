@@ -4384,3 +4384,27 @@ Auswahlliste bietet die passende Form an.
 
 **Gemessen (20:31):** „Guten Tag Frau Croft," **und** „Guten Abend Frau Croft,"
 stehen nebeneinander; 6 Varianten gesamt (2/2/2). Tests 414/414 (2 neue), Fitness 100 %.
+
+---
+
+## 2026-11-22 — 3×3 Grußformeln, Auswahl am Grußfeld
+
+**Nutzer-Vorgabe:** „wir haben jetzt 6 Grußformen? vielleicht wären 3×3 perfekt —
+und wenn ich ins Grußfeld gehe, wird das auch zum Dropdown und zeigt die zur
+Anrede passenden Sätze."
+
+**Umsetzung:**
+
+| Ebene | Inhalt |
+|---|---|
+| Daten | `SALUTATION_TONES[ton].closings` — je drei: formal `Mit freundlichen Grüßen` / `Mit freundlichem Gruß` / `Freundliche Grüße`; höflich `Freundliche Grüße` / `Beste Grüße` / `Viele Grüße`; locker `Beste Grüße` / `Viele Grüße` / `Herzliche Grüße` |
+| Automatik | unverändert: die **erste** Form ist `closing` und wird gesetzt, wenn die Anrede/Tonalität wechselt |
+| Auswahl | `#grussformel` hängt jetzt an `initVorschlagsliste` (Popover `#gruss-vorschlaege`, `statisch: true`) — zeigt die drei Formen der aktuellen Tonalität, farbig wie die Anrede-Gruppen |
+| Klebriger Override | eine manuelle Grußwahl setzt `userSet`; ein späterer Tonalitätswechsel überschreibt sie **nicht** |
+| `#seedAuto` | erkennt jetzt alle neun Formen als „automatisch" (vorher nur die drei ersten) |
+
+**Nachweis (live gemessen, Klickkette):**
+`Hallo Frau Croft,` + `Beste Grüße` → formelle Anrede → `Mit freundlichen Grüßen`
+→ `Liebe Frau Croft,` → `Beste Grüße` → manuell `Herzliche Grüße` → formelle
+Anrede → **bleibt** `Herzliche Grüße`. Liste sitzt 25…190 mm im Blatt, drei
+Einträge, Unterkante 192 mm. Tests 416/416 (1 neuer 3×3-Vertrag), Fitness 100 %.

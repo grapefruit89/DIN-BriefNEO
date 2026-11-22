@@ -28,19 +28,24 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
     salutationDefault: 'Sehr geehrte Damen und Herren,',
     salutationMale: 'Sehr geehrter Herr',
     salutationFemale: 'Sehr geehrte Frau',
-    closing: 'Mit freundlichen Grüßen'
+    closing: 'Mit freundlichen Grüßen',
+    /* Drei Grussformeln je Tonalitaet (Vorgabe 2026-11-22, 3x3). Die erste
+       ist die automatische; alle drei stehen im Dropdown am Grußfeld. */
+    closings: ['Mit freundlichen Grüßen', 'Mit freundlichem Gruß', 'Freundliche Grüße']
   },
   polite: {
     salutationDefault: 'Guten Tag,',
     salutationMale: 'Guten Tag Herr',
     salutationFemale: 'Guten Tag Frau',
-    closing: 'Freundliche Grüße'
+    closing: 'Freundliche Grüße',
+    closings: ['Freundliche Grüße', 'Beste Grüße', 'Viele Grüße']
   },
   casual: {
     salutationDefault: 'Hallo,',
     salutationMale: 'Hallo Herr',
     salutationFemale: 'Hallo Frau',
-    closing: 'Beste Grüße'
+    closing: 'Beste Grüße',
+    closings: ['Beste Grüße', 'Viele Grüße', 'Herzliche Grüße']
   }
 }));
 
@@ -155,6 +160,12 @@ const CLOSINGS = Object.freeze({
   casual: SALUTATION_TONES.casual.closing
 });
 
+/** Alle angebotenen Grussformeln (3 je Ton) - fuer #seedAuto. */
+/** @type {Set<string>} */
+const ALLE_GRUESSE = new Set(
+  Object.values(SALUTATION_TONES).flatMap((ton) => [...ton.closings])
+);
+
 const FALLBACK = Object.freeze({
   formal: SALUTATION_TONES.formal.salutationDefault,
   polite: SALUTATION_TONES.polite.salutationDefault,
@@ -162,7 +173,6 @@ const FALLBACK = Object.freeze({
 });
 
 const FALLBACK_SET = new Set(Object.values(FALLBACK));
-const CLOSINGS_SET = new Set(Object.values(CLOSINGS));
 
 const ORG_WORDS = new Set(['gmbh', 'ag', 'eg', 'ug', 'ev', 'kg', 'ohg', 'gbr', 'kgaa', 'ek']);
 const PARTICLES = new Set(['von', 'vom', 'zu', 'zur', 'zum', 'van', 'der', 'den', 'de', 'ten', 'ter', 'la', 'le', 'du', 'di']);
@@ -284,6 +294,9 @@ export class SalutationFeature {
   /** @type {{ zerstoeren: () => void } | null} */
   #liste = null;
 
+  /** @type {{ zerstoeren: () => void } | null} */
+  #gruesse = null;
+
   /**
    * @param {import('./settings.js').SettingsManager | null} [settingsManager]
    */
@@ -322,6 +335,7 @@ export class SalutationFeature {
     }
 
     this.#initVarianten();
+    this.#initGruesse();
 
     /* Reset und Undo/Redo melden sich als DOCUMENT_CHANGED. Ein eigener
      * Dialog-Listener waere ein zweiter Pfad fuer denselben Zustand (und ein
@@ -358,6 +372,29 @@ export class SalutationFeature {
   }
 
   /**
+   * Grußfeld als Auswahl: die drei Grußformeln der aktuellen Tonalitaet
+   * (Vorgabe 2026-11-22: 3x3). Eine Wahl markiert das Feld als Nutzertext,
+   * damit die Automatik es danach stehen laesst.
+   */
+  #initGruesse() {
+    this.#gruesse = initVorschlagsliste({
+      feld: 'grussformel',
+      popover: 'gruss-vorschlaege',
+      /* Die Liste haengt nur an der Tonalitaet, nicht am Tippen. */
+      statisch: true,
+      hole: () => {
+        const ton = toStyle(this.settings.formality);
+        return SALUTATION_TONES[ton].closings.map((text) => ({ text, gruppe: ton, wert: text }));
+      },
+      beiWahl: (/** @type {any} */ v) => {
+        applyValue('grussformel', v.text, 'logic');
+        setMeta(letterState, 'grussformel', { userSet: true });
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+      }
+    });
+  }
+
+  /**
    * Uebernimmt eine Variante: Stil zuerst (zieht den Gruß nach), dann die
    * Anrede — und markiert sie als Nutzerwahl, damit die Automatik sie stehen
    * laesst.
@@ -378,6 +415,10 @@ export class SalutationFeature {
     if (this.#liste) {
       this.#liste.zerstoeren();
       this.#liste = null;
+    }
+    if (this.#gruesse) {
+      this.#gruesse.zerstoeren();
+      this.#gruesse = null;
     }
   }
 
@@ -422,7 +463,7 @@ export class SalutationFeature {
     const grussEl = document.getElementById('grussformel');
     const gruss = Field.getValue(grussEl).trim();
     if (gruss) {
-      const isAutoGruss = CLOSINGS_SET.has(/** @type {any} */ (gruss));
+      const isAutoGruss = ALLE_GRUESSE.has(gruss);
       if (isAutoGruss && grussEl) {
         unsetMeta(letterState, 'grussformel', 'userSet');
         this.#auto.grussformel = gruss;

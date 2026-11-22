@@ -6173,10 +6173,20 @@ describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
       }
     }
     for (const ton of Object.values(SALUTATION_TONES)) {
-      const closing = ton.closing;
-      assert(!/[.,!?;:]$/.test(closing), `Grussformel ohne Satzzeichen: "${closing}"`);
+      for (const closing of ton.closings) {
+        assert(!/[.,!?;:]$/.test(closing), `Grussformel ohne Satzzeichen: "${closing}"`);
+      }
     }
     assertEqual(SalutationEngine.derive({ rawName: 'Frau Erika Mustermann', formality: 'formal' }), 'Sehr geehrte Frau Mustermann,');
+  });
+
+  it('3x3: jeder Ton hat drei Grussformeln, die erste ist die automatische', () => {
+    for (const [name, ton] of Object.entries(SALUTATION_TONES)) {
+      assertEqual(ton.closings.length, 3, `${name}: drei Gruesse`);
+      assertEqual(new Set(ton.closings).size, 3, `${name}: keine Doppelten`);
+      assertEqual(ton.closing, ton.closings[0], `${name}: closing ist die erste`);
+      assert(!/[.,!?;:]$/.test(ton.closing), `${name}: automatischer Gruss ohne Satzzeichen`);
+    }
   });
 
   it('Tageszeit-Gruss: Morgen 5-10, Tag 11-17, Abend 18-4', () => {

@@ -1183,6 +1183,14 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="10"] { --ort-ton: oklch(0.62 0.17 295); }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="11"] { --ort-ton: oklch(0.62 0.17 73); }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="12"] { --ort-ton: oklch(0.62 0.17 210); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="13"] { --ort-ton: oklch(0.62 0.17 8); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="14"] { --ort-ton: oklch(0.62 0.17 145); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="15"] { --ort-ton: oklch(0.62 0.17 283); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="16"] { --ort-ton: oklch(0.62 0.17 60); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="17"] { --ort-ton: oklch(0.62 0.17 198); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="18"] { --ort-ton: oklch(0.62 0.17 335); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="19"] { --ort-ton: oklch(0.62 0.17 113); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="20"] { --ort-ton: oklch(0.62 0.17 250); }
 
 /* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
    kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */

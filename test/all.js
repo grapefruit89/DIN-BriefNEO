@@ -5313,6 +5313,17 @@ describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
     assert(raus.every((e) => String(e.plz).startsWith('538')), 'nur Troisdorf-PLZs');
   });
 
+  it('Stadtteile derselben Stadt bekommen eigene Farben', () => {
+    /* Gemeldet 2026-11-22: bei "bonn" war alles gruen, die 19 Bezirke liessen
+       sich nicht unterscheiden. */
+    const farben = farbenFuerListe([
+      { city: 'Bonn', state: 'NW', plz: '53111', district: 'Zentrum' },
+      { city: 'Bonn', state: 'NW', plz: '53113', district: 'Gronau' },
+      { city: 'Bonn', state: 'NW', plz: '53115', district: 'Poppelsdorf' },
+    ]);
+    assertEqual(new Set(farben).size, 3, `drei Stadtteile, drei Farben (${farben.join(',')})`);
+  });
+
   it('nach dem Aufklappen wird auf die Listengroesse gekappt', () => {
     /* Gemessen 2026-11-22: "neu" erzeugte 38 Zeilen, weil das Aufklappen erst
        NACH der Trefferbegrenzung passiert. */

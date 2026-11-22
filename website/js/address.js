@@ -545,7 +545,7 @@ export function flacheVorschlaege(liste, limit = Infinity) {
 }
 
 /** Anzahl der Ortstoene. Reihenfolge im CSS: Goldwinkel-Abstaende (weit auseinander). */
-export const ORT_FARBEN = 12;
+export const ORT_FARBEN = 20;
 
 /**
  * Vergibt die Pastellfarben (1..ORT_FARBEN) in der Reihenfolge der Liste.
@@ -573,7 +573,10 @@ export function farbenFuerListe(eintraege, kreisVon) {
   let naechste = 1;
   return eintraege.map((eintrag) => {
     const kreis = eintrag.kreisKey || (kreisVon ? kreisVon(eintrag) : '') || '';
-    const ort = `${eintrag.city || eintrag.name || ''}|${eintrag.state || eintrag.district || ''}|${kreis}`;
+    /* Stadtteile bekommen eigene Toene: innerhalb einer Stadt (Bonn) war alles
+       gruen und die 19 Bezirke liessen sich nicht unterscheiden (2026-11-22). */
+    const stadtteil = eintrag.district || '';
+    const ort = `${eintrag.city || eintrag.name || ''}|${eintrag.state || ''}|${kreis}|${stadtteil}`;
     if (!jeOrt.has(ort)) {
       jeOrt.set(ort, String(naechste));
       naechste = (naechste % ORT_FARBEN) + 1;

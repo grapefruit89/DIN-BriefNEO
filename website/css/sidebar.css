@@ -1298,6 +1298,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 }
 
 #plz-suggestions-popover li:not(.suggestion-hint):hover,
+#strasse-vorschlaege li:not(.suggestion-hint):hover,
 #anschrift-vorschlaege li:not(.suggestion-hint):hover {
   background: var(--segment-bg);
 }
@@ -1317,7 +1318,8 @@ aside select {
 
 #anschrift-vorschlaege li[aria-selected="true"],
 #anschrift-vorschlaege li:focus-visible,
-#plz-suggestions-popover li[aria-selected="true"] {
+#plz-suggestions-popover li[aria-selected="true"],
+#strasse-vorschlaege li[aria-selected="true"] {
   background: color-mix(in oklch, var(--accent-color) 18%, transparent);
   outline: 2px solid color-mix(in oklch, var(--accent-color) 65%, transparent);
   outline-offset: -2px;

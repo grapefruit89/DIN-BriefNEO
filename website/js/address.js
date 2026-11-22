@@ -1657,7 +1657,9 @@ export function initAddressServices() {
       const linksGrenze = (blatt ? blatt.left : 0) + RAND;
       const rechtsGrenze = (blatt ? blatt.right : window.innerWidth) - RAND;
       const untenGrenze = (blatt ? blatt.bottom : window.innerHeight) - RAND;
-      const breite = Math.max(320, Math.min(560, rechtsGrenze - linksGrenze));
+      /* Schmal halten: der Inhalt ist kurz (Strasse + Ort), 560 px liessen
+         300 px leer stehen. Rechtsbuendig am 20-mm-Rand bleibt. */
+      const breite = Math.max(300, Math.min(420, rechtsGrenze - linksGrenze));
       const links = Math.max(linksGrenze, Math.min(feldRect.right - breite, rechtsGrenze - breite));
       const oben = feldRect.bottom + 4;
       strassePopover.style.left = `${Math.round(links)}px`;
@@ -1696,10 +1698,14 @@ export function initAddressServices() {
             hidePopoverSafe(strassePopover);
             return;
           }
-          for (const r of treffer) {
+          treffer.forEach((/** @type {any} */ r, /** @type {number} */ index) => {
             const li = document.createElement('li');
             li.className = 'suggestion-item';
             li.dataset.typ = 'adresse';
+            /* Erster Treffer ist vorausgewaehlt, damit die Auswahl sichtbar ist
+               (die anderen Listen machen das genauso). */
+            li.setAttribute('role', 'option');
+            li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
             const main = document.createElement('span');
             main.className = 'suggestion-main';
             const name = document.createElement('span');
@@ -1722,7 +1728,7 @@ export function initAddressServices() {
               hidePopoverSafe(strassePopover);
             });
             strassePopover.append(li);
-          }
+          });
           passeGroesse();
           showPopoverSafe(strassePopover);
         } catch (err) {

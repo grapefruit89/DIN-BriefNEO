@@ -144,10 +144,6 @@ export function bindListSelection(popoverEl, items, select) {
 /* 24 statt 12: das Popover reicht bis kurz vor den Blattrand (~25 Zeilen). */
 const maxSuggestions = () => (window.innerWidth < SUGGESTION_BREAKPOINT_PX ? 10 : 24);
 
-/* Ab dieser PLZ-Zahl wird eine Stadt nicht mehr aufgeloest: 284 Zeilen
-   "10115 Berlin" ohne Zusatz sind unbrauchbar (gemeldet 2026-11-22). Der
-   Nutzer tippt dann die Postleitzahl. */
-const MAX_PLZ_PRO_STADT = 40;
 
 /** Listener-Register (ersetzt data-wired am Ort-Feld). */
 let adressfelderVerdrahtet = false;
@@ -306,25 +302,6 @@ AddressIntelligence.wireDOM = function wireDOM() {
         setCaretToEnd(empfOrtEl);
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
         clearPopover();
-        return;
-      }
-
-      /* Grosse Stadt (Berlin 284 PLZ): eine Liste zeigen, aber nicht 284
-         Zeilen. Erste 24 PLZ + Hinweis auf den Rest. Wer die PLZ kennt, tippt
-         sie; wer sie nicht kennt, sieht so wenigstens den Anfang. */
-      if (res.mode === 'city_plzs' && res.items.length > MAX_PLZ_PRO_STADT) {
-        /* Orte zuerst: die PLZ-Liste beginnt sonst mit lauter Großempfängern
-           (10098 Charité, 10099 HU ...) und Block 1 fehlte komplett. */
-        const rangVon = (/** @type {any} */ i) => ((i.typ || 'Stadt').toLowerCase() === 'stadt' ? 0 : 1);
-        const gezeigt = [...res.items].sort((a, b) => rangVon(a) - rangVon(b)).slice(0, maxSuggestions());
-        renderUniversalSuggestions(gezeigt, res.items.length, empfOrtEl, empfFirmaEl, empfStrasseEl, suggestionsPopover, null, true);
-        const rest = res.items.length - gezeigt.length;
-        if (rest > 0) {
-          const hinweis = document.createElement('li');
-          hinweis.className = 'suggestion-hint';
-          hinweis.textContent = `${res.city}: ${rest} weitere Postleitzahlen — bitte PLZ eingeben`;
-          suggestionsPopover.appendChild(hinweis);
-        }
         return;
       }
 

@@ -1103,9 +1103,9 @@ input[type="checkbox"][switch] {
   top: anchor(bottom);
   left: anchor(left);
   min-width: max(300px, anchor-size(width));
-  /* Breite/Hoehe setzt address.js beim Oeffnen: bis 20 mm vor dem Blattrand. */
-  max-width: none;
-  max-height: none;
+  /* Genau wie die Ortsliste: linksbuendig am Feld, Breite aus dem Anker,
+     Hoehe bis 20 mm vor den Blatt-Unterrand (passeAnBlattrand, 2026-11-22). */
+  max-width: min(560px, 92vw);
 }
 
 #plz-suggestions-popover,

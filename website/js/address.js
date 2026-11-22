@@ -1614,22 +1614,12 @@ export function initAddressServices() {
   if (absStrasseEl && strassePopover) {
     /* Bonn als Standard-Naehe (Heimfallpunkt, gemessen 2026-11-22). */
     const BONN = { lon: 7.0982068, lat: 50.73743 };
-    /* 20 mm = 75,6 px bei 96 dpi (DIN 5008 Rand). */
-    const RAND = 76;
-
-    /* Nur noch Breite/Position: die Hoehe bis 20 mm vor den Blatt-Unterrand
-       setzt `passeAnBlattrand` fuer ALLE Listen (suggestion-list.js). */
-    const passeGroesse = (/** @type {HTMLElement} */ pop, /** @type {HTMLElement} */ feldEl) => {
-      const feldRect = feldEl.getBoundingClientRect();
-      const blatt = document.getElementById('kern')?.getBoundingClientRect();
-      const linksGrenze = (blatt ? blatt.left : 0) + RAND;
-      const rechtsGrenze = (blatt ? blatt.right : window.innerWidth) - RAND;
-      const breite = Math.max(300, Math.min(420, rechtsGrenze - linksGrenze));
-      const links = Math.max(linksGrenze, Math.min(feldRect.right - breite, rechtsGrenze - breite));
-      pop.style.left = `${Math.round(links)}px`;
-      pop.style.top = `${Math.round(feldRect.bottom + 4)}px`;
-      pop.style.width = `${Math.round(breite)}px`;
-    };
+    /* KEINE eigene Groessen-/Positionsrechnung mehr (gemeldet 2026-11-22:
+       "das dropdown hat die falsche Logik bzw. Position"): die Liste sass
+       420 px breit rechtsbuendig am Feld, waehrend die Ortsliste linksbuendig
+       in Feldbreite stand. Jetzt gilt fuer beide dieselbe Verankerung
+       (CSS `position-anchor: --anchor-absender-strasse`) und dieselbe Hoehe
+       (passeAnBlattrand bis 20 mm vor den Blatt-Unterrand). */
 
     /** @param {string} text */
     const holeStrassen = async (text) => {
@@ -1668,7 +1658,6 @@ export function initAddressServices() {
       feld: absStrasseEl,
       popover: strassePopover,
       verzoegerung: 350,
-      groesse: passeGroesse,
       hole: holeStrassen,
       beiWahl: (/** @type {any} */ v) => {
         const r = v.wert || {};

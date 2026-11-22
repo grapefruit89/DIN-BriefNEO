@@ -1071,10 +1071,17 @@ input[type="checkbox"][switch] {
   font-weight: 700;
 }
 
-/* Anrede-Varianten: eine Farbe je Tonalitaet (foermlich/hoeflich/locker). */
-#anrede-vorschlaege li[data-gruppe="formal"] { --ort-ton: oklch(0.55 0.16 255); }
-#anrede-vorschlaege li[data-gruppe="polite"] { --ort-ton: oklch(0.58 0.14 150); }
-#anrede-vorschlaege li[data-gruppe="casual"] { --ort-ton: oklch(0.62 0.16 45); }
+/* Anrede-Varianten: Verlauf von distanziert (blau) nach vertraut (rot).
+   Drei klar getrennte Stufen: 255 Grad (blau) -> 320 (violett) -> 25 (rot). */
+#anrede-vorschlaege li[data-gruppe="formal"] { --ort-ton: oklch(0.55 0.17 255); }
+#anrede-vorschlaege li[data-gruppe="polite"] { --ort-ton: oklch(0.56 0.17 320); }
+#anrede-vorschlaege li[data-gruppe="casual"] { --ort-ton: oklch(0.58 0.19 25); }
+
+/* Die Gruppen sollen klar lesbar sein: im Anrede-Popover etwas kraeftiger
+   hinterlegt als in den Ortslisten. */
+#anrede-vorschlaege li.suggestion-item {
+  background: color-mix(in oklch, var(--ort-ton) 18%, transparent);
+}
 
 #anrede-vorschlaege,
 #anrede-vorschlaege[popover] {

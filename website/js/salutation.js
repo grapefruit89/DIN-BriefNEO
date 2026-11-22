@@ -72,8 +72,10 @@ export function salutationVarianten(rawName) {
   for (const style of STYLES) {
     if (!name) {
       /* Ohne Empfaengernamen sind die allgemeinen Formen die einzigen, die
-         stimmen koennen. */
+         stimmen koennen. DIN 5008 (20.9.4) zeigt fuer den hoeflichen Ton
+         zusaetzlich "Guten Tag, geschaetzte Damen und Herren,". */
       dazu(SALUTATION_TONES[style].salutationDefault, style);
+      if (style === 'polite') dazu('Guten Tag, geschätzte Damen und Herren,', style);
       continue;
     }
     const basis = deriveSalutation(name, style);

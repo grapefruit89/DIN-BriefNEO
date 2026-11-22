@@ -5963,7 +5963,10 @@ describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
 
   it('ohne Namen nur die allgemeinen Formen', () => {
     const v = salutationVarianten('');
-    assertEqual(v.length, 3);
+    const texte = v.map((x) => x.anrede);
+    assertEqual(v.length, 4, 'drei Stile + "Guten Tag, geschaetzte Damen und Herren"');
+    assert(texte.includes(SALUTATION_TONES.formal.salutationDefault), 'foermlich allgemein');
+    assert(texte.includes('Guten Tag, geschätzte Damen und Herren,'), 'DIN-5008-Beispiel');
     assert(v.every((x) => x.anrede.endsWith(',')));
   });
 });

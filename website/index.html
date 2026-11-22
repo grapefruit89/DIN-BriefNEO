@@ -277,7 +277,15 @@
             </div>
 
             <div class="seitenleiste-field-group">
-              <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
+              <p class="key-zeile">
+                <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
+                <a
+                  class="key-hint-link"
+                  href="https://myprojects.geoapify.com/projects"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Geoapify API-Key hier erstellen (neuer Tab)">hier erstellen</a>
+              </p>
               <input
                 type="password"
                 id="input-geoapify-key" aria-describedby="geoapify-status"
@@ -286,9 +294,6 @@
                 spellcheck="false"
                 placeholder="Key einfügen (optional für Adress-Vorschläge)…">
               <small id="geoapify-status" class="input-status-hint" role="status"></small>
-              <a class="key-hint-link" href="https://myprojects.geoapify.com/projects" target="_blank" rel="noopener noreferrer">
-                Key bei Geoapify erstellen <span aria-hidden="true">↗</span>
-              </a>
             </div>
 
             <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>

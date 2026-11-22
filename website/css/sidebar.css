@@ -527,6 +527,36 @@ fieldset.seitenleiste-field-group > legend {
 }
 
 /* Geoapify API-Key BYOK (100% KISS) */
+/* "Geoapify API-Key: hier erstellen" in EINER Zeile (2026-11-22): das Label
+   stand als Block ueber dem Feld, der Link darunter. Beides sind jetzt
+   Geschwister in einer Flex-Zeile; der Link bleibt ein echter Link. */
+.key-zeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  margin: 0 0 var(--space-xs);
+}
+
+.key-zeile .seitenleiste-sub-label {
+  display: inline;
+  margin-bottom: 0;
+}
+
+.key-zeile .key-hint-link {
+  justify-self: auto;
+  margin-top: 0;
+  /* Neben dem Label muss der Link als Link erkennbar sein: Akzentfarbe und
+     dieselbe Groesse wie das Label (vorher 0.75rem gegen 0.7rem). */
+  font-size: 0.7rem;
+  color: var(--accent-color);
+}
+
+.key-zeile .key-hint-link:hover,
+.key-zeile .key-hint-link:focus-visible {
+  color: var(--accent-hover, var(--accent-color));
+}
+
 .key-hint-link {
   justify-self: start;
   font-size: 0.75rem;

@@ -5252,3 +5252,28 @@ App: Test-Aptos und Test-Michelangelus laden (document.fonts.check true)
 
 Damit braucht `website/fonts/` **keine** lokalen Kopien mehr: die zwei
 Nicht-Inter-Schriften liegen ausschließlich in `fonts/` (gitignored).
+
+---
+
+## 2026-11-22 — CSS-Altlasten auf die Verbotsliste (B6/B7)
+
+**Nutzer:** „bitte alle auf die Verbotsliste setzen, da wo auch today() steht —
+das darf nie wieder eingebaut werden."
+
+Zwei neue Antipattern-Regeln in `tools/antipatterns/base.json`:
+
+| ID | Muster | Ersatz |
+|---|---|---|
+| **B6** | `-webkit-`, `-moz-`, `-ms-` | Standard-Eigenschaft (`backdrop-filter`, `user-select`, `appearance`) |
+| **B7** | `float:`, `clear:`, `zoom:`, `expression(`, `progid:` | Flex/Grid, `margin-inline-start: auto`, `transform: scale()`, `@supports` |
+
+Gegenprobe mit einer Wegwerf-Datei: B6 1 Treffer, B7 5 Treffer, nach dem
+Löschen 0. Regeln gesamt: 55 → **57**.
+
+**Bestand vorher:** genau ein Treffer — `float: right` in `.badge-local`
+(`sidebar.css:625`). Die Klasse wurde **nirgends** verwendet (kein HTML, kein
+JS) — also toter CSS, 9 Zeilen entfernt statt modernisiert.
+
+**Was der Bericht vorher zeigte:** 0 Vendor-Prefixes, 0 `clear`/`zoom`/
+`expression`/`progid` — das CSS war bereits sauber. Die Verbotsliste hält es
+so.

@@ -207,13 +207,14 @@ export class FontFeature {
      * Schrift ist optional, und ein Toast bei jedem Oeffnen (z. B. blockierte
      * IndexedDB durch einen anderen Tab) waere Laerm ohne Handlungsoption.
      * Speichern ist die andere Richtung: dort ist der Toast Pflicht. */
-    loadBlob('font').then((blob) => {
+    void (async () => {
+      const blob = await loadBlob('font');
       if (blob) {
         this.injectFont(blob);
       } else {
         this.updateFontStatusUI(false);
       }
-    });
+    })();
   }
 
   /**

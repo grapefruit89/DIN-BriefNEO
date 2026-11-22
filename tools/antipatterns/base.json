@@ -74,6 +74,36 @@
         "*.js"
       ],
       "exemptions": []
+    },
+    {
+      "id": "B6",
+      "catalog_ref": [],
+      "class": "hard-ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "Hersteller-Praefixe im CSS (-webkit-, -moz-, -ms-). Chrome 155+ braucht keine. Stattdessen die Standard-Eigenschaft nutzen (z. B. backdrop-filter, user-select, appearance).",
+      "pattern": "-webkit-|-moz-|-ms-",
+      "file_patterns": [
+        "*.css"
+      ],
+      "exemptions": [],
+      "no_catalog_ref_reason": "Kein A-Gesetz: eine reine Browser-Plattform-Regel. Chrome 155+ unterstuetzt alle genutzten Eigenschaften ohne Praefix; Praefixe sind Ballast ohne Nutzen (Longevity: null Wartung)."
+    },
+    {
+      "id": "B7",
+      "catalog_ref": [],
+      "class": "hard-ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "CSS-Layout-Altlasten: float, clear, zoom, IE-Hacks (expression(), progid:). Ersatz: Flex/Grid, margin-inline-start:auto, transform:scale(), @supports.",
+      "pattern": "\\bfloat\\s*:|\\bclear\\s*:|\\bzoom\\s*:|expression\\s*\\(|progid\\s*:",
+      "file_patterns": [
+        "*.css"
+      ],
+      "exemptions": [],
+      "no_catalog_ref_reason": "Kein A-Gesetz: reine Layout-Hygiene. Flex/Grid ersetzen float/clear; transform:scale() ersetzt zoom; IE-Hacks (expression/progid) laufen in Chrome nie."
     }
   ]
 }

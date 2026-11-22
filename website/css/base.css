@@ -46,6 +46,15 @@
  * NICHT auf einzelne Selektoren verengen und NICHT durch "Abwesenheit eines
  * Markers" ersetzen: genau dieser Fehlermodus (unsichtbar bei fehlendem JS)
  * war der Grund fuer den Umbau. */
+/* WARUM `!important` IN DIESER DATEI (22 Stueck, Stand 2026-11-22)
+
+   Zwei Gruppen, beide ohne Alternative:
+   1. BOOT-MASKE: waehrend des Boots (`data-booting="true"`) muss alles
+      verdeckt sein, bevor der Wert-Writer laeuft — sonst blitzt der
+      HTML-Default auf (FOUC). Eine spaetere Regel darf das nicht aushebeln.
+   2. DRUCK: `@media print` muss Bildschirm-Regeln mit gleicher Spezifitaet
+      ueberstimmen (A46 verlangt das Gegenstueck zu A43). */
+
 :root[data-booting="true"] #app-shell {
   visibility: hidden;
 }

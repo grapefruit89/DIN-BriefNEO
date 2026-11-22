@@ -3,6 +3,22 @@
 
 /* css/sheet-multipage.css — DIN-A4-Blatt Mehrseiten-Layout (Multicol Level 2) */
 
+/* ---------------------------------------------------------------------------
+   WARUM HIER SO VIELE `!important` STEHEN (67 Stueck, Stand 2026-11-22)
+
+   Nicht aus Bequemlichkeit — anders geht es nicht. Diese Datei baut den
+   Bildschirm in ein Mehrseiten-Blatt um (Multicol, geklonte Koepfe, @page).
+   Sie muss dabei Regeln aus `base.css` und `sheet-common.css` ueberstimmen, die
+   fuer das EINSEITIGE Blatt geschrieben sind und zum Teil spaeter geladen
+   werden: `#viewport`, `#brief-ansicht`, `#kern` — jeweils mit ID-Spezifitaet.
+   Mit gleicher Spezifitaet und spaeterer Ladereihenfolge gewinnt sonst die
+   einseitige Regel, und das Layout bricht (belegt: `justify-content: center`
+   aus dieser Datei schlug am 2026-11-22 eine spaetere Regel mit zwei IDs).
+
+   Wer hier `!important` entfernt, muss die Gegenprobe im Mehrseiten-Modus
+   fahren: zwei Seiten Text, Betreff auf Seite 2, Fusszeile, Druck-PDF.
+   --------------------------------------------------------------------------- */
+
 :root {
   --seite: 297mm;
   --luecke: 8mm;                 /* sichtbarer Abstand zwischen zwei Blättern auf dem Bildschirm */

@@ -620,15 +620,6 @@ input[type="checkbox"][switch] {
   inline-size: 20px;
   block-size: 20px;
 }
-.badge-local {
-  margin-inline-start: var(--space-sm);
-  float: right;
-  font-size: 0.65rem;
-  color: var(--accent-color);
-  background: var(--segment-bg);
-  padding: var(--space-2xs) var(--space-xs);
-  border-radius: var(--radius-xs);
-}
 
 
 /* Accessibility: Windows High Contrast / forced-colors. Ohne diesen Guard

@@ -1474,9 +1474,10 @@ export function initAddressServices() {
   }
 
   // --- TIER 1: OFFLINE ADDRESS INTELLIGENCE ---
-  AddressIntelligence.init().then(() => {
+  void (async () => {
+    await AddressIntelligence.init();
     AddressIntelligence.wireDOM();
-  });
+  })();
 
   // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias
   const absenderPlzOrtEl = feld('absender-ort') || feld('rucksendeangabe');
@@ -1499,18 +1500,17 @@ export function initAddressServices() {
         const match = text.match(/(\d{5})/);
         if (match) {
           const plz = match[1];
-          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(plz)}&type=postcode&filter=countrycode:de&format=json&apiKey=${encodeURIComponent(key)}&limit=1`, {
-            signal: AbortSignal.timeout(8000),
-          })
-            .then(r => r.json())
-            .then(data => {
-              if (data?.results?.length) {
-                const result = data.results[0];
-                if (result.lat && result.lon) {
-                  saveJSON(STORAGE_KEYS.senderCoords, { lat: result.lat, lon: result.lon });
-                }
-              }
-            }).catch(console.debug);
+          void (async () => {
+            const antwort = await fetch(
+              `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(plz)}&type=postcode&filter=countrycode:de&format=json&apiKey=${encodeURIComponent(key)}&limit=1`,
+              { signal: AbortSignal.timeout(8000) }
+            );
+            const daten = await antwort.json();
+            const result = daten?.results?.[0];
+            if (result?.lat && result?.lon) {
+              saveJSON(STORAGE_KEYS.senderCoords, { lat: result.lat, lon: result.lon });
+            }
+          })().catch(console.debug);
         }
       }, 500);
     });

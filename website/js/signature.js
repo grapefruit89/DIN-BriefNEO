@@ -78,12 +78,13 @@ export class SignatureFeature {
        die Begruendung "Platz reserviert" war falsch, die Entscheidung richtig).
        Ein Ladefehler bleibt bewusst STILL (entschieden 2026-11-13): Signatur
        ist optional, Speichern meldet Fehler dagegen sichtbar (Toast). */
-    loadBlob('signature').then((blob) => {
+    void (async () => {
+      const blob = await loadBlob('signature');
       if (!blob) return;
       this.#setImageFromBlob(blob);
       this.applyTransform();
       this.#updateButtonState(true);
-    });
+    })();
   }
 
   initWysiwyg() {

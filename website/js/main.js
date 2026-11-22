@@ -169,9 +169,10 @@ function initApp() {
   bootStep('Plugins', () => {
     // Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]).
     // Kein Umschalt-Signal mehr: der Controller wird genau einmal gemountet.
-    import('./multipage-controller.js')
-      .then((m) => m.mountMultipage())
-      .catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
+    void (async () => {
+      const m = await import('./multipage-controller.js');
+      m.mountMultipage();
+    })().catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
   });
 
   /* Kritisch: hier entsteht der Listener input -> Speichern. Faellt er aus,
@@ -215,9 +216,10 @@ function initApp() {
     const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-debug'));
     if (!schalter) return;
     const laden = () => {
-      import('./debug-panel.js')
-        .then((m) => m.initDebugPanel())
-        .catch((err) => console.debug('[Debug-panel] konnte nicht laden:', err));
+      void (async () => {
+        const m = await import('./debug-panel.js');
+        m.initDebugPanel();
+      })().catch((err) => console.debug('[Debug-panel] konnte nicht laden:', err));
     };
     if (schalter.checked) laden();
     schalter.addEventListener('change', () => {

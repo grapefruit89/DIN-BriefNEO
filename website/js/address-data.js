@@ -513,10 +513,13 @@ export class AddressIntelligence {
     AddressIntelligence.#initPromise = (async () => {
       try {
         /** @param {string} relPath */
-        const loadDataset = (relPath) => {
-          return fetchGzipJson(relPath)
-            .then(d => d || fetchGzipJson(`../website/${relPath}`))
-            .then(d => d || fetchGzipJson(`website/${relPath}`));
+        /** @param {string} relPath */
+        const loadDataset = async (relPath) => {
+          return (
+            (await fetchGzipJson(relPath)) ||
+            (await fetchGzipJson(`../website/${relPath}`)) ||
+            (await fetchGzipJson(`website/${relPath}`))
+          );
         };
 
         const [plzData, grossData] = await Promise.all([
@@ -628,9 +631,10 @@ export class AddressIntelligence {
     /* Fehlschlag nicht cachen: sonst bleibt die PLZ-Engine fuer den Rest der
        Seitenlebensdauer tot, obwohl ein spaeterer Versuch (z.B. nach kurzem
        Netzausfall) erfolgreich waere (B8-Review 2026-11-12). */
-    void AddressIntelligence.#initPromise.then((ok) => {
+    void (async () => {
+      const ok = await AddressIntelligence.#initPromise;
       if (!ok) AddressIntelligence.#initPromise = null;
-    });
+    })();
 
     return AddressIntelligence.#initPromise;
   }

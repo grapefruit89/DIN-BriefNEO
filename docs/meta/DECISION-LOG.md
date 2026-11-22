@@ -4328,3 +4328,31 @@ haben am `:root` keinen Wert — das ist korrekt: sie werden *scoped* gesetzt
 (`--ort-ton` je Zeile, `--items` je Container, `--active-idx` je Segment).
 Ein Test wurde angepasst (Puls-Startfarbe kommt jetzt aus
 `--farbe-erfolg-flaeche`). Tests 410/410, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Anrede: Team-Formen für Firmen, „Liebe,"-Fehlbildung behoben
+
+**Vorlage des Users:** zwei Übersichten deutscher Anreden (karrierebibel +
+eine 5-stufige Liste) mit dem Auftrag „80/20 reicht".
+
+**Befund:** Für einen Empfänger ohne Ansprechpartner, aber mit Firma, kamen die
+allgemeinen Formen — darunter die grammatisch falsche Zeile **„Liebe,"** (die
+Casual-Ersetzung `Hallo` → `Liebe` lief auch auf „Hallo,").
+
+**Übernommen (bewusst nur das):**
+
+| Fall | neu |
+|---|---|
+| nur Firma | `Sehr geehrtes Team der <Firma>,` (formal), `Guten Tag zusammen,` (höflich), `Hallo zusammen,` (locker) |
+| nur Firma, formal | zusätzlich `Sehr geehrte Damen und Herren,` als Rückfallzeile |
+| ohne alles | unverändert, aber ohne die Fehlbildung |
+
+**Bewusst NICHT übernommen** (80/20 bzw. Gesetzeslage):
+- regionale Formen (`Moin`, `Servus`) und `Hi`/`Hey` — passen nicht zum Brief;
+- Tageszeit-Anreden (`Guten Morgen,`) — bräuchten eine Uhr, A48 verbietet die Date-API;
+- Gendern (`Liebe*r`, `Mitarbeitende`) — Stilrichtlinie, nicht Aufgabe der App;
+- Mehrpersonen-Anreden — Empfängerfeld kennt nur eine Person.
+
+Gemessen im Browser: nur Firma → 5 Varianten (2/2/1) in den drei Farbgruppen;
+mit „Frau Lara Croft" unverändert 5 (2/1/2). Tests 412/412, Fitness 100 %.

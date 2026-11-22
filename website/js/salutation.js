@@ -54,11 +54,20 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
  * Mit Empfaengernamen NUR die Formen mit Namen (die allgemeinen waeren hier
  * falsch), dazu je Stil eine Variante mit anderem Tonfall (sehr verehrt /
  * liebe(r)). Ohne Namen nur die allgemeinen Formen. Doppelte werden entfernt.
- * @param {string} rawName
+ *
+ * Ist nur eine FIRMA bekannt (kein Ansprechpartner), sind Personen-Anreden
+ * falsch: dann kommen Team-Formen ("Sehr geehrtes Team der X GmbH," /
+ * "Guten Tag zusammen," / "Hallo zusammen,"). Das ist die 80/20-Auswahl aus
+ * den gaengigen Anrede-Empfehlungen (2026-11-22) — bewusst ohne regionale
+ * Varianten (Moin/Servus), ohne Gendern und ohne tageszeitabhaengige Formen
+ * (die braeuchten eine Uhr, siehe A48).
+ * @param {string} rawName Ansprechpartner (darf leer sein)
+ * @param {string} [rawFirma] Firma/Behoerde, wenn kein Ansprechpartner bekannt ist
  * @returns {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>}
  */
-export function salutationVarianten(rawName) {
+export function salutationVarianten(rawName, rawFirma = '') {
   const name = String(rawName || '').trim();
+  const firma = String(rawFirma || '').trim();
   /** @type {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>} */
   const out = [];
   const gesehen = new Set();
@@ -76,6 +85,19 @@ export function salutationVarianten(rawName) {
     out.push({ anrede: text, style, ton: style });
   };
   for (const style of STYLES) {
+    if (!name && firma) {
+      /* Team-Formen: die Person fehlt, die Organisation ist bekannt. */
+      if (style === 'formal') {
+        dazu('Sehr geehrte Damen und Herren,', style);
+        dazu(`Sehr geehrtes Team der ${firma},`, style);
+      } else if (style === 'polite') {
+        dazu('Guten Tag,', style);
+        dazu('Guten Tag zusammen,', style);
+      } else {
+        dazu('Hallo zusammen,', style);
+      }
+      continue;
+    }
     if (!name) {
       /* Ohne Empfaengernamen sind die allgemeinen Formen die einzigen, die
          stimmen koennen. DIN 5008 (20.9.4) zeigt fuer den hoeflichen Ton
@@ -95,7 +117,8 @@ export function salutationVarianten(rawName) {
     if (style === 'casual') {
       if (basis.startsWith('Hallo Frau')) dazu(basis.replace('Hallo Frau', 'Liebe Frau'), style);
       else if (basis.startsWith('Hallo Herr')) dazu(basis.replace('Hallo Herr', 'Lieber Herr'), style);
-      else dazu(basis.replace('Hallo', 'Liebe'), style);
+      /* Sonst NICHT ersetzen: "Hallo," wurde frueher zu "Liebe," (grammatisch
+         falsch, gemeldet 2026-11-22 indirekt ueber die Firmen-Varianten). */
     }
   }
   return out;
@@ -300,7 +323,7 @@ export class SalutationFeature {
          bleibt die Liste stehen (kein Flackern, 2026-11-22). */
       statisch: true,
       hole: () =>
-        salutationVarianten(this.#nameText()).map((v) => ({
+        salutationVarianten(this.#nameFeldText(), this.#firmaText()).map((v) => ({
           text: v.anrede,
           gruppe: v.ton,
           wert: v
@@ -380,6 +403,16 @@ export class SalutationFeature {
         this.#auto.grussformel = gruss;
       }
     }
+  }
+
+  /** Nur der Ansprechpartner (ohne Firmen-Rueckfall). @returns {string} */
+  #nameFeldText() {
+    return Field.getValue(document.getElementById('empfaenger-name')).trim();
+  }
+
+  /** Firma/Behoerde der Anschrift. @returns {string} */
+  #firmaText() {
+    return Field.getValue(document.getElementById('empfaenger-firma')).trim();
   }
 
   #nameText() {

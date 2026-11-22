@@ -6156,6 +6156,21 @@ describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
     assert(!texte.includes('Liebe Herr Mustermann,'));
   });
 
+  it('nur Firma: Team-Formen statt Personen-Anreden', () => {
+    const v = salutationVarianten('', 'Croft Holdings GmbH');
+    const texte = v.map((x) => x.anrede);
+    assert(texte.includes('Sehr geehrtes Team der Croft Holdings GmbH,'), 'formelle Team-Anrede');
+    assert(texte.includes('Guten Tag zusammen,'), 'hoefliche Gruppen-Anrede');
+    assert(texte.includes('Hallo zusammen,'), 'lockere Gruppen-Anrede');
+    assert(!texte.includes('Liebe,'), 'keine Fehlbildung "Liebe,"');
+    assertEqual(new Set(texte).size, texte.length, 'keine Doppelten');
+  });
+
+  it('ohne Namen und ohne Firma keine "Liebe,"-Zeile', () => {
+    const texte = salutationVarianten('').map((x) => x.anrede);
+    assert(!texte.includes('Liebe,'), 'keine Fehlbildung');
+  });
+
   it('ohne Namen nur die allgemeinen Formen', () => {
     const v = salutationVarianten('');
     const texte = v.map((x) => x.anrede);

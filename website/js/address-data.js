@@ -1143,7 +1143,7 @@ export class AddressIntelligence {
 
 /**
  * Unveränderliche Fassade für den entkoppelten Zugriff auf Adress- und Firmen-Datenbestände.
- * Schirmt Konsumenten (wie ClipboardAddressParser) von Interna der AddressIntelligence ab.
+ * Schirmt Konsumenten von Interna der AddressIntelligence ab.
  */
 export const AddressData = Object.freeze({
   get isReady() {

@@ -27,8 +27,7 @@ import {
   resolveCity,
   resolvePostcode
 } from './address-data.js';
-import { ClipboardAddressParser } from './clipboard-parser.js';
-import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
+import { Events, eventBus, hidePopoverSafe, showPopoverSafe } from './core.js';
 import { setCaretToEnd } from './document.js';
 import { Field } from './field.js';
 import { formatZahl } from './format.js';
@@ -44,7 +43,6 @@ export {
   BUNDESLAENDER,
   buildFirmenIndex,
   buildOrtIndex,
-  ClipboardAddressParser,
   fetchGzipJson,
   getDistrict,
   lowerBound,
@@ -1149,11 +1147,11 @@ export function adressRelevanz(item, query) {
 export function initAddressServices() {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (feld('input-geoapify-key'));
   const statusEl = feld('geoapify-status');
-  const inputAddressSearch = /** @type {HTMLInputElement | null} */ (feld('input-anschrift-suche'));
-  const addressSuggestions = feld('anschrift-vorschlaege');
-  const addressSearchContainer = feld('anschrift-suche-container');
-
-  if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !addressSearchContainer) return;
+  /* Nur der Key ist Pflicht. Die Anschrift-Suche ist am 2026-11-22 entfallen
+     (Nutzer: "wir suchen nicht in einer potentiellen Zwischenablage"); damit
+     haengen Key-Status, Strassen- und Ortssuche nicht mehr an einem Feld,
+     das es nicht mehr gibt. */
+  if (!inputGeoapifyKey) return;
 
   /**
    * @param {'valid' | 'invalid' | 'pending' | 'error' | ''} status
@@ -1189,24 +1187,8 @@ export function initAddressServices() {
   };
   void holeDevGeokey();
 
-  /** @type {AbortController | null} */
-  let activeAbortController = null;
-  /* Zaehlt jede Eingabe im Suchfeld. Eine Antwort darf nur rendern, wenn ihre
-   * Generation noch die aktuelle ist (B3-03): der Abort greift nur, wenn
-   * danach ein NEUER Request startet — bei "Feld geleert" oder "< 3 Zeichen"
-   * startet keiner, und die alte Antwort blieb stehen. */
-  let anfrageKennung = 0;
-  /** @type {any} */
-  let debounceSearchTimeout = null;
   /** @type {any} */
   let keyDebounceTimeout = null;
-  /** @type {AddressEntry[]} */
-  let renderedSuggestions = [];
-  let activeSuggestionIndex = -1;
-  /* Cache-Schluessel der angezeigten Adress-Treffer (LFU-Signal beim Klick,
-     siehe geo-cache.js). */
-  let letzterAdressSchluessel = '';
-
   // Load initial settings
   const savedKey = load(STORAGE_KEYS.geoapifyKey, '') || '';
   inputGeoapifyKey.value = savedKey;
@@ -1233,11 +1215,6 @@ export function initAddressServices() {
     keyDebounceTimeout = setTimeout(() => {
       validateKeyWithHeartbeat(val);
     }, 500);
-  });
-
-  // A11y: Sync aria-expanded state of combobox with popover toggle
-  addressSuggestions.addEventListener('toggle', (e) => {
-    inputAddressSearch.setAttribute('aria-expanded', String(/** @type {any} */ (e).newState === 'open'));
   });
 
   /**
@@ -1274,82 +1251,6 @@ export function initAddressServices() {
       save(STORAGE_KEYS.geoapifyKey, key);
       setGeoapifyState('error', '⚠️ Offline / Netzwerkfehler – Key nicht geprüft.');
     }
-  }
-
-  /**
-   * Sucht im eingebauten PLZ-/Ortsverzeichnis (ohne Netz, ohne Key).
-   * Liefert nur Ort/PLZ - das Verzeichnis kennt keine Strassennamen.
-   * @param {string} query
-   * @returns {AddressEntry[]}
-   */
-  function sucheOffline(query) {
-    try {
-      const q = String(query || '').trim();
-      /* PLZ-Suche: lookupUniversal durchsucht nur Namen. 5 Ziffern = exakt,
-         3-4 = Praefix (lookupPrefix kennt nur diesen Bereich). */
-      if (/^\d{5}$/.test(q)) {
-        const stadt = AddressIntelligence.plzToCity.get(q);
-        if (stadt) return [{ street: '', housenumber: '', postcode: q, city: stadt, formatted: `${q} ${stadt}`, source: 'offline' }];
-        return [];
-      }
-      if (/^\d{3,4}$/.test(q)) {
-        /** @type {AddressEntry[]} */
-        const treffer = (AddressIntelligence.lookupPrefix(q, 8) || []).map((t) => {
-          const plz = String(t.plz || '');
-          const stadt = String(t.city || '');
-          return { street: '', housenumber: '', postcode: plz, city: stadt, formatted: `${plz} ${stadt}`.trim(), source: 'offline' };
-        });
-        return treffer;
-      }
-      const res = AddressIntelligence.lookupUniversal(query, 8);
-      return (res.items || []).map((i) => {
-        const plz = i.plz || '';
-        const stadt = i.city || i.name || '';
-        const istOrt = i.typ === 'Stadt';
-        return {
-          street: '',
-          housenumber: '',
-          postcode: plz,
-          city: stadt,
-          formatted: istOrt
-            ? [plz, stadt].filter(Boolean).join(' ')
-            : `${i.name}${plz ? `, ${plz} ${stadt}` : ''}`,
-          source: 'offline'
-        };
-      });
-    } catch {
-      return [];
-    }
-  }
-
-  // --- LOCAL ADDRESS BOOK FEATURE ---
-  /**
-   * @returns {AddressEntry[]}
-   */
-  function getLocalAddressBook() {
-    return /** @type {AddressEntry[]} */ (loadJSON(STORAGE_KEYS.addresses, []));
-  }
-
-  /**
-   * @param {AddressEntry} item
-   */
-  function saveToLocalAddressBook(item) {
-    const book = getLocalAddressBook();
-    if (!book.find(entry => entry.formatted === item.formatted)) {
-      book.unshift(item);
-      if (book.length > 50) book.pop();
-      saveJSON(STORAGE_KEYS.addresses, book);
-    }
-  }
-
-  /**
-   * @param {string} query
-   * @returns {AddressEntry[]}
-   */
-  function fuzzySearchLocal(query) {
-    const book = getLocalAddressBook();
-    const q = query.toLowerCase();
-    return book.filter(item => item.formatted.toLowerCase().includes(q)).slice(0, 5);
   }
 
   /* Geoapify laeuft auf zwei erreichbaren Hosts mit identischer API
@@ -1468,304 +1369,6 @@ export function initAddressServices() {
       link.crossOrigin = 'anonymous';
       document.head.append(link);
     }
-  }
-
-  /* Kein `once`: hat das Feld beim Laden schon den Fokus (Autofokus, Reload mit
-     gespeichertem Fokus), ist das `focus`-Event längst vorbei und ein
-     `once`-Listener liefe nie — im Test genau so passiert. Die Funktion ist
-     über `vorgewaermt` ohnehin idempotent. */
-  inputAddressSearch.addEventListener('focus', waermeVerbindungVor);
-  inputAddressSearch.addEventListener('input', waermeVerbindungVor);
-  inputAddressSearch.addEventListener('blur', () => hidePopoverSafe(addressSuggestions));
-  if (document.activeElement === inputAddressSearch) waermeVerbindungVor();
-
-  // Tastatursteuerung für das native Listbox-Popover
-  inputAddressSearch.addEventListener('keydown', (event) => {
-    if (!renderedSuggestions.length) return;
-    const key = event.key;
-    if (key === 'ArrowDown' || key === 'ArrowUp') {
-      event.preventDefault();
-      const optionen = /** @type {HTMLElement[]} */ (Array.from(addressSuggestions.querySelectorAll('[role=option]')));
-      const richtung = /** @type {1 | -1} */ (key === 'ArrowDown' ? 1 : -1);
-      activeSuggestionIndex = navigiereListe(optionen, activeSuggestionIndex, richtung);
-      inputAddressSearch.setAttribute('aria-activedescendant', `anschrift-vorschlag-${activeSuggestionIndex}`);
-    } else if (key === 'Enter' && activeSuggestionIndex >= 0) {
-      event.preventDefault();
-      selectSuggestion(renderedSuggestions[activeSuggestionIndex]);
-    } else if (key === 'Escape') {
-      activeSuggestionIndex = -1;
-      inputAddressSearch.removeAttribute('aria-activedescendant');
-    }
-  });
-
-  // Optimierter Input Handler
-  inputAddressSearch.addEventListener('input', () => {
-    clearTimeout(debounceSearchTimeout);
-    const query = inputAddressSearch.value.trim();
-    const generation = ++anfrageKennung;
-
-    if (query.length < 3) {
-      if (activeAbortController) activeAbortController.abort();
-      hidePopoverSafe(addressSuggestions);
-      return;
-    }
-
-    // 1. INSTANT LOCAL SEARCH: Ohne Debounce sofort anzeigen! (0ms Latenz)
-    const localMatches = fuzzySearchLocal(query);
-    for (const m of localMatches) {
-      m.source = 'local';
-    }
-    /* Ohne API-Key war das Feld praktisch tot: nur das persoenliche
-       Adressbuch wurde durchsucht. Jetzt kommt das eingebaute PLZ-/Orts-
-       verzeichnis dazu - es kennt Orte, PLZ, Ortsteile und Firmen, aber
-       KEINE Strassennamen. Strassen brauchen weiter den Key. */
-    const offlineMatches = sucheOffline(query);
-    const sofort = fusioniereNachRelevanz([localMatches, offlineMatches], query);
-
-    if (!sofort.length && !load(STORAGE_KEYS.geoapifyKey, '')) {
-      zeigeSuchHinweis('Keine Treffer im Ortsverzeichnis. Strassen suchen braucht einen API-Schlüssel (Einstellungen).');
-    } else {
-      renderSuggestions(sofort, query, false);
-    }
-
-    // 2. REMOTE SEARCH (Debounced)
-    debounceSearchTimeout = setTimeout(() => {
-      performAddressSearch(query, sofort, generation);
-    }, 200);
-  });
-
-  /**
-   * @param {string} query
-   * @param {AddressEntry[]} localMatches
-   * @param {number} generation
-   */
-  async function performAddressSearch(query, localMatches, generation) {
-    if (activeAbortController) activeAbortController.abort();
-    activeAbortController = new AbortController();
-
-    if (!navigator.onLine) return;
-
-    const key = load(STORAGE_KEYS.geoapifyKey, '');
-    if (!key) return;
-
-    // 3. CACHE HIT: Sofortiges Rendering ohne Netzwerk!
-    const lock = AddressIntelligence.targetLock;
-    const cacheKey = `${lock ? `${lock.plz} ` : ''}${query}`.toLowerCase();
-    letzterAdressSchluessel = cacheKey;
-    const ausCache = cacheHole(cacheKey);
-    if (ausCache) {
-      mergeAndRender(localMatches, ausCache, query);
-      return;
-    }
-
-    const coords = /** @type {{ lat: number, lon: number } | null} */ (loadJSON(STORAGE_KEYS.senderCoords, null));
-
-    const searchText = lock ? `${query}, ${lock.plz} ${lock.city}` : query;
-    let pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=5&format=json&filter=countrycode:de`;
-    if (!lock && coords?.lat && coords?.lon) {
-      pfad += `&bias=proximity:${coords.lon},${coords.lat}`;
-    }
-
-    try {
-      const { antwort: response } = await holeMitFailover(pfad, activeAbortController);
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          save(STORAGE_KEYS.geoapifyKey, '');
-          const keyEl = /** @type {HTMLInputElement | null} */ (feld('input-geoapify-key'));
-          if (keyEl) keyEl.value = '';
-          setGeoapifyState('invalid', '✗ Key abgelaufen (401/403).');
-          notify(Constants.TOASTS.GEOAPIFY.KEY_EXPIRED, 'error');
-        } else {
-          console.warn(`[Address] Autocomplete HTTP ${response.status}`);
-          notify(Constants.TOASTS.GEOAPIFY.UNAVAILABLE(response.status), 'warning');
-        }
-        return;
-      }
-      const data = await response.json();
-
-      /* Hausnummern raus (Nutzerwunsch 2026-11-13): es geht um die korrekten
-         Strassennamen. Die Anzeige ist Strasse + PLZ + Ort, ohne Nummer; so
-         fallen auch die vielen Treffer derselben Strasse zu einem zusammen. */
-      const gesehen = new Set();
-      /** @type {AddressEntry[]} */
-      const parsedSuggestions = (data.results || []).map((/** @type {any} */ p) => {
-        const street = p.street || '';
-        const postcode = p.postcode || '';
-        const city = p.city || '';
-        return {
-          street,
-          housenumber: '',
-          postcode,
-          city,
-          formatted: [street, [postcode, city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
-          source: 'geoapify'
-        };
-      }).filter((/** @type {AddressEntry} */ s) => {
-        if (!s.city && !s.postcode) return false;
-        const schluessel = `${s.street}|${s.postcode}`;
-        if (gesehen.has(schluessel)) return false;
-        gesehen.add(schluessel);
-        return true;
-      });
-      /* Frueher mussten Strasse UND Stadt vorhanden sein; jede Stadt- oder
-         PLZ-Suche (ohne Strasse) fiel damit komplett raus - "Troisdorf" und
-         "53840" zeigten gar nichts (gemeldet 2026-11-13). */
-
-      cacheSetze(cacheKey, parsedSuggestions);
-      letzterAdressSchluessel = cacheKey;
-      /* Ueberholte Antwort verwerfen: der Nutzer hat inzwischen weitergetippt
-       * oder das Feld geleert (B3-03). */
-      if (generation !== anfrageKennung) return;
-      mergeAndRender(localMatches, parsedSuggestions, query);
-    } catch (err) {
-      const error = /** @type {Error} */ (err);
-      if (error.name !== 'AbortError') {
-        console.warn('[Address] Autocomplete search failed:', error);
-        notify(Constants.TOASTS.GEOAPIFY.NETWORK_ERROR, 'warning');
-      }
-    }
-  }
-
-  /**
-   * @param {AddressEntry[]} localMatches 
-   * @param {AddressEntry[]} remoteMatches 
-   * @param {string} query 
-   */
-  /**
-   * Mischt Quellen dublettenfrei und sortiert nach Relevanz.
-   * @param {AddressEntry[][]} quellen
-   * @param {string} query
-   * @returns {AddressEntry[]}
-   */
-  function fusioniereNachRelevanz(quellen, query) {
-    /** @type {AddressEntry[]} */
-    const combined = [];
-    for (const quelle of quellen) {
-      for (const eintrag of quelle) {
-        if (combined.some((c) => c.formatted === eintrag.formatted)) continue;
-        combined.push(eintrag);
-      }
-    }
-    combined.sort((a, b) => adressRelevanz(a, query) - adressRelevanz(b, query));
-    return combined;
-  }
-
-  /**
-   * @param {AddressEntry[]} localMatches
-   * @param {AddressEntry[]} remoteMatches
-   * @param {string} query
-   */
-  function mergeAndRender(localMatches, remoteMatches, query) {
-    renderSuggestions(fusioniereNachRelevanz([localMatches, remoteMatches], query), query, true);
-  }
-
-  /**
-   * @param {AddressEntry[]} suggestions
-   * @param {string} _query
-   * @param {boolean} allowZeroClick
-   */
-  function renderSuggestions(suggestions, _query, allowZeroClick) {
-    if (!addressSuggestions) return;
-    addressSuggestions.replaceChildren();
-    renderedSuggestions = suggestions.slice(0, 5);
-    activeSuggestionIndex = -1;
-    inputAddressSearch?.removeAttribute('aria-activedescendant');
-
-    if (suggestions.length === 0) {
-      hidePopoverSafe(addressSuggestions);
-      return;
-    }
-
-    /* Bei mehr als 5 Treffern stand hier NUR der Hinweis - man konnte nichts
-       anklicken. Jetzt: die besten 5 plus Hinweis als letzte Zeile. */
-    const mehrAlsFuenf = allowZeroClick && suggestions.length > 5;
-
-    renderedSuggestions.forEach((item, index) => {
-      const li = document.createElement('li');
-      li.id = `anschrift-vorschlag-${index}`;
-      li.setAttribute('role', 'option');
-      li.setAttribute('aria-selected', 'false');
-      Field.setValue(li, item.formatted);
-      
-      if (item.source === 'local') {
-        const badge = document.createElement('span');
-        Field.setValue(badge, '⭐ Lokal');
-        badge.className = 'badge-local';
-        li.appendChild(badge);
-      }
-      
-      li.dataset.index = String(index);
-      addressSuggestions.appendChild(li);
-    });
-
-    if (mehrAlsFuenf) {
-      const statusLi = document.createElement('li');
-      statusLi.className = 'suggestion-hint';
-      statusLi.setAttribute('role', 'option');
-      statusLi.setAttribute('aria-disabled', 'true');
-      statusLi.setAttribute('aria-selected', 'false');
-      Field.setValue(statusLi, `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`);
-      addressSuggestions.appendChild(statusLi);
-    }
-
-    bindListSelection(addressSuggestions, renderedSuggestions, selectSuggestion);
-    if (inputAddressSearch) klemmeAnSatzspiegel(addressSuggestions, inputAddressSearch);
-
-    showPopoverSafe(addressSuggestions);
-  }
-
-  /**
-   * Eine einzelne, nicht anklickbare Hinweiszeile im Vorschlags-Popover.
-   * @param {string} text
-   */
-  function zeigeSuchHinweis(text) {
-    if (!addressSuggestions) return;
-    addressSuggestions.replaceChildren();
-    renderedSuggestions = [];
-    activeSuggestionIndex = -1;
-    const li = document.createElement('li');
-    li.className = 'suggestion-hint';
-    li.setAttribute('role', 'option');
-    li.setAttribute('aria-disabled', 'true');
-    li.setAttribute('aria-selected', 'false');
-    Field.setValue(li, text);
-    addressSuggestions.appendChild(li);
-    if (inputAddressSearch) klemmeAnSatzspiegel(addressSuggestions, inputAddressSearch);
-    showPopoverSafe(addressSuggestions);
-  }
-
-  /**
-   * @param {AddressEntry} item
-   */
-  function selectSuggestion(item) {
-    const empfStrasse = feld('empfaenger-strasse');
-    const empfOrt = feld('empfaenger-ort');
-
-    /* LFU-Signal: nur eine Uebernahme ins Feld macht den Suchbegriff wertvoll. */
-    geoCacheZaehle(letzterAdressSchluessel);
-
-    /* Nur fuellen, was der Treffer wirklich hat: ein Stadt-/PLZ-Treffer hat
-       keine Strasse und darf das Empfaengerfeld nicht leeren. */
-    if (empfStrasse && item.street) {
-      applyValue('empfaenger-strasse', item.street, 'auto');
-    }
-    if (empfOrt && (item.postcode || item.city)) {
-      applyValue('empfaenger-ort', `${item.postcode} ${item.city}`.trim(), 'auto');
-    }
-
-    hidePopoverSafe(addressSuggestions);
-    /* Zustand mit aufraeumen: sonst zeigen ArrowDown/Enter auf Treffer einer
-     * Suche, die der Nutzer schon abgeschlossen hat (Befund aus F4). */
-    renderedSuggestions = [];
-    activeSuggestionIndex = -1;
-    if (inputAddressSearch) {
-      inputAddressSearch.value = '';
-      inputAddressSearch.removeAttribute('aria-activedescendant');
-    }
-
-    saveToLocalAddressBook(item);
-
-    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
   }
 
   // --- TIER 1: OFFLINE ADDRESS INTELLIGENCE ---

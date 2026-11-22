@@ -351,29 +351,12 @@ fieldset.seitenleiste-field-group > legend {
   cursor: not-allowed;
 }
 
-#input-anschrift-suche {
-  anchor-name: --anchor-anschrift-suche;
-}
-
-#btn-zwischenablage-anschrift {
-  anchor-name: --clipboard-btn;
-}
-
-#clipboard-candidates-popover {
-  position-anchor: --clipboard-btn;
-  /* Ohne Inset faellt ein Popover auf die UA-Position zurueck (gemessen
-     2026-11-22: x=2011, y=1090 statt am Button x=16, y=289). */
-  top: anchor(bottom);
-  left: anchor(left);
-  width: max(anchor-size(width), 280px);
-  max-height: min(200px, 40vh);
-}
-
-/* Gemeinsames Aussehen beider Sidebar-Listen (Anschrift-Suche, Zwischenablage).
+/* Gemeinsames Aussehen der Feld-Popover (PLZ/Ort, Strasse, Anrede, Gruss).
    Position und Groesse stehen NUR in den ID-Regeln darunter: die Klasse setzte
    frueher zusaetzlich position-area/width/max-height fuer die Anschrift-Liste,
    die dieselben Dinge schon per anchor() bekommt (zwei Systeme gleichzeitig,
-   aufgeloest 2026-11-22). */
+   aufgeloest 2026-11-22; die Anschrift-Suche selbst ist am selben Tag
+   entfallen). */
 .autocomplete-dropdown {
   position: absolute;
   overflow-y: auto;
@@ -1047,7 +1030,7 @@ input[type="checkbox"][switch] {
    genau so bei #gruss-vorschlaege passiert (gemessen 114..279 mm). */
 
 /* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) {
   position: absolute;
   /* UA-Popover setzt inset: 0 und margin: auto; mit gesetztem left/top wird
      das Element dann im Restraum zentriert und landet neben dem Feld
@@ -1068,114 +1051,15 @@ input[type="checkbox"][switch] {
               overlay 0.15s allow-discrete;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender):popover-open {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender):popover-open {
   display: block;
   opacity: 1;
 }
 
 @starting-style {
-  :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender):popover-open {
+  :is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender):popover-open {
     opacity: 0;
   }
-}
-
-/* position-area loeste hier falsch auf (gemessen 2026-11-13: das Popover
-   landete bei x=1497 statt x=16, also unten rechts am Schirm). Mit
-   anchor()-Funktionen sitzt es direkt unter dem Feld. Deshalb kommt Position
-   ausschliesslich von hier und nicht mehr aus .autocomplete-dropdown. */
-#anschrift-vorschlaege {
-  position-anchor: --anchor-anschrift-suche;
-  top: anchor(bottom);
-  left: anchor(left);
-  width: anchor-size(width);
-  /* Fallback. Beim Oeffnen setzt passeAnBlattrand() (suggestion-list.js) die
-     Hoehe bis 20 mm vor den Blatt-Unterrand (Regel 2026-11-22). */
-  max-height: min(250px, 40vh);
-}
-
-#anschrift-vorschlaege li {
-  padding: var(--space-md) var(--space-xl);
-  font-size: 0.8rem;
-  color: var(--text-primary);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background 0.1s ease;
-  line-height: 1.3;
-}
-
-#anschrift-vorschlaege li:hover {
-  background: var(--segment-bg);
-}
-
-#anschrift-vorschlaege li b {
-  color: var(--accent-color);
-  font-weight: 700;
-}
-
-/* Anrede-Varianten: Verlauf von distanziert (blau) nach vertraut (rot).
-   Drei klar getrennte Stufen: 255 Grad (blau) -> 320 (violett) -> 25 (rot).
-   Konzept: **ordinale Farbskala** (Hue = Naehe, nicht Kategorie) im
-   OKLCH-Raum, damit die drei Stufen gleich hell und gleich stark wirken —
-   Blau/Gruen/Rot waeren eine kategoriale Skala und wuerden Naehe nicht abbilden. */
-#anrede-vorschlaege li[data-gruppe="formal"],
-#gruss-vorschlaege li[data-gruppe="formal"] { --ort-ton: var(--ton-formal); }
-#anrede-vorschlaege li[data-gruppe="polite"],
-#gruss-vorschlaege li[data-gruppe="polite"] { --ort-ton: var(--ton-hoeflich); }
-#anrede-vorschlaege li[data-gruppe="casual"],
-#gruss-vorschlaege li[data-gruppe="casual"] { --ort-ton: var(--ton-locker); }
-
-/* Die Gruppen sollen klar lesbar sein: im Anrede-Popover etwas kraeftiger
-   hinterlegt als in den Ortslisten. */
-#anrede-vorschlaege li.suggestion-item {
-  background: color-mix(in oklch, var(--ort-ton) 18%, transparent);
-}
-
-/* Grußformeln: dieselbe Optik wie die Anrede-Liste, drei Eintraege je Ton. */
-#gruss-vorschlaege,
-#gruss-vorschlaege[popover] {
-  position-anchor: --anchor-gruss;
-  top: anchor(bottom);
-  left: anchor(left);
-  min-width: max(280px, anchor-size(width));
-  max-width: 165mm;
-  max-height: 165mm;
-}
-
-#gruss-vorschlaege li.suggestion-item {
-  background: color-mix(in oklch, var(--ort-ton) 18%, transparent);
-}
-
-#gruss-vorschlaege li.suggestion-item:hover {
-  background: color-mix(in oklch, var(--ort-ton) 30%, var(--segment-bg));
-  outline: 2px solid color-mix(in oklch, var(--ort-ton) 75%, transparent);
-  outline-offset: -2px;
-}
-
-#anrede-vorschlaege,
-#anrede-vorschlaege[popover] {
-  position-anchor: --anchor-anrede;
-  top: anchor(bottom);
-  left: anchor(left);
-  min-width: max(320px, anchor-size(width));
-  /* Arbeitsbereich ist das Blatt, nicht das Fenster: 210 mm - 25 mm links -
-     20 mm rechts = 165 mm (2026-11-22). */
-  max-width: 165mm;
-  /* Fallback; die Hoehe bis 20 mm vor den Blatt-Unterrand setzt
-     passeAnBlattrand() beim Oeffnen (Regel 2026-11-22). */
-  max-height: 165mm;
-}
-
-#strasse-vorschlaege,
-#strasse-vorschlaege[popover] {
-  position-anchor: --anchor-absender-strasse;
-  top: anchor(bottom);
-  /* Das Strassenfeld steht im Infoblock knapp vor dem rechten Blattrand
-     (125...190 mm). Linksbuendig lief die Liste 14 mm ueber den Blattrand
-     hinaus (gemessen 2026-11-22); rechtsbuendig waechst sie nach innen. */
-  left: auto;
-  right: anchor(right);
-  min-width: max(300px, anchor-size(width));
-  max-width: 165mm;
 }
 
 #plz-suggestions-popover,
@@ -1257,7 +1141,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 }
 
 /* Der gemeinsame Renderer erzeugt diese Unterelemente in beiden Listen
-   (#anschrift-vorschlaege und #plz-suggestions-popover). */
+   (#plz-suggestions-popover und die uebrigen Feld-Popover). */
 /* Lange Namen (Behörden) enden mit "…" statt hart abgeschnitten zu werden;
    der volle Text steht im Tooltip der Zeile. */
 :is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-main {
@@ -1290,7 +1174,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   white-space: nowrap;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-main {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-main {
   display: flex;
   gap: var(--space-sm);
   align-items: baseline;
@@ -1301,17 +1185,17 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   overflow: hidden;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .plz-val {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .plz-val {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--accent-color);
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .city-val {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .city-val {
   font-weight: 500;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .district-val {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .district-val {
   min-width: 0;
   font-size: 0.72rem;
   color: var(--text-muted);
@@ -1326,28 +1210,28 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Farbcodierung und Badges für universelles Autocomplete */
 /* Typ-Kennzeichnung ohne Badge: Schrift und Balken tragen die Farbe.
    Das :is() hebt die Spezifität über `#liste li { color: … }`. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
 /* Strassen-Vorschlaege: neutraler Balken. Vorher trugen sie die Standardfarbe
    (blau) und sahen aus wie Firmen (gemeldet 2026-11-22). */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="adresse"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="adresse"] {
   --ort-ton: var(--liste-strasse);
   color: var(--text-primary);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="firma"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="firma"] {
   --ort-ton: oklch(0.56 0.17 255);
   color: var(--liste-firma);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="behoerde"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="behoerde"] {
   /* Behörden: Anthrazit. Kein Ortston liegt so dunkel und unbunt -
      dadurch mit keiner Ortsfarbe verwechselbar. */
   --ort-ton: oklch(0.34 0.01 260);
   color: var(--liste-behoerde);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="gericht"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="gericht"] {
   --ort-ton: oklch(0.34 0.01 260);
   color: var(--liste-behoerde);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="institution"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="institution"] {
   --ort-ton: oklch(0.56 0.17 255);
   color: var(--liste-firma);
 }
@@ -1359,7 +1243,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Balken statt Klammer: `border-left` laeuft ueber die volle Zeilenhoehe und
    folgt keiner Rundung. Radius nur rechts, damit links eine gerade Kante steht
    (vorher: inset-box-shadow + border-radius => kleiner Bogen je Zeile). */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item {
   --ort-ton: oklch(0.62 0.17 250);
   border-left: 3px solid var(--ort-ton);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
@@ -1369,31 +1253,31 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Zwoelf Toene im Goldwinkel-Abstand (137,5 Grad): benachbarte Eintraege liegen
    weit auseinander, gleiche Stadt behaelt ihren Ton (Vergabe in address.js). */
 /* 0 = kein Ort (Großempfänger/Behörde): neutraler Balken, ruhige Zeile. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="0"] { --ort-ton: var(--ort-ton-0); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="1"] { --ort-ton: var(--ort-ton-1); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="2"] { --ort-ton: var(--ort-ton-2); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="3"] { --ort-ton: var(--ort-ton-3); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="4"] { --ort-ton: var(--ort-ton-4); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="5"] { --ort-ton: var(--ort-ton-5); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="6"] { --ort-ton: var(--ort-ton-6); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="7"] { --ort-ton: var(--ort-ton-7); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="8"] { --ort-ton: var(--ort-ton-8); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="9"] { --ort-ton: var(--ort-ton-9); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="10"] { --ort-ton: var(--ort-ton-10); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="11"] { --ort-ton: var(--ort-ton-11); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="12"] { --ort-ton: var(--ort-ton-12); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="13"] { --ort-ton: var(--ort-ton-13); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="14"] { --ort-ton: var(--ort-ton-14); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="15"] { --ort-ton: var(--ort-ton-15); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="16"] { --ort-ton: var(--ort-ton-16); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="17"] { --ort-ton: var(--ort-ton-17); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="18"] { --ort-ton: var(--ort-ton-18); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="19"] { --ort-ton: var(--ort-ton-19); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="20"] { --ort-ton: var(--ort-ton-20); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="0"] { --ort-ton: var(--ort-ton-0); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="1"] { --ort-ton: var(--ort-ton-1); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="2"] { --ort-ton: var(--ort-ton-2); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="3"] { --ort-ton: var(--ort-ton-3); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="4"] { --ort-ton: var(--ort-ton-4); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="5"] { --ort-ton: var(--ort-ton-5); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="6"] { --ort-ton: var(--ort-ton-6); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="7"] { --ort-ton: var(--ort-ton-7); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="8"] { --ort-ton: var(--ort-ton-8); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="9"] { --ort-ton: var(--ort-ton-9); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="10"] { --ort-ton: var(--ort-ton-10); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="11"] { --ort-ton: var(--ort-ton-11); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="12"] { --ort-ton: var(--ort-ton-12); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="13"] { --ort-ton: var(--ort-ton-13); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="14"] { --ort-ton: var(--ort-ton-14); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="15"] { --ort-ton: var(--ort-ton-15); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="16"] { --ort-ton: var(--ort-ton-16); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="17"] { --ort-ton: var(--ort-ton-17); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="18"] { --ort-ton: var(--ort-ton-18); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="19"] { --ort-ton: var(--ort-ton-19); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="20"] { --ort-ton: var(--ort-ton-20); }
 
 /* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
    kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .ac-badge {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .ac-badge {
   font-size: 0.65rem;
   font-weight: 600;
   padding: 1px var(--space-xs);
@@ -1405,14 +1289,13 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   vertical-align: middle;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .city-sub {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .city-sub {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-inline-start: var(--space-xs);
 }
 
-#plz-suggestions-popover .suggestion-hint,
-#anschrift-vorschlaege .suggestion-hint {
+#plz-suggestions-popover .suggestion-hint {
   padding: var(--space-sm) var(--space-lg);
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -1421,8 +1304,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 }
 
 #plz-suggestions-popover li:not(.suggestion-hint):hover,
-#strasse-vorschlaege li:not(.suggestion-hint):hover,
-#anschrift-vorschlaege li:not(.suggestion-hint):hover {
+#strasse-vorschlaege li:not(.suggestion-hint):hover {
   background: var(--segment-bg);
 }
 
@@ -1458,8 +1340,6 @@ aside select {
   color: var(--farbe-text-tief);
 }
 
-#anschrift-vorschlaege li[aria-selected="true"],
-#anschrift-vorschlaege li:focus-visible,
 #plz-suggestions-popover li[aria-selected="true"] {
   background: color-mix(in oklch, var(--accent-color) 18%, transparent);
   outline: 2px solid color-mix(in oklch, var(--accent-color) 65%, transparent);

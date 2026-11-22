@@ -27,7 +27,6 @@
 | [`salutation.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/salutation.js) | 344 | Domain / Feature | KISS-Anrede-Engine (DIN 5008 Fallback, Titel, Partikel, Auto-Seed) | `core`, `persistence` |
 | [`format.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/format.js) | 407 | Domain / Pure | Normative DIN-5008-Formatierer (Datum, Uhrzeit, IBAN, Telefon, Geld) | *keine* (zustandslos) |
 | [`draft-manager.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/draft-manager.js) | 424 | Controller | Autosave-Lifecycle, Undo/Redo-Stack, Snapshot-Historie | `core`, `document`, `persistence` |
-| [`clipboard-parser.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/clipboard-parser.js) | 613 | Domain / Feature | Heuristischer Impressum- & Zwischenablage-Parser mit Badges | `address-data`, `address`, `core` |
 | [`document.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/document.js) | 636 | DOM-Utils | Sanitizer, Caret-Berechnung, Tastatur-Schutz (`UIProtections`) | `format` |
 | [`persistence.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/persistence.js) | 742 | Storage-Hub | LocalStorage IO, DINLetter JSON-Payload Schema, Temporal-Datum | `core` |
 | [`address-data.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/address-data.js) | 918 | Domain / Pure | Autarke Offline-Suche, Decompression, Columnar Binary Search, Grosskunden | *keine* (100 % DOM-frei) |
@@ -48,7 +47,6 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
 ┌───────────────────▼────────────────────────────────────────────────────┐
 │ Layer 3: Feature-Controller & UI-Panels                                │
 │   settings.js · font-feature.js · signature.js                         │
-│   multipage-controller.js · draft-manager.js · clipboard-parser.js     │
 └───────────────────┬────────────────────────────────────────────────────┘
                     │
 ┌───────────────────▼────────────────────────────────────────────────────┐
@@ -146,9 +144,7 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
   - Verwaltet Tastatur-Pfeilnavigation, `aria-expanded`/`aria-activedescendant` und Popover-Positionierung.
   - Synchronisiert Absenderdaten bei Bedarf (`initSenderSync`).
 
-#### [`clipboard-parser.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/clipboard-parser.js) (613 Zeilen)
 * **Zweck:** Intelligentes Auslesen unstrukturierter Adressen aus Web-Impressen oder E-Mail-Signaturen.
-* **Exports:** `ClipboardAddressParser`.
 * **Details:**
   - Filtert juristische Stoppwörter (Registergericht, HRB, USt-IdNr, Geschäftsführer, Disclaimer).
   - Importiert `AddressData`, `AddressIntelligence` und `normalizeText` direkt aus `address-data.js`.

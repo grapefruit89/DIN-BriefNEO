@@ -30,7 +30,6 @@ code_links:
   - website/js/format.js
   - website/js/draft-manager.js
   - website/js/draft-model.js
-  - website/js/clipboard-parser.js
   - website/js/document.js
   - website/js/persistence.js
   - website/js/address-data.js
@@ -72,7 +71,6 @@ Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft
    * W3C Selection & Range API (Textformatierung im Fließtext)
    * Lokale Datenpersistenz via `localStorage` (netzunabhängiger Betrieb, synchroner Boot-Restore) sowie asynchrone `IndexedDB` via `binary-storage.js` für große Binär-Assets (Custom-Fonts, hochauflösende Unterschriften)
    * Deterministisches Offline-PLZ- und Großempfänger-Lookup via `DecompressionStream('gzip')` (`address-data.js`)
-   * Deterministischer 0,1ms Clipboard-Impressum-Parser mit juristischem Müllfilter (`clipboard-parser.js`)
    * Native Popover-Queue & Lifecycle-Steuerung für Toasts im Top-Layer (`core.js`)
    * Canvas-Bildkompression für Unterschriften (`createImageBitmap`)
    * Entkoppelte Pub/Sub-Ereignisse über den nativen EventBus (`dinbrief:`-Namespace)
@@ -149,11 +147,6 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * Debounced Autosave (500 ms) nach Benutzerinaktivität mit automatischer Speicherung in `localStorage`.
 * Publiziert `DOCUMENT_SAVED`, `DOCUMENT_SAVE_FAILED` und `DOCUMENT_CHANGED` über den EventBus.
 
-### 13. `clipboard-parser.js` (Zwischenablagen- & Impressum-Parser)
-* Heuristischer Multi-Pass-Parser für unstrukturierte Adress- und Kontaktdaten aus der Zwischenablage.
-* Extrahiert Name, Straße, PLZ, Ort, Telefon, E-Mail und filtert Metadaten (HRB, USt-ID, Steuernummern, Disclaimer).
-* Schlägt Kandidaten bei Mehrdeutigkeiten in Top-Layer-Popovers zur visuellen Übernahme vor.
-
 ### 14. `document.js` (DOM-Utilities & Tastaturschutz)
 * **`UIProtections`**: Tasten- und Paste-Schutz für DIN-Zonen; begrenzt einzeilige Felder und schützt Betreff/Postvermerk auf max. 2 Zeilen (130 Zeichen).
 * Struktursicherung für Anlagenlisten (`ensureListStructure`).
@@ -197,7 +190,6 @@ Alle 17 Module unter `website/js/` sind strikt hierarchisch in 5 Schichten (Laye
   - `signature.js`: Unterschriften- & Stempel-Stage, Canvas-Kompression, WYSIWYG Drag/Rotate.
   - `multipage-controller.js`: Mehrseiten-Layout-Engine via CSS Multicol L2, CSSStyleSheet-Injektion, Folgeblatt-Köpfe.
   - `draft-manager.js`: Autosave-Lifecycle (debounced 500ms), Snapshot-Historie, Undo/Redo-Stack.
-  - `clipboard-parser.js`: Heuristischer Impressum- & Zwischenablage-Parser mit Top-Layer-Kandidaten-Vorschau.
 - **Layer 2: Fachlogik, DOM-Adapter & Domänen-Engines**
   - `address.js`: Adress-Fassade, Autocomplete-UI, Tastatur-Pfeilnavigation, Absender-Synchronisation.
   - `salutation.js`: 80/20 KISS Smart Salutation Engine (DIN-5008-Anrede/Gruß, Titel, Dirty-Tracking).

@@ -4848,3 +4848,56 @@ Log                            0 Meldungen
 Nebenbefund, nicht geändert: der Testbrief leitet die **Anrede** aus der
 Figuren-Beziehung ab (formal/vertraut), nicht aus der Tonalität — der Gruß
 folgt der Tonalität. Das ist Addon-Logik, unabhängig von dieser Änderung.
+
+---
+
+## 2026-11-22 — Anschrift-Suche und Clipboard-Parser entfernt
+
+**Nutzer:** „wir suchen nicht in einer potentiellen Zwischenablage nach einer
+vielleicht vorhandenen Adresse" … „kann komplett gepurged werden, braucht
+keiner mehr".
+
+**Weg ist:**
+
+| Was | Umfang |
+|---|---|
+| `<search id="anschrift-suche-container">` (Label, `#input-anschrift-suche`, `#anschrift-vorschlaege`) | HTML |
+| `#btn-zwischenablage-anschrift` + `#clipboard-candidates-popover` | HTML |
+| `website/js/clipboard-parser.js` (Re-Export) und `website/addons/clipboard-parser/clipboard-parser.js` (24 KB) | gelöscht |
+| Addon-Registrierung in `addons.js` | entfernt |
+| Anschrift-Suche-Renderer in `address.js`: `sucheOffline`, Adressbuch (`getLocalAddressBook`, `saveToLocalAddressBook`), `fuzzySearchLocal`, `performAddressSearch`, `fusioniereNachRelevanz`, `mergeAndRender`, `renderSuggestions`, `zeigeSuchHinweis`, `selectSuggestion` | **395 Zeilen** |
+| CSS: `#anschrift-vorschlaege`-Regeln, `#input-anschrift-suche`-Anchor, `#clipboard-*`, `.field-highlight` (Puls) | ~190 Zeilen |
+
+**Wichtig — die Kopplung, die fast gebrochen wäre:** `initAddressServices()`
+begann mit
+
+```js
+if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !addressSearchContainer) return;
+```
+
+Damit hingen **Key-Status, Straßen- und Ortssuche** an den Suchfeldern. Ohne
+Umbau hätte das Löschen der Suche die halbe Adressfunktion mitgenommen. Der
+Guard prüft jetzt nur noch `inputGeoapifyKey`.
+
+**Die vier Feld-Popover** (`#plz-suggestions-popover`, `#strasse-vorschlaege`,
+`#anrede-vorschlaege`, `#gruss-vorschlaege`) lagen im gelöschten `<search>`.
+Sie stehen jetzt als eigene Geschwister in `#zone-dokument` — der DOM-Ort ist
+belanglos, weil die Position über CSS-Anchor am jeweiligen Feld hängt.
+
+**Testabdeckung ehrlich:** `test/corpus/run.js` hing an
+`ClipboardAddressParser.isStreetLine/isCorporate/METADATA_LINE_REGEX/parse`.
+Die Parser-Prüfungen sind entfernt; Fälle, die nur diese Erwartungen tragen,
+zählen als **`skipped`** (69), nicht als bestanden: `7 ok, 0 fail, 4 known,
+69 skipped`. 407 Unit-Tests (vorher 432: −25 Parser-/Such-Tests).
+
+**Gemessen nach dem Purge (Browser):**
+
+```
+Suchfeld weg, Clipboard-Knopf weg, 4 Popover vorhanden
+Ortssuche "Bonn"       → 39 Treffer, erster "53111 Bonn · Zentrum"
+Straßensuche           → 8 Treffer, erster "Kirchstraße · 53840 Troisdorf"
+Anrede                 → 6 Varianten
+Geoapify-Key           → 32 Zeichen, Status "valid"
+Ortspopover            → am Feld, darunter, im Blatt (460 px)
+Log                    0 Meldungen
+```

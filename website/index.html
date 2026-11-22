@@ -30,7 +30,7 @@
     <title>DIN-BriefNEO | Pure Refactored</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
     <link rel="stylesheet" href="css/base.css?v=live6">
-    <link rel="stylesheet" href="css/sidebar.css?v=live21">
+    <link rel="stylesheet" href="css/sidebar.css?v=live22">
     <link rel="stylesheet" href="css/sheet-common.css?v=common1">
     <link rel="stylesheet" href="css/sheet-multipage.css?v=multi1">
     <script src="js/boot.js?v=boot2"></script>
@@ -94,18 +94,14 @@
           <h2 class="seitenleiste-h2">Brief</h2>
 
           <!-- Adressen zuerst: der Brief beginnt mit dem Empfaenger. -->
-<search id="anschrift-suche-container" class="seitenleiste-options-group">
-            <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
-            <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
-            <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
-            <ul id="strasse-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Straßen-Vorschläge"></ul>
-            <ul id="anrede-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Anrede-Varianten"></ul>
-            <ul id="gruss-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Grußformeln"></ul>
-          </search>
-
-          <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" data-addon="clipboard-parser" data-addon-action="parse" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
-          <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
+          <!-- Popover der Feld-Vorschlaege. Sie stehen im Top-Layer und werden
+               per CSS-Anchor am jeweiligen Feld positioniert; der DOM-Ort ist
+               beliebig. Bis 2026-11-22 lagen sie in der "Anschrift suchen"-
+               Box (entfallen) — deshalb stehen sie jetzt fuer sich. -->
+          <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
+          <ul id="strasse-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Straßen-Vorschläge"></ul>
+          <ul id="anrede-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Anrede-Varianten"></ul>
+          <ul id="gruss-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Grußformeln"></ul>
 
           <hr class="seitenleiste-divider">
 

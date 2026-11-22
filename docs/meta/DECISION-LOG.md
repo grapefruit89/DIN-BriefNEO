@@ -5205,3 +5205,20 @@ Screenshot verglichen. Unter 700 px ist das Band richtig.
 | 640 | `640px` | 20 | nein | ja | 78 % |
 | 819 | `240px 579px` | **260** | **nein** | ja | 70 % |
 | 1152 | `240px 912px` | 299 (zentriert) | nein | nein | 100 % |
+
+**Datum tiefer (2026-11-22):** Nutzer: „das datum kann gerne noch etwas weiter
+runter vllt knapp über die falzzeile".
+
+Gemessen (mm von Blatt-Oberkante):
+
+| | vorher | jetzt |
+|---|---|---|
+| Datum | 59,7 – 64,6 | **77,7 – 82,6** |
+| Falzmarke 1 | 87,0 | 87,0 |
+| Betreff | 89,0 | 89,0 |
+| Luft zur Falz | 22,4 | **4,4** |
+| Luft zum Betreff | 24,4 | 6,4 |
+
+Umsetzung: `#datum { margin-top: 18mm }` in `sheet-common.css` (Zeile 433,
+**außerhalb** des `@media print`-Blocks — gilt damit auch im PDF). Der
+Infoblock selbst wurde nicht angefasst; der Betreff wandert nicht.

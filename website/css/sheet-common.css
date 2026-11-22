@@ -431,6 +431,11 @@ din-anlagen-angabe {
    rechts (125-190 mm), geaendert wird nur die Textausrichtung. */
 #datum {
   text-align: right;
+  /* Datum tiefer, knapp ueber die Falzmarke (87 mm): vorher stand es bei
+     59,7 mm und damit dicht unter der E-Mail-Zeile. 18 mm Abstand setzen die
+     Unterkante auf ~82,6 mm — 4,4 mm Luft zur Falz, 6,4 mm zum Betreff
+     (gemessen 2026-11-22). */
+  margin-top: 18mm;
 }
 
 /* Hier stand `.single-line[contenteditable]:focus`. Kein Element traegt beide

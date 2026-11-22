@@ -307,7 +307,11 @@ export class SalutationFeature {
       el.setAttribute('aria-expanded', 'true');
     };
 
-    el.addEventListener('focus', zeige);
+    /* NICHT auf focus: ein Klick ins Feld loest focus aus, und derselbe Klick
+       gilt fuer den auto-Popover als "ausserhalb" - er schloss ihn sofort
+       wieder (gemessen 2026-11-22: "blitzt kurz auf"). Erst 'click' kommt nach
+       diesem Licht-Ausblenden. */
+    el.addEventListener('click', zeige);
     /* Auch beim Tippen zeigen: ist das Feld schon fokussiert (z. B. nach dem
        Laden), kam nie ein focus-Event - dann blieb die Liste aus (gemessen
        2026-11-22 an echter Tastatureingabe). */

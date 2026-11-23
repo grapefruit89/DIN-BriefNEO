@@ -44,6 +44,26 @@ const SYSTEM_FONT_BLACKLIST =
 /** Monospace-Verdacht am Namen — schneller Vorfilter vor der Messung. */
 const MONO_NAME = /mono|\bcode\b|courier|consol|terminal|fixed|typewriter|iosevka|cursor/i;
 
+/**
+ * Wie „normal" ist ein Schriftschnitt? 0 = Regular, hoeher = ungeeigneter.
+ * `queryLocalFonts()` liefert alle Schnitte einer Familie, oft mit Bold oder
+ * Bold Italic zuerst — ohne diese Sortierung landet die fette Kursive im Brief.
+ * @param {string} [stil]
+ * @returns {number}
+ */
+function schnittRang(stil) {
+  const s = String(stil || '').toLowerCase();
+  /* Manche Familien nummerieren ihre Schnitte: „10 Regular", „8 Bold".
+     Deshalb auf Wortgrenzen pruefen, nicht auf den ganzen String. */
+  const kursiv = /italic|oblique|kursiv|slanted/.test(s);
+  const normal = /\b(regular|normal|book|roman|mittel|standard)\b/.test(s);
+  if (normal && !kursiv) return 0;
+  if (kursiv) return 4;
+  if (/bold|fett|black|heavy/.test(s)) return 3;
+  if (/light|thin|hairline|extralight|demi|semi|medium/.test(s)) return 2;
+  return 1;
+}
+
 /** @type {CanvasRenderingContext2D | null} */
 let messKontext = null;
 
@@ -234,7 +254,16 @@ export class FontFeature {
       const fonts = await api();
       this.systemFonts.clear();
       for (const font of fonts) {
-        if (!this.systemFonts.has(font.family)) this.systemFonts.set(font.family, font);
+        /* `queryLocalFonts()` liefert ALLE Schnitte einer Familie, und zwar
+           nicht in sinnvoller Reihenfolge: bei C059 steht „Bold Italic" vorn
+           (gemessen 2026-11-23: 101 von 166 Familien haben keinen Regular als
+           ersten Eintrag). Wer nur den ersten nimmt, laedt fette Kursive —
+           genau der Befund „C059 sieht komisch fett aus". Also den Rang
+           vergleichen und den normalsten Schnitt behalten. */
+        const vorhanden = this.systemFonts.get(font.family);
+        if (!vorhanden || schnittRang(font.style) < schnittRang(vorhanden.style)) {
+          this.systemFonts.set(font.family, font);
+        }
       }
       this.#baueSystemOptionen();
     } catch (e) {

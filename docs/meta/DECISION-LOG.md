@@ -5446,3 +5446,27 @@ der Latein-Test allein laesst sie durch. Dritte Messung ergaenzt:
 
 Die vierte Stufe entfernt genau zwei: `D050000L` und `Latin Modern Roman Caps`
 (Versalien-Schnitt ohne Kleinbuchstaben — kann keinen Fliesstext setzen).
+
+### Nachtrag: falscher Schriftschnitt bei Systemschriften
+
+**Nutzer:** „C059 sieht komisch fett aus — was ist damit?"
+
+`queryLocalFonts()` liefert alle Schnitte einer Familie, **nicht** in sinnvoller
+Reihenfolge. Fuer C059 kommt zuerst `Bold Italic`, dann `Bold`, `Italic`,
+`Regular`. Der Code nahm den ersten Eintrag — also die fette Kursive.
+
+Gemessen: **101 von 166** Familien hatten keinen Regular als ersten Eintrag
+(C059 → Bold Italic, Caladea → Bold, Cantarell → Bold, FreeSans → Mittel, …).
+
+Fix: `schnittRang()` bewertet den Stil (Regular/Normal/Book/Roman/Mittel = 0,
+unbekannt = 1, Light/Demi/Thin = 2, Bold = 3, Italic = 4) und der niedrigste
+Rang gewinnt. Auf Wortgrenzen geprueft, weil einige Familien ihre Schnitte
+nummerieren (`10 Regular`, `8 Bold`).
+
+Nachher: C059 → Roman, Cantarell → Regular, Caladea → Regular,
+Latin Modern Roman → 10 Regular.
+
+**Restbefund (12 Familien ohne normalen Schnitt):** `Noto Sans CJK` (nur Thin),
+`Noto Serif CJK` (nur ExtraLight), `URW Bookman` (Demi/Light), `Z003`
+(nur Medium Italic). Sie sind jetzt nicht mehr falsch, sondern zeigen ihren
+einzigen Schnitt — ob sie in der Liste bleiben, ist eine eigene Entscheidung.

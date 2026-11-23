@@ -365,13 +365,13 @@ export class SettingsManager {
  * 2. AGENTEN-HILFE (WebMCP / MCP)
  * ========================================================================================= */
 
-/** Platzhalter, weil die Seite den lokalen Klon-Ordner nicht kennen kann. */
-const REPO_PLATZHALTER = '<PFAD-ZUM-REPO>';
+/** Das Repo, aus dem der MCP-Server kommt — so braucht niemand einen Pfad. */
+const MCP_PAKET = 'github:grapefruit89/DIN-BriefNEO#main';
 
 /**
- * Der Text, den „MCP-Konfiguration kopieren" in die Zwischenablage legt.
- * Beide Transporte, damit niemand raten muss: eigener Browser (CDP) und
- * offener Tab (Kanal ohne Debug-Port).
+ * Der Text, den „MCP-Config kopieren" in die Zwischenablage legt.
+ * Kein lokaler Pfad: npx holt den Server direkt aus dem Repo (package.json
+ * hat einen `bin`-Eintrag). Einzige Voraussetzung: Node auf dem Rechner.
  * @returns {string}
  */
 function agentenKonfiguration() {
@@ -379,18 +379,9 @@ function agentenKonfiguration() {
     {
       mcp: {
         servers: {
-          'briefneo': {
+          briefneo: {
             type: 'local',
-            command: ['node', `${REPO_PLATZHALTER}/tools/mcp-dinbrief.mjs`]
-          },
-          'briefneo-live': {
-            type: 'local',
-            command: [
-              'node',
-              `${REPO_PLATZHALTER}/tools/mcp-live.mjs`,
-              '--token=dinbrief',
-              '--port=8766'
-            ]
+            command: ['npx', '-y', MCP_PAKET]
           }
         }
       }

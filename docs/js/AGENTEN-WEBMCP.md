@@ -48,9 +48,9 @@ zwei Transporte über derselben Werkzeugliste:
 ## 2. Die Werkzeuge
 
 > **In der App:** Einstellungen → *Agenten (MCP)*. Dort steht der WebMCP-Status,
-> ein Knopf kopiert die fertige `mcp.servers`-Konfiguration. Nur der Repo-Pfad
-> muss ersetzt werden — die Seite kann ihn nicht kennen. Die Adresse für den
-> Kanal ohne Debug-Port steht weiter unten (`#agent=<token>@<port>`).
+> ein Knopf kopiert die fertige `mcp.servers`-Konfiguration — ohne Pfad, weil
+> der Server per npx direkt aus dem Repo kommt. Die Adresse für den Kanal ohne
+> Debug-Port steht weiter unten (`#agent=<token>@<port>`).
 
 `website/js/webmcp.js` definiert zehn Werkzeuge; sie sind gleichzeitig
 `window.dinBriefAgent.werkzeuge()`:
@@ -132,7 +132,8 @@ nach probiert; ein belegter Port ohne DevTools (fremdes Chrome) wird
 | `--browser=<pfad>` | `findBrowser()` (Chrome, Chromium, Helium, Edge) |
 | `--profile=<ordner>` | Agenten-Profil |
 
-Als MCP-Server eintragen. opencode (V2) erwartet ihn unter `mcp.servers`:
+Als MCP-Server eintragen. opencode (V2) erwartet ihn unter `mcp.servers`.
+Die pfadfreie Variante (das ist, was der Knopf in den Einstellungen kopiert):
 
 ```jsonc
 {
@@ -140,12 +141,18 @@ Als MCP-Server eintragen. opencode (V2) erwartet ihn unter `mcp.servers`:
     "servers": {
       "briefneo": {
         "type": "local",
-        "command": ["node", "tools/mcp-dinbrief.mjs"],
-        "cwd": "."
+        "command": ["npx", "-y", "github:grapefruit89/DIN-BriefNEO#main"]
       }
     }
   }
 }
+```
+
+`npx` holt den Server beim ersten Start aus dem Repo (Voraussetzung: Node).
+Wer den Klon schon hat, kann auch direkt zeigen:
+
+```jsonc
+{ "command": ["node", "<repo>/tools/mcp-dinbrief.mjs"] }
 ```
 
 Oder per CLI: `opencode mcp add briefneo -- node <repo>/tools/mcp-dinbrief.mjs`.

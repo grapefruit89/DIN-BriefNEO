@@ -5701,3 +5701,53 @@ eine Messung, weil sich der Name je Familie unterscheiden kann.
 Comfortaa, DejaVu Sans, Droid Sans, Liberation Sans, Michelangelus, Nimbus
 Roman, Nimbus Sans, Noto Sans, Noto Serif, Open Sans, P052, URW Gothic,
 Vazirmatn.
+
+---
+
+## 2026-11-23 — Lizenz-Historie: bewusst akzeptiert (Option A)
+
+**Nutzer:** „ich denke wenn das irgendwo im code drin ist ist es noch
+vertretbar aber es sollte nicht in der anwendungs sichtbar sein … ich mach a"
+
+### Befund
+
+`website/fonts/aptos.woff2` (17 848 B) und
+`website/fonts/michelangelus-regular.woff2` (23 212 B) liegen in Commit
+`4b2263b` der **öffentlichen** Historie und sind dort abrufbar. Entfernt wurden
+sie in `7218cf0` („fix(licenses): Non-Inter-Fonts aus dem Repo entfernt").
+
+Im heutigen Baum sind sie nicht mehr:
+
+```
+git ls-tree -r HEAD | grep -iE 'aptos|michelangelus'   → nichts
+Pages deployt: path: 'website/' aus dem aktuellen Baum
+```
+
+Die Anwendung liefert also nur Inter und Liberation Sans aus, beide SIL OFL 1.1.
+
+### Was in den Dateien selbst steht
+
+| Datei | Lizenzfeld (Name-Tabelle) | fsType |
+|---|---|---|
+| `Aptos.ttf` | „Microsoft supplied font … you may only (i) embed this font in content as permitted by the embedding restriction" | 8 = Editable |
+| `Michelangelus-Regular.ttf` | „Copyright © 2024 by Gusto IDS. All rights reserved." | 0 = Installable |
+| `liberation-sans-regular.woff2` | SIL OFL 1.1 | 0 |
+
+`fsType 8` erlaubt das Einbetten in Dokumente, nicht die Weitergabe der Datei.
+„All rights reserved" ohne Lizenztext ist keine Weitergabeerlaubnis.
+
+### Entscheidung
+
+**Option A: akzeptiert, Historie bleibt.** Begründung:
+
+- Die Dateien werden weder ausgeliefert noch von der App referenziert
+  (`FONT_PRESETS` enthält nur `inter`, die Oberfläche bietet sie nicht an).
+- Option B (History-Rewrite) hätte alle 90+ Commits und den Tag `v4.2.0`
+  ungültig gemacht, jeden Clone zerstört und GitHub-Caches nicht sicher
+  bereinigt — Schaden größer als Nutzen.
+- Option D (privates Repo) hätte GitHub Pages abgeschaltet.
+- Option C (neues Repo) bleibt der einzige saubere Weg, falls das Risiko später
+  anders bewertet wird.
+
+Die Dateien bleiben lokal in `<repo>/fonts/` (gitignoriert) und erreichen die
+veröffentlichte Seite nie.

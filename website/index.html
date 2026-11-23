@@ -316,6 +316,15 @@
                 </div>
               </div>
             </div>
+            <hr class="seitenleiste-divider">
+
+            <div class="seitenleiste-subgroup">
+              <h3 class="seitenleiste-label">Agenten (MCP)</h3>
+              <p class="workbench-status" id="agenten-status">WebMCP: wird geprüft …</p>
+              <button type="button" id="btn-agent-konfig" class="btn w-full">📋 MCP-Config kopieren</button>
+              <button type="button" id="btn-agent-url" class="btn w-full">🔗 Live-URL kopieren</button>
+              <p class="workbench-status" id="agenten-hinweis">Anleitung: docs/js/AGENTEN-WEBMCP.md</p>
+            </div>
           </div>
         </section>
 
@@ -454,6 +463,16 @@
         <div class="dialog-actions">
           <button value="cancel" class="btn">Abbrechen</button>
           <button value="confirm" class="btn primary">Importieren</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="agenten-dialog" class="glass-dialog nicht-drucken" closedby="any" aria-labelledby="agenten-dialog-titel">
+      <form method="dialog">
+        <h2 id="agenten-dialog-titel" class="din-info-title">Agenten-Konfiguration</h2>
+        <p class="workbench-status" id="agenten-dialog-hinweis"></p>
+        <textarea id="agenten-text" class="agenten-text" readonly rows="12" spellcheck="false"></textarea>
+        <div class="dialog-actions">
+          <button value="close" class="btn primary">Schließen</button>
         </div>
       </form>
     </dialog>

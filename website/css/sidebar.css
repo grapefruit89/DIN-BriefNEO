@@ -1786,3 +1786,13 @@ body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover
   padding: 2px var(--space-sm);
   border-color: var(--border-color);
 }
+
+/* Agenten-Konfiguration im Dialog: Rohtext, den man auch ohne
+   Zwischenablage-Recht kopieren kann. */
+.agenten-text {
+  inline-size: 100%;
+  min-block-size: 12em;
+  font: 12px/1.4 ui-monospace, "Cascadia Mono", monospace;
+  white-space: pre;
+  resize: vertical;
+}

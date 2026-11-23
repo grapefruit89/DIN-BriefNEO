@@ -47,6 +47,12 @@ zwei Transporte über derselben Werkzeugliste:
 
 ## 2. Die Werkzeuge
 
+> **In der App:** Einstellungen → *Agenten (MCP)*. Dort steht der WebMCP-Status,
+> und zwei Knöpfe holen die fertige `mcp.servers`-Konfiguration bzw. die
+> Live-URL (inklusive markiertem Text im Dialog, falls die Zwischenablage
+> gesperrt ist). Nur der Repo-Pfad muss ersetzt werden — die Seite kann ihn
+> nicht kennen.
+
 `website/js/webmcp.js` definiert zehn Werkzeuge; sie sind gleichzeitig
 `window.dinBriefAgent.werkzeuge()`:
 
@@ -133,7 +139,7 @@ Als MCP-Server eintragen. opencode (V2) erwartet ihn unter `mcp.servers`:
 {
   "mcp": {
     "servers": {
-      "din-brief": {
+      "briefneo": {
         "type": "local",
         "command": ["node", "tools/mcp-dinbrief.mjs"],
         "cwd": "."
@@ -143,14 +149,14 @@ Als MCP-Server eintragen. opencode (V2) erwartet ihn unter `mcp.servers`:
 }
 ```
 
-Oder per CLI: `opencode mcp add din-brief -- node <repo>/tools/mcp-dinbrief.mjs`.
+Oder per CLI: `opencode mcp add briefneo -- node <repo>/tools/mcp-dinbrief.mjs`.
 Der Server startet beim Verbinden Chrome und öffnet die App ein Mal; das Fenster
 bleibt stehen, damit der Nutzer sieht, was geschrieben wird.
 
 Claude Code und andere MCP-Clients nehmen dasselbe Kommando:
 
 ```bash
-claude mcp add din-brief -- node <repo>/tools/mcp-dinbrief.mjs
+claude mcp add briefneo -- node <repo>/tools/mcp-dinbrief.mjs
 ```
 
 ## 4b. Ohne Debug-Port: die Seite ruft an

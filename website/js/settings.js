@@ -10,6 +10,7 @@
 
 import { toggleAddon } from './addons.js';
 import { Events, eventBus, transitionOn } from './core.js';
+import { liveToken } from './live-bridge.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { applyValue } from './state-binding.js';
 
@@ -358,4 +359,131 @@ export class SettingsManager {
     }
 
   }
+}
+
+/* =========================================================================================
+ * 2. AGENTEN-HILFE (WebMCP / MCP)
+ * ========================================================================================= */
+
+/** Platzhalter, weil die Seite den lokalen Klon-Ordner nicht kennen kann. */
+const REPO_PLATZHALTER = '<PFAD-ZUM-REPO>';
+
+/**
+ * Der Text, den „MCP-Konfiguration kopieren" in die Zwischenablage legt.
+ * Beide Transporte, damit niemand raten muss: eigener Browser (CDP) und
+ * offener Tab (Kanal ohne Debug-Port).
+ * @returns {string}
+ */
+function agentenKonfiguration() {
+  return JSON.stringify(
+    {
+      mcp: {
+        servers: {
+          'briefneo': {
+            type: 'local',
+            command: ['node', `${REPO_PLATZHALTER}/tools/mcp-dinbrief.mjs`]
+          },
+          'briefneo-live': {
+            type: 'local',
+            command: [
+              'node',
+              `${REPO_PLATZHALTER}/tools/mcp-live.mjs`,
+              '--token=dinbrief',
+              '--port=8766'
+            ]
+          }
+        }
+      }
+    },
+    null,
+    2
+  );
+}
+
+/**
+ * Die Adresse für den Kanal ohne Debug-Port. Token und Port stehen fest im
+ * kopierten Befehl, sonst müsste man sie aus dem Server-Log fischen.
+ * @returns {string}
+ */
+function agentenLiveAdresse() {
+  return `${location.origin}${location.pathname}#agent=dinbrief@8766`;
+}
+
+/**
+ * Füllt den „Agenten"-Abschnitt in den Einstellungen: Status und zwei
+ * Kopierknöpfe. Kein Startknopf — eine Webseite kann keinen lokalen Prozess
+ * starten; sie kann nur sagen, was zu tun ist.
+ * @returns {void}
+ */
+export function initAgentenHilfe() {
+  const status = document.getElementById('agenten-status');
+  const knopfKonfig = document.getElementById('btn-agent-konfig');
+  const knopfUrl = document.getElementById('btn-agent-url');
+  const hinweis = document.getElementById('agenten-hinweis');
+  if (!status || !knopfKonfig || !knopfUrl) return;
+
+  const agent = /** @type {any} */ (window).dinBriefAgent;
+  const anzahl = typeof agent?.werkzeuge === 'function' ? agent.werkzeuge().length : 0;
+  const webmcp = typeof document.modelContext === 'object' && document.modelContext !== null;
+  const kanal = liveToken();
+  status.textContent = webmcp
+    ? `WebMCP aktiv · ${anzahl} Werkzeuge`
+    : `WebMCP aus · ${anzahl} Werkzeuge`;
+  if (hinweis) {
+    hinweis.textContent = kanal
+      ? 'Kanal aktiv — Agent kann in diesen Tab schreiben.'
+      : 'Anleitung: docs/js/AGENTEN-WEBMCP.md';
+  }
+
+  /**
+   * Zeigt den Text im Dialog — der Weg, der auch ohne Zwischenablage-Recht
+   * funktioniert (Strg+C im markierten Textfeld).
+   * @param {string} text
+   * @param {string} meldung
+   */
+  function zeigeDialog(text, meldung) {
+    const dialog = /** @type {HTMLDialogElement | null} */ (document.getElementById('agenten-dialog'));
+    const feld = /** @type {HTMLTextAreaElement | null} */ (document.getElementById('agenten-text'));
+    const zeile = document.getElementById('agenten-dialog-hinweis');
+    if (!dialog || !feld) return;
+    feld.value = text;
+    if (zeile) zeile.textContent = meldung;
+    if (!dialog.open) dialog.showModal();
+    feld.focus();
+    feld.select();
+  }
+
+  /**
+   * @param {string} text
+   * @returns {Promise<boolean>} true = in der Zwischenablage
+   */
+  async function kopiere(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  knopfKonfig.addEventListener('click', async () => {
+    const text = agentenKonfiguration();
+    const kopiert = await kopiere(text);
+    zeigeDialog(
+      text,
+      kopiert
+        ? 'Kopiert. <PFAD-ZUM-REPO> durch den Klon ersetzen, dann unter mcp.servers eintragen.'
+        : 'Zwischenablage gesperrt — Text ist markiert, mit Strg+C kopieren.'
+    );
+  });
+  knopfUrl.addEventListener('click', async () => {
+    const text = agentenLiveAdresse();
+    const kopiert = await kopiere(text);
+    zeigeDialog(
+      text,
+      kopiert
+        ? 'Kopiert. Adresse öffnen — danach schreibt der Agent in genau diesen Tab.'
+        : 'Zwischenablage gesperrt — Text ist markiert, mit Strg+C kopieren.'
+    );
+  });
 }

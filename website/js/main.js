@@ -16,7 +16,7 @@ import { initLiveBridge } from './live-bridge.js';
 import { installiereLog } from './log.js';
 import { initImportExport, MetadataService, requestPersistentStorage } from './persistence.js';
 import { SalutationFeature } from './salutation.js';
-import { SettingsManager } from './settings.js';
+import { initAgentenHilfe, SettingsManager } from './settings.js';
 import { SignatureFeature } from './signature.js';
 import { letterState, toWire } from './state.js';
 import { applyState, applyValue, initStateBinding } from './state-binding.js';
@@ -192,6 +192,7 @@ function initApp() {
   /* Nur aktiv, wenn die URL #agent=<token> trägt: dann wählt sich die Seite
      bei tools/mcp-live.mjs ein (ohne Flag, ohne Debug-Port). */
   bootStep('Agenten-Kanal', () => initLiveBridge());
+  bootStep('Agenten-Hilfe', () => initAgentenHilfe());
   bootStep('Import/Export', () => initImportExport({
     collectDraft: () => toWire(letterState),
     /* D1 Stufe 6: Import ohne Reload. applyState ersetzt RAM + Projektion;

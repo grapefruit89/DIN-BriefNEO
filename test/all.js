@@ -5801,7 +5801,9 @@ describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {
     );
 
     const h3 = [...aside.querySelectorAll('h3')];
-    assertEqual(h3.length, 2, 'h3 fuer die Gruppentitel, die keine Labels sind');
+    /* Drei Gruppentitel: „Erweiterungen (Plugins)", „Agenten (MCP)" und der
+       Mehrseiten-Workbench-Titel. Kein Label-Ersatz, echte Ueberschriften. */
+    assertEqual(h3.length, 3, 'h3 fuer die Gruppentitel, die keine Labels sind');
     assert(h3.every((h) => !h.hasAttribute('for')), 'h3 ist kein Label-Ersatz');
     assertEqual([...aside.querySelectorAll('h2, h3')][0]?.tagName, 'H2', 'beginnt mit h2');
   });

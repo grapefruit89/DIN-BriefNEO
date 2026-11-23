@@ -1787,3 +1787,14 @@ body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover
   border-color: var(--border-color);
 }
 
+
+/* Rückmeldung für den Kopier-Knopf: gedrückt = kurz eingedrückt und getönt,
+   nach dem Kopieren 1,5 s bestätigt. Kein Toast, nur der Knopf selbst. */
+.btn[data-kopiert="true"] {
+  border-color: var(--accent-color);
+  background: color-mix(in oklch, var(--accent-color) 14%, var(--bg-card));
+  transform: translateY(0) scale(0.985);
+}
+.btn[data-kopiert="false"]:active {
+  transform: translateY(0) scale(0.985);
+}

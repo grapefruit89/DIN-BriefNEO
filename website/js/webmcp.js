@@ -30,7 +30,7 @@
  *   description: string,
  *   inputSchema: Record<string, unknown>,
  *   nurLesen: boolean,
- *   ausfuehren: (argumente: WerkzeugArgumente) => Record<string, unknown>
+ *   ausfuehren: (argumente: WerkzeugArgumente) => Record<string, unknown> | Promise<Record<string, unknown>>
  * }} Werkzeug
  */
 
@@ -156,6 +156,70 @@ function briefSchreiben(argumente) {
   };
 }
 
+/* --------------------------------------------------------------- Prüfungen */
+
+/** Stilvertrag je Tonalität: was der Text einhalten muss. */
+const STIL_VERTRAG = Object.freeze({
+  formal: {
+    register: 'Sie-Form, sachlich, keine Kurzformen, keine Floskeln',
+    untersagt: ['du', 'dein', 'dich', 'dir', 'euch', 'hallo', 'hi', 'hey']
+  },
+  polite: {
+    register: 'Sie-Form, freundlich und verbindlich, keine Floskeln',
+    untersagt: ['du', 'dein', 'dich', 'dir', 'euch', 'hi', 'hey']
+  },
+  casual: {
+    register: 'Du-Form, locker, kurze Sätze',
+    untersagt: ['sehr geehrte', 'mit freundlichen grüßen', 'hochachtungsvoll']
+  }
+});
+
+/**
+ * IBAN-Prüfsumme (ISO 7064 MOD 97-10).
+ * @param {string} iban
+ * @returns {boolean}
+ */
+function ibanGueltig(iban) {
+  const s = String(iban || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  if (s.length < 15 || s.length > 34) return false;
+  const umgestellt = s.slice(4) + s.slice(0, 4);
+  let rest = 0;
+  for (const zeichen of umgestellt) {
+    const wert = zeichen >= 'A' ? String(zeichen.charCodeAt(0) - 55) : zeichen;
+    for (const ziffer of wert) rest = (rest * 10 + Number(ziffer)) % 97;
+  }
+  return rest === 1;
+}
+
+/** § 35a-Felder: Werkzeugname → Feld-ID im Brief. */
+const FUSS_FELDER = Object.freeze({
+  firma: 'fuss-firma',
+  sitz: 'fuss-sitz',
+  gericht: 'fuss-gericht',
+  hrb: 'fuss-hrb',
+  vorstand: 'fuss-vorstand',
+  gf: 'fuss-gf',
+  stnr: 'fuss-stnr',
+  ustid: 'fuss-ustid',
+  bank: 'fuss-bank',
+  iban: 'fuss-iban',
+  bic: 'fuss-bic',
+  anschrift: 'fuss-anschrift'
+});
+
+/**
+ * Welche Tonalität passt zur aktuellen Grußformel? Dient der Register-Prüfung,
+ * wenn niemand die Tonalität explizit gesetzt hat.
+ * @param {string} grussformel
+ * @returns {'formal' | 'polite' | 'casual'}
+ */
+function tonAusGrussformel(grussformel) {
+  const text = String(grussformel || '').toLowerCase();
+  if (text.includes('beste grüße') || text.includes('liebe grüße') || text.includes('viele grüße')) return 'casual';
+  if (text.includes('mit freundlichen grüßen') || text.includes('hochachtungsvoll')) return 'formal';
+  return 'polite';
+}
+
 /* ----------------------------------------------------------- Werkzeugliste */
 
 /**
@@ -193,7 +257,7 @@ function seitenInfo() {
   const hoeheMm = mm > 0 ? kern.getBoundingClientRect().height / mm : 0;
   const anzahl = band > 0 ? Math.max(1, Math.round((hoeheMm + lueckeMm) / (seiteMm + lueckeMm))) : 1;
 
-  /** @type {{ seite: number, mitte: number, knoten: Text }[]} */
+  /** @type {{ seite: number, mitte: number, knoten?: Text, eigenerText?: string }[]} */
   const zeilen = [];
   const lauf = document.createTreeWalker(kern, NodeFilter.SHOW_TEXT);
   for (let knoten = lauf.nextNode(); knoten; knoten = lauf.nextNode()) {
@@ -210,6 +274,21 @@ function seitenInfo() {
         knoten: /** @type {Text} */ (knoten)
       });
     }
+  }
+  /* Einzeilige Felder (Betreff, Anrede, Grußformel, Unterschrift, Datum,
+     Fußzeile) sind <input>: ihr Wert steht nicht im DOM-Text, ist aber
+     sichtbar. Ohne diesen Durchlauf zählte ein kurzer Brief „2 Zeilen". */
+  for (const feld of kern.querySelectorAll('input, textarea')) {
+    const wert = String(/** @type {HTMLInputElement} */ (feld).value || '').trim();
+    if (!wert) continue;
+    const rect = feld.getBoundingClientRect();
+    if (rect.height < 1 || rect.width < 1) continue;
+    const roh = band > 0 ? Math.floor((rect.top - oben) / band) + 1 : 1;
+    zeilen.push({
+      seite: Math.max(1, Math.min(anzahl, roh)),
+      mitte: rect.top + rect.height / 2,
+      eigenerText: wert.replace(/\s+/g, ' ').slice(0, 80)
+    });
   }
 
   /**
@@ -240,10 +319,12 @@ function seitenInfo() {
   }
 
   /**
-   * @param {{ mitte: number, knoten: Text }} zeile
+   * @param {{ mitte: number, knoten?: Text, eigenerText?: string }} zeile
    * @returns {string}
    */
   function zeilenText(zeile) {
+    if (zeile.eigenerText !== undefined) return zeile.eigenerText;
+    if (!zeile.knoten) return '';
     const offset = offsetFuerY(zeile.knoten, zeile.mitte);
     return zeile.knoten.data.slice(offset, offset + 80).replace(/\s+/g, ' ').trim();
   }
@@ -446,6 +527,266 @@ export const WERKZEUGE = [
     }
   },
   {
+    name: 'brief_tonalitaet_setzen',
+    description:
+      'Setzt die Tonalität des Briefs (formal, polite, casual): Anrede und Grußformel werden passend gewählt, und der Stilvertrag für den Text kommt zurück. Ohne name wird nur der Vertrag geliefert — gut vor dem Schreiben des Textes.',
+    nurLesen: false,
+    ausfuehren: async (argumente) => {
+      const api = briefApi();
+      if (!api) return ohneApi();
+      const ton = text(argumente, 'tonalitaet') || 'formal';
+      if (!(ton in STIL_VERTRAG)) {
+        return { ok: false, fehler: 'tonalitaet muss "formal", "polite" oder "casual" sein' };
+      }
+      const vertrag = STIL_VERTRAG[/** @type {'formal' | 'polite' | 'casual'} */ (ton)];
+      const name = text(argumente, 'name');
+      const gesetzt = name ? api.anrede(name, text(argumente, 'firma'), ton) : null;
+      const werte = api.lesen().felder ?? {};
+      return {
+        ok: gesetzt ? gesetzt.ok !== false : true,
+        tonalitaet: ton,
+        anrede: werte.anrede ?? '',
+        grussformel: werte.grussformel ?? '',
+        register: vertrag.register,
+        untersagt: vertrag.untersagt,
+        hinweis: 'Der Text muss in dieser Register-Ebene bleiben — brief_pruefen kontrolliert es.'
+      };
+    },
+    inputSchema: {
+      type: 'object',
+      properties: {
+        tonalitaet: { type: 'string', enum: ['formal', 'polite', 'casual'] },
+        name: { type: 'string', description: 'Name der angeschriebenen Person; fehlt er, wird nichts geschrieben' },
+        firma: { type: 'string' }
+      },
+      required: ['tonalitaet'],
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'brief_fuss_setzen',
+    description:
+      'Setzt den §-35a-Fuß in einem Aufruf (Firma, Sitz, Gericht, HRB, Vorstand, Geschäftsführung, Steuernummer, USt-IdNr., Bank, IBAN, BIC, Anschrift) und schaltet die Fußzeile ein. Die IBAN wird formatiert.',
+    nurLesen: false,
+    ausfuehren: async (argumente) => {
+      const api = briefApi();
+      if (!api) return ohneApi();
+      /** @type {string[]} */
+      const gesetzt = [];
+      /** @type {string[]} */
+      const fehler = [];
+      for (const [schluessel, feld] of Object.entries(FUSS_FELDER)) {
+        const wert = text(argumente, schluessel);
+        if (!wert) continue;
+        let zuSchreiben = wert;
+        if (feld === 'fuss-iban') {
+          const { formatIban } = await import('./format.js');
+          zuSchreiben = formatIban(wert) || wert;
+        }
+        notiere(api.setzen(feld, zuSchreiben), feld, gesetzt, fehler);
+      }
+      if (gesetzt.length === 0) return { ok: false, fehler: 'keine verwertbaren Angaben' };
+      notiere(api.setzen('toggle-fuss', true), 'toggle-fuss', gesetzt, fehler);
+      return { ok: fehler.length === 0, gesetzt, fehler };
+    },
+    inputSchema: {
+      type: 'object',
+      properties: {
+        firma: { type: 'string' },
+        sitz: { type: 'string' },
+        gericht: { type: 'string' },
+        hrb: { type: 'string' },
+        vorstand: { type: 'string' },
+        gf: { type: 'string' },
+        stnr: { type: 'string' },
+        ustid: { type: 'string' },
+        bank: { type: 'string' },
+        iban: { type: 'string' },
+        bic: { type: 'string' },
+        anschrift: { type: 'string' }
+      },
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'brief_ort_pruefen',
+    description:
+      'Prüft eine Postleitzahl gegen das lokale Verzeichnis (10.184 Orte, keine Netzverbindung) und optional, ob der Ort dazu passt.',
+    nurLesen: true,
+    ausfuehren: async (argumente) => {
+      const plz = text(argumente, 'plz');
+      if (!/^\d{5}$/.test(plz)) return { ok: false, fehler: 'plz muss fünfstellig sein' };
+      const ort = text(argumente, 'ort');
+      try {
+        const { ortsVorschlaege } = await import('./address.js');
+        const antwort = ortsVorschlaege(plz, 3, { nurOrte: true });
+        const treffer = (antwort.items ?? []).map((eintrag) => ({
+          plz: String(eintrag.plz ?? plz),
+          ort: String(eintrag.city ?? eintrag.ort ?? eintrag.name ?? '')
+        }));
+        if (treffer.length === 0) {
+          return { ok: false, fehler: `PLZ ${plz} nicht im Verzeichnis (oder Ortsdaten noch nicht geladen)` };
+        }
+        const passt =
+          ort.length > 0
+            ? treffer.some((eintrag) => eintrag.ort.toLowerCase().includes(ort.toLowerCase()))
+            : undefined;
+        return {
+          ok: passt !== false,
+          plz,
+          orte: treffer.map((eintrag) => eintrag.ort),
+          passt,
+          hinweis: passt === false ? `„${ort}" steht nicht bei PLZ ${plz}.` : ''
+        };
+      } catch {
+        return { ok: false, fehler: 'Ortsverzeichnis nicht verfügbar' };
+      }
+    },
+    inputSchema: {
+      type: 'object',
+      properties: {
+        plz: { type: 'string', description: 'Fünfstellige Postleitzahl' },
+        ort: { type: 'string', description: 'Optionaler Ort zum Abgleich' }
+      },
+      required: ['plz'],
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'brief_strasse_suchen',
+    description:
+      'Sucht Straßen über Geoapify (nur wenn ein Key in den Einstellungen hinterlegt ist). Liefert Straße, PLZ, Ort und den formatierten Treffer; schreibt nichts.',
+    nurLesen: true,
+    ausfuehren: async (argumente) => {
+      const suche = text(argumente, 'suche');
+      if (suche.length < 3) return { ok: false, fehler: 'suche braucht mindestens 3 Zeichen' };
+      const feld = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
+      const key = String(feld?.value || localStorage.getItem('din_geoapify_key') || '').trim();
+      if (!key) return { ok: false, fehler: 'Kein Geoapify-Key hinterlegt (Einstellungen → API-Key).' };
+      try {
+        const { adressRelevanz, ermittleGeoBias, strassenSuchPfad } = await import('./address.js');
+        const bias = await ermittleGeoBias(key).catch(() => null);
+        const antwort = await fetch(strassenSuchPfad(suche, key, bias));
+        if (!antwort.ok) return { ok: false, fehler: `Geoapify antwortet ${antwort.status}` };
+        const daten = await antwort.json();
+        const max = Math.min(10, Math.max(1, Number(argumente.max) || 5));
+        const treffer = (daten.features ?? [])
+          .map((/** @type {any} */ feature) => feature.properties ?? {})
+          .sort((/** @type {any} */ a, /** @type {any} */ b) => adressRelevanz(a, suche) - adressRelevanz(b, suche))
+          .slice(0, max)
+          .map((/** @type {any} */ eigenschaften) => ({
+            strasse: [eigenschaften.street, eigenschaften.housenumber].filter(Boolean).join(' '),
+            plz: eigenschaften.postcode ?? '',
+            ort: eigenschaften.city ?? '',
+            treffer: eigenschaften.formatted ?? ''
+          }));
+        return { ok: true, suche, treffer };
+      } catch (problem) {
+        return { ok: false, fehler: problem instanceof Error ? problem.message : String(problem) };
+      }
+    },
+    inputSchema: {
+      type: 'object',
+      properties: {
+        suche: { type: 'string', description: 'Straße und Ort, z. B. "Musterweg Troisdorf"' },
+        max: { type: 'number', description: 'Trefferzahl 1–10, Vorgabe 5' }
+      },
+      required: ['suche'],
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'brief_pruefen',
+    description:
+      'Prüft den Brief und liefert Befunde statt eines Daumen hoch: Pflichtfelder, Datumsformat, PLZ/Ort, IBAN-Prüfsumme, BIC-Form, Anrede/Grußformel, Tonalität gegen den Text, fast leere Folgeseiten.',
+    nurLesen: true,
+    ausfuehren: async () => {
+      const api = briefApi();
+      if (!api) return ohneApi();
+      const werte = api.lesen().felder ?? {};
+      /** @type {{ stufe: 'fehler' | 'warnung' | 'hinweis', feld: string, text: string }[]} */
+      const befunde = [];
+      const befund = (/** @type {'fehler'|'warnung'|'hinweis'} */ stufe, /** @type {string} */ feld, /** @type {string} */ text) =>
+        befunde.push({ stufe, feld, text });
+
+      if (!String(werte['empfaenger-name'] ?? '').trim() && !String(werte['empfaenger-firma'] ?? '').trim()) {
+        befund('fehler', 'empfaenger-name', 'Empfänger fehlt (Name oder Firma).');
+      }
+      if (!String(werte['empfaenger-ort'] ?? '').trim()) befund('fehler', 'empfaenger-ort', 'PLZ/Ort des Empfängers fehlt.');
+      if (!String(werte.betreff ?? '').trim()) befund('fehler', 'betreff', 'Betreff fehlt.');
+      if (!String(werte.text ?? '').trim()) befund('fehler', 'text', 'Text fehlt.');
+      if (!String(werte.anrede ?? '').trim()) befund('fehler', 'anrede', 'Anrede fehlt.');
+      if (!String(werte.grussformel ?? '').trim()) befund('fehler', 'grussformel', 'Grußformel fehlt.');
+      if (!String(werte.unterschrift ?? '').trim()) befund('warnung', 'unterschrift', 'Unterschriftzeile fehlt.');
+
+      const datum = String(werte.datum ?? '').trim();
+      if (!/^\d{1,2}\. [A-ZÄÖÜ][a-zäöüß]+ \d{4}$/.test(datum)) {
+        befund('warnung', 'datum', `Datum „${datum}" ist nicht die deutsche Langform (z. B. 23. November 2026).`);
+      }
+
+      const ort = String(werte['empfaenger-ort'] ?? '').trim();
+      const plzTreffer = ort.match(/(\d{5})/);
+      if (!plzTreffer) {
+        befund('warnung', 'empfaenger-ort', `Keine fünfstellige PLZ in „${ort}".`);
+      } else {
+        const plz = plzTreffer[1];
+        const ortName = ort.replace(plz, '').trim();
+        try {
+          const { ortsVorschlaege } = await import('./address.js');
+          const vorhanden = (ortsVorschlaege(plz, 3, { nurOrte: true }).items ?? []).map((eintrag) =>
+            String(eintrag.city ?? eintrag.ort ?? eintrag.name ?? '')
+          );
+          if (vorhanden.length === 0) {
+            befund('hinweis', 'empfaenger-ort', `PLZ ${plz} steht nicht im lokalen Verzeichnis.`);
+          } else if (ortName && !vorhanden.some((name) => name.toLowerCase().includes(ortName.toLowerCase()))) {
+            befund('warnung', 'empfaenger-ort', `PLZ ${plz} gehört zu ${vorhanden.join('/')}, nicht zu „${ortName}".`);
+          }
+        } catch {
+          befund('hinweis', 'empfaenger-ort', 'Ortsverzeichnis nicht verfügbar — PLZ ungeprüft.');
+        }
+      }
+
+      const iban = String(werte['fuss-iban'] ?? '').trim();
+      if (iban && !ibanGueltig(iban)) befund('fehler', 'fuss-iban', 'IBAN-Prüfsumme stimmt nicht.');
+      const bic = String(werte['fuss-bic'] ?? '').trim().toUpperCase();
+      if (bic && !/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(bic)) {
+        befund('fehler', 'fuss-bic', `BIC „${bic}" hat nicht die Form AAAA DE MM (8 oder 11 Zeichen).`);
+      }
+
+      const ton = tonAusGrussformel(String(werte.grussformel ?? ''));
+      const vertrag = STIL_VERTRAG[ton];
+      const textKlein = String(werte.text ?? '').toLowerCase();
+      for (const wort of vertrag.untersagt) {
+        const trifft = wort.includes(' ')
+          ? textKlein.includes(wort)
+          : new RegExp(`\\b${wort}\\b`, 'i').test(textKlein);
+        if (trifft) {
+          befund('warnung', 'text', `Tonalität ist ${ton}, im Text steht aber „${wort}".`);
+        }
+      }
+      if (String(werte.anrede ?? '').trim() && !String(werte.anrede ?? '').trim().endsWith(',')) {
+        befund('warnung', 'anrede', 'Anrede sollte mit einem Komma enden.');
+      }
+
+      const seiten = seitenInfo();
+      for (const warnung of /** @type {string[]} */ (seiten.warnungen ?? [])) {
+        befund('warnung', 'seiten', warnung);
+      }
+
+      const fehler = befunde.filter((eintrag) => eintrag.stufe === 'fehler').length;
+      const warnungen = befunde.filter((eintrag) => eintrag.stufe === 'warnung').length;
+      const hinweise = befunde.filter((eintrag) => eintrag.stufe === 'hinweis').length;
+      return {
+        ok: fehler === 0,
+        tonalitaet: ton,
+        befunde,
+        zusammenfassung: `${fehler} Fehler, ${warnungen} Warnungen, ${hinweise} Hinweise`,
+        seiten: seiten.seiten
+      };
+    },
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false }
+  },
+  {
     name: 'brief_schreiben',
     description:
       'Schreibt einen vollständigen Brief in einem Aufruf: Empfänger, Absender, Datum, Anrede, Betreff, Text, Grußformel, Unterschrift, Anlagen. Der bevorzugte Einstieg für "schreib einen Brief an …".',
@@ -511,12 +852,12 @@ export const WERKZEUGE = [
 /**
  * Führt ein Werkzeug aus. Wirft nie: ein unbekannter Name und ein Fehler in
  * `dinApi` kommen als `{ ok: false, fehler }` zurück, damit ein Agent aus dem
- * Ergebnis lernen kann.
+ * Ergebnis lernen kann. Async, seit Geoapify- und Ortsabfragen dazukamen.
  * @param {string} name
  * @param {WerkzeugArgumente} [argumente]
- * @returns {Record<string, unknown>}
+ * @returns {Promise<Record<string, unknown>>}
  */
-export function ausfuehren(name, argumente = {}) {
+export async function ausfuehren(name, argumente = {}) {
   const werkzeug = WERKZEUGE.find((kandidat) => kandidat.name === name);
   if (!werkzeug) {
     return {
@@ -526,7 +867,7 @@ export function ausfuehren(name, argumente = {}) {
     };
   }
   try {
-    return werkzeug.ausfuehren(istObjekt(argumente) ? argumente : {});
+    return await werkzeug.ausfuehren(istObjekt(argumente) ? argumente : {});
   } catch (fehler) {
     return { ok: false, fehler: fehler instanceof Error ? fehler.message : String(fehler) };
   }
@@ -588,7 +929,7 @@ export async function initWebMCP() {
           consequentialHint: false,
           untrustedContentHint: false
         },
-        execute: (/** @type {WerkzeugArgumente} */ argumente) => ausfuehren(werkzeug.name, argumente)
+        execute: async (/** @type {WerkzeugArgumente} */ argumente) => ausfuehren(werkzeug.name, argumente)
       });
       registriert += 1;
     } catch (problem) {

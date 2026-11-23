@@ -63,8 +63,13 @@ zwei Transporte über derselben Werkzeugliste:
 | `brief_adresse_setzen` | Empfänger/Absender (leere Teile bleiben stehen) | nein |
 | `brief_anrede_setzen` | Anrede + Grußformel nach Tonalität | nein |
 | `brief_datum_setzen` | Datum in deutscher Langform | nein |
+| `brief_tonalitaet_setzen` | Tonalität + Stilvertrag (Anrede/Grußformel passend) | nein |
+| `brief_fuss_setzen` | § 35a-Fuß in einem Aufruf (inkl. IBAN-Format) | nein |
 | `brief_seiten` | Seitenzahl, Zeilen pro Seite, Warnung bei fast leeren Seiten | ja |
 | `brief_layout_setzen` | Form A (Briefkopf 27 mm) oder Form B (45 mm) | nein |
+| `brief_ort_pruefen` | PLZ gegen 10.184 Orte offline prüfen, Ort abgleichen | ja |
+| `brief_strasse_suchen` | Geoapify-Straßensuche (nur mit Key) | ja |
+| `brief_pruefen` | Befunde: Pflichtfelder, Datum, PLZ, IBAN, BIC, Tonalität, Seiten | ja |
 | `brief_schreiben` | kompletter Brief in einem Aufruf | nein |
 | `brief_exportieren` | DIN-Letter-JSON | ja |
 

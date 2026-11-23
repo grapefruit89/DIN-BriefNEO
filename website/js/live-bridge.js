@@ -89,7 +89,7 @@ export function initLiveBridge() {
     showToast('Agent verbunden — schreibbereit', 'info');
   });
 
-  quelle.addEventListener('call', (ereignis) => {
+  quelle.addEventListener('call', async (ereignis) => {
     const roh = /** @type {MessageEvent} */ (ereignis).data;
     /** @type {{ id?: string, name?: string, arguments?: Record<string, unknown> }} */
     let auftrag;
@@ -99,7 +99,7 @@ export function initLiveBridge() {
       return;
     }
     if (!auftrag.id || !auftrag.name) return;
-    const ergebnis = ausfuehren(auftrag.name, auftrag.arguments || {});
+    const ergebnis = await ausfuehren(auftrag.name, auftrag.arguments || {});
     void fetch(`${basis}/result`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

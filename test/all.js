@@ -3037,7 +3037,7 @@ describe('window.dinBriefAgent + WebMCP: Werkzeuge für Agenten (2026-11-23)', (
       const vertrag = /** @type {any} */ (window).dinBriefAgent;
       assert(vertrag, 'window.dinBriefAgent gesetzt');
       assertEqual(vertrag.version, '1.0');
-      assertEqual(vertrag.werkzeuge().length, 10, 'zehn Werkzeuge im Vertrag');
+      assertEqual(vertrag.werkzeuge().length, 15, 'fünfzehn Werkzeuge im Vertrag');
     } finally {
       stelleWiederHer(vorher);
     }
@@ -3098,21 +3098,21 @@ describe('window.dinBriefAgent + WebMCP: Werkzeuge für Agenten (2026-11-23)', (
     }
   });
 
-  it('unbekanntes Werkzeug ist ein Ergebnis, kein Wurf', () => {
-    const ergebnis = ausfuehren('gibt-es-nicht');
+  it('unbekanntes Werkzeug ist ein Ergebnis, kein Wurf', async () => {
+    const ergebnis = await ausfuehren('gibt-es-nicht');
     assertEqual(ergebnis.ok, false);
     assert(String(ergebnis.fehler).includes('unbekanntes Werkzeug'));
     assertEqual(/** @type {string[]} */ (ergebnis.werkzeuge).length, werkzeugListe().length);
   });
 
-  it('brief_seiten nennt ohne Briefkern den Grund statt zu werfen', () => {
-    const ergebnis = ausfuehren('brief_seiten');
+  it('brief_seiten nennt ohne Briefkern den Grund statt zu werfen', async () => {
+    const ergebnis = await ausfuehren('brief_seiten');
     assertEqual(ergebnis.ok, false, 'ohne #kern kein Seitenbericht');
     assert(String(ergebnis.fehler).includes('#kern'));
   });
 
-  it('brief_layout_setzen lehnt fremde Formulare ab', () => {
-    const falsch = ausfuehren('brief_layout_setzen', { form: 'form-c' });
+  it('brief_layout_setzen lehnt fremde Formulare ab', async () => {
+    const falsch = await ausfuehren('brief_layout_setzen', { form: 'form-c' });
     assertEqual(falsch.ok, false);
     assert(String(falsch.fehler).includes('form-a'));
   });

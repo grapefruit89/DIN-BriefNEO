@@ -429,7 +429,15 @@ export function initAgentenHilfe() {
     }
   }
 
-  knopfKonfig.addEventListener('click', () => {
-    void kopiere(agentenKonfiguration());
+  const beschriftung = knopfKonfig.textContent || '📋 MCP-Config kopieren';
+  knopfKonfig.dataset.kopiert = 'false';
+  knopfKonfig.addEventListener('click', async () => {
+    const kopiert = await kopiere(agentenKonfiguration());
+    knopfKonfig.dataset.kopiert = kopiert ? 'true' : 'false';
+    knopfKonfig.textContent = kopiert ? '✓ Kopiert' : '✗ Zwischenablage gesperrt';
+    setTimeout(() => {
+      knopfKonfig.dataset.kopiert = 'false';
+      knopfKonfig.textContent = beschriftung;
+    }, 1500);
   });
 }

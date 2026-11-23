@@ -156,7 +156,7 @@ html, body {
 
 din-blatt {
   font-family: var(--active-font-family, var(--font-brief-stack));
-  font-size-adjust: 0.52;
+  font-size-adjust: 0.535;
   font-variant-numeric: tabular-nums;
 }
 body {

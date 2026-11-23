@@ -20,7 +20,7 @@
 /* --- DIN-GEOMETRIE (SSoT: die Tokens stehen in base.css "2a. DIN-5008-GEOMETRIE") --- */
 din-blatt {
   font-family: var(--active-font-family, var(--font-system-stack));
-  font-size-adjust: 0.52;
+  font-size-adjust: 0.535;
   font-variant-numeric: tabular-nums;
 
   /* Dimensionslose Blattmasse; --blatt-breite/--blatt-hoehe erbt din-blatt
@@ -379,6 +379,11 @@ din-anlagen-angabe {
      es nimmt die UA-Vorgabe (13,33px). Dann wird aus 7,5pt/3,2mm eine 4,2-mm-
      Zeile und das 15-mm-Raster der Zone laeuft ueber (gemessen 2026-11-12). */
   font-size: inherit;
+  /* font-size-adjust fehlt dem <input> ebenfalls (UA-Vorgabe: none). Ohne
+     inherit rechnet das Feld die optische Groesse NICHT mit, waehrend der
+     Fliesstext daneben mitrechnet — bei Schriften mit anderer x-Hoehe stehen
+     die Zeilen dann schief zueinander (gemessen 2026-11-23). */
+  font-size-adjust: inherit;
   letter-spacing: inherit;
   appearance: none;
   height: 1.2em;
@@ -402,6 +407,7 @@ din-anlagen-angabe {
   background: transparent;
   color: inherit;
   font-family: inherit;
+  font-size-adjust: inherit;
   letter-spacing: inherit;
   appearance: none;
   height: 1.4em;

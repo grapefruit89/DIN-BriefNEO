@@ -5347,3 +5347,36 @@ an, `change` bleibt aus). `font-feature.js` fängt die Tasten jetzt selbst ab
 (Arrow, PageUp/Down, Home/End), setzt `selectedIndex` und löst `change` aus.
 Vorschau ist auf 120 ms entprellt, damit Durchblättern nicht jede Stufe lädt
 und speichert.
+
+---
+
+## 2026-11-23 — Optische Schriftgröße automatisch angleichen (font-size-adjust)
+
+**Nutzer:** „die schrift im haupttext ist ganz schön klein! kann man das
+irgendwie automatisch korrigieren? also das wir nicht für jeden font eine
+einzelne schriftgröße machen?"
+
+Genau dafür ist `font-size-adjust` da: **eine Zahl für alle Schriften**, keine
+Einzelgrößen. Gemessene x-Höhen (Anteil der Schriftgröße):
+
+| Schrift | x-Höhe | mit adjust 0.52 |
+|---|---|---|
+| Liberation Sans / Arial / Noto Sans | 0,535 | −2,8 % |
+| Inter | 0,545 | −4,6 % |
+| DejaVu Sans | 0,55 | −5,5 % |
+| Cantarell | 0,48 | +8 % |
+| Droid Arabic Kufi | 0,46 | +13 % |
+
+Der Wert stand auf `0.52` und hat damit **die eigene Standardschrift um 2,8 %
+geschrumpft**. Neu: `0.535` = exakt die x-Höhe von Liberation Sans. Damit
+rendert der Standard in Originalgröße, alles andere wird auf dieselbe optische
+Größe gezogen.
+
+**Zweiter Fehler dabei:** `<input>`-Felder erben Schrift-Eigenschaften nicht.
+`font-family: inherit` und `font-size: inherit` standen dort, `font-size-adjust`
+fehlte — gemessen hatten `#betreff`, `#anrede`, `#grussformel`, `#unterschrift`
+und die Fußzeilen-Felder `adjust: none`, während der Fließtext daneben mit
+`0.52` rechnete. Bei Schriften mit abweichender x-Höhe standen die Zeilen also
+schief zueinander. Jetzt `font-size-adjust: inherit` in beiden Feld-Blöcken.
+
+Beide Regeln (`base.css` und `sheet-common.css`) tragen denselben Wert.

@@ -5674,3 +5674,30 @@ lieber 43 Schriften als 6.
 (`website/fonts/liberation-sans-regular.woff2` + `-bold.woff2`), wie vom Nutzer
 bestätigt: „das ist das fest eingebaute default modell, dafür ist der DIN Brief
 gebaut."
+
+### Formelsatz, Schmalschnitte und TeX-Sippe entfernt (18 Familien)
+
+**Nutzer:** „die haben doch TeX oder Math oder so im Namen? kann man das per
+Regex abschießen?"
+
+Zwei davon sind gemessen, eine per Name:
+
+| Stufe | Kriterium | entfernt |
+|---|---|---|
+| Formelsatz | cmap-Block U+1D400–1D7FF > 500 Zeichen | 7 (Latin Modern Math, STIX, TeX Gyre … Math) |
+| Schmalschnitt | Breite ÷ x-Höhe < 5 | 3 (Liberation Sans Narrow 4,59 · Nimbus Sans Narrow 4,75 · TeX Gyre Heros Cn 4,76) |
+| TeX-Sippe | Name `^(TeX Gyre\|Latin Modern)` | 15 |
+
+Gemessene Werte für den Schmalschnitt-Vergleich: normale Textschriften liegen
+ab 5,6 (Liberation Sans 5,60 · Droid Sans 5,65 · Nimbus Sans 5,78), der Median
+über alle 43 war 6,28.
+
+Warum die Namensliste hier unbedenklich ist, anders als bei den Welt-Schriften:
+`TeX Gyre` und `Latin Modern` heißen auf Windows, macOS und Linux gleich (sie
+kommen aus TeX Live) und sind keine Systemschriften. `Math` bleibt trotzdem
+eine Messung, weil sich der Name je Familie unterscheiden kann.
+
+**Bilanz: 43 → 18.** Übrig: Adwaita Sans, C059, Caladea, Cantarell, Carlito,
+Comfortaa, DejaVu Sans, Droid Sans, Liberation Sans, Michelangelus, Nimbus
+Roman, Nimbus Sans, Noto Sans, Noto Serif, Open Sans, P052, URW Gothic,
+Vazirmatn.

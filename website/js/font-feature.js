@@ -41,6 +41,18 @@ export const FONT_PRESETS = {
 const SYSTEM_FONT_BLACKLIST =
   /emoji|symbol|dingbat|webding|wingding|marlett|font awesome|material (icon|symbol)|twemoji|unifont|lastresort|notdef/i;
 
+/**
+ * TeX-Schriften. Anders als bei den Welt-Schriften ist eine Namensliste hier
+ * unbedenklich: „TeX Gyre" und „Latin Modern" kommen aus der TeX-Live-
+ * Distribution und heissen auf Windows, macOS und Linux identisch. Sie sind
+ * auch keine Systemschriften — sie tauchen nur auf, wo TeX installiert ist.
+ *
+ * Die Familien selbst sind gute Latein-Schriften (Gyre Heros ist ein
+ * Helvetica-Nachbau), aber fuer einen DIN-Brief braucht sie niemand: es sind
+ * 15 Eintraege, die die Liste nur fuellen.
+ */
+const TEX_SCHRIFT = /^(TeX Gyre|Latin Modern)/i;
+
 /** Monospace-Verdacht am Namen — schneller Vorfilter vor der Messung. */
 const MONO_NAME = /mono|\bcode\b|courier|consol|terminal|fixed|typewriter|iosevka|cursor/i;
 
@@ -165,6 +177,47 @@ function deckungsDichte(bereiche, von, bis) {
     if (ende >= start) treffer += ende - start + 1;
   }
   return treffer / (bis - von + 1);
+}
+
+/**
+ * Formelsatz erkennen: Schriften mit dem Block „Mathematical Alphanumeric
+ * Symbols" (U+1D400–1D7FF) sind fuer Mathematik gebaut. Gemessen 2026-11-23:
+ * Latin Modern Math 945 Zeichen, STIX 996, TeX Gyre … Math je 994 —
+ * waehrend echte Textschriften dort fast nichts haben (DejaVu Sans 117).
+ * @param {Array<[number, number]>} bereiche
+ * @returns {boolean}
+ */
+function istFormelsatz(bereiche) {
+  let treffer = 0;
+  for (const [a, b] of bereiche) {
+    const start = Math.max(a, 0x1d400);
+    const ende = Math.min(b, 0x1d7ff);
+    if (ende >= start) treffer += ende - start + 1;
+  }
+  return treffer > 500;
+}
+
+/**
+ * Schmalschnitt erkennen: Breite eines Wortes im Verhaeltnis zur x-Hoehe.
+ * Gemessen 2026-11-23: Liberation Sans Narrow 4,59 · Nimbus Sans Narrow 4,75 ·
+ * TeX Gyre Heros Cn 4,76 — normale Textschriften liegen ab 5,6.
+ * Der Bezug auf die x-Hoehe macht den Wert unabhaengig von der Schriftgroesse.
+ * @param {string} family
+ * @returns {boolean}
+ */
+function istSchmal(family) {
+  try {
+    if (!messKontext) messKontext = document.createElement('canvas').getContext('2d');
+    if (!messKontext) return false;
+    messKontext.font = `40px ${JSON.stringify(family)}`;
+    const breite = messKontext.measureText('Hamburgefonstiv').width;
+    messKontext.font = `100px ${JSON.stringify(family)}`;
+    const hoehe = messKontext.measureText('x').actualBoundingBoxAscent;
+    if (!(hoehe > 0)) return false;
+    return breite / hoehe < 5;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -366,6 +419,8 @@ export class FontFeature {
     this.systemFremdSchrift = new Set();
     /** Familien ohne die DACH-Kernzeichen (ae oe ue sz). */
     this.systemOhneDach = new Set();
+    /** Familien mit Formelsatz-Zeichen (U+1D400–1D7FF). */
+    this.systemFormelsatz = new Set();
     /** Alle Schnitte je Familie (Regular, Bold, Italic …). */
     this.systemAlle = new Map();
     /** @type {FontFace[]} */
@@ -464,6 +519,7 @@ export class FontFeature {
          Namensliste, funktioniert auf Windows und macOS genauso. */
       this.systemFremdSchrift = new Set();
       this.systemOhneDach = new Set();
+      this.systemFormelsatz = new Set();
       await this.#ermittleSchriftEigenschaften();
       this.#baueSystemOptionen();
     } catch (e) {
@@ -487,6 +543,7 @@ export class FontFeature {
           if (!bereiche) return;
           if (istFremdschrift(bereiche)) this.systemFremdSchrift.add(familie);
           if (!hatDachKern(bereiche)) this.systemOhneDach.add(familie);
+          if (istFormelsatz(bereiche)) this.systemFormelsatz.add(familie);
         } catch {
           /* Datei nicht lesbar: nicht aussortieren. */
         }
@@ -516,6 +573,9 @@ export class FontFeature {
       .filter((familie) => this.systemFamilienMitNormal.has(familie))
       .filter((familie) => !this.systemFremdSchrift.has(familie))
       .filter((familie) => !this.systemOhneDach.has(familie))
+      .filter((familie) => !this.systemFormelsatz.has(familie))
+      .filter((familie) => !istSchmal(familie))
+      .filter((familie) => !TEX_SCHRIFT.test(familie))
       .sort((a, b) => a.localeCompare(b, 'de'));
 
     const gruppe = document.createElement('optgroup');

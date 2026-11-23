@@ -45,22 +45,95 @@ const SYSTEM_FONT_BLACKLIST =
 const MONO_NAME = /mono|\bcode\b|courier|consol|terminal|fixed|typewriter|iosevka|cursor/i;
 
 /**
- * Familien, die fuer eine andere Schrift gebaut sind und Latein nur als
- * Beigabe mitbringen. Sie bestehen jeden Messwert (echte lateinische Glyphen,
- * Umlaute, Textproportionen) — nur sieht ihr Latein aus wie ein Anhang, und
+ * Stichproben aus Schriften, die nicht lateinisch sind (Thai, Arabisch,
+ * Hebraeisch, Devanagari, Bengali, Tamil, Telugu, Kannada, Malayalam, Sinhala,
+ * Myanmar, Khmer, Lao, Tibetisch, Georgisch, Armenisch, Aethiopisch, CJK,
+ * Hangul, Kana). Wer davon Zeichen MITBRINGT, ist fuer diese Schrift gebaut —
  * fuer einen deutschen Brief braucht sie niemand.
  *
- * Bewusst eine Namensliste: gemessen ist die Grenze erreicht. Ein Test auf
- * „ä ö ü ß ẞ €" trennt sie nicht — er meldet auch `C059` ohne `ö` und
- * `Latin Modern Roman` ohne `öß`, beides nachweislich falsch (Breitenzufall,
- * gemessen 2026-11-23). Die Liste ist kurz und aenderungsarm: Thai-Schriften
- * heissen `TH …`, arabische `PakType`/`Vazirmatn`, indische `RIT …`,
- * Mathe-Schnitte tragen `Math` im Namen.
- *
- * 68 → 36 Familien. Wer eine dieser Schriften wirklich will, findet sie
- * weiterhin im System-Font-Dialog; hier geht es nur um die Auswahlliste.
+ * Gemessen wird nicht per Breitenvergleich (das scheitert, wenn die Schrift
+ * selbst die Ersatzschrift des Systems fuer diese Sprache ist), sondern direkt
+ * in der `cmap` der Datei.
  */
-const WELT_SCHRIFT = /^(TH |PakType|RIT )|Vazirmatn|Padauk|Laksaman|Jomolhari|Sinhala|\bMath\b|^STIX/;
+const FREMD_PROBEN = [
+  0x0e01, 0x0627, 0x05d0, 0x0905, 0x0985, 0x0b85, 0x0c05, 0x0c85, 0x0d05,
+  0x0d85, 0x1000, 0x1780, 0x0e81, 0x0f40, 0x10d0, 0x0531, 0x1200,
+  0x4e2d, 0xac00, 0x3042
+];
+
+/**
+ * Liest die `cmap`-Tabelle einer Schriftdatei: exakte Auskunft, welche
+ * Codepoints die Schrift enthaelt. Deckt Format 4 (BMP) und Format 12 (UCS-4)
+ * ab — das sind die Formate, die TTF/OTF im Feld nutzen.
+ * @param {ArrayBuffer} puffer
+ * @returns {((cp: number) => boolean) | null} null, wenn nicht lesbar
+ */
+function leseCmap(puffer) {
+  try {
+    const dv = new DataView(puffer);
+    const anzahl = dv.getUint16(4);
+    let cmap = -1;
+    for (let i = 0; i < anzahl; i++) {
+      const rec = 12 + i * 16;
+      const tag = String.fromCharCode(dv.getUint8(rec), dv.getUint8(rec + 1), dv.getUint8(rec + 2), dv.getUint8(rec + 3));
+      if (tag === 'cmap') {
+        cmap = dv.getUint32(rec + 8);
+        break;
+      }
+    }
+    if (cmap < 0) return null;
+
+    const untertabellen = dv.getUint16(cmap + 2);
+    let format12 = -1;
+    let format4 = -1;
+    for (let i = 0; i < untertabellen; i++) {
+      const rec = cmap + 4 + i * 8;
+      const plattform = dv.getUint16(rec);
+      const kodierung = dv.getUint16(rec + 2);
+      const offset = cmap + dv.getUint32(rec + 4);
+      const format = dv.getUint16(offset);
+      if (format === 12 && (plattform === 0 || plattform === 3)) format12 = offset;
+      else if (format === 4 && (plattform === 0 || (plattform === 3 && kodierung <= 1))) format4 = offset;
+    }
+
+    if (format12 >= 0) {
+      const gruppen = dv.getUint32(format12 + 12);
+      const start = format12 + 16;
+      return (cp) => {
+        for (let g = 0; g < gruppen; g++) {
+          const o = start + g * 12;
+          if (cp >= dv.getUint32(o) && cp <= dv.getUint32(o + 4)) return true;
+        }
+        return false;
+      };
+    }
+
+    if (format4 >= 0) {
+      const segmente = dv.getUint16(format4 + 6) / 2;
+      const endBasis = format4 + 14;
+      const startBasis = endBasis + segmente * 2 + 2;
+      const deltaBasis = startBasis + segmente * 2;
+      const rangeBasis = deltaBasis + segmente * 2;
+      return (cp) => {
+        if (cp > 0xffff) return false;
+        for (let s = 0; s < segmente; s++) {
+          if (cp > dv.getUint16(endBasis + s * 2)) continue;
+          if (cp < dv.getUint16(startBasis + s * 2)) return false;
+          const delta = dv.getInt16(deltaBasis + s * 2);
+          const range = dv.getUint16(rangeBasis + s * 2);
+          if (range === 0) return ((cp + delta) & 0xffff) !== 0;
+          const glyph = rangeBasis + s * 2 + range + (cp - dv.getUint16(startBasis + s * 2)) * 2;
+          if (glyph + 1 >= dv.byteLength) return false;
+          return dv.getUint16(glyph) !== 0;
+        }
+        return false;
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Wie „normal" ist ein Schriftschnitt? 0 = Regular, hoeher = ungeeigneter.
@@ -204,6 +277,8 @@ export class FontFeature {
     this.systemFonts = new Map();
     /** Familien, die einen normalen Schnitt haben (Regular/Normal/Book/Roman). */
     this.systemFamilienMitNormal = new Set();
+    /** Familien, deren Datei Zeichen fremder Schriftsysteme mitbringt. */
+    this.systemFremdSchrift = new Set();
     /** @type {FontFace | null} */
     this.activeSystemFace = null;
 
@@ -291,12 +366,38 @@ export class FontFeature {
            Auswahl. */
         if (rang === 0) this.systemFamilienMitNormal.add(font.family);
       }
+      /* Welt-Schriften aussortieren: ihre Datei bringt Zeichen fremder
+         Schriftsysteme mit. Das steht exakt in der `cmap` — kein Raten, keine
+         Namensliste, funktioniert auf Windows und macOS genauso. */
+      this.systemFremdSchrift = await this.#ermittleFremdeSchriften();
       this.#baueSystemOptionen();
     } catch (e) {
       console.warn('[FontFeature] Systemschriften nicht verfügbar:', e);
     } finally {
       if (btn) btn.disabled = false;
     }
+  }
+
+  /**
+   * Liest fuer jede Familie die Schriftdatei und prueft die `cmap` auf Zeichen
+   * fremder Schriftsysteme. Ein Lesefehler zaehlt als „nicht fremd" — lieber
+   * eine Schrift zu viel in der Liste als eine zu wenig.
+   * @returns {Promise<Set<string>>}
+   */
+  async #ermittleFremdeSchriften() {
+    const fremd = new Set();
+    await Promise.all(
+      [...this.systemFonts.entries()].map(async ([familie, daten]) => {
+        try {
+          const blob = await daten.blob();
+          const hat = leseCmap(await blob.arrayBuffer());
+          if (hat && FREMD_PROBEN.some((cp) => hat(cp))) fremd.add(familie);
+        } catch {
+          /* Datei nicht lesbar: nicht aussortieren. */
+        }
+      })
+    );
+    return fremd;
   }
 
   #baueSystemOptionen() {
@@ -319,7 +420,7 @@ export class FontFeature {
       .filter((familie) => hatLateinischeBuchstaben(familie))
       .filter((familie) => siehtAusWieText(familie))
       .filter((familie) => this.systemFamilienMitNormal.has(familie))
-      .filter((familie) => !WELT_SCHRIFT.test(familie))
+      .filter((familie) => !this.systemFremdSchrift.has(familie))
       .sort((a, b) => a.localeCompare(b, 'de'));
 
     const gruppe = document.createElement('optgroup');

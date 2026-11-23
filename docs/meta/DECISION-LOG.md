@@ -5532,3 +5532,41 @@ Deshalb eine kurze Namensliste `WELT_SCHRIFT`:
 Comfortaa, DejaVu Sans, Droid Sans, FreeSans, Latin Modern (10 Schnitte),
 Liberation Sans (+ Narrow), Michelangelus, Nimbus Roman/Sans (+ Narrow),
 Noto Sans, Noto Serif, Open Sans, P052, TeX Gyre (7), URW Gothic.
+
+### Korrektur: Welt-Schriften per cmap statt per Namensliste
+
+**Nutzer:** „nein nix hartcodieren!!! das muss beim nächsten user auf windows
+laufen und beim übernächsten auf mac!"
+
+Berechtigt. Die Namensliste aus dem vorigen Eintrag ist **entfernt**
+(`WELT_SCHRIFT` gelöscht). Stattdessen wird die Schriftdatei selbst gelesen:
+
+1. `FontData.blob()` liefert die echte TTF/OTF-Datei.
+2. `leseCmap()` liest die `cmap`-Tabelle (Format 4 für BMP, Format 12 für
+   UCS-4) und beantwortet exakt: enthält die Schrift diesen Codepoint?
+3. `FREMD_PROBEN` sind 20 Stichproben aus nicht-lateinischen Schriften (Thai,
+   Arabisch, Hebräisch, Devanagari, Bengali, Tamil, Telugu, Kannada,
+   Malayalam, Sinhala, Myanmar, Khmer, Lao, Tibetisch, Georgisch, Armenisch,
+   Äthiopisch, CJK, Hangul, Kana).
+4. Bringt die Datei **irgendeines** davon mit, ist sie für diese Schrift gebaut
+   → nicht anbieten.
+
+**Warum nicht per Breitenvergleich:** fehlt einer Schrift ein Zeichen, springt
+der Browser auf die Ersatzschrift — und ist die geprüfte Schrift selbst die
+Ersatzschrift des Systems für diese Sprache, sind beide Breiten gleich. Bei
+`Vazirmatn` und `Padauk` (beide die Standard-Ersatzschrift auf diesem Rechner)
+war der Test deshalb blind. Die cmap fragt die Datei direkt.
+
+**Ergebnis:** 40 Familien, ohne eine einzige Namensliste. Als Welt-Schrift
+erkannt werden unter anderem `DejaVu Sans` (Arabisch/Hebräisch), `Liberation
+Sans` (Hebräisch), `FreeSans` (Armenisch/Georgisch), alle `Noto Sans/Serif`
+Skript-Familien, `TH …` (Thai), `Vazirmatn`, `PakType`, `Padauk`, `RIT …`,
+`Jomolhari`, `Laksaman`.
+
+Kosten: 878 ms einmalig beim Klick auf „Systemschriften laden", solange der
+Knopf gesperrt ist. Lesefehler zählen als „nicht fremd" — lieber eine Schrift
+zu viel als eine fehlende Liste.
+
+`Liberation Sans` fällt mit heraus, weil die Systemdatei hebräische Zeichen
+enthält. Der Brief-Standard ist davon unberührt: das ist `Test-Liberation`
+(mitgeliefertes DACH-Subset), nicht die Systemdatei.

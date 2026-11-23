@@ -44,6 +44,8 @@ depends_on: []
 | Anchor Positioning | Adressvorschläge | Popover am Feld |
 | Popover API + Top Layer | Toasts, Listen, Dialoge | kein z-index-Stapel |
 | Invoker Commands (`commandfor`) | Dialoge | Dialoge ohne Click-Handler |
+| Customizable `<select>` (`::picker(select)`) | `.seitenleiste-select` (Postvermerk, Schriftart) | Auswahlliste ohne eigenes Popover |
+| Element-scoped View Transitions | `core.js` `transitionOn()` | Formular A/B ohne Seitenflackern (seit 2026 im Einsatz) |
 
 ## 2. Kandidaten, die zu DIN-BriefNEO passen
 
@@ -59,7 +61,6 @@ depends_on: []
 | **`contrast-color()`** | Textfarbe automatisch kontrastierend | Akzentflächen, Buttons, AA-Kontrast |
 | **Relative Alpha (`alpha()`)** | Alpha relativ zur Ursprungsfarbe | Theme-Varianten ohne neue Tokens |
 | **`at-rule()` / `named-feature()` in `@supports`** | Feature-Erkennung rein in CSS | progressive Enhancement ohne JS-Abfrage |
-| **Element-scoped View Transitions** (M147) | Übergang auf einem Element statt Vollseite | Formular A/B ohne Flackern |
 | **CSS mixins (`@mixin`)** | wiederverwendbare Deklarationsblöcke | die wiederkehrenden Blatt-Regeln |
 | **`font-width` / `FontFace.width`** | Breitenachse sauber ansprechen | Inter/Arial-Metrik ohne `font-stretch`-Krücke |
 | **`::highlight(*)`** | alle Custom Highlights auf einmal | falls Suche/Markierung kommt (heute geparkt) |

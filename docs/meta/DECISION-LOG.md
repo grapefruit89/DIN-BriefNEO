@@ -5647,3 +5647,30 @@ Raster laufen. Außerdem regelt `font-size-adjust` bereits die optische Größe 
 eine größere Regular ist keine Fettschrift, sie ist nur größer. Wenn kein
 fetter Schnitt existiert, übernimmt die Browser-Synthese (Strichverdickung) das
 und das ist der bessere Kompromiss.
+
+### DACH-Kernzeichen als Filterstufe (cmap, exakt)
+
+**Nutzer:** „wir müssen einen wirklich guten smarten Filter bauen, dass man
+danach wirklich nur noch das sieht, was Latin DE CH AT ist — mit Umlauten …
+sind wir da? ich will das 80/20 machen."
+
+**Ja, wir sind da.** Gemessen über die cmap aller 43 Familien:
+
+| Prüfung | Ergebnis |
+|---|---|
+| `ä ö ü ß` vorhanden | **43 von 43** — keiner fehlt ein Kernzeichen |
+| `ẞ` vorhanden | 14 von 43 |
+| `ẞ` und `€` vorhanden | 6 von 43 (Adwaita Sans, DejaVu Sans, Michelangelus, Noto Sans, Noto Serif, STIX) |
+
+Die Stufe ist trotzdem eingebaut (`hatDachKern`), damit sie auf Windows und
+macOS greift, wo ASCII-only-Schriften vorkommen: dort fällt eine Schrift ohne
+`ä ö ü ß` raus. Auf diesem Rechner ändert sie nichts (43 → 43).
+
+**Bewusst nicht verlangt: `ẞ`.** 29 von 43 Familien haben es nicht, und in einem
+normalen Brief kommt der Großbuchstabe nicht vor. Das ist die 80/20-Entscheidung:
+lieber 43 Schriften als 6.
+
+**Der Standard ist davon unberührt.** Der Brief startet auf `Test-Liberation`
+(`website/fonts/liberation-sans-regular.woff2` + `-bold.woff2`), wie vom Nutzer
+bestätigt: „das ist das fest eingebaute default modell, dafür ist der DIN Brief
+gebaut."

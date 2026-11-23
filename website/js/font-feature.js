@@ -168,16 +168,29 @@ function deckungsDichte(bereiche, von, bis) {
 }
 
 /**
+ * Kernzeichen des DACH-Raums: ae, oe, ue, sz. Wer die nicht hat, kann keinen
+ * deutschen Brief setzen — egal wie gut das Latein sonst aussieht. Geprueft
+ * wird die cmap, nicht die Breite: der Breitentest meldete `C059` faelschlich
+ * „ohne o-Umlaut" (2026-11-23).
+ *
+ * `ẞ` (U+1E9E) wird bewusst NICHT verlangt: 29 von 43 Familien haben es nicht,
+ * und in einem normalen Brief kommt es nicht vor.
+ * @param {Array<[number, number]>} bereiche
+ * @returns {boolean}
+ */
+function hatDachKern(bereiche) {
+  return [0x00e4, 0x00f6, 0x00fc, 0x00df].every((cp) => bereiche.some(([a, b]) => cp >= a && cp <= b));
+}
+
+/**
  * Ist die Schrift fuer ein anderes Schriftsystem gebaut als fuer Latein?
  * Massstab ist die Dichte im jeweiligen Zeichenbereich, nicht das blosse
  * Vorhandensein: `Liberation Sans` enthaelt hebraeische Zeichen, deckt Latein
  * aber deutlich dichter ab (gemessen 2026-11-23) — es bleibt eine Lateinschrift.
- * @param {ArrayBuffer} puffer
+ * @param {Array<[number, number]>} bereiche
  * @returns {boolean}
  */
-function istFremdschrift(puffer) {
-  const bereiche = leseBereiche(puffer);
-  if (!bereiche) return false;
+function istFremdschrift(bereiche) {
   let latein = 0;
   let fremd = 0;
   for (const skript of SKRIPTE) {
@@ -351,6 +364,8 @@ export class FontFeature {
     this.systemFamilienMitNormal = new Set();
     /** Familien, deren Datei Zeichen fremder Schriftsysteme mitbringt. */
     this.systemFremdSchrift = new Set();
+    /** Familien ohne die DACH-Kernzeichen (ae oe ue sz). */
+    this.systemOhneDach = new Set();
     /** Alle Schnitte je Familie (Regular, Bold, Italic …). */
     this.systemAlle = new Map();
     /** @type {FontFace[]} */
@@ -447,7 +462,9 @@ export class FontFeature {
       /* Welt-Schriften aussortieren: ihre Datei bringt Zeichen fremder
          Schriftsysteme mit. Das steht exakt in der `cmap` — kein Raten, keine
          Namensliste, funktioniert auf Windows und macOS genauso. */
-      this.systemFremdSchrift = await this.#ermittleFremdeSchriften();
+      this.systemFremdSchrift = new Set();
+      this.systemOhneDach = new Set();
+      await this.#ermittleSchriftEigenschaften();
       this.#baueSystemOptionen();
     } catch (e) {
       console.warn('[FontFeature] Systemschriften nicht verfügbar:', e);
@@ -457,24 +474,24 @@ export class FontFeature {
   }
 
   /**
-   * Liest fuer jede Familie die Schriftdatei und prueft die `cmap` auf Zeichen
-   * fremder Schriftsysteme. Ein Lesefehler zaehlt als „nicht fremd" — lieber
-   * eine Schrift zu viel in der Liste als eine zu wenig.
-   * @returns {Promise<Set<string>>}
+   * Liest fuer jede Familie die Schriftdatei einmal und bestimmt daraus zwei
+   * Dinge: deckt sie ein fremdes Schriftsystem ab, und hat sie die
+   * DACH-Kernzeichen. Ein Lesefehler zaehlt als unauffaellig — lieber eine
+   * Schrift zu viel in der Liste als eine zu wenig.
    */
-  async #ermittleFremdeSchriften() {
-    const fremd = new Set();
+  async #ermittleSchriftEigenschaften() {
     await Promise.all(
       [...this.systemFonts.entries()].map(async ([familie, daten]) => {
         try {
-          const blob = await daten.blob();
-          if (istFremdschrift(await blob.arrayBuffer())) fremd.add(familie);
+          const bereiche = leseBereiche(await (await daten.blob()).arrayBuffer());
+          if (!bereiche) return;
+          if (istFremdschrift(bereiche)) this.systemFremdSchrift.add(familie);
+          if (!hatDachKern(bereiche)) this.systemOhneDach.add(familie);
         } catch {
           /* Datei nicht lesbar: nicht aussortieren. */
         }
       })
     );
-    return fremd;
   }
 
   #baueSystemOptionen() {
@@ -498,6 +515,7 @@ export class FontFeature {
       .filter((familie) => siehtAusWieText(familie))
       .filter((familie) => this.systemFamilienMitNormal.has(familie))
       .filter((familie) => !this.systemFremdSchrift.has(familie))
+      .filter((familie) => !this.systemOhneDach.has(familie))
       .sort((a, b) => a.localeCompare(b, 'de'));
 
     const gruppe = document.createElement('optgroup');

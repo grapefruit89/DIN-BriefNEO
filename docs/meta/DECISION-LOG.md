@@ -5923,3 +5923,13 @@ JS-Modul-Steckbriefen, `index.html.md`). Nichts davon muss gerettet werden:
 **Ergebnis:** Der Ordner ist gelöscht. Im Elternverzeichnis liegen nur noch
 `neuerarbeitsordner` und das Archiv. Einziger Halt beim Löschen war eine offene
 Typora-Datei (`00_project_memory.md`); nach deren Schließen war der Rest weg.
+
+**Nachtrag (gleicher Tag, nach Durchsicht):** Die daraufhin angelegte Sammlung
+`Briefalt` (291 MB, 2.374 Dateien) — dieses Archiv, der alte Checkout
+`DIN-Brief-Neo_2026-09-04`, `neuerarbeitsordner`, die RAR-Stände v1.0/v18,
+`dinbrief-temp` sowie Chat- und Kontext-Exporte — wurde nach Prüfung vollständig
+gelöscht. Grund: Der Code war entweder bereits migriert (Skills, Tool-Result-
+Vokabular) oder bewusst entfernt (`3d40782`, Repo-MCP) und in der Git-Historie
+abrufbar. Das Archiv ist damit **nicht mehr vorhanden**; die kopierten
+Einzeldateien in `Text_Archive`, `meta exports`, `4. Markdown` und auf dem
+Desktop liegen weiterhin an ihren Originalorten.

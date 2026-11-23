@@ -4,7 +4,7 @@ title: 'Feature-Matrix — aktueller Produktumfang'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-10-02'
+updated: '2026-11-23'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -65,7 +65,7 @@ supersedes:
 | Betreff, Anrede, Brieftext und Grußformel | **aktiv** | Native `contenteditable`-Felder; Rich-Text nur im Briefkern |
 | Anlagen | **aktiv** | Optionaler Bereich über nativen Checkbox-Schalter; editierbare Anlagenliste |
 | Falz- und Lochmarken | **aktiv** | Deklarativ über CSS und IMR-verankerte `data-*`-Geometrie |
-| Einseitige Papiergrenze / Zero-Scroll | **aktiv** | Viewport- und Papierregeln in `layout.css`, `sheet.css` und `print.css`; siehe [[no-scroll-techniques]] |
+| Einseitige Papiergrenze / Zero-Scroll | **aktiv** | Viewport- und Papierregeln in `website/css/sheet.css`, `website/css/sheet-multipage.css`; siehe [[no-scroll-techniques]] |
 
 ## 2. Eingabe, Anrede und Dokumentzustand
 
@@ -87,22 +87,23 @@ supersedes:
 | Ort → PLZ-Vorschläge | **aktiv** | Lokale Rückwärtssuche im Empfänger-Ortsfeld |
 | Großempfänger-Erkennung | **aktiv** | Lokale Großempfänger-Daten; Straßenzeile wird bei passenden PLZ fachlich berücksichtigt |
 | Ziel-Lock für Straßenrecherche | **aktiv** | PLZ/Ort-Kontext beeinflusst optionale Geoapify-Suche |
-| Lokales Adressbuch | **aktiv** | Ausgewählte Treffer werden lokal gespeichert und wiederverwendet |
+| Lokales Adressbuch | **geparkt** | Datenschicht liegt fertig in `website/addons/verlauf/` (Absender/Empfänger), ist aber bewusst nicht geladen; UI und Speicherzeitpunkt offen — siehe B32 |
 | Optionale Straßen-/Hausnummernsuche | **aktiv · optional** | Geoapify nur mit Nutzer-Key und Netzverbindung; lokale Funktionen bleiben unabhängig |
-| API-Timeouts und Request-Abbruch | **aktiv** | `AbortSignal.timeout()` plus `AbortSignal.any()` in `43-geoapify.js` |
+| API-Timeouts und Request-Abbruch | **aktiv** | `AbortSignal.timeout()` in `website/js/address.js` |
 | Tastaturbedienung der Vorschläge | **aktiv** | Pfeiltasten, Enter, Escape und ARIA-Listbox-Semantik |
-| Adaptive Trefferzonen | **aktiv** | 3-Zonen-Logik (>5 Eingrenzungshinweis, 2–5 Trefferliste, genau 1 Zero-Click) in `43-geoapify.js`; siehe B19 in [[BACKLOG]] |
+| Zero-Click-Autofill bei genau 1 Treffer | **verworfen** | Bewusst entfernt: Wer einen Treffer löscht, bekam ihn sofort wieder eingesetzt. Automatisch gefüllt wird nur PLZ → Ort; siehe DECISION-LOG 2026-11-23 |
+| Eingrenzungshinweis bei mehr als 5 Treffern | **offen** | Die ROADMAP behauptete die 3-Zonen-Logik als erledigt; im Code ist kein Hinweis-Modus nachgewiesen — siehe [#29](https://github.com/grapefruit89/DIN-BriefNEO/issues/29) |
 | Bidirektionales Formular-Orchestrieren | **verworfen** | Als separates Konzept verworfen; 1.500 Zeilen Adresslogik bleiben ohne zusätzlichen State-Sync-Overhead schlank (KISS) |
 
 ## 4. Import, Export und Zwischenablage
 
 | Funktion | Status | Ist-Stand / kanonische Quelle |
 |---|---|---|
-| JSON-Export | **aktiv** | Selbstbeschreibendes JSON mit Metadaten; siehe `52-import-export.js` |
+| JSON-Export | **aktiv** | Selbstbeschreibendes JSON mit Metadaten; siehe `website/js/persistence.js` |
 | JSON- und Legacy-Import | **aktiv** | Import akzeptiert `.json`; Inhalte werden vor dem Restore bereinigt |
-| Clipboard-Impressum-Parser | **aktiv** | Deterministischer Offline-Parser mit Kandidaten-Popover; siehe `46-clipboard-address-parser.js` |
-| Mehrere Clipboard-Kandidaten | **aktiv** | Nutzer wählt bei mehreren erkannten Anschriften über natives Popover |
-| Briefarchiv mit mehreren Profilen | **geparkt** | Derzeit bewusst kein Produktfeature; `localStorage` bleibt auf einen Entwurf und Einstellungen begrenzt |
+| Clipboard-Impressum-Parser | **verworfen** | Am 2026-11-22 mit der Anschrift-Suche entfernt (Commit `164568b`): „wir suchen nicht in einer potentiellen Zwischenablage" |
+| Mehrere Clipboard-Kandidaten | **verworfen** | Fiel mit dem Parser weg |
+| Briefarchiv mit mehreren Profilen | **geparkt** | Datenschicht als Addon `verlauf` vorhanden; nicht geladen — siehe B32 |
 
 ## 5. Darstellung und Plattform
 
@@ -114,7 +115,7 @@ supersedes:
 | Native Dialoge und Invoker Commands | **aktiv** | Reset-/Import-Dialoge über `<dialog>` und `commandfor` |
 | Signaturbild | **aktiv** | Lokales Bild, Verschieben, Skalieren und Rotieren; Fachinteraktion bleibt JavaScript |
 | Lokale Schrift | **aktiv · optional** | WOFF2-Upload, FontFace-API und lokale Speicherung |
-| On-Device-KI-Assistent | **aktiv · optional** | Separates Addon mit Graceful Degradation; nur bei vorhandener Browser-API und bewusster Aktivierung |
+| On-Device-KI-Assistent | **verworfen** | Kostet ein lokales Modell mit ~4 GB RAM (Gemini Nano) — nicht für jeden Rechner. Der Agenten-Zugang (WebMCP/MCP) deckt das ohne Modell ab; siehe DECISION-LOG 2026-11-23 |
 
 ## 6. Bewusst nicht im aktuellen Umfang
 

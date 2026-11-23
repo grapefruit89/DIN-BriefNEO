@@ -61,12 +61,14 @@ exportieren können.
 - Schlussblock-Integrität: Grußformel und Unterschrift wandern auf die letzte Seite (unter Beachtung der Schusterjungen-Regel).
 
 
-## Priorität 2 — Adaptive Adresssuche · ✅ ERLEDIGT 2026-10-02
+## Priorität 2 — Adaptive Adresssuche · teilweise umgesetzt
 
-Die 3-Zonen-Trefferlogik aus B19 ist im Kernprodukt vollständig umgesetzt:
-- mehr als fünf Treffer: Eingrenzungshinweis statt unübersichtlicher Liste;
-- zwei bis fünf Treffer: fokussierbares, tastaturbedienbares Dropdown (`role=listbox`);
-- genau ein sicherer Treffer: automatischer Zero-Click-Übernahmepfad.
+Die 3-Zonen-Trefferlogik aus B19 ist **nicht** vollständig im Kernprodukt:
+
+- mehr als fünf Treffer: Eingrenzungshinweis statt unübersichtlicher Liste — **offen**, im Code nicht nachgewiesen;
+- zwei bis fünf Treffer: fokussierbares, tastaturbedienbares Dropdown (`role=listbox`) — **aktiv**;
+- genau ein sicherer Treffer: automatischer Zero-Click-Übernahmepfad — **verworfen** (2026-11-23): Wer einen Treffer löscht, bekam ihn sofort wieder eingesetzt. Automatisch gefüllt wird nur PLZ → Ort.
+
 Ein darüber hinausgehendes bidirektionales Bottom-up-Orchestrieren („Straße zuerst") wurde
 zugunsten der Code-Einfachheit (KISS) verworfen. Die lokale Offline-Suche bleibt Primärquelle.
 

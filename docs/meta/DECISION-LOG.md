@@ -5824,3 +5824,40 @@ Seitengrenzen). Gemessen an einem 34-Zeilen-Brief: Seite 1 = 32 Zeilen,
 Seite 2 = 2 Zeilen, Warnung „Seite 2 hat nur 2 Zeile(n)"; Form A hält 34
 Zeilen, Form B 32. Das ist der Bildschirm, nicht das PDF — der Druckumbruch
 bleibt der CDP-Brücke vorbehalten.
+
+---
+
+## 2026-11-23 — Altbestand „roadmap" (09/2026) ausgewertet: drei Entscheidungen
+
+Der Ordner `Documents\dinbrief-temp\roadmap` (39 Dateien, 04.09.2026) stammt aus der
+Zeit vor der Modul-Konsolidierung. Er wurde vollständig gegen den aktuellen Code
+geprüft; danach gelöscht. Die Entscheidungen stehen ab jetzt hier, nicht in einer
+Dateiablage außerhalb des Repos.
+
+**1) Zero-Click-Autofill bei genau einem Treffer — verworfen.**
+War implementiert und wurde bewusst entfernt: Wer einen Vorschlag löscht, bekam ihn
+sofort wieder eingesetzt. Das ist keine Hilfe, sondern eine Blockade. Automatisch
+gefüllt wird weiterhin nur **PLZ → Ort** (fünf Ziffern, `address.js`), weil dort der
+Zusammenhang eindeutig ist. `docs/meta/ROADMAP.md` behauptete „erledigt" — korrigiert.
+
+**2) On-Device-KI (Gemini Nano) — verworfen.**
+Das lokale Modell braucht rund **4 GB RAM**; das ist nicht „für jeden". Der Bedarf ist
+inzwischen durch den Agenten-Zugang (WebMCP/MCP, 15 Werkzeuge) gedeckt — ohne Modell,
+ohne Download, ohne RAM-Last. `docs/meta/Feature-Matrix.md` führte das Addon als
+„aktiv · optional" — korrigiert auf **verworfen**.
+
+**3) Brotli — bleibt gzip.**
+`DecompressionStream('brotli')` ist in Chrome nicht verfügbar (nur Firefox), und
+GitHub Pages liefert keine `Content-Encoding: br`-Header. Der Datensatz bleibt bei
+gzip (81.745 B, unter 1 ms) — kein Bedarf.
+
+**Nicht verworfen, sondern geparkt: Adressbuch und Brief-Verlauf.**
+Die Datenschicht liegt fertig in `website/addons/verlauf/` (Absender-/Empfängerbuch,
+Verlauf, 15 Exporte), ist aber bewusst nicht geladen. Offen sind UI und
+Speicherzeitpunkt — B32 im [[BACKLOG]].
+
+**Doku-Folgen:** `docs/meta/Feature-Matrix.md` (Stand 2026-10-02) verwies auf
+gelöschte Module (`43-geoapify.js`, `52-import-export.js`, `46-clipboard-address-parser.js`)
+und behauptete drei Features, die es nicht mehr gibt. Nachgezogen; der
+Clipboard-Parser steht dort jetzt korrekt als **verworfen** (Commit `164568b`,
+„wir suchen nicht in einer potentiellen Zwischenablage").

@@ -45,6 +45,24 @@ const SYSTEM_FONT_BLACKLIST =
 const MONO_NAME = /mono|\bcode\b|courier|consol|terminal|fixed|typewriter|iosevka|cursor/i;
 
 /**
+ * Familien, die fuer eine andere Schrift gebaut sind und Latein nur als
+ * Beigabe mitbringen. Sie bestehen jeden Messwert (echte lateinische Glyphen,
+ * Umlaute, Textproportionen) — nur sieht ihr Latein aus wie ein Anhang, und
+ * fuer einen deutschen Brief braucht sie niemand.
+ *
+ * Bewusst eine Namensliste: gemessen ist die Grenze erreicht. Ein Test auf
+ * „ä ö ü ß ẞ €" trennt sie nicht — er meldet auch `C059` ohne `ö` und
+ * `Latin Modern Roman` ohne `öß`, beides nachweislich falsch (Breitenzufall,
+ * gemessen 2026-11-23). Die Liste ist kurz und aenderungsarm: Thai-Schriften
+ * heissen `TH …`, arabische `PakType`/`Vazirmatn`, indische `RIT …`,
+ * Mathe-Schnitte tragen `Math` im Namen.
+ *
+ * 68 → 36 Familien. Wer eine dieser Schriften wirklich will, findet sie
+ * weiterhin im System-Font-Dialog; hier geht es nur um die Auswahlliste.
+ */
+const WELT_SCHRIFT = /^(TH |PakType|RIT )|Vazirmatn|Padauk|Laksaman|Jomolhari|Sinhala|\bMath\b|^STIX/;
+
+/**
  * Wie „normal" ist ein Schriftschnitt? 0 = Regular, hoeher = ungeeigneter.
  * `queryLocalFonts()` liefert alle Schnitte einer Familie, oft mit Bold oder
  * Bold Italic zuerst — ohne diese Sortierung landet die fette Kursive im Brief.
@@ -301,6 +319,7 @@ export class FontFeature {
       .filter((familie) => hatLateinischeBuchstaben(familie))
       .filter((familie) => siehtAusWieText(familie))
       .filter((familie) => this.systemFamilienMitNormal.has(familie))
+      .filter((familie) => !WELT_SCHRIFT.test(familie))
       .sort((a, b) => a.localeCompare(b, 'de'));
 
     const gruppe = document.createElement('optgroup');

@@ -5494,3 +5494,41 @@ Latein-Beigabe — `TH Baijam` … `TH SarabunPSK` (13), `Vazirmatn`,
 trennt sie nicht: er meldet auch `C059` ohne `ö` und `Latin Modern Roman` ohne
 `öß` — beides nachweislich falsch, das sind Breitenzufälle. Eine harte
 Messgrenze ist damit erreicht.
+
+### Nachtrag: Welt-Schriften per Namensliste entfernt (36 Familien)
+
+**Nutzer:** „ich will **WIRKLICH** DACH / Latin, fertig. keine Bock auf x
+Kopien für die halbe Welt, weniger ist mehr."
+
+Messen reicht hier nicht: die 32 Welt-Schriften haben echte lateinische
+Glyphen, deutsche Umlaute und Textproportionen — sie bestehen jede Stufe.
+Ein Test auf „ä ö ü ß ẞ €" trennt sie nicht, er meldet auch `C059` ohne `ö`
+und `Latin Modern Roman` ohne `öß` (beides falsch — Breitenzufall).
+
+Deshalb eine kurze Namensliste `WELT_SCHRIFT`:
+
+| Muster | betroffen |
+|---|---|
+| `TH …` | 14 Thai-Schriften (SarabunPSK, Baijam, Chakra Petch, …) |
+| `PakType`, `Vazirmatn` | 4 arabische/persische |
+| `RIT …` | 2 (Meera New, Rachana) |
+| `Padauk`, `Laksaman`, `Jomolhari`, `Sinhala` | 4 |
+| `Math`, `STIX` | 8 (Formelsatz) |
+
+**Bilanz der ganzen Kette:**
+
+| Stufe | Familien |
+|---|---|
+| Start | 166 |
+| Emoji/Symbol/Icons (Namen) | 161 |
+| Mono-Verdacht (Namen) | 138 |
+| Mono (gemessen) | 137 |
+| Latein (gemessen) | 82 |
+| Wie-Text (gemessen) | 80 |
+| Normaler Schnitt (gemessen) | 68 |
+| Welt-Schriften (Namen) | **36** |
+
+36 echte Latein-Familien: Adwaita Sans, C059, Caladea, Cantarell, Carlito,
+Comfortaa, DejaVu Sans, Droid Sans, FreeSans, Latin Modern (10 Schnitte),
+Liberation Sans (+ Narrow), Michelangelus, Nimbus Roman/Sans (+ Narrow),
+Noto Sans, Noto Serif, Open Sans, P052, TeX Gyre (7), URW Gothic.

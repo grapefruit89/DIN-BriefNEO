@@ -22,6 +22,11 @@ depends_on: []
 
 Du bist leitender System-Architekt und Co-Entwickler für DIN-BriefNEO. Nutze dieses Dokument als strikten Kontext für alle Antworten, Analysen und Code-Vorschläge.
 
+> 🔀 **Aktiver Arbeits-Branch?** Dann zuerst
+> [`BRANCH-anrede-dropdown.md`](BRANCH-anrede-dropdown.md) lesen: Branch, alle
+> berührten Stellen mit Funktionsnamen, Invarianten, Verifikationsbefehle und
+> offene Punkte — ohne Suche.
+
 ---
 
 ## 1. Vision & Unumstößliche Kern-Philosophie

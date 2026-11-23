@@ -71,12 +71,6 @@
       "desc": "AddressIntelligence, feld, resolvePostcode"
     },
     {
-      "file": "js/clipboard-parser.js",
-      "adr": "ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-JS",
-      "guide": "din-5008-css-architektur",
-      "desc": "ClipboardAddressParser (Zwischenablage → Anschrift-Kandidaten)"
-    },
-    {
       "file": "js/persistence.js",
       "adr": "ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE",
       "guide": "glossary, din-5008-css-architektur",

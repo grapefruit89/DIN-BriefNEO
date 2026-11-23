@@ -211,9 +211,13 @@ Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die Top-Layer-Overlay
   * Formular-Controls gestaltet mit nativem `appearance: base-select`, `::picker(select)` und `::picker-icon`.
   * Semantische HTML-Switches (`input[type="checkbox"][switch]`) für Hilfslinien und Anlagen.
 * **CSS Anchor Positioning für schwebende UI (W3C Standard):**
-  * `#format-toolbar`: Verankert an `--selection-anchor` mit `position-area: top center; position-try-fallbacks: flip-block;`.
-  * `#anschrift-vorschlaege`: Verankert an `--anchor-anschrift-suche` (Geoapify Remote-Vorschläge).
+  * `#anschrift-vorschlaege` und `#plz-suggestions-popover`: Verankert per `top/left: anchor()`; die Klasse `.autocomplete-dropdown` traegt nur noch das Aussehen, keine Position (2026-11-22).
   * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
+* **Hoehe der Vorschlagslisten (Regel 2026-11-22, Nutzer-Vorgabe):**
+  * Jede Vorschlagsliste geht **so weit nach unten, wie Platz ist** — bis **20 mm vor den Blatt-Unterrand** (`#kern`), mindestens 220 px. Bezug ist **ausschließlich das Blatt** („die DIN-A4-Seite ist der Arbeitsbereich", Vorgabe 2026-11-22); das Fenster ist nur Notbezug, wenn kein Blatt existiert. Lange Listen (Berlin: 284 PLZ) sollen weniger gescrollt werden.
+  * Umsetzung: `klemmeAnSatzspiegel()` in `website/js/suggestion-list.js` setzt beim Öffnen `max-height` (reine Rechnung in `satzspiegelHoehe()`, testbar ohne DOM). Gilt für PLZ/Ort, Straße, Anrede und die Anschrift-Suche.
+  * Die CSS-Werte (`min(62vh,760px)`, `min(50vh,520px)`, `min(250px,40vh)`) sind nur **Fallback**, falls kein JS läuft.
+  * Einordnung: bewusste, eng begrenzte Ausnahme von „kein JS-Layout" — es wird ausschließlich die Größe eines UI-Popovers gedeckelt, keine Dokument- oder Textgeometrie. Der Blattrand ist ohne JS nicht erreichbar (`anchor()` kennt nur das Ankerfeld, nicht das Blatt).
 * **Top-Layer Popovers & Deklarative Transitions:**
   * `#hinweis-v4`: Natives HTML `popover="manual"`. Rendert im Top-Layer ohne `z-index`.
   * Ein-/Ausblendung 100 % deklarativ über `@starting-style` und `transition-behavior: allow-discrete`.

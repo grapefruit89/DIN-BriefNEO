@@ -4,13 +4,15 @@
 
 import { initAddonDispatcher } from './addons.js';
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
+import { initApi } from './api.js';
 import { Events, eventBus, initToastSystem } from './core.js';
+import { initDatePicker } from './date-picker.js';
 import { initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';
 import { Field } from './field.js';
 import { FontFeature } from './font-feature.js';
 import { applyLetterDate, formatTelefonnummer } from './format.js';
-/* js/main.js */
+import { installiereLog } from './log.js';
 import { initImportExport, MetadataService, requestPersistentStorage } from './persistence.js';
 import { SalutationFeature } from './salutation.js';
 import { SettingsManager } from './settings.js';
@@ -38,6 +40,10 @@ function syncPostvermerkFromSidebar(value) {
      applyValue schreibt Feld und DOM in einem Schritt. */
   applyValue('vermerke', val, 'logic');
 }
+
+/* Ringpuffer fuer Fehler/Warnungen: laeuft vor dem ersten Boot-Schritt, damit
+   auch ein Fehler waehrend initApp im Debug-Panel auftaucht. */
+installiereLog();
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
@@ -163,9 +169,10 @@ function initApp() {
   bootStep('Plugins', () => {
     // Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]).
     // Kein Umschalt-Signal mehr: der Controller wird genau einmal gemountet.
-    import('./multipage-controller.js')
-      .then((m) => m.mountMultipage())
-      .catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
+    void (async () => {
+      const m = await import('./multipage-controller.js');
+      m.mountMultipage();
+    })().catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
   });
 
   /* Kritisch: hier entsteht der Listener input -> Speichern. Faellt er aus,
@@ -175,6 +182,8 @@ function initApp() {
   bootStep('Toast-System', () => initToastSystem());
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());
+  bootStep('Datums-Kalender', () => initDatePicker());
+  bootStep('Agenten-API', () => initApi());
   bootStep('Import/Export', () => initImportExport({
     collectDraft: () => toWire(letterState),
     /* D1 Stufe 6: Import ohne Reload. applyState ersetzt RAM + Projektion;
@@ -201,6 +210,23 @@ function initApp() {
   });
   bootStep('Addons', () => initAddonDispatcher());
 
+  /* Debug-Panel: Schalter in den Einstellungen (Standard aus). Modul wird nur
+     bei Bedarf geladen; Sichtbarkeit macht CSS (:has), nicht dieses Skript. */
+  bootStep('Debug-Panel', () => {
+    const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-debug'));
+    if (!schalter) return;
+    const laden = () => {
+      void (async () => {
+        const m = await import('./debug-panel.js');
+        m.initDebugPanel();
+      })().catch((err) => console.debug('[Debug-panel] konnte nicht laden:', err));
+    };
+    if (schalter.checked) laden();
+    schalter.addEventListener('change', () => {
+      if (schalter.checked) laden();
+    });
+  });
+
   bootStep('Darstellung freigeben', () => {
     /* Idempotentes Netz: boot-state.js hat die Maske bereits entfernt. Steht
        sie hier noch (Seeder ausgefallen), wird sie jetzt freigegeben. Der
@@ -220,6 +246,13 @@ function initApp() {
     let metaCtx = null;
     window.addEventListener('beforeprint', () => {
       metaCtx = MetadataService.prepare();
+      /* Einfacher Druckzaehler fuer das Debug-Panel (kein Produktivwert). */
+      try {
+        const bisher = Number(localStorage.getItem('din_print_count') || '0') || 0;
+        localStorage.setItem('din_print_count', String(bisher + 1));
+      } catch {
+        /* Speicher voll/gesperrt: der Zaehler ist nicht wichtig genug fuer eine Meldung. */
+      }
     });
     window.addEventListener('afterprint', () => {
       if (metaCtx) {

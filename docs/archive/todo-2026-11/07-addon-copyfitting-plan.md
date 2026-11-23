@@ -28,7 +28,7 @@ summary: "Spezifikationsplan für normkonformes Zero-JS-Kompaktsatz-Copyfitting 
 
 ## 1. Problemstellung & Verfassungskontext
 
-Frühere Versuche eines dynamischen „Micro-Copyfittings“ (siehe [`rejected/07-micro-copyfitting-plan.md`](rejected/07-micro-copyfitting-plan.md)) scheiterten an zwei Kernproblemen:
+Frühere Versuche eines dynamischen „Micro-Copyfittings“ (der verworfene Plan wurde am 2026-11-23 gelöscht) scheiterten an zwei Kernproblemen:
 1. **Experimentelles CSS `text-fit` / JS-basiertes Stauchen beim Tippen:** Führte in Chromium bei `contenteditable` zu unkontrollierten Font-Kollapsen (Schrift schrumpfte während der aktiven Eingabe auf 30% der Zeilenhöhe).
 2. **Kollision mit Gesetz A49 & A60:** Imperative JS-Berechnungen (`getBoundingClientRect`, Layout-Polling, Klick-Trigger) verletzen das Verfassungsgebot der performanten, deklarativen UI.
 

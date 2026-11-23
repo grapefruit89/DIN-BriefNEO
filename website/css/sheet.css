@@ -6,6 +6,10 @@
  * Stand: 2026-11-14 · Entscheidung offen (Backlog B60)
  * ============================================================================
  *
+ * !IMPORTANT: 21 Vorkommen, alle aus der Zeit vor der Stilllegung. Sie werden
+ * nicht mehr ausgeliefert (die Datei ist in keiner HTML-Datei verlinkt), sind
+ * aber Teil der dokumentierten Historie. Nicht aufraeumen ohne B60 zu lesen.
+ *
  * WAS DAS HIER IST
  * Die erste Blatt-CSS des Projekts: DIN-A4-Geometrie, Briefzonen, Falzmarken,
  * Inline-Formate. 298 Zeilen, 23 x !important, ein @scope (din-blatt),
@@ -116,7 +120,7 @@ din-blatt {
     position: absolute;
     left: 0;
     width: --mm-rel-x(attr(data-w type(<number>))); /* Kurz, nicht durch den Text schneidend */
-    border-bottom: 0.5pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
+    border-bottom: 0.5pt solid var(--farbe-linie-anthrazit); /* Anthrazit/Dunkelgrau */
     pointer-events: none;
   }
 
@@ -294,9 +298,9 @@ din-blatt[data-ueberlauf="true"]::after {
   font-size: 11px;
   font-family: var(--font-system-stack, sans-serif);
   font-weight: 500;
-  color: oklch(55% 0.18 35);
-  background: oklch(95% 0.04 80 / 0.9);
-  border: 1px solid oklch(75% 0.15 65 / 0.5);
+  color: var(--farbe-ueberlauf);
+  background: var(--farbe-ueberlauf-bg);
+  border: 1px solid var(--farbe-ueberlauf-rand);
   border-radius: 4px;
   padding: 3px 8px;
   pointer-events: none;
@@ -320,7 +324,7 @@ din-blatt[data-ueberlauf="true"]::after {
 
   html, body { overflow: visible !important; height: auto !important; }
 
-  body { background: oklch(100% 0 0) !important; }
+  body { background: var(--farbe-weiss) !important; }
 
   aside, .nicht-drucken, [popover], #hinweis-v4, #font-uploader, .unterschriftsbild-griff, .unterschriftsbild-drehgriff, #anschriftfeld::after { display: none !important; }
 

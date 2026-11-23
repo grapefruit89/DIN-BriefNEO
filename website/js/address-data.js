@@ -449,6 +449,10 @@ export class AddressIntelligence {
   static firmenIndex = null;
 
   /** @type {{ plz?: string, city: string } | null} */
+  /* Etabliert: *sticky search context* — die zuletzt gewaehlte Stadt als
+     Kontext fuer die naechste Suche (Strasse/Anschrift). Der Name "Lock"
+     stammt aus der Sperr-Funktion, nicht aus Nebenlaeufigkeit; siehe
+     docs/meta/SEMANTIC-ANCHORS.md, Abschnitt 3. */
   static targetLock = null;
 
   /** @type {boolean} */
@@ -509,10 +513,13 @@ export class AddressIntelligence {
     AddressIntelligence.#initPromise = (async () => {
       try {
         /** @param {string} relPath */
-        const loadDataset = (relPath) => {
-          return fetchGzipJson(relPath)
-            .then(d => d || fetchGzipJson(`../website/${relPath}`))
-            .then(d => d || fetchGzipJson(`website/${relPath}`));
+        /** @param {string} relPath */
+        const loadDataset = async (relPath) => {
+          return (
+            (await fetchGzipJson(relPath)) ||
+            (await fetchGzipJson(`../website/${relPath}`)) ||
+            (await fetchGzipJson(`website/${relPath}`))
+          );
         };
 
         const [plzData, grossData] = await Promise.all([
@@ -624,9 +631,10 @@ export class AddressIntelligence {
     /* Fehlschlag nicht cachen: sonst bleibt die PLZ-Engine fuer den Rest der
        Seitenlebensdauer tot, obwohl ein spaeterer Versuch (z.B. nach kurzem
        Netzausfall) erfolgreich waere (B8-Review 2026-11-12). */
-    void AddressIntelligence.#initPromise.then((ok) => {
+    void (async () => {
+      const ok = await AddressIntelligence.#initPromise;
       if (!ok) AddressIntelligence.#initPromise = null;
-    });
+    })();
 
     return AddressIntelligence.#initPromise;
   }
@@ -901,10 +909,44 @@ export class AddressIntelligence {
     });
 
     const filtered = prefix ? plausibel.filter(p => p.startsWith(prefix)) : plausibel;
+
+    /* @review 2026-11-22 Gruppierung der PLZ-Liste (Stadtteile als Block, ohne
+       Stadtteil nach unten). Betrifft 11 Staedte; Test 'Stadtteile stehen als
+       Block zusammen'. */
+    /* Muster: `ORDER BY stadtteil NULLS LAST, plz` (SQL:2003) — erst die
+       Gruppen mit Wert, die ohne Wert ans Ende. Gruppieren statt nur sortieren
+       (gemeldet 2026-11-22: "Berlin ist noch
+       Chaos"): Rein nach PLZ standen die Stadtteile kreuz und quer, weil jede
+       PLZ ihren eigenen Stadtteil traegt ("10318 Karlshorst", dann vier PLZ
+       ohne Stadtteil, dann "10405 Prenzlauer Berg"; Moabit/Tiergarten
+       wechselten sich ab). Jetzt: erst die PLZ MIT Stadtteil, Stadtteile
+       zusammenhaengend, Bloecke nach ihrer kleinsten PLZ; dann die PLZ ohne
+       Stadtteil. Betrifft 11 Staedte mit gemischten Daten (Berlin, Hamburg,
+       Muenchen, Koeln, Bonn ...).
+       "Grossempfaenger" ist ein Datenplatzhalter, kein Stadtteil - diese Zeilen
+       zaehlen als "ohne" und bleiben wie bisher nach PLZ bei den uebrigen. */
+    /** @param {string} plz @returns {string} */
+    const stadtteil = (plz) => {
+      const d = AddressIntelligence.getDistrict(plz) || '';
+      return /empfänger/i.test(d) ? '' : String(d).split(',')[0].trim();
+    };
+    /** @type {Map<string, string>} Stadtteil -> kleinste PLZ (Blockreihenfolge) */
+    const erstePlz = new Map();
+    for (const p of filtered) {
+      const s = stadtteil(p);
+      if (s && !erstePlz.has(s)) erstePlz.set(s, p);
+    }
+
     const sorted = filtered.toSorted((a, b) => {
       const isSonderA = !AddressIntelligence.districts.has(a) && AddressIntelligence.grosskunden.has(a) ? 1 : 0;
       const isSonderB = !AddressIntelligence.districts.has(b) && AddressIntelligence.grosskunden.has(b) ? 1 : 0;
       if (isSonderA !== isSonderB) return isSonderA - isSonderB;
+      const sa = stadtteil(a);
+      const sb = stadtteil(b);
+      if (!sa !== !sb) return sa ? -1 : 1;
+      if (sa && sb && sa !== sb) {
+        return String(erstePlz.get(sa)).localeCompare(String(erstePlz.get(sb)), 'de');
+      }
       return a.localeCompare(b, 'de');
     });
 
@@ -1105,7 +1147,7 @@ export class AddressIntelligence {
 
 /**
  * Unveränderliche Fassade für den entkoppelten Zugriff auf Adress- und Firmen-Datenbestände.
- * Schirmt Konsumenten (wie ClipboardAddressParser) von Interna der AddressIntelligence ab.
+ * Schirmt Konsumenten von Interna der AddressIntelligence ab.
  */
 export const AddressData = Object.freeze({
   get isReady() {

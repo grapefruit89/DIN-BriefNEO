@@ -36,6 +36,8 @@ summary: "Kanonische LLM-Map, Verzeichnis-Inventar und Task-to-File-Matrix für 
 | **Persistenz, Export/Import, Undo** | `website/js/persistence.js`, `website/js/draft-manager.js` | `--filter="DraftManager\|51-storage"` |
 | **Form A/B, Mehrseiten, Umbruch** | `website/css/sheet.css`, `website/js/multipage-controller.js` | `--filter="Layout\|Scrollbars"` |
 | **Anrede, Grußformel, Stil** | `website/js/salutation.js` | `--filter=Salutation` |
+| **Aktueller Branch-Stand** | [`docs/meta/BRANCH-anrede-dropdown.md`](docs/meta/BRANCH-anrede-dropdown.md) | siehe dort |
+| **Review der Branch-Änderungen** | [`docs/meta/REVIEW-anrede-dropdown.md`](docs/meta/REVIEW-anrede-dropdown.md) | siehe dort |
 | **Formatierung (Telefon, Datum, IBAN, Geld)** | `website/js/format.js` | `--filter=format` |
 | **Unterschrift, Stempel** | `website/js/signature.js`, `website/css/sheet-common.css` | `--filter=Signature` |
 | **Schriften & Subsetting** | `website/js/font-feature.js`, `fonts/subset_fonts.py` | `--filter=FontFeature` |
@@ -53,6 +55,7 @@ summary: "Kanonische LLM-Map, Verzeichnis-Inventar und Task-to-File-Matrix für 
 | :--- | :--- |
 | **Höchste Autorität** | [`docs/norm/Immutable-Law-Catalog.md`](docs/norm/Immutable-Law-Catalog.md) |
 | **Vollständiger Wegweiser** | [`docs/meta/AUFGABEN-WEGWEISER.md`](docs/meta/AUFGABEN-WEGWEISER.md) |
+| **Begriff & Konzept je Baustein** | [`docs/meta/SEMANTIC-ANCHORS.md`](docs/meta/SEMANTIC-ANCHORS.md) |
 | **Lokaler Dev-Server / CDP** | Port `8088` (`./tools/start.sh`) · Chromium DevTools Port `9222` |
 | **Budget-Gates** | `AGENTS.md` ≤ 70 Z / 500 W · `map.md` ≤ 100 Z / 700 W / 5.500 B |
 | **Geschützter Mülleimer** | `.trash/` (Invariante von `build_db.js`, niemals löschen) |

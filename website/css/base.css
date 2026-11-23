@@ -46,6 +46,15 @@
  * NICHT auf einzelne Selektoren verengen und NICHT durch "Abwesenheit eines
  * Markers" ersetzen: genau dieser Fehlermodus (unsichtbar bei fehlendem JS)
  * war der Grund fuer den Umbau. */
+/* WARUM `!important` IN DIESER DATEI (22 Stueck, Stand 2026-11-22)
+
+   Zwei Gruppen, beide ohne Alternative:
+   1. BOOT-MASKE: waehrend des Boots (`data-booting="true"`) muss alles
+      verdeckt sein, bevor der Wert-Writer laeuft — sonst blitzt der
+      HTML-Default auf (FOUC). Eine spaetere Regel darf das nicht aushebeln.
+   2. DRUCK: `@media print` muss Bildschirm-Regeln mit gleicher Spezifitaet
+      ueberstimmen (A46 verlangt das Gegenstueck zu A43). */
+
 :root[data-booting="true"] #app-shell {
   visibility: hidden;
 }
@@ -91,24 +100,45 @@ html, body {
   top: 0;
   z-index: 10000;
   padding: 8px 16px;
-  background: var(--accent-color, oklch(40% 0.14 260));
-  color: oklch(100% 0 0);
+  background: var(--accent-color, var(--c-accent-day));
+  color: var(--farbe-weiss);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.875rem;
   border-radius: 0 0 6px 0;
-  box-shadow: 0 4px 12px oklch(0% 0 0 / 25%);
+  box-shadow: 0 4px 12px var(--farbe-schatten);
   outline: none;
 }
 
 .skip-link:focus,
 .skip-link:focus-visible {
   left: 0;
-  outline: 2px solid oklch(100% 0 0);
+  outline: 2px solid var(--farbe-weiss);
   outline-offset: -2px;
 }
 
-/* --- LOKALE TEST-SCHRIFTEN (DIN-5008-SUBSET) --- */
+/* --- MITGELIEFERTE SCHRIFTEN (DIN-5008-SUBSET, DACH + Normzeichen) ---
+   Im Repo liegen genau zwei Familien: Liberation Sans (Standard — metrisch
+   identisch zu Arial) und Inter. Schriften, die ausschliesslich lokal in
+   <repo>/fonts/ liegen (Aptos, Michelangelus, eigene Testschriften), bekommen
+   hier bewusst KEIN @font-face: der Dev-Server liefert ihre Liste unter
+   /__fonts aus, font-feature.js laedt sie per FontFace-API. Auf GitHub Pages
+   gibt es weder Liste noch Dateien — dort fehlen sie, statt stillschweigend
+   eine 404 zu laden (Nutzerentscheidung 2026-11-23). */
+@font-face {
+  font-family: "Test-Liberation";
+  src: url("../fonts/liberation-sans-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test-Liberation";
+  src: url("../fonts/liberation-sans-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: "Test-Inter";
   src: url("../fonts/inter_18pt-regular.woff2") format("woff2");
@@ -123,24 +153,10 @@ html, body {
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: "Test-Aptos";
-  src: url("../fonts/aptos.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Test-Michelangelus";
-  src: url("../fonts/michelangelus-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
 
 din-blatt {
-  font-family: var(--active-font-family, var(--font-system-stack));
-  font-size-adjust: 0.52;
+  font-family: var(--active-font-family, var(--font-brief-stack));
+  font-size-adjust: 0.535;
   font-variant-numeric: tabular-nums;
 }
 body {
@@ -210,11 +226,92 @@ body {
   --c-warning: light-dark(oklch(0.75 0.14 75), oklch(0.80 0.12 75));
   --c-danger: light-dark(var(--c-danger-day), var(--c-danger-night));
 
+  /* 2c. FARB-ROLLEN & LISTENPALETTE — 2026-11-22 tokenisiert.
+     Vorher standen diese Werte als rohe oklch()-Literale direkt in den Regeln
+     (79 Stellen). Jetzt: Wert hier, Regel referenziert nur noch den Token. */
+  --farbe-weiss:              oklch(100% 0 0);
+  --farbe-schwarz:            oklch(0% 0 0);
+  --farbe-akzent-auf-dunkel:  oklch(1 0 0);
+  --farbe-schatten:           oklch(0% 0 0 / 25%);
+  --farbe-schatten-weich:     oklch(0% 0 0 / 12%);
+  --farbe-schleier:           oklch(0% 0 0 / 40%);
+  --farbe-text-anthrazit:     oklch(0.20 0.02 260);
+  --farbe-text-leise:         oklch(0.42 0.03 260);
+  --farbe-text-tief:          oklch(15% 0 0);
+  --farbe-text-dunkel:        oklch(25% 0 0);
+  --farbe-text-neutral:       light-dark(oklch(0.45 0.02 250), oklch(0.7 0.02 250));
+  --farbe-linie-anthrazit:    oklch(0.35 0 0);
+  --farbe-ueberlauf:          oklch(55% 0.18 35);
+  --farbe-ueberlauf-bg:       oklch(95% 0.04 80 / 0.9);
+  --farbe-ueberlauf-rand:     oklch(75% 0.15 65 / 0.5);
+  --farbe-markierung-fehler:  oklch(0.55 0.22 25);
+  --farbe-hinweis-flaeche:    light-dark(oklch(0.94 0.01 260), oklch(0.25 0.01 260));
+  --farbe-warnung-text:       light-dark(oklch(0.45 0.18 50), oklch(0.85 0.18 70));
+  --farbe-warnung-bg:         light-dark(oklch(0.96 0.05 60), oklch(0.28 0.08 55));
+  --farbe-warnung-rand:       light-dark(oklch(0.82 0.12 60), oklch(0.48 0.12 55));
+  --farbe-gefahr-text:        light-dark(oklch(0.28 0.20 28), oklch(0.25 0.22 28));
+  --farbe-gefahr-text-hover:  light-dark(oklch(0.28 0.24 28), oklch(0.25 0.26 28));
+  --farbe-gefahr-ton:         oklch(0.40 0.20 28);
+  --farbe-gefahr-hover-bg:    oklch(50% 0.2 20 / 10%);
+  --farbe-dialog-gefahr-ton:  oklch(45% 0.22 25);
+  --farbe-dialog-gefahr-rand: oklch(0.45 0.18 28);
+  --farbe-dialog-gefahr-text: oklch(0.38 0.16 28);
+  --farbe-dialog-gefahr-stark: oklch(0.28 0.14 28);
+  --farbe-erfolg-flaeche:     light-dark(oklch(0.92 0.08 145), oklch(0.75 0.10 145));
+  --status-erfolg-text:       light-dark(oklch(0.38 0.12 145), oklch(0.85 0.14 145));
+  --status-erfolg-bg:         light-dark(oklch(0.94 0.04 145), oklch(0.24 0.05 145));
+  --status-erfolg-rand:       light-dark(oklch(0.85 0.06 145), oklch(0.35 0.08 145));
+  --status-offen-text:        light-dark(oklch(0.42 0.14 65), oklch(0.88 0.14 65));
+  --status-offen-bg:          light-dark(oklch(0.95 0.05 65), oklch(0.26 0.06 65));
+  --status-offen-rand:        light-dark(oklch(0.85 0.08 65), oklch(0.38 0.08 65));
+  --status-fehler-text:       light-dark(oklch(0.40 0.18 25), oklch(0.90 0.15 25));
+  --status-fehler-bg:         light-dark(oklch(0.95 0.05 25), oklch(0.26 0.08 25));
+  --status-fehler-rand:       light-dark(oklch(0.85 0.08 25), oklch(0.40 0.10 25));
+  --liste-firma:              oklch(45% 0.16 255);
+  --liste-behoerde:           oklch(40% 0.02 260);
+  --liste-strasse:            oklch(0.62 0.02 250);
+  --ton-formal:               oklch(0.55 0.17 255);
+  --ton-hoeflich:             oklch(0.56 0.17 320);
+  --ton-locker:               oklch(0.58 0.19 25);
+  --ort-ton-0: oklch(0.72 0.01 250);
+  --ort-ton-1: oklch(0.56 0.19 138);
+  --ort-ton-2: oklch(0.72 0.11 275);
+  --ort-ton-3: oklch(0.56 0.19 53);
+  --ort-ton-4: oklch(0.72 0.11 190);
+  --ort-ton-5: oklch(0.56 0.19 328);
+  --ort-ton-6: oklch(0.72 0.11 105);
+  --ort-ton-7: oklch(0.56 0.19 243);
+  --ort-ton-8: oklch(0.72 0.11 20);
+  --ort-ton-9: oklch(0.56 0.19 158);
+  --ort-ton-10: oklch(0.72 0.11 295);
+  --ort-ton-11: oklch(0.56 0.19 73);
+  --ort-ton-12: oklch(0.72 0.11 210);
+  --ort-ton-13: oklch(0.56 0.19 8);
+  --ort-ton-14: oklch(0.72 0.11 145);
+  --ort-ton-15: oklch(0.56 0.19 283);
+  --ort-ton-16: oklch(0.72 0.11 60);
+  --ort-ton-17: oklch(0.56 0.19 198);
+  --ort-ton-18: oklch(0.72 0.11 335);
+  --ort-ton-19: oklch(0.56 0.19 113);
+  --ort-ton-20: oklch(0.72 0.11 250);
+
   --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
   --glass-blur: blur(20px);
 
-  --font-system-stack: "Aptos", "Aptos Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
-  --active-font-family: var(--font-system-stack);
+  /* Standard: Arial-Metrik. Liberation Sans ist die freie, metrisch
+     identische Umsetzung — auf Windows/macOS greift Arial selbst, also
+     brechen Briefe auf allen drei Systemen gleich um. Aptos/Segoe UI/
+     -apple-system standen hier bis 2026-11-23 und machten den Umbruch
+     betriebssystemabhaengig (gemessen: Aptos 593,7 vs Liberation 638,1).
+     DIN 5008 Kap. 20.7.1 nennt ausdruecklich Arial und Helvetica. */
+  --font-system-stack: "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  /* Brief-Standard: die eingedampfte Liberation Sans liegt im Repo, also ist
+     der Vanilla-Brief auf jedem Rechner identisch. Fehlende Zeichen (z. B.
+     franzoesische Akzente, nicht im DACH-Subset) fallen auf die echte
+     Liberation Sans bzw. Arial zurueck — gleiche Konstruktion, gleiche
+     Metrik, also faellt der Wechsel nicht auf. */
+  --font-brief-stack: "Test-Liberation", "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --active-font-family: var(--font-brief-stack);
   --schrift-stack: var(--font-system-stack);
 
   /* --- 3. SPACING & RADII RASTER (2px-Basis: 0.125rem) --- */

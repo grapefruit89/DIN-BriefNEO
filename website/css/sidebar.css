@@ -146,7 +146,7 @@ fieldset.seitenleiste-field-group > legend {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
+  color: var(--farbe-text-anthrazit); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -181,7 +181,7 @@ fieldset.seitenleiste-field-group > legend {
 .btn.primary {
   background: var(--accent-color);
   border-color: var(--accent-color);
-  color: oklch(1 0 0); /* Hochkontrast-Weiss auf dunklem Primaer-Akzent */
+  color: var(--farbe-akzent-auf-dunkel); /* Hochkontrast-Weiss auf dunklem Primaer-Akzent */
   font-weight: 600;
 }
 
@@ -270,7 +270,7 @@ fieldset.seitenleiste-field-group > legend {
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: var(--radius-sm);
-  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Nachgeschaerft von var(--text-muted) fuer > 5:1 Kontrast */
+  color: var(--farbe-text-anthrazit); /* WCAG 2.1 AA: Nachgeschaerft von var(--text-muted) fuer > 5:1 Kontrast */
   cursor: pointer;
   transition: color 0.2s ease;
   text-align: center;
@@ -284,7 +284,7 @@ fieldset.seitenleiste-field-group > legend {
 :root[data-layout="form-b"] .segmented-control-layout label[for="btn-form-b"],
 .segmented-control button[aria-pressed="true"],
 .segmented-control:not(.segmented-control-layout) input[type="radio"]:checked + label {
-  color: oklch(0 0 0);
+  color: var(--farbe-schwarz);
   font-weight: 700;
   /* Box-shadow and background are now handled by ::before */
 }
@@ -326,7 +326,7 @@ fieldset.seitenleiste-field-group > legend {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Sattes Anthrazit fuer hohen Kontrast */
+  color: var(--farbe-text-anthrazit); /* WCAG 2.1 AA: Sattes Anthrazit fuer hohen Kontrast */
   transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -337,7 +337,7 @@ fieldset.seitenleiste-field-group > legend {
 }
 
 .input-field::placeholder {
-  color: oklch(0.42 0.03 260); /* WCAG 2.1 AA Kontrast >= 4.5:1 auf --bg-card */
+  color: var(--farbe-text-leise); /* WCAG 2.1 AA Kontrast >= 4.5:1 auf --bg-card */
   opacity: 1;
 }
 
@@ -351,29 +351,14 @@ fieldset.seitenleiste-field-group > legend {
   cursor: not-allowed;
 }
 
-#input-anschrift-suche {
-  anchor-name: --anchor-anschrift-suche;
-}
-
-#btn-zwischenablage-anschrift {
-  anchor-name: --clipboard-btn;
-}
-
-#clipboard-candidates-popover {
-  position-anchor: --clipboard-btn;
-  width: max(anchor-size(width), 280px);
-}
-
-/* Glassmorphic Dropdown for Geoapify address suggestions */
+/* Gemeinsames Aussehen der Feld-Popover (PLZ/Ort, Strasse, Anrede, Gruss).
+   Position und Groesse stehen NUR in den ID-Regeln darunter: die Klasse setzte
+   frueher zusaetzlich position-area/width/max-height fuer die Anschrift-Liste,
+   die dieselben Dinge schon per anchor() bekommt (zwei Systeme gleichzeitig,
+   aufgeloest 2026-11-22; die Anschrift-Suche selbst ist am selben Tag
+   entfallen). */
 .autocomplete-dropdown {
   position: absolute;
-  position-anchor: --anchor-anschrift-suche;
-  position-area: bottom span-x;
-  position-try-fallbacks: flip-block;
-  top: auto;
-  left: auto;
-  width: anchor-size(width);
-  max-height: 200px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
@@ -425,7 +410,7 @@ fieldset.seitenleiste-field-group > legend {
   padding: 1px var(--space-sm);
   border-radius: var(--radius-xs);
   color: var(--text-muted);
-  background: light-dark(oklch(0.94 0.01 260), oklch(0.25 0.01 260));
+  background: var(--farbe-hinweis-flaeche);
   border: 1px solid var(--border-color);
   opacity: 0.85;
   vertical-align: middle;
@@ -438,9 +423,9 @@ fieldset.seitenleiste-field-group > legend {
   font-weight: 600;
   padding: 1px var(--space-sm);
   border-radius: var(--radius-xs);
-  color: light-dark(oklch(0.45 0.18 50), oklch(0.85 0.18 70));
-  background: light-dark(oklch(0.96 0.05 60), oklch(0.28 0.08 55));
-  border: 1px solid light-dark(oklch(0.82 0.12 60), oklch(0.48 0.12 55));
+  color: var(--farbe-warnung-text);
+  background: var(--farbe-warnung-bg);
+  border: 1px solid var(--farbe-warnung-rand);
   vertical-align: middle;
 }
 
@@ -525,6 +510,36 @@ fieldset.seitenleiste-field-group > legend {
 }
 
 /* Geoapify API-Key BYOK (100% KISS) */
+/* "Geoapify API-Key: hier erstellen" in EINER Zeile (2026-11-22): das Label
+   stand als Block ueber dem Feld, der Link darunter. Beides sind jetzt
+   Geschwister in einer Flex-Zeile; der Link bleibt ein echter Link. */
+.key-zeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  margin: 0 0 var(--space-xs);
+}
+
+.key-zeile .seitenleiste-sub-label {
+  display: inline;
+  margin-bottom: 0;
+}
+
+.key-zeile .key-hint-link {
+  justify-self: auto;
+  margin-top: 0;
+  /* Neben dem Label muss der Link als Link erkennbar sein: Akzentfarbe und
+     dieselbe Groesse wie das Label (vorher 0.75rem gegen 0.7rem). */
+  font-size: 0.7rem;
+  color: var(--accent-color);
+}
+
+.key-zeile .key-hint-link:hover,
+.key-zeile .key-hint-link:focus-visible {
+  color: var(--accent-hover, var(--accent-color));
+}
+
 .key-hint-link {
   justify-self: start;
   font-size: 0.75rem;
@@ -548,7 +563,7 @@ fieldset.seitenleiste-field-group > legend {
 .input-status-hint[data-status="valid"] { color: var(--c-success); }
 .input-status-hint[data-status="invalid"] { color: var(--c-danger); }
 .input-status-hint[data-status="pending"] { color: var(--accent-color); }
-.input-status-hint[data-status="error"] { color: var(--c-warning, oklch(0.75 0.14 75)); }
+.input-status-hint[data-status="error"] { color: var(--c-warning); }
 
 .input-field[data-status="valid"] {
   border-color: var(--c-success);
@@ -605,15 +620,6 @@ input[type="checkbox"][switch] {
   inline-size: 20px;
   block-size: 20px;
 }
-.badge-local {
-  margin-inline-start: var(--space-sm);
-  float: right;
-  font-size: 0.65rem;
-  color: var(--accent-color);
-  background: var(--segment-bg);
-  padding: var(--space-2xs) var(--space-xs);
-  border-radius: var(--radius-xs);
-}
 
 
 /* Accessibility: Windows High Contrast / forced-colors. Ohne diesen Guard
@@ -662,17 +668,6 @@ input[type="checkbox"][switch] {
    Postvermerk-Select war ein Symptom-Pflaster (zwei Marker, zwei Netze) und
    ist entfallen — die Maske deckt dieselben Elemente ohnehin ab. */
 
-/* Zonen-Ueberschrift. Bewusst klein und gedämpft: sie gliedert, sie schreit
-   nicht. Die Gruppen-Titel sind h3 mit derselben Optik wie bisher
-   (.seitenleiste-label), die Regler-Labels bleiben <label>. */
-.seitenleiste-h2 {
-  margin: 0 0 var(--space-2xs);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
 
 /* Statuszeile: eine Zeile, ruhig, mit Sprung in die Einstellungen. */
 .seitenleiste-zustand {
@@ -850,13 +845,13 @@ input[type="checkbox"][switch] {
   width: auto;
   font-size: 0.8rem;
   font-weight: 600;
-  color: light-dark(oklch(0.28 0.20 28), oklch(0.25 0.22 28));
+  color: var(--farbe-gefahr-text);
   padding: var(--space-sm) var(--space-xl);
 }
 
 .btn-danger-subtle:hover {
-  background: color-mix(in oklch, oklch(0.40 0.20 28) 12%, transparent);
-  color: light-dark(oklch(0.28 0.24 28), oklch(0.25 0.26 28));
+  background: color-mix(in oklch, var(--farbe-gefahr-ton) 12%, transparent);
+  color: var(--farbe-gefahr-text-hover);
 }
 
 /* Autosave-Indikator */
@@ -885,29 +880,29 @@ input[type="checkbox"][switch] {
 /* Gespeichert: Klares Grün mit starkem Kontrast in beiden Themes */
 .save-status[data-state="saved"],
 .save-status.saved {
-  color: light-dark(oklch(0.38 0.12 145), oklch(0.85 0.14 145));
-  background: light-dark(oklch(0.94 0.04 145), oklch(0.24 0.05 145));
-  border: 1px solid light-dark(oklch(0.85 0.06 145), oklch(0.35 0.08 145));
+  color: var(--status-erfolg-text);
+  background: var(--status-erfolg-bg);
+  border: 1px solid var(--status-erfolg-rand);
 }
 
 /* Speichern / Dirty: Warmes Amber */
 .save-status[data-state="dirty"],
 .save-status.dirty {
-  color: light-dark(oklch(0.42 0.14 65), oklch(0.88 0.14 65));
-  background: light-dark(oklch(0.95 0.05 65), oklch(0.26 0.06 65));
-  border: 1px solid light-dark(oklch(0.85 0.08 65), oklch(0.38 0.08 65));
+  color: var(--status-offen-text);
+  background: var(--status-offen-bg);
+  border: 1px solid var(--status-offen-rand);
 }
 
 /* Fehler: Signal-Rot */
 .save-status[data-state="error"],
 .save-status.error {
-  color: light-dark(oklch(0.40 0.18 25), oklch(0.90 0.15 25));
-  background: light-dark(oklch(0.95 0.05 25), oklch(0.26 0.08 25));
-  border: 1px solid light-dark(oklch(0.85 0.08 25), oklch(0.40 0.10 25));
+  color: var(--status-fehler-text);
+  background: var(--status-fehler-bg);
+  border: 1px solid var(--status-fehler-rand);
 }
 .import-file-name {
   font-size: 0.85em;
-  color: light-dark(oklch(0.45 0.02 250), oklch(0.7 0.02 250));
+  color: var(--farbe-text-neutral);
   word-break: break-all;
 }
 
@@ -992,7 +987,7 @@ input[type="checkbox"][switch] {
 
 #hinweis-close:hover {
   color: var(--c-danger);
-  background: oklch(50% 0.2 20 / 10%);
+  background: var(--farbe-gefahr-hover-bg);
 }
 
 /* Lebensdauer je Typ — die einzige Stelle, an der ein Hinweis Zeit bekommt.
@@ -1008,8 +1003,14 @@ input[type="checkbox"][switch] {
 #hinweis-v4[data-type="info"]    { border-left: var(--space-xs) solid var(--c-primary); }
 #hinweis-v4[data-type="warning"] { border-left: var(--space-xs) solid var(--c-warning); }
 
+/* @review 2026-11-22 PFLICHTLISTE: Jedes neue Vorschlags-Popover MUSS in die
+   folgenden :is()-Sammelselektoren (Position, Glas-Look, Zeilen, Hover).
+   Fehlt es dort, greifen die UA-Popover-Defaults (position: fixed, inset: 0,
+   margin: auto) und die Liste sitzt zentriert im Fenster statt am Feld —
+   genau so bei #gruss-vorschlaege passiert (gemessen 114..279 mm). */
+
 /* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) {
   position: absolute;
   /* UA-Popover setzt inset: 0 und margin: auto; mit gesetztem left/top wird
      das Element dann im Restraum zentriert und landet neben dem Feld
@@ -1030,56 +1031,81 @@ input[type="checkbox"][switch] {
               overlay 0.15s allow-discrete;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege):popover-open {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender):popover-open {
   display: block;
   opacity: 1;
 }
 
 @starting-style {
-  :is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege):popover-open {
+  :is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender):popover-open {
     opacity: 0;
   }
 }
 
-/* position-area loeste hier falsch auf (gemessen 2026-11-13: das Popover
-   landete bei x=1497 statt x=16, also unten rechts am Schirm). Mit
-   anchor()-Funktionen sitzt es direkt unter dem Feld. */
-#anschrift-vorschlaege {
-  position-anchor: --anchor-anschrift-suche;
+/* Anrede-Varianten: Verlauf von distanziert (blau) nach vertraut (rot).
+   Drei klar getrennte Stufen: 255 Grad (blau) -> 320 (violett) -> 25 (rot).
+   Konzept: **ordinale Farbskala** (Hue = Naehe, nicht Kategorie) im
+   OKLCH-Raum, damit die drei Stufen gleich hell und gleich stark wirken —
+   Blau/Gruen/Rot waeren eine kategoriale Skala und wuerden Naehe nicht abbilden. */
+#anrede-vorschlaege li[data-gruppe="formal"],
+#gruss-vorschlaege li[data-gruppe="formal"] { --ort-ton: var(--ton-formal); }
+#anrede-vorschlaege li[data-gruppe="polite"],
+#gruss-vorschlaege li[data-gruppe="polite"] { --ort-ton: var(--ton-hoeflich); }
+#anrede-vorschlaege li[data-gruppe="casual"],
+#gruss-vorschlaege li[data-gruppe="casual"] { --ort-ton: var(--ton-locker); }
+
+/* Die Gruppen sollen klar lesbar sein: im Anrede-Popover etwas kraeftiger
+   hinterlegt als in den Ortslisten. */
+#anrede-vorschlaege li.suggestion-item {
+  background: color-mix(in oklch, var(--ort-ton) 18%, transparent);
+}
+
+/* Grußformeln: dieselbe Optik wie die Anrede-Liste, drei Eintraege je Ton. */
+#gruss-vorschlaege,
+#gruss-vorschlaege[popover] {
+  position-anchor: --anchor-gruss;
   top: anchor(bottom);
   left: anchor(left);
-  width: anchor-size(width);
-  max-height: min(250px, 40vh);
+  min-width: max(280px, anchor-size(width));
+  max-width: 165mm;
+  max-height: 165mm;
 }
 
-#anschrift-vorschlaege li {
-  padding: var(--space-md) var(--space-xl);
-  font-size: 0.8rem;
-  color: var(--text-primary);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background 0.1s ease;
-  line-height: 1.3;
+#gruss-vorschlaege li.suggestion-item {
+  background: color-mix(in oklch, var(--ort-ton) 18%, transparent);
 }
 
-#anschrift-vorschlaege li:hover {
-  background: var(--segment-bg);
+#gruss-vorschlaege li.suggestion-item:hover {
+  background: color-mix(in oklch, var(--ort-ton) 30%, var(--segment-bg));
+  outline: 2px solid color-mix(in oklch, var(--ort-ton) 75%, transparent);
+  outline-offset: -2px;
 }
 
-#anschrift-vorschlaege li b {
-  color: var(--accent-color);
-  font-weight: 700;
+#anrede-vorschlaege,
+#anrede-vorschlaege[popover] {
+  position-anchor: --anchor-anrede;
+  top: anchor(bottom);
+  left: anchor(left);
+  min-width: max(320px, anchor-size(width));
+  /* Arbeitsbereich ist das Blatt, nicht das Fenster: 210 mm - 25 mm links -
+     20 mm rechts = 165 mm (2026-11-22). */
+  max-width: 165mm;
+  /* Fallback; die Hoehe bis 20 mm vor den Blatt-Unterrand setzt
+     passeAnBlattrand() beim Oeffnen (Regel 2026-11-22). */
+  max-height: 165mm;
 }
 
 #strasse-vorschlaege,
 #strasse-vorschlaege[popover] {
   position-anchor: --anchor-absender-strasse;
   top: anchor(bottom);
-  left: anchor(left);
+  /* Das Strassenfeld steht im Infoblock knapp vor dem rechten Blattrand
+     (125...190 mm). Linksbuendig lief die Liste 14 mm ueber den Blattrand
+     hinaus (gemessen 2026-11-22); rechtsbuendig waechst sie nach innen. */
+  left: auto;
+  right: anchor(right);
   min-width: max(300px, anchor-size(width));
-  /* Breite/Hoehe setzt address.js beim Oeffnen: bis 20 mm vor dem Blattrand. */
-  max-width: none;
-  max-height: none;
+  max-width: 165mm;
 }
 
 #plz-suggestions-popover,
@@ -1087,12 +1113,16 @@ input[type="checkbox"][switch] {
   position-anchor: --anchor-ort;
   top: anchor(bottom);
   left: anchor(left);
-  min-width: max(300px, anchor-size(width));
-  /* Breiter: lange Organisationsnamen brauchten mehr Platz (2026-11-22). */
-  max-width: min(560px, 92vw);
-  /* Bis kurz vor die Unterkante des Blattes (20 mm Rand) statt bei 12 Zeilen
-     abzuschneiden (gemessen 2026-11-22: 743 px Platz = ~25 Zeilen). */
-  max-height: min(62vh, 760px);
+  /* Mindestens so breit wie das Feld, nicht breiter erzwungen: die frueheren
+     300 px standen im Infoblock (Feld 246 px) 54 px ueber und ragten nach
+     links ueber die Ruecksendezeile (gemeldet 2026-11-22). Lange
+     Organisationsnamen wachsen weiter auf, bis 165 mm (Blatt-Textbereich). */
+  min-width: anchor-size(width);
+  max-width: 165mm;
+  /* Fallback, falls das JS nicht laeuft. Beim Oeffnen setzt
+     passeAnBlattrand() die Hoehe exakt bis 20 mm vor den Blatt-Unterrand
+     (Vorgabe 2026-11-22: "alle Fenster so weit nach unten wie Platz ist"). */
+  max-height: 165mm;
 }
 
 body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
@@ -1104,17 +1134,42 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
   anchor-name: --anchor-absender-ort;
 }
 
+#anrede {
+  anchor-name: --anchor-anrede;
+}
+
+#grussformel {
+  anchor-name: --anchor-gruss;
+}
+
 #absender-strasse {
   anchor-name: --anchor-absender-strasse;
+}
+
+/* Die Strassenliste haengt an BEIDEN Strassenfeldern. Der Absender steht im
+   Infoblock (rechts, Liste waechst nach innen), der Empfaenger im
+   Anschriftfeld (links, Liste waechst nach rechts). */
+#empfaenger-strasse {
+  anchor-name: --anchor-empfaenger-strasse;
+}
+
+body:has(#empfaenger-strasse:focus) #strasse-vorschlaege {
+  position-anchor: --anchor-empfaenger-strasse;
+  left: anchor(left);
+  right: auto;
 }
 
 
 
 body:has(#absender-ort:focus) #plz-suggestions-popover {
   position-anchor: --anchor-absender-ort;
+  /* Infoblock-Feld endet bei 190 mm (20 mm Blattrand). Rechtsbuendig bleibt
+     die Liste im Blatt, linksbuendig lief sie hinaus (gemessen 2026-11-22). */
+  left: auto;
+  right: anchor(right);
 }
 
-:is(#plz-suggestions-popover, #strasse-vorschlaege) li {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) li {
   padding: var(--space-sm) var(--space-lg);
   font-size: 0.8rem;
   color: var(--text-primary);
@@ -1134,10 +1189,10 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 }
 
 /* Der gemeinsame Renderer erzeugt diese Unterelemente in beiden Listen
-   (#anschrift-vorschlaege und #plz-suggestions-popover). */
+   (#plz-suggestions-popover und die uebrigen Feld-Popover). */
 /* Lange Namen (Behörden) enden mit "…" statt hart abgeschnitten zu werden;
    der volle Text steht im Tooltip der Zeile. */
-:is(#plz-suggestions-popover, #strasse-vorschlaege) .suggestion-main {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .suggestion-main {
   display: flex;
   align-items: baseline;
   gap: var(--space-xs);
@@ -1150,7 +1205,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Der Name gibt nach, nicht der Zusatz: lange Behörden-/Firmennamen enden mit
    "…" (voller Text im Tooltip) statt hart abgeschnitten zu werden.
    Postbank-Fall: "Deutsche Postbank AG Niederlassung Hamburg (Giro)". */
-:is(#plz-suggestions-popover, #strasse-vorschlaege) .city-val {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .city-val {
   min-width: 0;
   flex: 0 1 auto;
   overflow: hidden;
@@ -1159,7 +1214,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 }
 /* Auch der Zusatz (Stadt/Ortsteil) darf mit "…" enden; sonst schneidet die
    Zeile hart ab ("Hamburg, Freie und Hansestadt"). */
-:is(#plz-suggestions-popover, #strasse-vorschlaege) .city-sub {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege) .city-sub {
   min-width: 0;
   flex: 0 1 auto;
   overflow: hidden;
@@ -1167,7 +1222,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   white-space: nowrap;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-main {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-main {
   display: flex;
   gap: var(--space-sm);
   align-items: baseline;
@@ -1178,20 +1233,20 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   overflow: hidden;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .plz-val {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .plz-val {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--accent-color);
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .city-val {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .city-val {
   font-weight: 500;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .district-val {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .district-val {
   min-width: 0;
   font-size: 0.72rem;
-  color: var(--text-muted, oklch(55% 0 0));
+  color: var(--text-muted);
   font-style: italic;
   opacity: 0.8;
   white-space: nowrap;
@@ -1203,30 +1258,30 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Farbcodierung und Badges für universelles Autocomplete */
 /* Typ-Kennzeichnung ohne Badge: Schrift und Balken tragen die Farbe.
    Das :is() hebt die Spezifität über `#liste li { color: … }`. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
 /* Strassen-Vorschlaege: neutraler Balken. Vorher trugen sie die Standardfarbe
    (blau) und sahen aus wie Firmen (gemeldet 2026-11-22). */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-typ="adresse"] {
-  --ort-ton: oklch(0.62 0.02 250);
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="adresse"] {
+  --ort-ton: var(--liste-strasse);
   color: var(--text-primary);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-typ="firma"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="firma"] {
   --ort-ton: oklch(0.56 0.17 255);
-  color: oklch(45% 0.16 255);
+  color: var(--liste-firma);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-typ="behoerde"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="behoerde"] {
   /* Behörden: Anthrazit. Kein Ortston liegt so dunkel und unbunt -
      dadurch mit keiner Ortsfarbe verwechselbar. */
   --ort-ton: oklch(0.34 0.01 260);
-  color: oklch(40% 0.02 260);
+  color: var(--liste-behoerde);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-typ="gericht"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="gericht"] {
   --ort-ton: oklch(0.34 0.01 260);
-  color: oklch(40% 0.02 260);
+  color: var(--liste-behoerde);
 }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-typ="institution"] {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-typ="institution"] {
   --ort-ton: oklch(0.56 0.17 255);
-  color: oklch(45% 0.16 255);
+  color: var(--liste-firma);
 }
 
 /* Ortsfarbe: gleiche Stadt = gleicher Ton, sanft hinterlegt plus 3px-Balken.
@@ -1236,7 +1291,7 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Balken statt Klammer: `border-left` laeuft ueber die volle Zeilenhoehe und
    folgt keiner Rundung. Radius nur rechts, damit links eine gerade Kante steht
    (vorher: inset-box-shadow + border-radius => kleiner Bogen je Zeile). */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item {
   --ort-ton: oklch(0.62 0.17 250);
   border-left: 3px solid var(--ort-ton);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
@@ -1246,31 +1301,31 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
 /* Zwoelf Toene im Goldwinkel-Abstand (137,5 Grad): benachbarte Eintraege liegen
    weit auseinander, gleiche Stadt behaelt ihren Ton (Vergabe in address.js). */
 /* 0 = kein Ort (Großempfänger/Behörde): neutraler Balken, ruhige Zeile. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="0"] { --ort-ton: oklch(0.72 0.01 250); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.56 0.19 138); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.72 0.11 275); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.56 0.19 53); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="4"] { --ort-ton: oklch(0.72 0.11 190); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="5"] { --ort-ton: oklch(0.56 0.19 328); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="6"] { --ort-ton: oklch(0.72 0.11 105); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="7"] { --ort-ton: oklch(0.56 0.19 243); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="8"] { --ort-ton: oklch(0.72 0.11 20); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="9"] { --ort-ton: oklch(0.56 0.19 158); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="10"] { --ort-ton: oklch(0.72 0.11 295); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="11"] { --ort-ton: oklch(0.56 0.19 73); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="12"] { --ort-ton: oklch(0.72 0.11 210); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="13"] { --ort-ton: oklch(0.56 0.19 8); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="14"] { --ort-ton: oklch(0.72 0.11 145); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="15"] { --ort-ton: oklch(0.56 0.19 283); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="16"] { --ort-ton: oklch(0.72 0.11 60); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="17"] { --ort-ton: oklch(0.56 0.19 198); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="18"] { --ort-ton: oklch(0.72 0.11 335); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="19"] { --ort-ton: oklch(0.56 0.19 113); }
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .suggestion-item[data-ort-farbe="20"] { --ort-ton: oklch(0.72 0.11 250); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="0"] { --ort-ton: var(--ort-ton-0); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="1"] { --ort-ton: var(--ort-ton-1); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="2"] { --ort-ton: var(--ort-ton-2); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="3"] { --ort-ton: var(--ort-ton-3); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="4"] { --ort-ton: var(--ort-ton-4); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="5"] { --ort-ton: var(--ort-ton-5); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="6"] { --ort-ton: var(--ort-ton-6); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="7"] { --ort-ton: var(--ort-ton-7); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="8"] { --ort-ton: var(--ort-ton-8); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="9"] { --ort-ton: var(--ort-ton-9); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="10"] { --ort-ton: var(--ort-ton-10); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="11"] { --ort-ton: var(--ort-ton-11); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="12"] { --ort-ton: var(--ort-ton-12); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="13"] { --ort-ton: var(--ort-ton-13); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="14"] { --ort-ton: var(--ort-ton-14); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="15"] { --ort-ton: var(--ort-ton-15); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="16"] { --ort-ton: var(--ort-ton-16); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="17"] { --ort-ton: var(--ort-ton-17); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="18"] { --ort-ton: var(--ort-ton-18); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="19"] { --ort-ton: var(--ort-ton-19); }
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .suggestion-item[data-ort-farbe="20"] { --ort-ton: var(--ort-ton-20); }
 
 /* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
    kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .ac-badge {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .ac-badge {
   font-size: 0.65rem;
   font-weight: 600;
   padding: 1px var(--space-xs);
@@ -1282,25 +1337,33 @@ body:has(#absender-ort:focus) #plz-suggestions-popover {
   vertical-align: middle;
 }
 
-:is(#anschrift-vorschlaege, #plz-suggestions-popover, #strasse-vorschlaege) .city-sub {
+:is(#plz-suggestions-popover, #strasse-vorschlaege, #anrede-vorschlaege, #gruss-vorschlaege, #datum-kalender) .city-sub {
   font-size: 0.75rem;
-  color: var(--text-muted, oklch(55% 0 0));
+  color: var(--text-muted);
   margin-inline-start: var(--space-xs);
 }
 
-#plz-suggestions-popover .suggestion-hint,
-#anschrift-vorschlaege .suggestion-hint {
+#plz-suggestions-popover .suggestion-hint {
   padding: var(--space-sm) var(--space-lg);
   font-size: 0.75rem;
-  color: var(--text-muted, oklch(55% 0 0));
+  color: var(--text-muted);
   font-style: italic;
   cursor: default;
 }
 
 #plz-suggestions-popover li:not(.suggestion-hint):hover,
-#strasse-vorschlaege li:not(.suggestion-hint):hover,
-#anschrift-vorschlaege li:not(.suggestion-hint):hover {
+#strasse-vorschlaege li:not(.suggestion-hint):hover {
   background: var(--segment-bg);
+}
+
+/* Anrede-Liste: eigener Hover (fehlte, gemeldet 2026-11-22 - die Sammelregel
+   oben nennt die Liste nicht). Die Gruppenfarbe bleibt sichtbar: der Ton wird
+   kraeftiger und zeichnet den Rahmen - so sieht man beim Zeigen gleich, in
+   welche Tonalitaet man greifen wuerde. */
+#anrede-vorschlaege li.suggestion-item:hover {
+  background: color-mix(in oklch, var(--ort-ton) 30%, var(--segment-bg));
+  outline: 2px solid color-mix(in oklch, var(--ort-ton) 75%, transparent);
+  outline-offset: -2px;
 }
 
 /* Strassenliste: Hover bekommt die kraeftige Auswahl-Optik (Akzent + Rahmen).
@@ -1322,11 +1385,9 @@ aside select {
 
 ::search-text {
   background-color: oklch(from var(--accent-color) calc(l + 0.35) c h / 90%);
-  color: oklch(15% 0 0);
+  color: var(--farbe-text-tief);
 }
 
-#anschrift-vorschlaege li[aria-selected="true"],
-#anschrift-vorschlaege li:focus-visible,
 #plz-suggestions-popover li[aria-selected="true"] {
   background: color-mix(in oklch, var(--accent-color) 18%, transparent);
   outline: 2px solid color-mix(in oklch, var(--accent-color) 65%, transparent);
@@ -1361,7 +1422,7 @@ aside select {
 }
 .glass-dialog::backdrop {
   opacity: 0;
-  background: oklch(0% 0 0 / 40%);
+  background: var(--farbe-schleier);
   backdrop-filter: blur(4px);
   transition: opacity 0.2s ease, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
 }
@@ -1383,15 +1444,15 @@ aside select {
 #din-info-dialog .dialog-actions { margin-top: var(--space-2xl); }
 .btn.danger,
 .btn-danger {
-  border-color: oklch(0.45 0.18 28);
-  color: oklch(0.38 0.16 28); /* WCAG 2.1 AA: Dunkles Karminrot fuer > 5.5:1 Kontrast auf hellem Hintergrund */
+  border-color: var(--farbe-dialog-gefahr-rand);
+  color: var(--farbe-dialog-gefahr-text); /* WCAG 2.1 AA: Dunkles Karminrot fuer > 5.5:1 Kontrast auf hellem Hintergrund */
   font-weight: 600;
 }
 .btn.danger:hover,
 .btn-danger:hover {
-  background: color-mix(in oklch, oklch(45% 0.22 25) 15%, var(--bg-card));
-  color: oklch(0.28 0.14 28);
-  border-color: oklch(0.38 0.16 28);
+  background: color-mix(in oklch, var(--farbe-dialog-gefahr-ton) 15%, var(--bg-card));
+  color: var(--farbe-dialog-gefahr-stark);
+  border-color: var(--farbe-dialog-gefahr-text);
 }
 
 /* Workbench UI Styling (C13: aus sheet-multipage.css umgezogen) */
@@ -1440,3 +1501,288 @@ aside select {
    Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
    setzt SettingsManager.#applyPlugins() aus din_settings. */
 :root[data-plugin-testbrief="false"] #btn-testbrief { display: none; }
+
+/* Debug-Panel (2026-11-22). Sichtbarkeit ist eine reine CSS-Ableitung aus dem
+   Schalter in den Einstellungen — kein Ein-/Ausblenden in JS. Das x im Kopf
+   ist ein <label for="toggle-debug"> und schaltet den Schalter nativ aus. */
+#debug-panel {
+  display: none;
+}
+
+:root:has(#toggle-debug:checked) #debug-panel {
+  display: block;
+}
+
+.debug-panel {
+  position: fixed;
+  /* Rechts der Seitenleiste statt darueber: kein z-index-Kampf, und die
+     Seitenleiste bleibt bedienbar. --seitenleiste-breite ist der Token der Shell. */
+  left: calc(var(--seitenleiste-breite, 290px) + var(--space-md));
+  bottom: var(--space-md);
+  z-index: 1;              /* liegt ueber dem Blatt, unter Dialogen/Top-Layer */
+  max-width: 22rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.debug-kopf {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.debug-kopf strong { flex: 1; font-size: 0.7rem; }
+
+.debug-schliessen {
+  width: 1.4rem;
+  height: 1.4rem;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.85rem;
+  line-height: 1;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.debug-schliessen:hover,
+.debug-schliessen:focus-visible {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.debug-tabelle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.1rem var(--space-sm);
+  margin: 0;
+}
+
+.debug-block {
+  margin: var(--space-xs) 0;
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--border-color);
+}
+
+.debug-block-kopf {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-2xs);
+}
+
+.debug-block-kopf strong { flex: 1; font-size: 0.7rem; }
+
+.debug-block-kopf .btn {
+  padding: 0 var(--space-2xs);
+  font-size: 0.7rem;
+}
+
+.debug-knoepfe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  margin: var(--space-xs) 0;
+}
+
+.debug-knoepfe .btn {
+  flex: 1 1 auto;
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: 0.68rem;
+}
+
+/* Sechs kleine Knoepfe in zwei Reihen: je Feld einer. */
+.debug-knoepfe-liste {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.debug-tabelle dt { color: var(--text-muted); white-space: nowrap; }
+.debug-tabelle dd { margin: 0; overflow-wrap: anywhere; }
+
+/* ---------------------------------------------------------------------------
+   BRUSHING & LINKING (2026-11-22): Zeiger auf ein Blatt-Element hebt die
+   zugehoerige Schalterzeile hervor - und umgekehrt. Reines CSS ueber :has(),
+   kein Zustand, kein JavaScript, nichts gespeichert. Die Marken sind 12 mm
+   breit (data-w in mm), also gut treffbar; die Gegenrichtung (Zeile -> Blatt)
+   ist der groessere Treffer.
+   --------------------------------------------------------------------------- */
+/* Die Marken sind 1 px hohe Linien (gemessen 45x1 bzw. 30x1 px) und stehen
+   auf `pointer-events: none` (sheet.css:120), damit sie keine Textklicks
+   abfangen. Fuer den Hover bekommt nur das ::after eine Trefferflaeche —
+   6 px um die Linie, im linken Blattrand, wo kein Text liegt. */
+:is(din-falzmarke-1, din-falzmarke-2, din-lochmarke)::after {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+  pointer-events: auto;
+}
+
+body:has(:is(din-falzmarke-1, din-falzmarke-2, din-lochmarke):hover)
+  .seitenleiste-switch-row:has(#toggle-falzmarken),
+body:has(din-anlagenvermerk:hover) .seitenleiste-switch-row:has(#toggle-anlagen),
+body:has(din-geschaeftsangaben:hover) .seitenleiste-switch-row:has(#toggle-fuss) {
+  background: color-mix(in oklch, var(--accent-color) 10%, transparent);
+  outline: 1px dashed var(--accent-color);
+  outline-offset: -1px;
+  border-radius: var(--radius-sm);
+}
+
+body:has(#toggle-falzmarken:is(:hover, :focus-visible), label[for="toggle-falzmarken"]:hover)
+  :is(din-falzmarke-1, din-falzmarke-2, din-lochmarke),
+body:has(#toggle-anlagen:is(:hover, :focus-visible), label[for="toggle-anlagen"]:hover)
+  din-anlagenvermerk,
+body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover)
+  din-geschaeftsangaben {
+  outline: 2px dashed var(--accent-color);
+  outline-offset: 2px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   KALENDER (#datum, date-picker.js)
+   Popover am Feld, rechtsbuendig wie die Strassenliste (das Datum steht im
+   Infoblock nahe dem rechten Blattrand). Kein neues Farbtoken: alle Werte
+   kommen aus dem Token-Block in base.css.
+   --------------------------------------------------------------------------- */
+#datum { anchor-name: --anchor-datum; }
+
+#datum-kalender,
+#datum-kalender[popover] {
+  position-anchor: --anchor-datum;
+  top: anchor(bottom);
+  /* Rechtsbuendig: linksbuendig liefe der Kalender ueber den Blattrand. */
+  left: auto;
+  right: anchor(right);
+  /* Genau so breit wie das Datumsfeld (gemessen 22.11.2026: 246 px = 65 mm).
+     Nicht breiter — der Kalender soll unter dem Feld sitzen, nicht daneben
+     herausragen. Die 7 Spalten bleiben bei dieser Breite 29 px breit. */
+  inline-size: anchor-size(width);
+  padding: var(--space-sm);
+}
+
+/* `display` NUR im offenen Zustand setzen. Stand es in der Basis-Regel,
+   ueberschrieb es das UA-`display: none` fuer geschlossene Popover: der
+   Kalender war unsichtbar (opacity 0), lag aber weiter ueber dem Blatt und
+   fing Klicks ab (gemessen 2026-11-22: elementFromPoint traf
+   span.kalender-leer bei geschlossenem Popover). */
+#datum-kalender:popover-open {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.kalender-kopf {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+.kalender-nav,
+.kalender-titel,
+.kalender-tag,
+.kalender-monat,
+.kalender-heute {
+  font: inherit;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.kalender-nav {
+  inline-size: 1.8rem;
+  block-size: 1.8rem;
+  line-height: 1;
+}
+
+.kalender-titel {
+  font-weight: 600;
+  text-align: center;
+  padding-inline: var(--space-2xs);
+}
+
+.kalender-gitter {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.kalender-wochentag {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--text-muted);
+  padding-block: 2px;
+}
+
+.kalender-leer {
+  aspect-ratio: 1;
+}
+
+.kalender-tag {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+}
+
+.kalender-nav:hover,
+.kalender-titel:hover,
+.kalender-tag:hover,
+.kalender-monat:hover,
+.kalender-heute:hover {
+  background: color-mix(in oklch, var(--accent-color) 18%, transparent);
+}
+
+/* Heute: nur ein Ring — die Auswahl bekommt die Fuellung. */
+.kalender-tag.ist-heute {
+  border-color: color-mix(in oklch, var(--accent-color) 55%, transparent);
+  font-weight: 700;
+}
+
+.kalender-tag[aria-current="date"] {
+  background: color-mix(in oklch, var(--accent-color) 30%, transparent);
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
+  font-weight: 700;
+}
+
+.kalender-gitter-monate {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.kalender-monat {
+  padding: var(--space-2xs);
+}
+
+.kalender-monat[aria-current="true"] {
+  background: color-mix(in oklch, var(--accent-color) 22%, transparent);
+  font-weight: 600;
+}
+
+.kalender-fuss {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.kalender-heute {
+  padding: 2px var(--space-sm);
+  border-color: var(--border-color);
+}

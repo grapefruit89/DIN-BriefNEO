@@ -52,3 +52,19 @@ test/traces/*.json
 # man die Datei committen, hiesse sie nach dem Commit wieder anders als HEAD.
 batch/**/merge.txt
 batch/**/verweise/
+
+# Ausgelieferte Webfonts. Im Repo darf nur liegen, was die Lizenz erlaubt:
+# Inter (SIL OFL 1.1) und Liberation Sans (SIL OFL 1.1, metrisch identisch zu
+# Arial). Alles andere bleibt lokal in fonts/ (Aptos = Microsoft,
+# Michelangelus = kommerziell) und wird nur vom Dev-Server ausgeliefert.
+website/fonts/*
+!website/fonts/inter_18pt-regular.woff2
+!website/fonts/inter_18pt-bold.woff2
+!website/fonts/liberation-sans-regular.woff2
+!website/fonts/liberation-sans-bold.woff2
+!website/fonts/LICENSE-Liberation.txt
+# fonts/ KOMPLETT: lokale Schriften und ihre Werkzeuge. Nichts davon ins Repo
+# (Lizenz: Aptos = Microsoft, Michelangelus = kommerziell).
+# Mit fuehrendem Schraegstrich: ohne ihn trifft das Muster auch
+# website/fonts/ und haette die ausgelieferten Schriften stumm gesperrt.
+/fonts/

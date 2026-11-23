@@ -15,9 +15,11 @@
 
 import { Events, eventBus } from './core.js';
 import { Field } from './field.js';
+import { aktuelleStunde } from './format.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { letterState, setMeta, unsetMeta } from './state.js';
 import { applyValue } from './state-binding.js';
+import { initVorschlagsliste } from './suggestion-list.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 
@@ -26,27 +28,146 @@ export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
     salutationDefault: 'Sehr geehrte Damen und Herren,',
     salutationMale: 'Sehr geehrter Herr',
     salutationFemale: 'Sehr geehrte Frau',
-    closing: 'Mit freundlichen Grüßen'
+    closing: 'Mit freundlichen Grüßen',
+    /* Drei Grussformeln je Tonalitaet (Vorgabe 2026-11-22, 3x3). Die erste
+       ist die automatische; alle drei stehen im Dropdown am Grußfeld. */
+    closings: ['Mit freundlichen Grüßen', 'Mit freundlichem Gruß', 'Freundliche Grüße']
   },
   polite: {
     salutationDefault: 'Guten Tag,',
     salutationMale: 'Guten Tag Herr',
     salutationFemale: 'Guten Tag Frau',
-    closing: 'Freundliche Grüße'
+    closing: 'Freundliche Grüße',
+    closings: ['Freundliche Grüße', 'Beste Grüße', 'Viele Grüße']
   },
   casual: {
     salutationDefault: 'Hallo,',
     salutationMale: 'Hallo Herr',
     salutationFemale: 'Hallo Frau',
-    closing: 'Beste Grüße'
+    closing: 'Beste Grüße',
+    closings: ['Beste Grüße', 'Viele Grüße', 'Herzliche Grüße']
   }
 }));
+
+/**
+ * Grussformel nach Tageszeit. Reine Funktion (Stunde wird uebergeben) und
+ * damit ohne Uhr testbar.
+ *   5–10 Uhr  -> "Guten Morgen"
+ *   11–17 Uhr -> "Guten Tag"
+ *   18–4 Uhr  -> "Guten Abend"
+ * @param {number} stunde 0–23
+ * @returns {'Guten Morgen' | 'Guten Tag' | 'Guten Abend'}
+ */
+export function tageszeitGruss(stunde) {
+  if (!Number.isFinite(stunde)) return 'Guten Tag';
+  if (stunde >= 5 && stunde < 11) return 'Guten Morgen';
+  if (stunde >= 18 || stunde < 5) return 'Guten Abend';
+  return 'Guten Tag';
+}
+
+/**
+ * Alle Anrede-Varianten zum aktuellen Empfaenger, fuer die Auswahl am Feld.
+ *
+ * Linguistischer Hintergrund: die Toene bilden die **T-V-Unterscheidung**
+ * (Distanz vs. Vertrautheit; im Deutschen Siezen/Duzen plus Titel) und das
+ * **Register** des Schreibens ab — deshalb drei Stufen statt beliebig vieler
+ * Formulierungen. Die Farben der drei Gruppen stehen in `sidebar.css`
+ * (ordinale Skala: Blau = distanziert, Rot = vertraut).
+ *
+ * Mit Empfaengernamen NUR die Formen mit Namen (die allgemeinen waeren hier
+ * falsch), dazu je Stil eine Variante mit anderem Tonfall (sehr verehrt /
+ * liebe(r)). Ist nur eine FIRMA bekannt, kommen Team-Formen. Ohne beides nur
+ * die allgemeinen Formen. Doppelte werden entfernt. Liegt eine Uhrzeit vor
+ * (`stunde`), bietet der hoefliche Ton zusaetzlich die Tageszeit-Grussform an
+ * (Uhr zoniert aus `format.js`, A48/A50).
+ *
+ * Bewusst nicht enthalten: regionale Formen (Moin/Servus), Gendern und
+ * Mehrpersonen-Anreden — 80/20-Entscheidung vom 2026-11-22.
+ *
+ * @param {string} rawName Ansprechpartner (darf leer sein)
+ * @param {string} [rawFirma] Firma/Behoerde, wenn kein Ansprechpartner bekannt ist
+ * @param {number | null} [stunde] aktuelle Stunde 0-23; null = neutral
+ * @returns {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>}
+ */
+/* @review 2026-11-22 Herzstueck der Anrede: 5 Varianten mit Person, 5 mit Firma
+   (Team-Formen), 3-4 ohne alles; je drei Grussformeln pro Ton (#initGruesse).
+   Doppelte werden ohne Satzzeichen erkannt. */
+export function salutationVarianten(rawName, rawFirma = '', stunde = null) {
+  const name = String(rawName || '').trim();
+  const firma = String(rawFirma || '').trim();
+  /** @type {Array<{ anrede: string, style: 'formal'|'polite'|'casual', ton: string }>} */
+  const out = [];
+  const gesehen = new Set();
+  /** @param {string} anrede @param {'formal'|'polite'|'casual'} style */
+  /** Vergleich ohne Satzzeichen/Gross-Klein: "Guten Tag Frau X," und
+   *  "Guten Tag, Frau X," sind fuer den Leser dieselbe Anrede. */
+  /** @param {string} text @returns {string} */
+  const schluessel = (text) => text.toLowerCase().replace(/[^a-zäöüß ]/g, '').replace(/\s+/g, ' ').trim();
+  /** @param {string} anrede @param {'formal'|'polite'|'casual'} style */
+  const dazu = (anrede, style) => {
+    const text = String(anrede || '').trim();
+    const k = schluessel(text);
+    if (!text || gesehen.has(k)) return;
+    gesehen.add(k);
+    out.push({ anrede: text, style, ton: style });
+  };
+  for (const style of STYLES) {
+    if (!name && firma) {
+      /* Team-Formen: die Person fehlt, die Organisation ist bekannt. */
+      if (style === 'formal') {
+        dazu('Sehr geehrte Damen und Herren,', style);
+        dazu(`Sehr geehrtes Team der ${firma},`, style);
+      } else if (style === 'polite') {
+        dazu('Guten Tag,', style);
+        dazu('Guten Tag zusammen,', style);
+      } else {
+        dazu('Hallo zusammen,', style);
+      }
+      continue;
+    }
+    if (!name) {
+      /* Ohne Empfaengernamen sind die allgemeinen Formen die einzigen, die
+         stimmen koennen. DIN 5008 (20.9.4) zeigt fuer den hoeflichen Ton
+         zusaetzlich "Guten Tag, geschaetzte Damen und Herren,". */
+      dazu(SALUTATION_TONES[style].salutationDefault, style);
+      if (style === 'polite') dazu('Guten Tag, geschätzte Damen und Herren,', style);
+      continue;
+    }
+    const basis = deriveSalutation(name, style);
+    dazu(basis, style);
+    /* Hoeflicher Ton: zusaetzlich die Grussform der aktuellen Tageszeit
+       (Vorgabe 2026-11-22; Uhr kommt zoneiert aus format.js, A48/A50). */
+    if (style === 'polite' && basis.startsWith('Guten Tag') && Number.isFinite(stunde)) {
+      const gruss = tageszeitGruss(/** @type {number} */ (stunde));
+      if (gruss !== 'Guten Tag') dazu(basis.replace('Guten Tag', gruss), style);
+    }
+    /* Erweiterungen, die dieselbe Stil-Gruppe (und damit denselben Gruss)
+       behalten: foermlicher bzw. persoenlicher als die Standardform. */
+    if (style === 'formal') {
+      if (basis.startsWith('Sehr geehrte')) dazu(basis.replace('Sehr geehrte', 'Sehr verehrte'), style);
+      if (basis.startsWith('Sehr geehrter')) dazu(basis.replace('Sehr geehrter', 'Sehr verehrter'), style);
+    }
+    if (style === 'casual') {
+      if (basis.startsWith('Hallo Frau')) dazu(basis.replace('Hallo Frau', 'Liebe Frau'), style);
+      else if (basis.startsWith('Hallo Herr')) dazu(basis.replace('Hallo Herr', 'Lieber Herr'), style);
+      /* Sonst NICHT ersetzen: "Hallo," wurde frueher zu "Liebe," (grammatisch
+         falsch, gemeldet 2026-11-22 indirekt ueber die Firmen-Varianten). */
+    }
+  }
+  return out;
+}
 
 const CLOSINGS = Object.freeze({
   formal: SALUTATION_TONES.formal.closing,
   polite: SALUTATION_TONES.polite.closing,
   casual: SALUTATION_TONES.casual.closing
 });
+
+/** Alle angebotenen Grussformeln (3 je Ton) - fuer #seedAuto. */
+/** @type {Set<string>} */
+const ALLE_GRUESSE = new Set(
+  Object.values(SALUTATION_TONES).flatMap((ton) => [...ton.closings])
+);
 
 const FALLBACK = Object.freeze({
   formal: SALUTATION_TONES.formal.salutationDefault,
@@ -55,7 +176,6 @@ const FALLBACK = Object.freeze({
 });
 
 const FALLBACK_SET = new Set(Object.values(FALLBACK));
-const CLOSINGS_SET = new Set(Object.values(CLOSINGS));
 
 const ORG_WORDS = new Set(['gmbh', 'ag', 'eg', 'ug', 'ev', 'kg', 'ohg', 'gbr', 'kgaa', 'ek']);
 const PARTICLES = new Set(['von', 'vom', 'zu', 'zur', 'zum', 'van', 'der', 'den', 'de', 'ten', 'ter', 'la', 'le', 'du', 'di']);
@@ -174,6 +294,12 @@ export class SalutationFeature {
   /** @type {(() => void) | null} */
   #unsubDocChanged = null;
 
+  /** @type {{ zerstoeren: () => void } | null} */
+  #liste = null;
+
+  /** @type {{ zerstoeren: () => void } | null} */
+  #gruesse = null;
+
   /**
    * @param {import('./settings.js').SettingsManager | null} [settingsManager]
    */
@@ -184,14 +310,8 @@ export class SalutationFeature {
   }
 
   init() {
-    const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-    if (styleSelect) {
-      styleSelect.value = this.settings.formality;
-      styleSelect.addEventListener('change', () => {
-        this.#setStyle(toStyle(styleSelect.value));
-      });
-    }
-
+    /* Kein eigenes Auswahlfeld mehr (2026-11-22): die Tonalitaet kommt aus der
+       Anrede-Wahl (#uebernehme -> #setStyle) und liegt in den Einstellungen. */
     this.#seedAuto();
 
     document.getElementById('empfaenger-name')?.addEventListener('input', () => this.#update('anrede'));
@@ -211,6 +331,9 @@ export class SalutationFeature {
       });
     }
 
+    this.#initVarianten();
+    this.#initGruesse();
+
     /* Reset und Undo/Redo melden sich als DOCUMENT_CHANGED. Ein eigener
      * Dialog-Listener waere ein zweiter Pfad fuer denselben Zustand (und ein
      * zweiter Speicherimpuls). Deshalb haengt hier beides: erst vorhandenen
@@ -223,10 +346,76 @@ export class SalutationFeature {
     this.refresh();
   }
 
+  /**
+   * Auswahl der Anrede direkt am Feld auf dem Blatt. Bedienung (Klick,
+   * Pfeile, Enter, Escape, Tippen) kommt aus `initVorschlagsliste` — hier
+   * steht nur, WAS angeboten wird und was beim Klick passiert.
+   */
+  #initVarianten() {
+    this.#liste = initVorschlagsliste({
+      feld: 'anrede',
+      popover: 'anrede-vorschlaege',
+      /* Varianten haengen nur am Empfaengernamen; beim Tippen im Anrede-Feld
+         bleibt die Liste stehen (kein Flackern, 2026-11-22). */
+      statisch: true,
+      hole: () =>
+        salutationVarianten(this.#nameFeldText(), this.#firmaText(), aktuelleStunde()).map((v) => ({
+          text: v.anrede,
+          gruppe: v.ton,
+          wert: v
+        })),
+      beiWahl: (/** @type {any} */ v) => this.#uebernehme(v.wert)
+    });
+  }
+
+  /**
+   * Grußfeld als Auswahl: die drei Grußformeln der aktuellen Tonalitaet
+   * (Vorgabe 2026-11-22: 3x3). Eine Wahl markiert das Feld als Nutzertext,
+   * damit die Automatik es danach stehen laesst.
+   */
+  #initGruesse() {
+    this.#gruesse = initVorschlagsliste({
+      feld: 'grussformel',
+      popover: 'gruss-vorschlaege',
+      /* Die Liste haengt nur an der Tonalitaet, nicht am Tippen. */
+      statisch: true,
+      hole: () => {
+        const ton = toStyle(this.settings.formality);
+        return SALUTATION_TONES[ton].closings.map((text) => ({ text, gruppe: ton, wert: text }));
+      },
+      beiWahl: (/** @type {any} */ v) => {
+        applyValue('grussformel', v.text, 'logic');
+        setMeta(letterState, 'grussformel', { userSet: true });
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+      }
+    });
+  }
+
+  /**
+   * Uebernimmt eine Variante: Stil zuerst (zieht den Gruß nach), dann die
+   * Anrede — und markiert sie als Nutzerwahl, damit die Automatik sie stehen
+   * laesst.
+   * @param {{ anrede: string, style: 'formal'|'polite'|'casual' }} v
+   */
+  #uebernehme(v) {
+    this.#setStyle(v.style);
+    applyValue('anrede', v.anrede, 'logic');
+    setMeta(letterState, 'anrede', { userSet: true });
+    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+  }
+
   destroy() {
     if (this.#unsubDocChanged) {
       this.#unsubDocChanged();
       this.#unsubDocChanged = null;
+    }
+    if (this.#liste) {
+      this.#liste.zerstoeren();
+      this.#liste = null;
+    }
+    if (this.#gruesse) {
+      this.#gruesse.zerstoeren();
+      this.#gruesse = null;
     }
   }
 
@@ -239,10 +428,6 @@ export class SalutationFeature {
   /** @param {'formal' | 'polite' | 'casual'} style */
   #setStyle(style) {
     this.settings.formality = style;
-    const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-    if (styleSelect?.value !== style) {
-      if (styleSelect) styleSelect.value = style;
-    }
     if (this.#settingsManager) {
       this.#settingsManager.updateSettings();
     } else {
@@ -271,12 +456,22 @@ export class SalutationFeature {
     const grussEl = document.getElementById('grussformel');
     const gruss = Field.getValue(grussEl).trim();
     if (gruss) {
-      const isAutoGruss = CLOSINGS_SET.has(/** @type {any} */ (gruss));
+      const isAutoGruss = ALLE_GRUESSE.has(gruss);
       if (isAutoGruss && grussEl) {
         unsetMeta(letterState, 'grussformel', 'userSet');
         this.#auto.grussformel = gruss;
       }
     }
+  }
+
+  /** Nur der Ansprechpartner (ohne Firmen-Rueckfall). @returns {string} */
+  #nameFeldText() {
+    return Field.getValue(document.getElementById('empfaenger-name')).trim();
+  }
+
+  /** Firma/Behoerde der Anschrift. @returns {string} */
+  #firmaText() {
+    return Field.getValue(document.getElementById('empfaenger-firma')).trim();
   }
 
   #nameText() {
@@ -319,4 +514,18 @@ export class SalutationFeature {
     unsetMeta(letterState, kind, 'userSet');
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
   }
+}
+
+/**
+ * Aktuelle Tonalitaet aus den Einstellungen. Seit 2026-11-22 gibt es kein
+ * eigenes Auswahlfeld mehr: die Tonalitaet wird durch die Anrede-Wahl gesetzt
+ * (#uebernehme -> #setStyle) und liegt in `din_settings.formality`. Wer sie
+ * nur lesen will (Debug-Panel, Testbrief), holt sie hier — nicht aus dem DOM.
+ * @returns {'formal' | 'polite' | 'casual'}
+ */
+export function aktuelleTonalitaet() {
+  const gespeichert = /** @type {{ formality?: string } | null} */ (
+    loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS)
+  );
+  return toStyle(gespeichert?.formality);
 }

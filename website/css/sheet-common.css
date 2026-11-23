@@ -20,7 +20,7 @@
 /* --- DIN-GEOMETRIE (SSoT: die Tokens stehen in base.css "2a. DIN-5008-GEOMETRIE") --- */
 din-blatt {
   font-family: var(--active-font-family, var(--font-system-stack));
-  font-size-adjust: 0.52;
+  font-size-adjust: 0.535;
   font-variant-numeric: tabular-nums;
 
   /* Dimensionslose Blattmasse; --blatt-breite/--blatt-hoehe erbt din-blatt
@@ -300,28 +300,6 @@ din-anlagen-angabe {
   flex-shrink: 0;
 }
 
-/* UX-4: Rueckmeldung nach dem Einfuegen einer Anschrift (clipboard-parser.js).
-   Nur `background` — keine Geometrie, kein Layout, kein Druck. */
-@keyframes feld-puls {
-  from {
-    background: light-dark(oklch(0.92 0.08 145), oklch(0.75 0.10 145));
-  }
-  to {
-    background: transparent;
-  }
-}
-
-.field-highlight {
-  animation: feld-puls 500ms ease-out;
-}
-
-/* Wer Bewegung reduziert haben will, bekommt keine Animation — der Zustand
-   bleibt gesetzt, ist aber unsichtbar (siehe Kommentar in clipboard-parser.js). */
-@media (prefers-reduced-motion: reduce) {
-  .field-highlight {
-    animation: none;
-  }
-}
 
 /* DIN 5008 Tab. B.1, Fussnote a: "Zeilenhöhe 4,23 mm (= 12 Punkt)". Die vier
    Empfaengerzeilen brauchen dieses Raster: ab der ersten Zeile der
@@ -401,6 +379,11 @@ din-anlagen-angabe {
      es nimmt die UA-Vorgabe (13,33px). Dann wird aus 7,5pt/3,2mm eine 4,2-mm-
      Zeile und das 15-mm-Raster der Zone laeuft ueber (gemessen 2026-11-12). */
   font-size: inherit;
+  /* font-size-adjust fehlt dem <input> ebenfalls (UA-Vorgabe: none). Ohne
+     inherit rechnet das Feld die optische Groesse NICHT mit, waehrend der
+     Fliesstext daneben mitrechnet — bei Schriften mit anderer x-Hoehe stehen
+     die Zeilen dann schief zueinander (gemessen 2026-11-23). */
+  font-size-adjust: inherit;
   letter-spacing: inherit;
   appearance: none;
   height: 1.2em;
@@ -424,6 +407,7 @@ din-anlagen-angabe {
   background: transparent;
   color: inherit;
   font-family: inherit;
+  font-size-adjust: inherit;
   letter-spacing: inherit;
   appearance: none;
   height: 1.4em;
@@ -453,6 +437,11 @@ din-anlagen-angabe {
    rechts (125-190 mm), geaendert wird nur die Textausrichtung. */
 #datum {
   text-align: right;
+  /* Datum tiefer, knapp ueber die Falzmarke (87 mm): vorher stand es bei
+     59,7 mm und damit dicht unter der E-Mail-Zeile. 18 mm Abstand setzen die
+     Unterkante auf ~82,6 mm — 4,4 mm Luft zur Falz, 6,4 mm zum Betreff
+     (gemessen 2026-11-22). */
+  margin-top: 18mm;
 }
 
 /* Hier stand `.single-line[contenteditable]:focus`. Kein Element traegt beide
@@ -600,7 +589,7 @@ din-anlagen-angabe {
     /* Literale Warnfarbe statt var(--c-danger): die Variable liefert
        light-dark(...) und wurde im outline-Shorthand verworfen (gemessen
        2026-11-12: errechnet blieb die UA-Fokusoptik, 3px dunkel). */
-    outline: 2px solid oklch(0.55 0.22 25) !important;
+    outline: 2px solid var(--farbe-markierung-fehler) !important;
     outline-offset: -2px;
     border-radius: 3px;
     animation: feld-voll-stopp 180ms ease-out;

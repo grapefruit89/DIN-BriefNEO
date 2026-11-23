@@ -30,8 +30,8 @@
     <title>DIN-BriefNEO | Pure Refactored</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
     <link rel="stylesheet" href="css/base.css?v=live6">
-    <link rel="stylesheet" href="css/sidebar.css?v=live7">
-    <link rel="stylesheet" href="css/sheet-common.css?v=common1">
+    <link rel="stylesheet" href="css/sidebar.css?v=live24">
+    <link rel="stylesheet" href="css/sheet-common.css?v=common2">
     <link rel="stylesheet" href="css/sheet-multipage.css?v=multi1">
     <script src="js/boot.js?v=boot2"></script>
     <script type="module" src="js/main.js?v=live6"></script>
@@ -86,24 +86,22 @@
           <button type="button" id="btn-zustand-aendern" class="zustand-aendern" aria-label="Ansicht ändern">ändern</button>
         </p>
 
-        <!-- Zone 1: Brief-Steuerung -->
-        <section id="zone-dokument" class="seitenleiste-zone">
-          <!-- Ueberschriften-Ebene: h1 (Seite, sr-only) -> h2 Zone -> h3 Gruppe.
-               Reine Struktur fuer Screenreader und die Gliederung; die Labels
-               an den Reglern bleiben Labels. -->
-          <h2 class="seitenleiste-h2">Brief</h2>
+        <!-- Zone 1: Brief-Steuerung. Der sichtbare Zonentitel entfaellt hier
+             (2026-11-22, Nutzerwunsch) - fuer Screenreader bleibt er als
+             sr-only-Ueberschrift stehen, damit die h3-Gruppen keinen Waisen
+             haben und die Zone einen Namen behaelt. -->
+        <section id="zone-dokument" class="seitenleiste-zone" aria-labelledby="zone-dokument-titel">
+          <h2 id="zone-dokument-titel" class="sr-only">Brief</h2>
 
           <!-- Adressen zuerst: der Brief beginnt mit dem Empfaenger. -->
-<search id="anschrift-suche-container" class="seitenleiste-options-group">
-            <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
-            <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
-            <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
-            <ul id="strasse-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Straßen-Vorschläge"></ul>
-          </search>
-
-          <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" data-addon="clipboard-parser" data-addon-action="parse" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
-          <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
+          <!-- Popover der Feld-Vorschlaege. Sie stehen im Top-Layer und werden
+               per CSS-Anchor am jeweiligen Feld positioniert; der DOM-Ort ist
+               beliebig. Bis 2026-11-22 lagen sie in der "Anschrift suchen"-
+               Box (entfallen) — deshalb stehen sie jetzt fuer sich. -->
+          <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
+          <ul id="strasse-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Straßen-Vorschläge"></ul>
+          <ul id="anrede-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Anrede-Varianten"></ul>
+          <ul id="gruss-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="Grußformeln"></ul>
 
           <hr class="seitenleiste-divider">
 
@@ -132,14 +130,6 @@
               </select>
             </div>
 
-            <div class="seitenleiste-field-group">
-              <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
-              <select id="stil-select" class="seitenleiste-select" aria-label="Brief-Stil &amp; Anrede">
-                <option value="formal">Förmlich (Sehr geehrte(r)...)</option>
-                <option value="polite">Höflich (Guten Tag...)</option>
-                <option value="casual">Locker (Hallo...)</option>
-              </select>
-            </div>
 
           </div>
 
@@ -236,14 +226,14 @@
           <div class="seitenleiste-setup-content">
             <div class="seitenleiste-field-group">
               <label for="select-schriftart" class="seitenleiste-sub-label">Schriftart / Stil:</label>
+              <input type="search" id="schrift-filter" class="input-field w-full" placeholder="Schrift suchen …"
+                     aria-label="Systemschriften filtern" autocomplete="off" spellcheck="false" hidden>
               <select id="select-schriftart" class="seitenleiste-select w-full" aria-label="Schriftart für DIN-Brief wählen">
                 <optgroup label="System-Standard">
-                  <option value="default" selected>Liberation Sans / System-UI</option>
+                  <option value="default" selected>Liberation Sans (18pt DIN-Subset)</option>
                 </optgroup>
-                <optgroup label="Test-Schriften (Lokal)">
+                <optgroup label="Mitgeliefert (im Repo)">
                   <option value="inter">Inter (18pt DIN-Subset)</option>
-                  <option value="aptos">Aptos (Lokal)</option>
-                  <option value="michelangelus">Michelangelus (Serife)</option>
                 </optgroup>
               </select>
               <button type="button" id="btn-schrift-aktion" class="btn w-full" data-font-state="empty">
@@ -276,7 +266,15 @@
             </div>
 
             <div class="seitenleiste-field-group">
-              <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
+              <p class="key-zeile">
+                <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
+                <a
+                  class="key-hint-link"
+                  href="https://myprojects.geoapify.com/projects"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Geoapify API-Key hier erstellen (neuer Tab)">hier erstellen</a>
+              </p>
               <input
                 type="password"
                 id="input-geoapify-key" aria-describedby="geoapify-status"
@@ -285,9 +283,6 @@
                 spellcheck="false"
                 placeholder="Key einfügen (optional für Adress-Vorschläge)…">
               <small id="geoapify-status" class="input-status-hint" role="status"></small>
-              <a class="key-hint-link" href="https://myprojects.geoapify.com/projects" target="_blank" rel="noopener noreferrer">
-                Key bei Geoapify erstellen <span aria-hidden="true">↗</span>
-              </a>
             </div>
 
             <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
@@ -303,6 +298,10 @@
               <div class="seitenleiste-switch-row">
                 <label for="plugin-geschaeftsangaben" class="seitenleiste-label">Geschäftsangaben (§ 35a)</label>
                 <input type="checkbox" switch id="plugin-geschaeftsangaben" data-addon-toggle="geschaeftsangaben">
+              </div>
+              <div class="seitenleiste-switch-row">
+                <label for="toggle-debug" class="seitenleiste-label">Debug-Panel</label>
+                <input type="checkbox" switch id="toggle-debug">
               </div>
               <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
                    stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
@@ -377,7 +376,10 @@
               <input type="text" id="absender-ort" data-atom class="single-line" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="50">
               <input type="tel" id="absender-tel" data-atom class="single-line" placeholder="Telefon (optional)" aria-label="Telefonnummer" autocomplete="off" inputmode="tel" spellcheck="false" enterkeyhint="next" maxlength="50">
               <input type="email" id="absender-mail" data-atom class="single-line" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse" autocomplete="off" inputmode="email" autocapitalize="none" spellcheck="false" enterkeyhint="done" maxlength="50">
-              <input type="text" id="datum" data-atom data-font="10" class="single-line" data-feldtyp="systemwert" placeholder="2. September 2026" aria-label="Datum" autocomplete="off" spellcheck="false" enterkeyhint="done" maxlength="30">
+              <input type="text" id="datum" data-atom data-font="10" class="single-line" data-feldtyp="systemwert" placeholder="2. September 2026" aria-label="Datum" autocomplete="off" spellcheck="false" enterkeyhint="done" maxlength="30" aria-controls="datum-kalender" aria-haspopup="dialog">
+              <!-- Kalender zu #datum (date-picker.js). Popover im Top-Layer,
+                   am Feld verankert (--anchor-datum), erscheint nie im Druck. -->
+              <div id="datum-kalender" popover="auto" class="datum-kalender nicht-drucken" role="dialog" aria-label="Kalender"></div>
               <din-bezugszeichen id="bezugszeichen" hidden></din-bezugszeichen>
             </din-infoblock>
             <din-kern id="kern" data-left="25" data-right="20" role="region" aria-label="Briefkern">
@@ -466,6 +468,57 @@
         <form method="dialog"><button class="btn primary">Verstanden</button></form>
       </div>
     </dialog>
+
+
+    <!-- Debug-Panel: statisches Markup, per CSS am Schalter sichtbar (kein
+         Ein-/Ausblenden in JS). Die Werte schreibt debug-panel.js; das × ist
+         ein <label> auf denselben Schalter und schaltet ihn damit nativ aus. -->
+    <aside id="debug-panel" class="debug-panel nicht-drucken" role="complementary" aria-label="Entwickler-Informationen">
+      <div class="debug-kopf">
+        <strong>Debug · DIN-BriefNEO</strong>
+        <label for="toggle-debug" class="debug-schliessen" title="Panel ausschalten">×</label>
+      </div>
+      <dl class="debug-tabelle">
+        <dt>PLZ im Bestand</dt><dd id="dbg-plz">–</dd>
+        <dt>Ortsnamen</dt><dd id="dbg-orte">–</dd>
+        <dt>Ortsteile (PLZ)</dt><dd id="dbg-ortsteile">–</dd>
+        <dt>PLZ mit Bundesland</dt><dd id="dbg-bundesland">–</dd>
+        <dt>Adressbuch</dt><dd id="dbg-adressbuch">–</dd>
+        <dt>Geo-Cache</dt><dd id="dbg-cache">–</dd>
+        <dt>localStorage</dt><dd id="dbg-speicher">–</dd>
+        <dt>Entwurf</dt><dd id="dbg-entwurf">–</dd>
+        <dt>Gedruckt</dt><dd id="dbg-gedruckt">–</dd>
+        <dt>Layout</dt><dd id="dbg-layout">–</dd>
+        <dt>Unterrand</dt><dd id="dbg-unterrand">–</dd>
+        <dt>Uhrzeit</dt><dd id="dbg-uhr">–</dd>
+        <dt>Fehler/Warnungen</dt><dd id="dbg-fehler">–</dd>
+        <dt>Schrift</dt><dd id="dbg-schrift">–</dd>
+      </dl>
+      <dl class="debug-tabelle" id="debug-felder"></dl>
+      <div class="debug-block">
+        <div class="debug-block-kopf">
+          <strong>Anrede &amp; Grußformel</strong>
+          <button type="button" class="btn" data-dbg-liste="anrede-gruss" title="Tonalität, aktueller Wert und alle Angebote in die Zwischenablage">Copy to Clipboard</button>
+        </div>
+      </div>
+      <div class="debug-block">
+        <div class="debug-block-kopf">
+          <strong>Straßen (Absender &amp; Empfänger)</strong>
+          <button type="button" class="btn" data-dbg-liste="strassen" title="Aktueller Wert und alle Angebote beider Straßenfelder (fragt Geoapify live ab, kostet zwei Abrufe)">Copy to Clipboard</button>
+        </div>
+      </div>
+      <div class="debug-block">
+        <div class="debug-block-kopf">
+          <strong>PLZ + Ort (Absender &amp; Empfänger)</strong>
+          <button type="button" class="btn" data-dbg-liste="orte" title="Aktueller Wert und alle Angebote beider Ortsfelder (lokal, keine Netzanfrage)">Copy to Clipboard</button>
+        </div>
+      </div>
+      <div class="debug-knoepfe">
+        <button type="button" class="btn" id="dbg-copy-json" title="Debug-Werte, Brief-JSON und Fehler als JSON in die Zwischenablage">📋 Zustand (.json)</button>
+        <button type="button" class="btn" id="dbg-copy-log" title="Nur die Fehler und Warnungen in die Zwischenablage">📋 Fehler (.txt)</button>
+      </div>
+      <dl class="debug-tabelle" id="debug-log"></dl>
+    </aside>
 
     <!-- Setzt den gespeicherten UI-Zustand (Form, Postvermerk, Schalter) vor
          dem ersten Paint; ohne ihn springt die Anzeige beim Hard-Reload. -->

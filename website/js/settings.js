@@ -55,6 +55,7 @@ export class SettingsManager {
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
+    this.debugSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-debug'));
     this.pluginGeschaeftSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));
 
     this.isReady = false;
@@ -85,16 +86,22 @@ export class SettingsManager {
 
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), istAn(this.settings.marks));
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), istAn(this.settings.pluginTestbrief));
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.debugSwitch), this.settings.debugPanel === true);
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginGeschaeftSwitch), this.settings.pluginGeschaeftsangaben === true);
 
     /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
      * von #kern setzt. Nur zwei Werte — alles andere faellt auf DIN 5008
-     * (20mm) zurueck. */
+     * (20mm) zurueck.
+     * Der Wert steht seit 2026-11-22 als CSS-Regel in sheet-multipage.css
+     * (`:root:has(#btn-rand-u-30:checked) { --rand-u: 30mm; }`). Hier wird nur
+     * der Schalter gestellt und der Inline-Wert von boot.js abgegeben (der
+     * FOUC-Schutz vor dem ersten Paint) — danach ist die CSS-Regel die einzige
+     * Quelle. */
     const randU = this.settings.randU === 30 ? 30 : 20;
     this.settings.randU = randU;
-    document.documentElement.style.setProperty('--rand-u', `${randU}mm`);
     const randUSwitch = document.getElementById('btn-rand-u-30');
     if (randUSwitch instanceof HTMLInputElement) setzeSchalter(randUSwitch, randU === 30);
+    document.documentElement.style.removeProperty('--rand-u');
 
     this.#spiegleLayoutFlags();
     this.#applyPlugins();
@@ -314,6 +321,15 @@ export class SettingsManager {
       randUSwitch.addEventListener('change', () => {
         if (!this.isReady) return;
         this.changeRandU(randUSwitch.checked ? 30 : 20);
+      });
+    }
+
+    const debugSwitch = this.debugSwitch;
+    if (debugSwitch) {
+      debugSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.debugPanel = debugSwitch.checked;
+        this.updateSettings();
       });
     }
 

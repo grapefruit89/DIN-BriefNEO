@@ -66,14 +66,11 @@
 
     /* 2b. Die restlichen gespeicherten Regler. Sie standen bis 2026-11-12 nur
        in settings.js / font-feature.js / salutation.js - also NACH dem ersten
-       Paint. Belegt an #stil-select: erster Frame "formal" (HTML-Default),
-       15 ms nach FCP sprang er auf den Speicherwert. Jeder Wert wird gegen die
+       Paint. Belegt am frueheren #stil-select (2026-11-22 entfernt): erster
+       Frame "formal" (HTML-Default), 15 ms nach FCP sprang er auf den
+       Speicherwert. Die Tonalitaet hat heute kein eigenes Control mehr. Jeder Wert wird gegen die
        vorhandenen Optionen geprueft, damit nichts Fremdes aus localStorage in
        ein Control wandert. Die alten Stellen bleiben (idempotent). */
-    const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-    if (stil && [...stil.options].some((o) => o.value === settings.formality)) {
-      stil.value = String(settings.formality);
-    }
     const schrift = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-schriftart'));
     if (schrift && [...schrift.options].some((o) => o.value === settings.previewFont)) {
       schrift.value = String(settings.previewFont);

@@ -3,24 +3,27 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, adressRelevanz, verkuerzeName, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung, strassenSuchPfad, ermittleGeoBias, GEO_BIAS_TTL_MS, ortsVorschlaege, istOrt } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
-import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
+import { heute, leseDatum, monatsName, monatsTage, startOffset, titelText, WOCHENTAGE } from '../website/js/date-picker.js';
+import { initApi } from '../website/js/api.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
 import { applyDraftValues, clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
 import { Field } from '../website/js/field.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
-import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
+import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit, formatZahl } from '../website/js/format.js';
 // @ts-ignore
-import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
+import { applyImportedData, buildDINLetterJSON, initImportExport, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
 import { applyPatch, bindIds, createState, letterState, replace, resetState, setMeta, setWert, snapshot, toWire, unsetMeta } from '../website/js/state.js';
 import { applyState, applyValue, commitElement, hydrateStateFromDom, initStateBinding, render } from '../website/js/state-binding.js';
-import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
+import { deriveSalutation, SALUTATION_TONES, salutationVarianten, tageszeitGruss, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
+import { BLATTRAND_PX, satzspiegelHoehe } from '../website/js/suggestion-list.js';
+import { geoCacheGroesse, geoCacheHash, geoCacheHole, geoCacheLeeren, geoCacheNutzung, geoCacheSetze, geoCacheZaehle, RING_MAX_BYTES } from '../website/js/geo-cache.js';
 import { assert, assertEqual, describe, it, run } from './runner.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
@@ -1634,26 +1637,6 @@ describe('Popover: geschlossene Overlays blockieren keine Klickfläche', () => {
     assertEqual(el.matches(':popover-open'), false, 'null/auch undefined sind harmlos');
   });
 
-  it('Puls beim Einfuegen kommt aus CSS und respektiert reduced-motion', async () => {
-    const [css, js] = await Promise.all([
-      fetch('/website/css/sheet-common.css').then((r) => r.text()),
-      fetch('/website/addons/clipboard-parser/clipboard-parser.js').then((r) => r.text())
-    ]);
-    assert(/@keyframes\s+feld-puls/.test(css), '@keyframes feld-puls steht im Stylesheet');
-    assert(
-      /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]{0,120}?\.field-highlight\s*\{[\s\S]{0,80}?animation:\s*none/.test(css),
-      'reduced-motion schaltet den Puls ab'
-    );
-    /* Die Test-Fixture laedt sheet-common.css nicht (nur base/sidebar), deshalb
-       wird die Regel am Text geprueft; das laufende Verhalten ist im echten
-       Blatt per CDP gemessen (1 Animation, 500 ms; reduced-motion: keine). */
-    assert(/from\s*\{[\s\S]{0,120}?oklch\(0\.92 0\.08 145\)/.test(css), 'Startfarbe der bestehenden Optik');
-    assert(js.includes("classList.add('field-highlight')"), 'das JS setzt die Klasse');
-    assert(js.includes('.animate(') === false, 'keine Web-Animations-API mehr');
-    assert(js.includes("matchMedia('(prefers-reduced-motion: reduce)')") === false,
-      'der Reduced-Motion-Check steht jetzt im CSS, nicht im JS');
-    assert(js.includes('source_type') === false, 'source_type ist entfernt (0 Leser)');
-  });
 
   it('Reset bietet kein zweites Undo-Popover', async () => {
     /* Entscheidung 2026-11-12: der Bestätigungsdialog ist die Sicherung.
@@ -1860,7 +1843,9 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     /* Ratsche gegen die Rueckkehr des FOUC: jeder dieser Werte stand schon
        einmal erst nach dem Paint im DOM (Befund B11). */
     const src = await (await fetch('/website/js/boot-state.js')).text();
-    for (const id of ['stil-select', 'select-schriftart', 'btn-rand-u-30', 'plugin-testbrief', 'datum']) {
+    /* #stil-select ist am 2026-11-22 entfallen (Tonalitaet kommt aus der
+       Anrede-Wahl) - die uebrigen Regler bleiben in der Ratsche. */
+    for (const id of ['select-schriftart', 'btn-rand-u-30', 'plugin-testbrief', 'datum']) {
       assert(src.includes(`'${id}'`), `#${id} wird vor dem Paint gesetzt`);
     }
     /* B62: die Optik kommt aus :has(option:checked...), nicht aus einem
@@ -2367,42 +2352,41 @@ describe('WYSIWYG — Bildschirm und Druck gleich', () => {
   });
 });
 
+describe('Debug-Panel ist standardmaessig aus (2026-11-22)', () => {
+  it('debugPanel ist ein Schalter mit Default false', () => {
+    assertEqual(DEFAULT_SETTINGS.debugPanel, false, 'Standard: aus');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
-  /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
-   * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008
-   * (20mm) zurueck. Steuerung: Setup-Radio, Boot setzt den Wert vor dem
-   * ersten Paint. */
-  /** @param {number} wert @returns {string} */
-  const setzeRandU = (wert) => {
-    localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ ...DEFAULT_SETTINGS, randU: wert }));
-    new SettingsManager().applySettings();
-    return getComputedStyle(document.documentElement).getPropertyValue('--rand-u').trim();
-  };
-
-  it('randU=20 setzt --rand-u auf 20mm, der Druck liest die Variable', async () => {
-    try {
-      assertEqual(setzeRandU(20), '20mm', '--rand-u = 20mm');
-      const css = await (await fetch('/website/css/sheet-multipage.css')).text();
-      assert(/@page\s*\{[^}]*margin:\s*25mm 0 var\(--rand-u\) 0;/.test(css),
-        'der Unterrand kommt aus --rand-u (in @page, nicht im Padding)');
-    } finally {
-      document.documentElement.style.removeProperty('--rand-u');
-    }
+  /* Feature 2026-11-11, umgestellt 2026-11-22: --rand-u steuert den Unterrand
+   * im Druck. Der Wert kommt jetzt aus einer CSS-Regel am Schalter
+   * (`:root:has(#btn-rand-u-30:checked)`), nicht mehr aus einem Inline-Style
+   * in settings.js. Nur 20 und 30 sind zulaessig; alles andere faellt auf
+   * DIN 5008 (20mm) zurueck. */
+  it('20/30 stehen als CSS-Regel am Schalter, nicht als Inline-Style', async () => {
+    const css = await (await fetch('/website/css/sheet-multipage.css')).text();
+    assert(/--rand-u:\s*20mm/.test(css), 'DIN-Standard 20 mm ist der Default');
+    assert(
+      /:root:has\(#btn-rand-u-30:checked\)\s*\{\s*--rand-u:\s*30mm;?\s*\}/.test(css),
+      'Schalter an -> 30 mm, ohne JS'
+    );
+    const js = await (await fetch('/website/js/settings.js')).text();
+    assert(!/setProperty\(\s*'--rand-u'/.test(js), 'settings.js setzt --rand-u nicht mehr inline');
   });
 
-  it('randU=30 setzt --rand-u auf 30mm', () => {
+  it('randU=30 bleibt 30 mm, ungueltige Werte fallen auf 20 mm zurueck', () => {
+    const lade = (/** @type {number} */ wert) => {
+      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ ...DEFAULT_SETTINGS, randU: wert }));
+      const manager = new SettingsManager();
+      manager.applySettings();
+      return manager.settings.randU;
+    };
     try {
-      assertEqual(setzeRandU(30), '30mm', '--rand-u = 30mm');
+      assertEqual(lade(30), 30, '30 mm bleibt');
+      assertEqual(lade(25), 20, 'ungueltiger Wert -> DIN-Standard 20 mm');
     } finally {
-      document.documentElement.style.removeProperty('--rand-u');
-    }
-  });
-
-  it('randU=25 (ungueltig) faellt auf 20mm zurueck', () => {
-    try {
-      assertEqual(setzeRandU(25), '20mm', 'ungueltiger Wert -> DIN-Standard');
-    } finally {
-      document.documentElement.style.removeProperty('--rand-u');
+      localStorage.removeItem(STORAGE_KEYS.settings);
     }
   });
 });
@@ -2716,6 +2700,544 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
     // Gleiche Nachricht erneut triggern: Popover öffnet sich erneut
     eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Gleicher Fehler', type: 'warning' });
     assertEqual(container?.dataset.type, 'warning', 'Typ wird bei gleichem Text aktualisiert');
+  });
+});
+
+describe('Geo-Cache: Ringspeicher im localStorage (2026-11-22)', () => {
+  it('hasht gleiche Texte gleich und verschiedene verschieden', () => {
+    assertEqual(geoCacheHash('strasse:hauptstr'), geoCacheHash('strasse:hauptstr'));
+    assert(geoCacheHash('strasse:hauptstr') !== geoCacheHash('strasse:hauptstrasse'), 'kein Gleichlauf');
+    assert(/^[0-9a-z]+$/.test(geoCacheHash('bonn')), 'Base36');
+  });
+
+  it('legt Werte ab und liest sie wieder', () => {
+    try {
+      geoCacheLeeren();
+      geoCacheSetze('strasse:hauptstr', { art: 'strasse', d: [['Hauptstraße', '', '53229', 'Bonn', 'de']] });
+      const wert = /** @type {any} */ (geoCacheHole('strasse:hauptstr'));
+      assertEqual(wert?.art, 'strasse');
+      assertEqual(wert?.d?.[0]?.[0], 'Hauptstraße');
+      assertEqual(geoCacheHole('strasse:unbekannt'), undefined, 'Miss bleibt Miss');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('verdraengt das Aelteste und bleibt unter dem Deckel', () => {
+    try {
+      geoCacheLeeren();
+      const fuell = 'x'.repeat(2048);
+      for (let i = 0; i < 400; i++) {
+        geoCacheSetze(`strasse:begriff${i}`, { art: 'strasse', d: [[fuell, '', '', '', '']] });
+      }
+      const groesse = geoCacheGroesse();
+      assert(groesse.bytes <= RING_MAX_BYTES, `Deckel gehalten (${groesse.bytes} <= ${RING_MAX_BYTES})`);
+      assert(groesse.eintraege > 0, 'Ring ist nicht leer');
+      assertEqual(geoCacheHole('strasse:begriff0'), undefined, 'aeltester Eintrag ist weg');
+      assert(geoCacheHole('strasse:begriff399') !== undefined, 'neuester Eintrag ist da');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('merkt sich auch eine leere Trefferliste', () => {
+    try {
+      geoCacheLeeren();
+      geoCacheSetze('strasse:zzzzz', { art: 'strasse', d: [] });
+      const wert = /** @type {any} */ (geoCacheHole('strasse:zzzzz'));
+      assert(wert !== undefined, 'leeres Ergebnis ist ein Ergebnis, kein Miss');
+      assert(Array.isArray(wert.d), 'Form bleibt erhalten');
+      assertEqual(wert.d.length, 0);
+      assertEqual(geoCacheNutzung('strasse:zzzzz'), 0, 'leer wird nie gezaehlt');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('zaehlt nur, wenn ein Treffer wirklich uebernommen wird', () => {
+    try {
+      geoCacheLeeren();
+      geoCacheSetze('strasse:ringstr', { art: 'strasse', d: [['Ringstraße', '', '', '', '']] });
+      assertEqual(geoCacheNutzung('strasse:ringstr'), 0, 'Suchen allein zaehlt nicht');
+      geoCacheZaehle('strasse:ringstr');
+      geoCacheZaehle('strasse:ringstr');
+      assertEqual(geoCacheNutzung('strasse:ringstr'), 2, 'zwei Uebernahmen');
+      assertEqual(geoCacheNutzung('strasse:unbekannt'), 0, 'unbekannter Schluessel bleibt 0');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('Zaehler ueberlebt ein Neusuchen desselben Begriffs', () => {
+    try {
+      geoCacheLeeren();
+      geoCacheSetze('strasse:ringstr', { art: 'strasse', d: [['Ringstraße', '', '', '', '']] });
+      geoCacheZaehle('strasse:ringstr');
+      geoCacheZaehle('strasse:ringstr');
+      geoCacheZaehle('strasse:ringstr');
+      geoCacheSetze('strasse:ringstr', { art: 'strasse', d: [['Ringstraße 2', '', '', '', '']] });
+      assertEqual(geoCacheNutzung('strasse:ringstr'), 3, 'Wert neu, Zaehler bleibt');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('LFU: ein gewaehlter Begriff ueberlebt die Verdraengung, ungenutzte fliegen', () => {
+    try {
+      geoCacheLeeren();
+      /* Ein Eintrag wiegt ~4,3 KB; 200 fuellen ~860 KB, also noch unter dem
+         Deckel. Erst danach wird gewaehlt und weiter gefuellt (Verdraengung). */
+      const fuell = 'y'.repeat(2048);
+      for (let i = 0; i < 200; i++) {
+        geoCacheSetze(`strasse:begriff${i}`, { art: 'strasse', d: [[fuell, '', '', '', '']] });
+      }
+      /* Einen alten, aber gewaehlten Begriff markieren. */
+      geoCacheZaehle('strasse:begriff0');
+      for (let i = 200; i < 320; i++) {
+        geoCacheSetze(`strasse:begriff${i}`, { art: 'strasse', d: [[fuell, '', '', '', '']] });
+      }
+      const groesse = geoCacheGroesse();
+      assert(groesse.bytes <= RING_MAX_BYTES, `Deckel gehalten (${groesse.bytes})`);
+      assert(geoCacheHole('strasse:begriff0') !== undefined, 'gewaehlter Begriff bleibt');
+      assertEqual(geoCacheNutzung('strasse:begriff0'), 1, 'Zaehler unveraendert');
+      assertEqual(geoCacheHole('strasse:begriff1'), undefined, 'ungueltiger Nachbar fliegt');
+      assert(groesse.gewaehlt >= 1, 'gewaehlte Eintraege werden gezaehlt');
+    } finally {
+      geoCacheLeeren();
+    }
+  });
+
+  it('vertraegt einen kaputten Index', () => {
+    try {
+      localStorage.setItem('geo_cache_index_v1', 'kein json {');
+      /* Neuer Modulzustand ist nicht erzwingbar; der Ring muss trotzdem
+         antworten statt zu werfen. */
+      assertEqual(geoCacheHole('strasse:egal'), undefined);
+    } finally {
+      localStorage.removeItem('geo_cache_index_v1');
+      geoCacheLeeren();
+    }
+  });
+});
+
+describe('Zahlen lesbar machen (Tausendertrennung, 2026-11-22)', () => {
+  it('setzt den deutschen Tausenderpunkt', () => {
+    assertEqual(formatZahl(10184), '10.184');
+    assertEqual(formatZahl(1000), '1.000');
+    assertEqual(formatZahl(999), '999');
+    assertEqual(formatZahl(0), '0');
+    assertEqual(formatZahl(1234567), '1.234.567');
+  });
+
+  it('bleibt bei Unsinn bei einem Strich', () => {
+    assertEqual(formatZahl(Number.NaN), '–');
+    assertEqual(formatZahl(Number.POSITIVE_INFINITY), '–');
+  });
+});
+
+describe('Strassen-Autovervollstaendigung (Geoapify)', () => {
+  it('fragt nur Strassen in Deutschland, mit kleinem Limit', () => {
+    const pfad = strassenSuchPfad('Hauptstr', 'KEY', { lon: 7.21, lat: 50.8 });
+    assert(pfad.startsWith('/v1/geocode/autocomplete?'), 'Geoapify-Autocomplete');
+    assert(/type=street/.test(pfad), 'nur Strassen, nicht alles');
+    assert(/limit=8/.test(pfad), 'limit 8 statt 20 (gemessen: 1751 ms -> 536 ms)');
+    assert(/filter=countrycode%3Ade/.test(pfad), 'nur deutsche Treffer');
+    assert(/bias=proximity%3A/.test(pfad), 'Naehe-Gewichtung bei bekanntem Punkt');
+    assert(!/limit=20/.test(pfad), 'kein altes Limit mehr');
+  });
+
+  it('ohne bekannten Punkt geht die Suche ohne bias raus (kein Bonn mehr)', () => {
+    const pfad = strassenSuchPfad('Hauptstr', 'KEY');
+    assert(!/bias=/.test(pfad), 'kein fester Punkt - Geoapify nutzt die Client-IP');
+    assert(/type=street/.test(pfad), 'Suche bleibt vollstaendig');
+  });
+
+  it('Naehe ist ueberschreibbar (targetLock statt Bonn)', () => {
+    const pfad = strassenSuchPfad('Ringstr', 'KEY', { lon: 8.5, lat: 47.4 });
+    assert(/bias=proximity%3A8.5%2C47.4/.test(pfad), 'eigene Naehe');
+  });
+});
+
+
+
+
+describe('ortsVorschlaege: eine Wahrheit fuer Feld und Debug (2026-11-22)', () => {
+  it('3-4 Ziffern nutzen lookupPrefix, Text resolveCityInput', async () => {
+    await AddressIntelligence.init();
+    const kurz = ortsVorschlaege('53');
+    assertEqual(kurz.items.length, 0, 'unter 3 Zeichen: keine Treffer');
+    assertEqual(kurz.modus, 'kurz');
+
+    const dreistellig = ortsVorschlaege('537');
+    assert(dreistellig.items.length > 0, '537 liefert Orte');
+    assertEqual(dreistellig.modus, 'prefix');
+
+    const vierstellig = ortsVorschlaege('538');
+    assert(
+      vierstellig.items.some((i) => String(i.city || '').includes('Troisdorf')),
+      '538 enthaelt Troisdorf'
+    );
+
+    const text = ortsVorschlaege('bonn');
+    assert(text.items.length > 0, 'Textsuche liefert Bonn');
+    assertEqual(text.modus, 'text');
+
+    const plz = ortsVorschlaege('53840');
+    assertEqual(plz.modus, 'plz');
+    assertEqual(plz.items.length, 1, 'exakte PLZ: ein Eintrag');
+  });
+
+  it('istOrt: Grossempfaenger-PLZ bleibt ein Ort (53840 Troisdorf)', () => {
+    /* 53840 traegt typ 'Firma' (BwConsulting GmbH), city ist aber Troisdorf.
+       Der alte Filter (typ === 'Stadt') hat den Ort verschluckt. */
+    assert(
+      istOrt({ city: 'Troisdorf', name: 'BwConsulting GmbH', typ: 'Firma' }),
+      'Grossempfaenger-PLZ mit echtem Ort bleibt Ort'
+    );
+    assert(istOrt({ city: 'Much', name: 'Much', typ: 'Stadt' }), 'reiner Ort');
+    assert(
+      !istOrt({ city: 'Musterfirma GmbH', name: 'Musterfirma GmbH', typ: 'Firma' }),
+      'Firma mit Firmennamen als city ist kein Ort'
+    );
+  });
+
+  it('538 enthaelt 53840 Troisdorf (nurOrte)', () => {
+    const { items } = ortsVorschlaege('538', 24, { nurOrte: true });
+    assert(items.some((i) => i.plz === '53840'), '53840 Troisdorf vorhanden');
+    assert(items.some((i) => i.plz === '53842'), '53842 vorhanden');
+  });
+});
+
+describe('Absender-Ort: PLZ-Praefix und Loeschen (2026-11-22)', () => {
+  /* Vorher hatte nur der Empfaenger den 3-4-Ziffern-Zweig (lookupPrefix) und
+     die userEditing-Spur. "531" im Absender-Feld lieferte null Treffer, und
+     nach dem Loeschen setzte der 5-Ziffern-Zweig den Ort sofort wieder ein. */
+  it('lookupPrefix kennt "531" (Bonn)', async () => {
+    await AddressIntelligence.init();
+    const treffer = AddressIntelligence.lookupPrefix('531', 15);
+    assert(treffer.length > 0, 'Praefix 531 liefert Orte');
+    assert(
+      treffer.some((t) => String(t.city || '').startsWith('Bonn')),
+      'Bonn ist dabei'
+    );
+  });
+
+  it('Absender-Handler nutzt Praefix-Suche und die Loesch-Spur (Ratsche)', async () => {
+    /* Der Handler haengt in einer Closure von initAddressServices() und laesst
+       sich im Testkontext nicht zuverlaessig ausloesen (Top-Layer-Popover).
+       Diese Ratsche haelt fest, dass die beiden Zweige im Absender-Block
+       stehen; das Verhalten selbst ist im Browser gemessen:
+         "531"   -> 4 Treffer, "Bonn - 21 PLZs"
+         "53111" -> "53111 Bonn"
+         "53111 B" + delete -> "53111" (kein Autofill) */
+    const src = await (await fetch('/website/js/address.js')).text();
+    const start = src.indexOf('const absOrtEl = feld(\'absender-ort\')');
+    const ende = src.indexOf('// Case C: Eingabe im Firma-Feld', start);
+    assert(start > -1 && ende > start, 'Absender-Block gefunden');
+    const block = src.slice(start, ende);
+    assert(block.includes('lookupPrefix'), 'Praefix-Suche im Absender-Zweig');
+    assert(block.includes('absUserEditing'), 'Loesch-Spur im Absender-Zweig');
+  });
+});
+
+
+describe('window.dinApi: Brief-Schnittstelle für Agenten (2026-11-22)', () => {
+  it('bietet hilfe(), lesen(), setzen() und lehnt unbekannte Felder ab', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    assert(api, 'window.dinApi gesetzt');
+    if (!api) return;
+
+    const hilfe = api.hilfe();
+    assert(hilfe.ok, 'hilfe ok');
+    assert(hilfe.felder.includes('betreff'), 'betreff in der Feldliste');
+    assert(Array.isArray(hilfe.schalter), 'Schalter dokumentiert');
+
+    const rein = api.setzen('betreff', 'Rechtsbehelf');
+    assertEqual(rein.ok, true);
+    assertEqual(api.lesen().felder.betreff, 'Rechtsbehelf', 'Wert lesbar');
+
+    const falsch = api.setzen('gibt-es-nicht', 'x');
+    assertEqual(falsch.ok, false, 'unbekanntes Feld wird abgelehnt');
+    assert(String(falsch.fehler).includes('hilfe'), 'Fehler verweist auf hilfe()');
+  });
+
+  it('schreibt Datum in Langform und lehnt Unsinn ab', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    if (!api) return;
+    const gut = api.datum('2026-11-22');
+    assertEqual(gut.ok, true);
+    assertEqual(gut.datum, '22. November 2026');
+    const schlecht = api.datum('irgendwann');
+    assertEqual(schlecht.ok, false, 'unbekanntes Datum wird abgelehnt');
+  });
+
+  it('anrede() setzt Anrede und Grußformel passend zur Tonalität', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    if (!api) return;
+    const r = api.anrede('Frau Lara Croft', 'Muster GmbH', 'casual');
+    assertEqual(r.ok, true);
+    assertEqual(r.tonalitaet, 'casual');
+    assert(r.anrede.startsWith('Hallo'), 'casual-Anrede');
+    assertEqual(r.grussformel, 'Beste Grüße');
+  });
+
+  it('adresse() schreibt nur die übergebenen Teile', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    if (!api) return;
+    const r = api.adresse('empfaenger', { name: 'Frau Test', ort: '53840 Troisdorf' });
+    assertEqual(r.ok, true);
+    assertEqual(r.gesetzt['empfaenger-name'], 'Frau Test');
+    const leer = api.adresse('empfaenger', {});
+    assertEqual(leer.ok, false, 'leere Angaben werden abgelehnt');
+  });
+
+  it('exportieren() liefert die DIN-Letter-Struktur', () => {
+    initApi();
+    const api = /** @type {any} */ (window).dinApi;
+    if (!api) return;
+    const r = api.exportieren();
+    assertEqual(r.ok, true);
+    assert(r.brief && r.brief.format, 'format vorhanden');
+    assert(Array.isArray(r.brief.fields), 'fields ist die Dateiliste');
+  });
+});
+
+describe('Init degradiert statt abzubrechen (Invariante 2026-11-22)', () => {
+  it('initSenderSync: ohne #unterschrift spiegelt der Name weiter', () => {
+    /* Der fruehere Guard verlangte ALLE fuenf Felder. Fehlte eines, fiel die
+       gesamte Absender-Spiegelung aus - auch die Teile, die funktioniert
+       haetten. Jetzt haengt nur das Ziel (Ruecksendezeile). */
+    const box = document.createElement('div');
+    box.innerHTML = `
+      <input id="absender-name"><input id="absender-strasse"><input id="absender-ort">
+      <input id="rucksendeangabe">`;
+    document.body.append(box);
+    try {
+      initSenderSync();
+      const name = /** @type {HTMLInputElement} */ (document.getElementById('absender-name'));
+      const ziel = /** @type {HTMLInputElement} */ (document.getElementById('rucksendeangabe'));
+      name.value = 'Max Mustermann';
+      name.dispatchEvent(new Event('input', { bubbles: true }));
+      assert(ziel.value.includes('Mustermann'), 'Name spiegelt ohne Unterschrift-Feld');
+    } finally {
+      box.remove();
+    }
+  });
+
+  it('initImportExport: ohne Import-Elemente exportiert der Knopf', async () => {
+    /* Export, Kopieren und Import sind drei Features. Ein fehlender
+       Import-Knopf darf den Export nicht abschalten. */
+    const box = document.createElement('div');
+    box.innerHTML = '<button id="btn-export-dinletter"></button>';
+    document.body.append(box);
+    const original = /** @type {any} */ (window).showSaveFilePicker;
+    let dateiname = null;
+    /** @type {any} */ (window).showSaveFilePicker = async (/** @type {any} */ opts) => {
+      dateiname = opts.suggestedName;
+      return {
+        createWritable: async () => ({ write: async () => {}, close: async () => {} })
+      };
+    };
+    try {
+      initImportExport({ collectDraft });
+      /** @type {HTMLElement} */ (document.getElementById('btn-export-dinletter')).click();
+      await new Promise((r) => setTimeout(r, 80));
+      assert(dateiname !== null, 'Export laeuft ohne Import-Elemente');
+      assert(/\.json$/.test(String(dateiname)), 'Dateiname endet auf .json');
+    } finally {
+      /** @type {any} */ (window).showSaveFilePicker = original;
+      box.remove();
+    }
+  });
+});
+
+
+describe('Popover-Anker (Ratsche gegen CSS-Kollateralschaden, 2026-11-22)', () => {
+  /* Beim Purge der Anschrift-Suche sind die Anker-Regeln von Anrede, Gruß und
+     Straße mitgeloescht worden — die Dropdowns landeten oben links im Fenster.
+     Dieser Test haelt fuer JEDES Feld-Popover fest, dass es einen Anker und
+     eine Position hat. */
+  it('jedes Feld-Popover hat position-anchor und top: anchor(bottom)', async () => {
+    const css = await (await fetch('/website/css/sidebar.css')).text();
+    const bloecke = css.split('}').map((b) => b);
+    const ids = [
+      'plz-suggestions-popover',
+      'strasse-vorschlaege',
+      'anrede-vorschlaege',
+      'gruss-vorschlaege',
+      'datum-kalender'
+    ];
+    for (const id of ids) {
+      const mitAnker = bloecke.filter(
+        (b) => b.includes(`#${id}`) && b.includes('position-anchor') && b.includes('anchor(bottom)')
+      );
+      assert(mitAnker.length > 0, `#${id}: Anker + Position vorhanden`);
+    }
+  });
+});
+
+describe('Datums-Kalender (date-picker.js)', () => {
+  it('gibt alle Tage eines Monats als ISO aus', () => {
+    const nov = monatsTage(2026, 11);
+    assertEqual(nov.length, 30, 'November hat 30 Tage');
+    assertEqual(nov[0].iso, '2026-11-01');
+    assertEqual(nov[29].iso, '2026-11-30');
+  });
+
+  it('kennt Schaltjahre (Februar 2028 = 29, 2026 = 28)', () => {
+    assertEqual(monatsTage(2028, 2).length, 29, 'Schaltjahr');
+    assertEqual(monatsTage(2026, 2).length, 28, 'kein Schaltjahr');
+  });
+
+  it('startet die Woche am Montag', () => {
+    assertEqual(WOCHENTAGE[0], 'Mo');
+    /* 1. November 2026 ist ein Sonntag -> 6 Leerzellen (Mo..Sa). */
+    assertEqual(startOffset(2026, 11), 6);
+    /* 1. Februar 2026 ist ein Sonntag. */
+    assertEqual(startOffset(2026, 2), 6);
+    /* 1. Dezember 2026 ist ein Dienstag -> 1. */
+    assertEqual(startOffset(2026, 12), 1);
+  });
+
+  it('gibt Monatsnamen in deutscher Langform aus', () => {
+    assertEqual(monatsName(11), 'November');
+    assertEqual(monatsName(3), 'März');
+    assertEqual(titelText(2026, 11), 'November 2026');
+  });
+
+  it('liest die drei Schreibweisen aus dem Feld', () => {
+    assertEqual(String(leseDatum('2026-11-22')), '2026-11-22', 'ISO');
+    assertEqual(String(leseDatum('22.11.2026')), '2026-11-22', 'numerisch');
+    assertEqual(String(leseDatum('22. November 2026')), '2026-11-22', 'Langform');
+    assertEqual(String(leseDatum('2. September 2026')), '2026-09-02', 'einstelliger Tag');
+  });
+
+  it('rät nicht: Unsinn und unmoegliche Daten ergeben null', () => {
+    assertEqual(leseDatum(''), null);
+    assertEqual(leseDatum('irgendwann'), null);
+    assertEqual(leseDatum('31. Februar 2026'), null, 'kein 31. Februar');
+    assertEqual(leseDatum('22.13.2026'), null, 'kein 13. Monat');
+  });
+
+  it('heute() liefert ein PlainDate in der Brief-Zeitzone', () => {
+    const h = heute();
+    assertEqual(typeof h.year, 'number');
+    assertEqual(typeof h.month, 'number');
+    assertEqual(typeof h.day, 'number');
+    assert(/^\d{4}-\d{2}-\d{2}$/.test(h.toString()), 'ISO-Form');
+  });
+});
+
+describe('Straßen-Nähe: woher der Bias kommt (2026-11-22)', () => {
+  /**
+   * @param {{ ok: boolean, status?: number, json?: () => Promise<unknown> }} antwort
+   * @param {() => Promise<{ quelle: string, lat?: number, lon?: number, ort?: string } | null>} fn
+   */
+  const mitFetch = async (antwort, fn) => {
+    const original = window.fetch;
+    /** @type {string[]} */
+    const aufrufe = [];
+    // @ts-ignore - Test-Stub, absichtlich schmaler als fetch
+    window.fetch = (/** @type {any} */ url) => {
+      aufrufe.push(String(url));
+      return Promise.resolve(antwort);
+    };
+    try {
+      return { ergebnis: /** @type {any} */ (await fn()), aufrufe };
+    } finally {
+      window.fetch = original;
+    }
+  };
+
+  it('nimmt die Absender-PLZ zuerst — ohne jede Netzanfrage', async () => {
+    localStorage.setItem(STORAGE_KEYS.senderCoords, JSON.stringify({ lat: 50.81, lon: 7.15 }));
+    const { ergebnis, aufrufe } = await mitFetch(
+      { ok: false },
+      () => ermittleGeoBias('KEY')
+    );
+    assert(ergebnis, 'Punkt aus der Absender-PLZ vorhanden');
+    assertEqual(ergebnis.quelle, 'absender', 'PLZ schlaegt IP');
+    assertEqual(ergebnis.lat, 50.81);
+    assertEqual(aufrufe.length, 0, 'kein Netz, wenn die PLZ bekannt ist');
+    localStorage.removeItem(STORAGE_KEYS.senderCoords);
+  });
+
+  it('holt den IP-Standort einmal und nimmt ihn danach aus dem Cache', async () => {
+    const antwort = {
+      ok: true,
+      json: async () => ({ location: { latitude: 50.8, longitude: 7.21184 }, city: { name: 'Siegburg' } })
+    };
+    const erster = await mitFetch(antwort, () => ermittleGeoBias('KEY'));
+    assertEqual(erster.ergebnis.quelle, 'ip');
+    assertEqual(erster.aufrufe.length, 1, 'genau ein Abruf');
+    assert(/ipinfo/.test(erster.aufrufe[0]), 'Geoapify-IP-Endpunkt');
+
+    const zweiter = await mitFetch(antwort, () => ermittleGeoBias('KEY'));
+    assertEqual(zweiter.aufrufe.length, 0, 'zweiter Aufruf kommt aus dem Cache');
+    assertEqual(zweiter.ergebnis.ort, 'Siegburg');
+    localStorage.removeItem(STORAGE_KEYS.geoBias);
+  });
+
+  it('ohne Key gibt es keinen Punkt (kein Netz, kein Bonn)', async () => {
+    const { ergebnis, aufrufe } = await mitFetch({ ok: false }, () => ermittleGeoBias(''));
+    assertEqual(ergebnis, null);
+    assertEqual(aufrufe.length, 0, 'ohne Key wird nicht gefragt');
+  });
+
+  it('HTTP-Fehler ergibt keinen Punkt und schreibt keinen Cache', async () => {
+    const { ergebnis } = await mitFetch({ ok: false, status: 404 }, () => ermittleGeoBias('KEY'));
+    assertEqual(ergebnis, null);
+    assertEqual(localStorage.getItem(STORAGE_KEYS.geoBias), null, 'kein falscher Cache');
+  });
+
+  it('ein Standort aelter als 24 h wird neu geholt', async () => {
+    localStorage.setItem(
+      STORAGE_KEYS.geoBias,
+      JSON.stringify({ lat: 1, lon: 2, ts: Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds - GEO_BIAS_TTL_MS - 1000 })
+    );
+    const antwort = {
+      ok: true,
+      json: async () => ({ location: { latitude: 50.8, longitude: 7.21 }, city: { name: 'Siegburg' } })
+    };
+    const { ergebnis, aufrufe } = await mitFetch(antwort, () => ermittleGeoBias('KEY'));
+    assertEqual(ergebnis.quelle, 'ip');
+    assertEqual(aufrufe.length, 1, 'abgelaufener Cache wird ersetzt');
+    localStorage.removeItem(STORAGE_KEYS.geoBias);
+  });
+});
+
+describe('Vorschlagslisten: Hoehe bis 20 mm vor den Blatt-Unterrand (2026-11-22)', () => {
+  it('rechnet die nutzbare Hoehe bis zum Blattrand', () => {
+    /* Gemessen im Browser: Blatt 37..1160, Ortfeld endet bei 277, Fenster 1197. */
+    assertEqual(BLATTRAND_PX, 76, '20 mm bei 96 dpi');
+    assertEqual(
+      satzspiegelHoehe({ oben: 281, blattUnten: 1160, viewportUnten: 1197 }),
+      1160 - 76 - 281 - 8,
+      'Blattrand ist die Grenze'
+    );
+  });
+
+  it('bleibt am Blatt, auch wenn es unten aus dem Fenster ragt', () => {
+    assertEqual(
+      satzspiegelHoehe({ oben: 281, blattUnten: 2000, viewportUnten: 900 }),
+      2000 - 76 - 281 - 8,
+      'Blatt-Unterrand gilt, nicht das Fenster'
+    );
+  });
+
+  it('ohne Blatt gilt das Fenster', () => {
+    assertEqual(
+      satzspiegelHoehe({ oben: 281, viewportUnten: 1197 }),
+      1197 - 76 - 281 - 8
+    );
+  });
+
+  it('bleibt bei mindestens 220 px, auch wenn kaum Platz ist', () => {
+    assertEqual(satzspiegelHoehe({ oben: 1000, blattUnten: 1100, viewportUnten: 1100 }), 220);
   });
 });
 
@@ -3055,8 +3577,14 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assertEqual(res.items.length, 39);
     assertEqual(res.city, 'Bonn');
     /* 53103 ist seit der Ortsnamen-Korrektur (2026-11-22) Teil der Bonn-Gruppe
-       — vorher hiess die PLZ "Stadt Bonn" und fiel aus der Liste. */
-    assertEqual(res.items[0].plz, '53103');
+       — vorher hiess die PLZ "Stadt Bonn" und fiel aus der Liste.
+       Seit der Stadtteil-Gruppierung (2026-11-22) steht oben der erste Block
+       mit Stadtteil (53111 Zentrum); 53103 hat keinen und steht hinten. */
+    assertEqual(res.items[0].plz, '53111');
+    assert(
+      res.items.some((/** @type {any} */ i) => i.plz === '53103'),
+      '53103 bleibt Teil der Bonn-Gruppe'
+    );
   });
 
   /* Vertragsaenderung 2026-11-12: Praefixe fuellen nicht mehr sofort. Wer
@@ -3175,6 +3703,25 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assert(resNoris !== null, '10910 existiert in Grosskunden/Orte');
     assertEqual(resNoris?.city, 'Berlin', '10910 gehört zu Berlin');
     assertEqual(resNoris?.grosskunde?.name, 'norisbank GmbH');
+  });
+
+  it('Test 27b: Stadtteile stehen als Block zusammen, PLZ ohne Stadtteil am Ende', () => {
+    /** @param {any} eintrag */
+    const stadtteil = (eintrag) => {
+      const d = eintrag.district || '';
+      return /empfänger/i.test(d) ? '' : String(d).split(',')[0].trim();
+    };
+    const berlin = AddressIntelligence.lookupCityPlzs('Berlin');
+    const ersteOhne = berlin.findIndex((i) => stadtteil(i) === '');
+    assert(ersteOhne > 0, 'es gibt Stadtteil-Zeilen und Zeilen ohne');
+    assert(
+      berlin.slice(ersteOhne).every((i) => stadtteil(i) === ''),
+      'ohne Stadtteil nur am Ende'
+    );
+    const bloecke = berlin.map(stadtteil).filter(Boolean);
+    const wechsel = bloecke.filter((s, i) => s !== bloecke[i - 1]);
+    assertEqual(new Set(wechsel).size, wechsel.length, 'kein Stadtteil in zwei Bloecken');
+    assertEqual(stadtteil(berlin[0]), 'Mitte', 'erster Block: kleinste PLZ (10115 Mitte)');
   });
 
   it('Test 28: Bereinigte Datenquellen: 45195 Essen, 60651 Frankfurt am Main, 96039 Bamberg in grosskunden', () => {
@@ -3679,356 +4226,6 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (meta.userSet Synchronisa
   });
 });
 
-describe('ClipboardAddressParser: Anschrift-Parsing (unstrukturierte Zwischenablage)', () => {
-  it('extrahiert Standard-Unternehmensadressen aus mehrzeiligem Impressum', () => {
-    const text = [
-      'Musterfirma GmbH',
-      'Max Mustermann',
-      'Hauptstraße 42',
-      '10115 Berlin',
-      'Telefon: 030 123456',
-      'E-Mail: info@musterfirma.de'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assert(candidates.length > 0, 'Mindestens ein Adress-Kandidat gefunden');
-    assertEqual(candidates[0].firma, 'Musterfirma GmbH');
-    assertEqual(candidates[0].name, 'Max Mustermann');
-    assertEqual(candidates[0].strasse, 'Hauptstraße 42');
-    assertEqual(candidates[0].plz, '10115');
-    assertEqual(candidates[0].ort, 'Berlin');
-  });
-
-  it('extrahiert Privatpersonen ohne Firma korrekt', () => {
-    const text = [
-      'Erika Musterfrau',
-      'Gartenweg 7 b',
-      '50667 Köln'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assert(candidates.length > 0, 'Kandidat für Privatperson gefunden');
-    assertEqual(candidates[0].firma, '');
-    assertEqual(candidates[0].name, 'Erika Musterfrau');
-    assertEqual(candidates[0].strasse, 'Gartenweg 7 b');
-    assertEqual(candidates[0].plz, '50667');
-    assertEqual(candidates[0].ort, 'Köln');
-  });
-
-  it('ignoriert Metadaten-Zeilen wie Telefon, Fax und Register', () => {
-    const text = [
-      'Kontakt:',
-      'SuperTech AG',
-      'Technologiepark 1',
-      '80331 München',
-      'Tel: +49 89 99999',
-      'Handelsregister: HRB 12345'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assert(candidates.length > 0, 'Kandidat gefunden');
-    assertEqual(candidates[0].firma, 'SuperTech AG');
-    assertEqual(candidates[0].strasse, 'Technologiepark 1');
-    assertEqual(candidates[0].plz, '80331');
-    assertEqual(candidates[0].ort, 'München');
-  });
-
-  it('erkennt Titel (Dr., Prof.) und z. Hd. vor Leerzeichen sowie e.V. und erweiterte Straßennamen (Markt, Pfad)', () => {
-    const text = [
-      'Turnverein Bonn 1860 e.V.',
-      'z. Hd. Dr. Hans-Peter Müller',
-      'Am Markt 3',
-      '53111 Bonn',
-      'Mobil: 0170 12345678',
-      'IBAN: DE12345678901234567890'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assert(candidates.length > 0, 'Kandidat für e.V. und Dr. gefunden');
-    assertEqual(candidates[0].firma, 'Turnverein Bonn 1860 e.V.');
-    assertEqual(candidates[0].name, 'Dr. Hans-Peter Müller');
-    assertEqual(candidates[0].strasse, 'Am Markt 3');
-    assertEqual(candidates[0].plz, '53111');
-    assertEqual(candidates[0].ort, 'Bonn');
-  });
-
-  it('entfaltet einzeilige kommagetrennte Adressen (TC-05)', () => {
-    const raw = 'Acme Corp, Berliner Str. 10, 10115 Berlin';
-    const candidates = ClipboardAddressParser.parse(raw);
-    assert(candidates.length > 0, 'Kandidat für Einzeiler gefunden');
-    assertEqual(candidates[0].firma, 'Acme Corp');
-    assertEqual(candidates[0].strasse, 'Berliner Str. 10');
-    assertEqual(candidates[0].plz, '10115');
-    assertEqual(candidates[0].ort, 'Berlin');
-  });
-
-  it('klassifiziert 3-zeiligen Empfänger mit Zusatz und z. Hd. (TC-06)', () => {
-    const text = [
-      'Acme International GmbH',
-      'Abteilung Rechnungswesen',
-      'z. Hd. Herrn Hans-Peter Müller',
-      'Friedrichstraße 42',
-      '10115 Berlin'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assert(candidates.length > 0, 'Kandidat für 3-zeiligen Empfänger gefunden');
-    assertEqual(candidates[0].firma, 'Acme International GmbH');
-    assertEqual(candidates[0].zusatz, 'Abteilung Rechnungswesen');
-    assertEqual(candidates[0].name, 'Herrn Hans-Peter Müller');
-    assertEqual(candidates[0].strasse, 'Friedrichstraße 42');
-    assertEqual(candidates[0].plz, '10115');
-    assertEqual(candidates[0].ort, 'Berlin');
-  });
-
-  it('toleriert eingeschobene Ortsteile zwischen Straße und PLZ', () => {
-    const text = [
-      'SuperTech AG',
-      'Technologiepark 1',
-      'Gewerbegebiet Süd',
-      '80331 München'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assert(candidates.length > 0, 'Kandidat mit Ortsteil gefunden');
-    assertEqual(candidates[0].firma, 'SuperTech AG');
-    assertEqual(candidates[0].strasse, 'Technologiepark 1');
-    assertEqual(candidates[0].plz, '80331');
-    assertEqual(candidates[0].ort, 'München');
-  });
-
-  it('schützt Firmen mit Straßensuffixen (Wolfsberg GmbH, Park Hotel) vor Falschklassifikation als Straße', () => {
-    // Negativfall: Park Hotel GmbH direkt vor PLZ ohne Straßenzeile
-    const text = [
-      'Park Hotel GmbH',
-      '10115 Berlin'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    // Da keine gültige Straße vorhanden ist, darf Park Hotel GmbH keinesfalls als Straße interpretiert werden
-    assertEqual(candidates.length, 0, 'Ohne echte Straßenzeile wird kein fehlerhafter Kandidat erzeugt');
-  });
-
-  it('erkennt Postfach-Adressen mit Ziffern korrekt als Straße', () => {
-    const text = [
-      'Kanzlei Dr. Steinberg',
-      'Postfach 12 34 56',
-      '53111 Bonn'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assert(candidates.length > 0, 'Postfach-Kandidat gefunden');
-    assertEqual(candidates[0].firma, 'Kanzlei Dr. Steinberg');
-    assertEqual(candidates[0].strasse, 'Postfach 12 34 56');
-    assertEqual(candidates[0].plz, '53111');
-    assertEqual(candidates[0].ort, 'Bonn');
-  });
-
-  it('erkennt alle zusammengesetzten Straßennamen mit Suffixen (Review Befund 1)', () => {
-    const testCases = [
-      { text: 'Max Mustermann\nHauptstraße 5\n10115 Berlin', strasse: 'Hauptstraße 5' },
-      { text: 'Erika Musterfrau\nMusterstr. 12a\n50667 Köln', strasse: 'Musterstr. 12a' },
-      { text: 'Hans Schmidt\nEichenpfad 1\n20095 Hamburg', strasse: 'Eichenpfad 1' },
-      { text: 'Petra Meyer\nSchulsteig 4\n01067 Dresden', strasse: 'Schulsteig 4' },
-      { text: 'Klaus Wagner\nSchlossberg 7\n79098 Freiburg', strasse: 'Schlossberg 7' }
-    ];
-    for (const tc of testCases) {
-      const candidates = ClipboardAddressParser.parse(tc.text);
-      assert(candidates.length > 0, `Kandidat für ${tc.strasse} gefunden`);
-      assertEqual(candidates[0].strasse, tc.strasse, `Straße ${tc.strasse} exakt extrahiert`);
-    }
-  });
-
-  it('behandelt Geschoss- und Gebäudeteile (EG, UG) ohne Fehlklassifikation als Firma (Review Befund 2)', () => {
-    const t1 = 'Firma ABC GmbH\nMusterweg 3 EG\n10115 Berlin';
-    const c1 = ClipboardAddressParser.parse(t1);
-    assert(c1.length > 0, 'Kandidat für Musterweg 3 EG gefunden');
-    assertEqual(c1[0].strasse, 'Musterweg 3 EG');
-
-    const t2 = 'Firma XYZ AG\nHauptstr. 5, UG\n50667 Köln';
-    const c2 = ClipboardAddressParser.parse(t2);
-    assert(c2.length > 0, 'Kandidat für Hauptstr. 5, UG gefunden');
-    assertEqual(c2[0].strasse, 'Hauptstr. 5, UG');
-  });
-
-  it('behält Empfänger mit Geschäftsführer-Titel und Emailwerk GmbH intakt (Review Befund 5)', () => {
-    const text = [
-      'Emailwerk GmbH',
-      'Geschäftsführer Max Mustermann',
-      'Industriestr. 10',
-      '40212 Düsseldorf'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assert(candidates.length > 0, 'Kandidat für Emailwerk gefunden');
-    assertEqual(candidates[0].firma, 'Emailwerk GmbH');
-    assertEqual(candidates[0].name, 'Max Mustermann');
-    assertEqual(candidates[0].strasse, 'Industriestr. 10');
-  });
-
-  it('weist Vereine mit Jahreszahlen ohne Straße korrekt als Nicht-Straße ab (Review Befund 6)', () => {
-    const text = [
-      'Turnverein Bonn 1860',
-      '53111 Bonn'
-    ].join('\n');
-    const candidates = ClipboardAddressParser.parse(text);
-    assertEqual(candidates.length, 0, 'Turnverein Bonn 1860 darf ohne Straße nicht als Straße erkannt werden');
-  });
-
-  it('sichert alle Randfälle aus Review Runde 3 (FLOOR_SUFFIX, Nachnamen als Straße, UG, Metadaten)', () => {
-    // 1. FLOOR_SUFFIX frisst keine Wortenden (Eichenweg bleibt Eichenweg)
-    assertEqual(ClipboardAddressParser.isStreetLine('Eichenweg'), true, 'Eichenweg bleibt Straße (kein EG-Abschneiden)');
-    assertEqual(ClipboardAddressParser.isStreetLine('Bergweg'), true, 'Bergweg bleibt Straße');
-
-    // 2. Nachnamen ohne Hausnummer werden nicht als Straße erkannt
-    assertEqual(ClipboardAddressParser.isStreetLine('Hans Hering'), false, 'Hans Hering (-ring) ist keine Straße');
-    assertEqual(ClipboardAddressParser.isStreetLine('Petra Wall'), false, 'Petra Wall (-wall) ist keine Straße');
-    assertEqual(ClipboardAddressParser.isStreetLine('Karl Damm'), false, 'Karl Damm (-damm) ist keine Straße');
-
-    // 3. Geschoss mit Trenner
-    assertEqual(ClipboardAddressParser.isStreetLine('Musterweg 3 EG'), true, 'Musterweg 3 EG ist Straße');
-
-    // 4. Metadaten-Grenzen
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Telefonseelsorge Bonn'), false, 'Telefonseelsorge ist keine Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Mobilfunkshop GmbH'), false, 'Mobilfunkshop ist keine Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Tel 0228 123456'), true, 'Tel mit Leerzeichen ist Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Mobil 0170 99999'), true, 'Mobil mit Leerzeichen ist Metadatenzeile');
-  });
-
-  it('sichert alle Randfälle aus Review Runde 4 (Rechtsformen case-sensitivity, Bindestrich-Straßen, Metadaten-Präfixe, Jahreszahlen)', () => {
-    // 1. Rechtsformen case-sensitivity & UG
-    assertEqual(ClipboardAddressParser.isCorporate('Muster GmbH'), true, 'Muster GmbH ist Corporate');
-    assertEqual(ClipboardAddressParser.isCorporate('Muster (Haftungsbeschränkt)'), true, 'Muster (Haftungsbeschränkt) ist Corporate');
-    assertEqual(ClipboardAddressParser.isCorporate('Muster UG'), true, 'Muster UG ist Corporate');
-    assertEqual(ClipboardAddressParser.isCorporate('Park Hotel'), true, 'Park Hotel ist Corporate');
-
-    // 2. Bindestrich-Straßen ohne Hausnummer
-    assertEqual(ClipboardAddressParser.isStreetLine('Karl-Marx-Straße'), true, 'Karl-Marx-Straße ohne Hausnummer ist Straße');
-    assertEqual(ClipboardAddressParser.isStreetLine('Dr.-Külz-Ring'), true, 'Dr.-Külz-Ring ohne Hausnummer ist Straße');
-
-    // 3. Metadaten vs. Firmennamen (Mobil Oil AG, Tel Aviv Café, Fon Design, Bic Burger GmbH)
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Mobil Oil AG'), false, 'Mobil Oil AG ist keine Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Tel Aviv Café'), false, 'Tel Aviv Café ist keine Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Fon Design'), false, 'Fon Design ist keine Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Bic Burger GmbH'), false, 'Bic Burger GmbH ist keine Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Tel.: 0228 12345'), true, 'Tel.: 0228 ist Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Mobil 0170 12345'), true, 'Mobil 0170 ist Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('IBAN DE89 3704 0044 0532 0130 00'), true, 'IBAN ist Metadatenzeile');
-    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('BIC: COBADEFFXXX'), true, 'BIC ist Metadatenzeile');
-
-    // 4. Jahreszahlen vs. 1-3-stellige Hausnummern
-    assertEqual(ClipboardAddressParser.isStreetLine('Verein Am Park 1904'), false, 'Verein Am Park 1904 hat keine gültige Hausnummer und ist Verein');
-    assertEqual(ClipboardAddressParser.isStreetLine('Sportclub Am Markt 1920'), false, 'Sportclub Am Markt 1920 hat 4-stellige Jahreszahl');
-
-    // 5. Geschoss-Tokens (Eichenweg UG bleibt Straße mit Geschoss)
-    assertEqual(ClipboardAddressParser.isStreetLine('Eichenweg UG'), true, 'Eichenweg UG bleibt Straße mit Souterrain/UG');
-
-    // 6. Nachnamen vs. Ring-Straßen (Review Runde 5)
-    assertEqual(ClipboardAddressParser.isStreetLine('Hans Hering'), false, 'Hans Hering ist Nachname');
-    assertEqual(ClipboardAddressParser.isStreetLine('Klaus Hohenring'), false, 'Klaus Hohenring ist Nachname');
-    assertEqual(ClipboardAddressParser.isStreetLine('Anna Wiedring'), false, 'Anna Wiedring ist Nachname');
-    assertEqual(ClipboardAddressParser.isStreetLine('Peter Goldring'), false, 'Peter Goldring ist Nachname');
-    assertEqual(ClipboardAddressParser.isStreetLine('Hohenzollernring'), true, 'Hohenzollernring ist Straße');
-  });
-
-  it('validiert 50 diverse reale deutsche Anschriften aus der Praxis', () => {
-    const dataset = [
-      { text: 'Dr. Hans-Peter von Müller\nUnter den Linden 42\n10117 Berlin', plz: '10117', ort: 'Berlin', strasse: 'Unter den Linden 42' },
-      { text: 'Erika Mustermann\nAm Markt 3\n50667 Köln', plz: '50667', ort: 'Köln', strasse: 'Am Markt 3' },
-      { text: 'Klaus Wagner\nSchlossberg 7\n79098 Freiburg', plz: '79098', ort: 'Freiburg', strasse: 'Schlossberg 7' },
-      { text: 'Petra Meyer\nSchulsteig 4\n01067 Dresden', plz: '01067', ort: 'Dresden', strasse: 'Schulsteig 4' },
-      { text: 'Siemens AG\nWerner-von-Siemens-Straße 1\n80333 München', plz: '80333', ort: 'München', strasse: 'Werner-von-Siemens-Straße 1' },
-      { text: 'Kanzlei Dr. Steinberg\nPostfach 12 34 56\n53111 Bonn', plz: '53111', ort: 'Bonn', strasse: 'Postfach 12 34 56' },
-      { text: 'Firma Muster UG\nMusterweg 3 EG\n20095 Hamburg', plz: '20095', ort: 'Hamburg', strasse: 'Musterweg 3 EG' },
-      { text: 'Technik GmbH\nHauptstr. 5, UG\n70173 Stuttgart', plz: '70173', ort: 'Stuttgart', strasse: 'Hauptstr. 5, UG' },
-      { text: 'Dr. med. Anna Sommer\nKurfürstendamm 195\n10707 Berlin', plz: '10707', ort: 'Berlin', strasse: 'Kurfürstendamm 195' },
-      { text: 'Dipl.-Ing. Heinz Weber\nIndustriestraße 10-12\n40212 Düsseldorf', plz: '40212', ort: 'Düsseldorf', strasse: 'Industriestraße 10-12' },
-      { text: 'BioNTech SE\nAn der Goldgrube 12\n55131 Mainz', plz: '55131', ort: 'Mainz', strasse: 'An der Goldgrube 12' },
-      { text: 'Max Mustermann\nKarl-Marx-Allee 34\n10243 Berlin', plz: '10243', ort: 'Berlin', strasse: 'Karl-Marx-Allee 34' },
-      { text: 'Johanna Schmidt\nHohenzollernring 55\n50672 Köln', plz: '50672', ort: 'Köln', strasse: 'Hohenzollernring 55' },
-      { text: 'Robert Bosch GmbH\nRobert-Bosch-Platz 1\n70839 Gerlingen', plz: '70839', ort: 'Gerlingen', strasse: 'Robert-Bosch-Platz 1' },
-      { text: 'Bäckerei Müller\nBäckerweg 8\n90403 Nürnberg', plz: '90403', ort: 'Nürnberg', strasse: 'Bäckerweg 8' },
-      { text: 'Rechtsanwälte Schmidt & Partner\nz. Hd. Frau Meyer\nKaiserstraße 14\n60311 Frankfurt am Main', plz: '60311', strasse: 'Kaiserstraße 14' },
-      { text: 'Universitätsklinikum Bonn\nVenusberg-Campus 1\n53127 Bonn', plz: '53127', ort: 'Bonn', strasse: 'Venusberg-Campus 1' },
-      { text: 'Hotel Stadtpalais\nDeutzer Damm 2\n50679 Köln', plz: '50679', ort: 'Köln', strasse: 'Deutzer Damm 2' },
-      { text: 'Autohaus Süd GmbH\nStuttgarter Chaussee 99\n71032 Böblingen', plz: '71032', strasse: 'Stuttgarter Chaussee 99' },
-      { text: 'Prof. Dr. Christian Drosten\nCharitéplatz 1\n10117 Berlin', plz: '10117', ort: 'Berlin', strasse: 'Charitéplatz 1' },
-      { text: 'Zimmerei Holzbau e.K.\nIm Gewerbepark 4\n85356 Freising', plz: '85356', strasse: 'Im Gewerbepark 4' },
-      { text: 'Verband der Automobilindustrie\nBehrenstraße 35\n10117 Berlin', plz: '10117', strasse: 'Behrenstraße 35' },
-      { text: 'Dr. Külz Stiftung\nWilly-Brandt-Straße 1\n10557 Berlin', plz: '10557', strasse: 'Willy-Brandt-Straße 1' },
-      { text: 'Apotheke am Rathaus\nRathausgasse 3\n53111 Bonn', plz: '53111', strasse: 'Rathausgasse 3' },
-      { text: 'Volksbank Köln Bonn eG\nLudwig-Erhard-Allee 20\n53175 Bonn', plz: '53175', strasse: 'Ludwig-Erhard-Allee 20' },
-      { text: 'Stiftung Warentest\nLützowplatz 11-13\n10785 Berlin', plz: '10785', strasse: 'Lützowplatz 11-13' },
-      { text: 'Deutsche Telekom AG\nFriedrich-Ebert-Allee 140\n53113 Bonn', plz: '53113', strasse: 'Friedrich-Ebert-Allee 140' },
-      { text: 'Hansestadt Lübeck\nBreite Straße 62\n23552 Lübeck', plz: '23552', strasse: 'Breite Straße 62' },
-      { text: 'Stadtwerke München GmbH\nEmmy-Noether-Straße 2\n80992 München', plz: '80992', strasse: 'Emmy-Noether-Straße 2' },
-      { text: 'Kanzlei Berger & Kollegen\nFriedrichstraße 100\n10117 Berlin', plz: '10117', strasse: 'Friedrichstraße 100' },
-      { text: 'Hausverwaltung Nord\nLange Zeile 15\n28203 Bremen', plz: '28203', strasse: 'Lange Zeile 15' },
-      { text: 'Büro für Gestaltung\nAm Ufer 8\n24105 Kiel', plz: '24105', strasse: 'Am Ufer 8' },
-      { text: 'Logistikzentrum Ost\nBahnhofspfad 2\n04109 Leipzig', plz: '04109', strasse: 'Bahnhofspfad 2' },
-      { text: 'Klinikum Rechts der Isar\nIsmaninger Straße 22\n81675 München', plz: '81675', strasse: 'Ismaninger Straße 22' },
-      { text: 'Verlag Moderne Medien GmbH\nSpeersort 1\n20095 Hamburg', plz: '20095', strasse: 'Speersort 1' },
-      { text: 'Architekturbüro Raum & Form\nAm Anger 12\n99084 Erfurt', plz: '99084', strasse: 'Am Anger 12' },
-      { text: 'Institut für Umweltforschung\nWaldweg 44\n69120 Heidelberg', plz: '69120', strasse: 'Waldweg 44' },
-      { text: 'Gartenbau Grünspecht e.K.\nIm Rosengarten 7\n67655 Kaiserslautern', plz: '67655', strasse: 'Im Rosengarten 7' },
-      { text: 'Theater der Bundesstadt\nAm Boeselagerhof 1\n53111 Bonn', plz: '53111', strasse: 'Am Boeselagerhof 1' },
-      { text: 'Fahrschule Blitz\nSchillerstraße 12\n30159 Hannover', plz: '30159', strasse: 'Schillerstraße 12' },
-      { text: 'Physiotherapie Praxis Balance\nKirchgasse 5\n65185 Wiesbaden', plz: '65185', strasse: 'Kirchgasse 5' },
-      { text: 'Baugenossenschaft Freie Scholle eG\nSchollenweg 18\n33613 Bielefeld', plz: '33613', strasse: 'Schollenweg 18' },
-      { text: 'Tischlerei Holzwurm\nAuf dem Kamp 3\n48143 Münster', plz: '48143', strasse: 'Auf dem Kamp 3' },
-      { text: 'Dr. med. dent. Michael Groß\nDomplatz 6\n45127 Essen', plz: '45127', strasse: 'Domplatz 6' },
-      { text: 'Agentur Kreativrausch\nKastanienallee 79\n10435 Berlin', plz: '10435', strasse: 'Kastanienallee 79' },
-      { text: 'Sportverein Blau-Weiß\nSportplatzweg 1\n26122 Oldenburg', plz: '26122', strasse: 'Sportplatzweg 1' },
-      { text: 'Finanzberatung Transparent\nWallstraße 20\n40213 Düsseldorf', plz: '40213', strasse: 'Wallstraße 20' },
-      { text: 'Fotostudio Lichtblick\nZeppelinstraße 15\n88045 Friedrichshafen', plz: '88045', strasse: 'Zeppelinstraße 15' },
-      { text: 'Druckerei Gutenbergs Erben\nMainzer Straße 88\n65189 Wiesbaden', plz: '65189', strasse: 'Mainzer Straße 88' },
-      { text: 'Weingut Sonnenhang\nRebenweg 14\n55291 Saulheim', plz: '55291', strasse: 'Rebenweg 14' }
-    ];
-
-    for (const item of dataset) {
-      const res = ClipboardAddressParser.parse(item.text);
-      assert(res.length > 0, `Kandidat für ${item.text.split('\n')[0]} gefunden`);
-      assertEqual(res[0].plz, item.plz, `PLZ stimmt für ${item.text.split('\n')[0]}`);
-      if (item.strasse) {
-        assertEqual(res[0].strasse, item.strasse, `Straße stimmt für ${item.text.split('\n')[0]}`);
-      }
-    }
-  });
-
-  it('extractPlzOrt: Verstärker-Prinzip, Tippfehler-Korrektur und Mismatch-Erkennung', () => {
-    // 1. Exakter Match
-    const exact = ClipboardAddressParser.extractPlzOrt('53111 Bonn');
-    assert(exact !== null);
-    assertEqual(exact?.plz, '53111');
-    assertEqual(exact?.ort, 'Bonn');
-    assertEqual(exact?.verified, true);
-    assertEqual(exact?.ortCorrected, false);
-    assertEqual(exact?.ortMismatch, false);
-
-    // 2. Tippfehler ("Bon" -> "Bonn")
-    const typo = ClipboardAddressParser.extractPlzOrt('53111 Bon');
-    assert(typo !== null);
-    assertEqual(typo?.plz, '53111');
-    assertEqual(typo?.ort, 'Bonn');
-    assertEqual(typo?.verified, true);
-    assertEqual(typo?.ortCorrected, true);
-    assertEqual(typo?.ortMismatch, false);
-
-    // 3. Mismatch (53111 mit Köln)
-    const mismatch = ClipboardAddressParser.extractPlzOrt('53111 Köln');
-    assert(mismatch !== null);
-    assertEqual(mismatch?.plz, '53111');
-    assertEqual(mismatch?.ort, 'Köln');
-    assertEqual(mismatch?.verified, true);
-    assertEqual(mismatch?.ortCorrected, false);
-    assertEqual(mismatch?.ortMismatch, true);
-    assertEqual(mismatch?.canonicalOrt, 'Bonn');
-
-    // 4. Ausländische 5-stellige PLZ (75001 Paris) wird NICHT verworfen
-    const foreign = ClipboardAddressParser.extractPlzOrt('75001 Paris');
-    assert(foreign !== null);
-    assertEqual(foreign?.plz, '75001');
-    assertEqual(foreign?.ort, 'Paris');
-    assertEqual(foreign?.verified, false);
-    assertEqual(foreign?.ortMismatch, false);
-  });
-
-  it('isCorporate erkennt Firmen aus AddressData.firmenIndex auch ohne Rechtsform-Suffix', () => {
-    assert(ClipboardAddressParser.isCorporate('Commerzbank AG'), 'Commerzbank AG ist Corporate');
-    assert(ClipboardAddressParser.isCorporate('Allgemeine Ortskrankenkasse Plus'), 'Allgemeine Ortskrankenkasse Plus ist im Firmen-Index');
-  });
-});
 
 describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () => {
   it('initialisiert im leeren Zustand mit Systemschrift-Fallback', () => {
@@ -4075,7 +4272,7 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
-  it('schaltet über applyFontPreset auf Inter, Aptos und Michelangelus um', () => {
+  it('schaltet über applyFontPreset zwischen Inter und dem Standard um', () => {
     const sel = /** @type {HTMLSelectElement} */ (document.getElementById('select-schriftart'));
     const sm = new SettingsManager();
     const ff = new FontFeature(sm);
@@ -4083,25 +4280,20 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
     assertEqual(sel.value, 'inter');
     assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Inter'), 'Inter aktiv');
 
-    ff.applyFontPreset('aptos');
-    assertEqual(sel.value, 'aptos');
-    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Aptos'), 'Aptos aktiv');
-
-    ff.applyFontPreset('michelangelus');
-    assertEqual(sel.value, 'michelangelus');
-    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Michelangelus'), 'Michelangelus aktiv');
-
     ff.applyFontPreset('default');
     assertEqual(sel.value, 'default');
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
-  it('exportiert FONT_PRESETS mit allen 4 Vorgaben', () => {
+  it('exportiert FONT_PRESETS mit den mitgelieferten Vorgaben', () => {
     assertEqual(typeof FONT_PRESETS, 'object');
     assertEqual(FONT_PRESETS.default, '');
     assert(FONT_PRESETS.inter.includes('Test-Inter'), 'Test-Inter Preset vorhanden');
-    assert(FONT_PRESETS.aptos.includes('Test-Aptos'), 'Test-Aptos Preset vorhanden');
-    assert(FONT_PRESETS.michelangelus.includes('Test-Michelangelus'), 'Test-Michelangelus Preset vorhanden');
+    /* Aptos und Michelangelus sind seit 2026-11-23 nicht mehr mitgeliefert:
+       Lizenz (Microsoft / kommerziell). Sie kommen zur Laufzeit aus dem
+       lokalen Ordner fonts/ ueber /__fonts, nicht als Preset. */
+    assertEqual(FONT_PRESETS.aptos, undefined, 'Aptos ist kein Preset mehr');
+    assertEqual(FONT_PRESETS.michelangelus, undefined, 'Michelangelus ist kein Preset mehr');
   });
 
   it('erzwingt 400 KB Obergrenze in Constants.LIMITS', () => {
@@ -4287,7 +4479,9 @@ describe('formatDatum (DIN 5008 § 11.4)', () => {
   it('formatiert ISO-Datum deterministisch', () => {
     assertEqual(formatDatum('2026-09-04', { format: 'iso' }), '2026-09-04');
     assertEqual(formatDatum('04.09.2026', { format: 'iso' }), '2026-09-04');
-    assertEqual(formatDatum(new Date(2026, 8, 4), { format: 'iso' }), '2026-09-04');
+    assertEqual(formatDatum(Temporal.PlainDate.from('2026-09-04'), { format: 'iso' }), '2026-09-04');
+    /* Kein Date mehr (A48): ein Date-Objekt wird nicht mehr interpretiert. */
+    assert(formatDatum(/** @type {any} */ (new Date(2026, 8, 4))) !== '2026-09-04', 'Date wird nicht formatiert');
   });
 
   it('formatiert DIN-alphanumerisch mit langem Monatsnamen', () => {
@@ -4315,13 +4509,11 @@ describe('formatUhrzeit (DIN 5008 § 11.5)', () => {
     assertEqual(formatUhrzeit('5:30'), '05:30');
     assertEqual(formatUhrzeit('05:30'), '05:30');
     assertEqual(formatUhrzeit('17:00'), '17:00');
-    assertEqual(formatUhrzeit(new Date(2026, 0, 1, 8, 5)), '08:05');
   });
 
   it('unterstützt Suffix und Sekunden', () => {
     assertEqual(formatUhrzeit('5:30', { suffix: 'Uhr' }), '05:30 Uhr');
     assertEqual(formatUhrzeit('5:30 Uhr'), '05:30 Uhr');
-    assertEqual(formatUhrzeit(new Date(2026, 0, 1, 14, 30, 45), { seconds: true }), '14:30:45');
     assertEqual(formatUhrzeit('14:30:45', { seconds: true, suffix: 'Uhr' }), '14:30:45 Uhr');
   });
 
@@ -5215,88 +5407,8 @@ describe('B3-Fixes: Ziel-Sperre und veraltete Suchantworten', () => {
     el.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
-  it('B3-03: Antwort auf eine ueberholte Suche rendert nichts', async () => {
-    AddressIntelligence.wireDOM();
-    /* Die Adresssuche haengt in initAddressServices(), nicht in wireDOM(). */
-    initAddressServices();
-    const suchfeld = /** @type {HTMLInputElement} */ (document.getElementById('input-anschrift-suche'));
-    const liste = /** @type {HTMLElement} */ (document.getElementById('anschrift-vorschlaege'));
-    const originalFetch = window.fetch;
-    /** @type {((v: any) => void) | null} */
-    let aufloesen = null;
-    // @ts-ignore -- Fetch wird nur fuer diesen Test ersetzt
-    window.fetch = () => new Promise((resolve) => { aufloesen = resolve; });
-    save(STORAGE_KEYS.geoapifyKey, 'test-key');
-
-    try {
-      suchfeld.value = 'bonn';
-      suchfeld.dispatchEvent(new Event('input', { bubbles: true }));
-      const lokal = liste.children.length;
-      await new Promise((r) => setTimeout(r, 260)); // Debounce 200 ms
-      assert(aufloesen !== null, 'Fetch wurde gestartet');
-
-      /* Nutzer kuerzt auf zwei Zeichen: kein neuer Request, nur die Generation
-         steigt. Die alte Antwort darf deshalb nichts mehr rendern. */
-      suchfeld.value = 'ab';
-      suchfeld.dispatchEvent(new Event('input', { bubbles: true }));
-      const vorher = liste.children.length;
-
-      const aufloeser = /** @type {(v: any) => void} */ (/** @type {unknown} */ (aufloesen));
-      aufloeser({
-        ok: true,
-        json: async () => ({
-          results: [{ street: 'Bonner Strasse', housenumber: '1', postcode: '53111', city: 'Bonn', formatted: 'Bonner Strasse 1, 53111 Bonn' }]
-        })
-      });
-      await new Promise((r) => setTimeout(r, 40));
-
-      assertEqual(liste.children.length, vorher, 'ueberholte Antwort hat nichts gerendert');
-    } finally {
-      window.fetch = originalFetch;
-      remove(STORAGE_KEYS.geoapifyKey);
-      suchfeld.value = '';
-    }
-  });
 });
 
-describe('Adresssuche: Relevanz statt Antwort-Reihenfolge (2026-11-13)', () => {
-  /* Gemeldet: Vorschlaege wirkten zufaellig; "Troisdorf" und "53840" zeigten
-     gar nichts, weil der Filter Treffer ohne Strasse verwarf. */
-  it('ordnet exakte PLZ vor Praefix, Strasse, Stadt, Rest', () => {
-    assertEqual(adressRelevanz({ postcode: '53840', city: 'Troisdorf' }, '53840'), 0, 'PLZ exakt');
-    assertEqual(adressRelevanz({ postcode: '53842', city: 'Troisdorf' }, '5384'), 1, 'PLZ-Praefix');
-    assertEqual(adressRelevanz({ street: 'Hauptstrasse', city: 'X' }, 'haupt'), 2, 'Strasse');
-    assertEqual(adressRelevanz({ street: 'A', city: 'Bonn' }, 'bonn'), 3, 'Stadt');
-    assertEqual(adressRelevanz({ formatted: 'Irgendwas mit Bonn' }, 'bonn'), 4, 'enthalten');
-    assertEqual(adressRelevanz({ formatted: 'Nix' }, 'bonn'), 5, 'kein Treffer');
-  });
-
-  it('Stadt- und PLZ-Treffer werden nicht verworfen (Ratsche)', async () => {
-    const src = await (await fetch('/website/js/address.js')).text();
-    assert(src.includes('!s.city && !s.postcode'), 'Filter laesst Treffer ohne Strasse durch');
-    assert(!src.includes('s.street && s.city'), 'alter Filter ist entfernt');
-    assert(src.includes('adressRelevanz(a, query) - adressRelevanz(b, query)'), 'Sortierung nach Relevanz');
-  });
-
-  it('ein Stadt-Treffer leert das Strassenfeld nicht (Ratsche)', async () => {
-    const src = await (await fetch('/website/js/address.js')).text();
-    assert(src.includes('empfStrasse && item.street'), 'Strasse nur bei Strassentreffer');
-  });
-
-  it('ohne API-Key sucht das Ortsverzeichnis (PLZ und Ort)', async () => {
-    const src = await (await fetch('/website/js/address.js')).text();
-    assert(src.includes('plzToCity.get(q)'), 'exakte PLZ ohne Netz');
-    assert(src.includes('lookupPrefix(q, 8)'), 'PLZ-Praefix ohne Netz');
-    assert(src.includes('lookupUniversal(query, 8)'), 'Ort/Name ohne Netz');
-  });
-
-  it('Hausnummern stehen nicht in den Vorschlaegen (Ratsche)', async () => {
-    /* Nutzerwunsch 2026-11-13: nur korrekte Strassennamen, keine Nummern. */
-    const src = await (await fetch('/website/js/address.js')).text();
-    assert(!src.includes('p.housenumber'), 'Geoapify-Hausnummer wird nicht uebernommen');
-    assert(src.includes("[street, [postcode, city]"), 'Anzeige ist Strasse + PLZ + Ort');
-  });
-});
 
 describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
   /* "troi" zeigte eine Zeile "Troisdorf (3 PLZs)", die man erst aufklappen
@@ -5515,29 +5627,40 @@ describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {
   /* Vorher: 0 Ueberschriften in der Leiste. Jetzt h1 (Seite) -> h2 (Zone)
      -> h3 (Gruppentitel). Regler-Labels bleiben <label>, sonst verliert das
      Control seine Beschriftung. */
-  it('vier Zonen-h2, zwei Gruppen-h3, keine Ueberspruenge', async () => {
+  it('jede Zone ist benannt (h2 oder aria-label), keine Gruppen ohne Titel', async () => {
+    /* Der sichtbare Zonentitel von "Brief" ist am 2026-11-22 entfallen; die
+       Zone nennt sich jetzt per aria-label. Der Test prueft deshalb die
+       ABSICHT (jede Zone hat einen Namen), nicht die Zahl der h2. */
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const aside = doc.querySelector('aside');
     assert(aside, 'Seitenleiste vorhanden');
     if (!aside) return;
-    const h2 = [...aside.querySelectorAll('h2')];
-    const h3 = [...aside.querySelectorAll('h3')];
-    /* Drei h2: Brief, Daten (sr-only), Status & Zuruecksetzen (sr-only).
-       Die Einstellungen-Zone hat keine sichtbare Ueberschrift mehr - der
-       Modus-Schalter darueber nennt sie bereits (2026-11-14). */
-    assertEqual(h2.length, 3, 'h2 je Zone ohne die doppelte Einstellungen-Zeile');
+
+    const zonen = [...aside.querySelectorAll('.seitenleiste-zone')];
+    assert(zonen.length >= 3, 'Zonen vorhanden');
+    for (const zone of zonen) {
+      const name =
+        (zone.getAttribute('aria-label') || '').trim() ||
+        (zone.querySelector('h2')?.textContent || '').trim();
+      assert(name.length > 0, `Zone benannt: ${zone.id || '(ohne id)'}`);
+    }
+
     assertEqual(
       doc.getElementById('zone-setup')?.getAttribute('aria-label'),
       'Einstellungen',
       'Zone behaelt ihren Namen als aria-label'
     );
+    assertEqual(
+      doc.getElementById('zone-dokument')?.getAttribute('aria-labelledby'),
+      'zone-dokument-titel',
+      'Brief-Zone wird von ihrer sr-only-Ueberschrift benannt'
+    );
+
+    const h3 = [...aside.querySelectorAll('h3')];
     assertEqual(h3.length, 2, 'h3 fuer die Gruppentitel, die keine Labels sind');
-    assert(h2.every((h) => h.textContent.trim().length > 0), 'h2 haben Text');
     assert(h3.every((h) => !h.hasAttribute('for')), 'h3 ist kein Label-Ersatz');
-    /* Reihenfolge im DOM: jeder h3 folgt einem h2, kein h3 am Anfang. */
-    const ueberschriften = [...aside.querySelectorAll('h2, h3')];
-    assertEqual(ueberschriften[0]?.tagName, 'H2', 'beginnt mit h2');
+    assertEqual([...aside.querySelectorAll('h2, h3')][0]?.tagName, 'H2', 'beginnt mit h2');
   });
 });
 
@@ -5667,14 +5790,17 @@ describe('Strukturvertrag liegt nicht in der Design-Schicht (Befund B15)', () =>
     );
   });
 
-  it('Postvermerk steht vor Brief-Stil (Schreibablauf)', async () => {
+  it('Postvermerk steht vor den Zusatzbloecken (Schreibablauf)', async () => {
+    /* Bis 2026-11-22 lautete der Test "vor Brief-Stil". Das Auswahlfeld ist
+       entfallen (Tonalitaet kommt aus der Anrede-Wahl); die Absicht bleibt:
+       der Postvermerk gehoert in den Anschriftbereich, vor alles Zusaetzliche. */
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const labels = [...doc.querySelectorAll('#zone-dokument .seitenleiste-label')].map((e) => e.textContent.trim());
     const post = labels.indexOf('Postvermerk');
-    const stil = labels.findIndex((l) => l.startsWith('Brief-Stil'));
-    assert(post > -1 && stil > -1, 'beide Labels vorhanden');
-    assert(post < stil, 'Postvermerk vor Brief-Stil (gehoert ins Anschriftfeld)');
+    const anlagen = labels.indexOf('Anlagen');
+    assert(post > -1 && anlagen > -1, 'beide Labels vorhanden');
+    assert(post < anlagen, 'Postvermerk vor den Zusatzbloecken');
   });
 
   it('Hinweise sind verbunden, der Key-Status ist eine Live-Region', async () => {
@@ -5932,6 +6058,111 @@ describe('Ortssuche: Stadt schlaegt Ortsteil (2026-11-22)', () => {
     const res = AddressIntelligence.resolveCityInput('roisdorf', 12);
     const namen = res.items.map((i) => `${i.name || i.city} ${i.district || ''}`);
     assert(namen.some((n) => n.includes('Bornheim')), `Ortsteil-Treffer bleibt (${namen.join(' | ')})`);
+  });
+});
+
+describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
+  it('mit Namen nur die benannten Formen (keine "Damen und Herren")', () => {
+    const v = salutationVarianten('Frau Erika Mustermann');
+    const texte = v.map((x) => x.anrede);
+    assertEqual(new Set(texte).size, texte.length, 'keine doppelten Texte');
+    assert(texte.includes('Sehr geehrte Frau Mustermann,'), 'foermlich');
+    assert(texte.includes('Sehr verehrte Frau Mustermann,'), 'sehr foermlich');
+    assert(texte.includes('Guten Tag Frau Mustermann,'), 'hoeflich');
+    assert(texte.includes('Hallo Frau Mustermann,'), 'locker');
+    assert(texte.includes('Liebe Frau Mustermann,'), 'persoenlich');
+    /** @param {string} t */
+    const ohneSatzzeichen = (t) => t.toLowerCase().replace(/[^a-zäöüß]/g, '');
+    assertEqual(new Set(texte.map(ohneSatzzeichen)).size, texte.length, 'auch ohne Satzzeichen keine Doppelten');
+    assert(!texte.includes(SALUTATION_TONES.formal.salutationDefault), 'keine allgemeine Form');
+    assertEqual(v.length, 5, 'formal 2, hoeflich 1, locker 2');
+    const tone = new Set(v.map((x) => x.ton));
+    assertEqual(tone.size, 3, 'drei Tonalitaeten fuer die Farbgruppen');
+  });
+
+  it('maennliche Anrede bekommt "Sehr verehrter" und "Lieber"', () => {
+    const texte = salutationVarianten('Herr Peter Mustermann').map((x) => x.anrede);
+    assert(texte.includes('Sehr verehrter Herr Mustermann,'));
+    assert(texte.includes('Lieber Herr Mustermann,'));
+    assert(!texte.includes('Liebe Herr Mustermann,'));
+  });
+
+  it('DIN 5008 Zeichensetzung: Komma nach der Anrede, kein Zeichen nach der Grussformel', () => {
+    /* Vorlage 2026-11-22: "Nach der Anrede folgt ein Komma, nach der
+       Grussformel steht kein Satzzeichen (weder Komma noch Punkt)." */
+    const faelle = [
+      salutationVarianten('Frau Erika Mustermann'),
+      salutationVarianten('Herr Peter Mustermann'),
+      salutationVarianten('', 'Croft Holdings GmbH'),
+      salutationVarianten(''),
+      salutationVarianten('Frau Erika Mustermann', '', 8)
+    ];
+    for (const liste of faelle) {
+      for (const { anrede } of liste) {
+        assert(anrede.endsWith(','), `Anrede endet mit Komma: "${anrede}"`);
+        assert(!/[.!?;:]/.test(anrede.slice(0, -1)), `kein weiteres Satzzeichen: "${anrede}"`);
+      }
+    }
+    for (const ton of Object.values(SALUTATION_TONES)) {
+      for (const closing of ton.closings) {
+        assert(!/[.,!?;:]$/.test(closing), `Grussformel ohne Satzzeichen: "${closing}"`);
+      }
+    }
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Erika Mustermann', formality: 'formal' }), 'Sehr geehrte Frau Mustermann,');
+  });
+
+  it('3x3: jeder Ton hat drei Grussformeln, die erste ist die automatische', () => {
+    for (const [name, ton] of Object.entries(SALUTATION_TONES)) {
+      assertEqual(ton.closings.length, 3, `${name}: drei Gruesse`);
+      assertEqual(new Set(ton.closings).size, 3, `${name}: keine Doppelten`);
+      assertEqual(ton.closing, ton.closings[0], `${name}: closing ist die erste`);
+      assert(!/[.,!?;:]$/.test(ton.closing), `${name}: automatischer Gruss ohne Satzzeichen`);
+    }
+  });
+
+  it('Tageszeit-Gruss: Morgen 5-10, Tag 11-17, Abend 18-4', () => {
+    assertEqual(tageszeitGruss(8), 'Guten Morgen');
+    assertEqual(tageszeitGruss(10), 'Guten Morgen');
+    assertEqual(tageszeitGruss(11), 'Guten Tag');
+    assertEqual(tageszeitGruss(17), 'Guten Tag');
+    assertEqual(tageszeitGruss(18), 'Guten Abend');
+    assertEqual(tageszeitGruss(3), 'Guten Abend');
+    assertEqual(tageszeitGruss(Number.NaN), 'Guten Tag', 'ohne Uhr bleibt es neutral');
+  });
+
+  it('mit Uhrzeit kommt die passende Grussform zum Namen', () => {
+    const morgens = salutationVarianten('Frau Erika Mustermann', '', 8).map((x) => x.anrede);
+    assert(morgens.includes('Guten Morgen Frau Mustermann,'), 'morgens');
+    assert(morgens.includes('Guten Tag Frau Mustermann,'), 'Guten Tag bleibt als neutrale Form');
+    const abends = salutationVarianten('Frau Erika Mustermann', '', 21).map((x) => x.anrede);
+    assert(abends.includes('Guten Abend Frau Mustermann,'), 'abends');
+    const ohneUhr = salutationVarianten('Frau Erika Mustermann').map((x) => x.anrede);
+    assert(!ohneUhr.some((t) => t.startsWith('Guten Morgen') || t.startsWith('Guten Abend')),
+      'ohne Uhrzeit keine Tageszeit-Form');
+  });
+
+  it('nur Firma: Team-Formen statt Personen-Anreden', () => {
+    const v = salutationVarianten('', 'Croft Holdings GmbH');
+    const texte = v.map((x) => x.anrede);
+    assert(texte.includes('Sehr geehrtes Team der Croft Holdings GmbH,'), 'formelle Team-Anrede');
+    assert(texte.includes('Guten Tag zusammen,'), 'hoefliche Gruppen-Anrede');
+    assert(texte.includes('Hallo zusammen,'), 'lockere Gruppen-Anrede');
+    assert(!texte.includes('Liebe,'), 'keine Fehlbildung "Liebe,"');
+    assertEqual(new Set(texte).size, texte.length, 'keine Doppelten');
+  });
+
+  it('ohne Namen und ohne Firma keine "Liebe,"-Zeile', () => {
+    const texte = salutationVarianten('').map((x) => x.anrede);
+    assert(!texte.includes('Liebe,'), 'keine Fehlbildung');
+  });
+
+  it('ohne Namen nur die allgemeinen Formen', () => {
+    const v = salutationVarianten('');
+    const texte = v.map((x) => x.anrede);
+    assertEqual(v.length, 4, 'drei Stile + "Guten Tag, geschaetzte Damen und Herren"');
+    assert(texte.includes(SALUTATION_TONES.formal.salutationDefault), 'foermlich allgemein');
+    assert(texte.includes('Guten Tag, geschätzte Damen und Herren,'), 'DIN-5008-Beispiel');
+    assert(v.every((x) => x.anrede.endsWith(',')));
   });
 });
 

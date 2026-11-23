@@ -27,6 +27,13 @@ supersedes: []
 depends_on: []
 ---
 
+> **Einordnung des Namens.** Was hier „Law" heißt, ist in der Architekturpraxis
+> **Architecture Invariants** bzw. **Policy-as-Code** (Vorbild: ArchUnit): Regeln
+> mit IDs, die maschinell geprüft werden (`tools/reconciliation.js`,
+> `tools/build_db.js`). „Law" ist die bewusst strenge Selbstbindung des Projekts —
+> nicht zu verwechseln mit dem fachlichen Regelwerk (DIN 5008), das in
+> `docs/norm/din5008.md` steht. Siehe `docs/meta/SEMANTIC-ANCHORS.md`.
+
 # DIN-BriefNEO — Architectural Law: MUST-USE vs. ANTIPATTERN
 
 **Status:** Bindend. Änderungen nur per ADR und menschlichem Entscheid.
@@ -123,7 +130,7 @@ Soweit nicht anders markiert: HARD BAN.
 
 | # | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- |
-| A48 | `new Date()`, `Date.parse`, `Date.now` als Zeitquelle in `website/`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` in `website/` | HARD BAN im Produkt. Gilt für `website/**`. `tools/`, `agent/` dürfen `Date` nutzen. Legacy-Date-Libraries bleiben projektweit verboten. |
+| A48 | **jede** Date-API in `website/`: `new Date()`, `Date.parse`, `Date.now`, `.getTime()`, `.getFullYear()`, `.getMonth()`, `.getDate()`, `.getHours()`, `.getMinutes()`, `.getSeconds()`, `.toISOString()`, `.toLocaleDateString()`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` (`Temporal.Now.zonedDateTimeISO('Europe/Berlin')`, `Temporal.PlainDate`, `Temporal.PlainTime`) | HARD BAN im Produkt (verschärft 2026-11-22: auch die **Methoden**, nicht nur die Konstruktoren — sonst kommt Date über `input.getFullYear()` zurück). Gilt für `website/**`. `tools/`, `agent/` und Tests dürfen `Date` nutzen, aber nicht an Produktivcode durchreichen. Legacy-Date-Libraries bleiben projektweit verboten. |
 | A50 | `Temporal.Now.plainDateISO()` (und andere `Temporal.Now`-Ableitungen) **ohne explizite IANA-Zeitzone** in `website/` | `Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString()` — zentral in `51-persistence.js` (`currentISODate()`), referenziert statt neu geschrieben | Ohne Zone nutzt `plainDateISO()` die System-Zeitzone (UTC in CI/VMs/Servern); zwischen 00:00 und ~02:00 deutscher Zeit liefert sie den Vortag → Dateiname/Metadaten widersprechen dem Briefdatum. „Heute" lebt in genau einem Modul (Single Source of Truth). |
 
 ### Color, CSS, Struktur
@@ -140,7 +147,7 @@ Soweit nicht anders markiert: HARD BAN.
 | A42 | HARD BAN | doppelte `id` | eindeutige `id` | undefiniertes DOM |
 | A43 | HARD BAN | unkontrolliertes Dokument-/Seiten-Scrolling | `overflow` am Dokument begrenzen; internes Scrollen MAY in abgegrenzter UI | Viewport bleibt Brief-Arbeitsfläche |
 | A44 | HARD BAN | generisches `div`/`span` **für ein instantiiertes Registry-Atom** | kanonisches `<din-…>` | Kompositionsflächen (gemeinsame Namenszeile) und reine UI dürfen generisch bleiben |
-| A45 | HARD BAN | jede Referenz aus `website/` heraus: `../..`, `/docs/`, `/tools/`, absolute Dateisystempfade, sowie **ladende** Verweise (Script/Style/Font/Bild) auf fremde Hosts | ausschliesslich Pfade **relativ innerhalb** `website/` | **`website/` ist auslieferbar.** Kopiert man den Ordner allein auf einen Webserver, muss die App vollstaendig starten — kein `docs/`, kein `tools/`, kein Repo drumherum. Erzwungen von `tools/isolation.js`. Ausgenommen: `@adr`/`@guide`-Kommentare (Traceability ohne Laufzeitwirkung) und optionale Fach-APIs per `fetch()` nach der A38-Allowlist. |
+| A45 | HARD BAN | jede Referenz aus `website/` heraus: `../..`, `/docs/`, `/tools/`, absolute Dateisystempfade, sowie **ladende** Verweise (Script/Style/Font/Bild) auf fremde Hosts | ausschliesslich Pfade **relativ innerhalb** `website/` | **`website/` ist auslieferbar.** Kopiert man den Ordner allein auf einen Webserver, muss die App vollstaendig starten — kein `docs/`, kein `tools/`, kein Repo drumherum. Erzwungen von `tools/isolation.js`. Ausgenommen: `@adr`/`@guide`-Kommentare (Traceability ohne Laufzeitwirkung), optionale Fach-APIs per `fetch()` nach der A38-Allowlist und **Same-Origin-URL-Pfade in `fetch()`** (`fetch('/__geokey')`): ein solcher Aufruf laedt keine Datei aus dem Repository, sondern fragt den ausliefernden Server; antwortet er 404, laeuft die App unveraendert weiter (Praezisierung 2026-11-22, `tools/isolation.js`). |
 | A46 | HARD BAN | `page-break-before: always` auf Layout-Wurzeln | kontrolliertes Print | leere erste PDF-Seite. **Gegenpflicht:** Sperrt der Viewport per `overflow: hidden` + `height: 100vh` (A43), MUSS `@media print` ihn mit `html, body { overflow: visible; height: auto; }` wieder freigeben — sonst schneidet der Druck ab oder bleibt leer. |
 | A47 | HARD BAN | komplexe UI in `contenteditable="true"` | Geschwister außerhalb des Edit-Roots | Browser löscht Innenstruktur |
 | A49 | HARD BAN | JS-basiertes Text-Fitting & DOM-Layout-Polling (`scrollWidth > clientWidth`, MutationObserver für Textanpassung, `48-text-fit.js`) | CSS `field-sizing: content`, `overflow: clip`, `text-wrap: balance/pretty`; **Feldbreite begrenzt die Eingabe** (Sperre in `document.js`, DECISION-LOG 2026-11-12). `text-fit` ist Projekt-HARD-BAN (P39). | Verursacht Layout Thrashing, Ruckeln und JS-Overhead. Natives CSS löst die dynamische Feld- und Textanpassung performant und 100% deklarativ. `text-fit` scheidet aus: es verkleinert die Schrift und erzeugt mehrere Schriftgroessen im Brief. |
@@ -172,6 +179,10 @@ Soweit nicht anders markiert: HARD BAN.
 | A55 | HARD BAN | JS-Interzeptoren, die Formatierung auf Plaintext-Feldern abfangen (`beforeInputFormatTypes`, `beforeInputParagraphTypes`, Regex-Sanitizer in `input`-Listenern) | `contenteditable="plaintext-only"` + `enterkeyhint` | Die Engine erzwingt das auf C++-Ebene lückenlos; die JS-Nachbildung war lückenhaft und teuer. |
 | A56 | HARD BAN | manuelle Pointer-Drag-Schleifen (`pointerdown`/`pointermove`/`setPointerCapture`) für Swipe-to-Dismiss und manuelle `z-index`-Stapelung bei Toasts | Popover API (`popover="manual"`) im nativen Top-Layer + deklarative CSS-Transitions | Top-Layer beendet den z-index-Wettlauf mit Modals; 60+ Zeilen Pointer-Logik entfallen. |
 | A61 | HARD BAN | **Schreibender** `innerHTML`-Zugriff und `setHTMLUnsafe()` zum Parsen von HTML-Strings | `setHTML()`, oder `DOMParser` + `replaceChildren(...doc.body.childNodes)` | XSS-Pfad. **Lesender** `.innerHTML`-Zugriff zum Serialisieren eines Entwurfs ist ausdrücklich zulässig — nur das Zurückschreiben muss gefiltert laufen. |
+| A65 | HARD BAN | Dynamische Codeausführung und HTML-Injektion: `eval()`, `new Function()`, String-Form von `setTimeout`/`setInterval`, `insertAdjacentHTML()`, `document.write()` | DOM-API (`createElement`, `textContent`, `setHTML()`), Timer mit Funktionsreferenz | Code aus Strings ist ein XSS- und CSP-Loch und lässt sich im Debugger nicht schrittweise verfolgen; `innerHTML` selbst regelt A61. Gilt für `website/**`. |
+| A66 | HARD BAN | Fremd-Frameworks und Utility-Bibliotheken in `website/`: React, Vue, Svelte, Angular, Preact, Alpine, jQuery, lodash, underscore, Ramda, axios, Tailwind, Bootstrap, Bulma | native Plattform-API (DOM, `fetch`, ES-Module) | Eine App ohne Build-Kette braucht keine Abhängigkeiten: jede Bibliothek bringt Bundle-Größe, Update-Zwang und eine zweite Wahrheit. Typischer Modell-Reflex: „nimm dafür eine Bibliothek“. |
+| A67 | HARD BAN | CommonJS- und Bundler-Artefakte im Browser-Code: `require(`, `module.exports`, `process.env`, `__dirname` | native ES-Module (`import`/`export`) | Der Browser lädt Module direkt; ein Bundler wäre eine zweite Baustelle. Typischer Modell-Reflex: „baue eine Build-Pipeline“. |
+| A68 | HARD BAN | `alert()`, `confirm()`, `prompt()` als Bedienoberfläche | eigenes `<dialog>` (`.glass-dialog`) oder Popover + Toast | Blockiert den Main-Thread, ist nicht stylebar, liegt außerhalb des Top-Layers und ist auf Mobilteilen unzuverlässig. Typischer Modell-Reflex: „nimm `confirm()` für die Rückfrage“. |
 
 ### UI-Zustand & Semantik
 

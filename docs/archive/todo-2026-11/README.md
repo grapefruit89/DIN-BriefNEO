@@ -42,11 +42,11 @@ supersedes: []
 | # | Vorhaben | Aufwand | ROI | Detailplan / Referenz | Status |
 |---|---|---|---|---|---|
 | **01** | **Mehrseitenunterstützung nach DIN 5008** | L–XL | ⭐⭐⭐⭐⭐ | [`01-mehrseiten-plan.md`](01-mehrseiten-plan.md) | ✅ Läuft (`mountMultipage` in `main.js`, Mehrspalten-Layout); Plan-Datei bleibt als Historie |
-| **02** | **PWA & Offline-App (Chrome 150+)** | M | ⭐⭐⭐⭐⭐ | [`rejected/02-pwa-plan.md`](rejected/02-pwa-plan.md) | 🚫 Verworfen (Law A37 HARD BAN: Service Worker verboten) |
+| **02** | **PWA & Offline-App (Chrome 150+)** | M | ⭐⭐⭐⭐⭐ | *(gelöscht 2026-11-23)* | 🚫 Verworfen (Law A37 HARD BAN: Service Worker verboten) |
 | **03** | **Mobile Ansicht & Touch-UX** | M | ⭐⭐⭐⭐ | [`03-mobile-ansicht-plan.md`](03-mobile-ansicht-plan.md) | Teilweise: je eine `@media`-Regel in `sidebar.css`/`sheet-common.css`; Bottom-Sheet offen  **abgelehnt: Chrome-only (B50)** |
 | **04** | **Telefonnummer-Formatierung DIN 5008** | M | ⭐⭐ | [`done/04-telefonnummer-formatierung-plan.md`](done/04-telefonnummer-formatierung-plan.md) | ✅ Umgesetzt (verifiziert 2026-11-07: `formatTelefonnummer` + blur; Durchwahl/Mobil im Code entschieden) |
 | **05** | **Brief-Verlauf & Historie (`din_history`)** | S–M | ⭐⭐⭐⭐ | [`05-brief-history-verlauf-plan.md`](05-brief-history-verlauf-plan.md) | Ausgearbeitet (10er Ringspeicher) |
-| **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | [`rejected/06-subpixel-falzmarken-plan.md`](rejected/06-subpixel-falzmarken-plan.md) | 🚫 Verworfen zugunsten schlankerer CSS-Box-Lösung mit `visibility: hidden;` |
+| **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | *(gelöscht 2026-11-23)* | 🚫 Verworfen zugunsten schlankerer CSS-Box-Lösung mit `visibility: hidden;` |
 | **07** | **Zero-JS Kompaktsatz (DIN-5008-Toleranz)** | XS–S | ⭐⭐⭐ | [`07-addon-copyfitting-plan.md`](07-addon-copyfitting-plan.md) | In Konzeption (Zero-JS Schalter, 10pt, 1.30lh, Fluchtlinienerhalt)  → **B86** (tote Einstellung) |
 | **08** | **Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker** | L | ⭐⭐⭐⭐⭐ | [`08-testbrief-erzaehlung-plan.md`](08-testbrief-erzaehlung-plan.md) | Konzept (adaptiert, 3 Startanlässe)  **erledigt: implementiert (`SZENARIEN`, `waehleSzenario`)** |
 | **09** | **Modernisierung der Text- und Address Intelligence** | M | ⭐⭐⭐⭐⭐ | [`09-text-parsing-modernization-plan.md`](09-text-parsing-modernization-plan.md) | Konzept (Segmenter / RegExp /v / 3-Stufen)  → **B87 |
@@ -113,7 +113,6 @@ supersedes: []
   - Dateiverknüpfung (`file_handlers`) für `.dinbrief.json`.
   - Service Worker `sw.js` mit Chrome 150+ Static Routing API (`event.addRoutes()`).
   - Cache-Versionierung und `navigator.storage.persist()`.
-- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/docs/90-archive/todo-2026-11/rejected/02-pwa-plan.md`](rejected/02-pwa-plan.md)
 
 ### 3. Mobile Ansicht & Touch-UX
 - **Fokus:** Hervorragende Bedienbarkeit auf Smartphones und Tablets.
@@ -149,7 +148,6 @@ supersedes: []
   - Ersatz von CSS-Border (`1px solid`) durch inline SVG mit fester Stärke `0.25mm`.
   - Beseitigung von Rundungsunschärfen und Hairline-Druckfehlern.
   - Beibehaltung der deklarativen `data-*`-Koordinaten im HTML.
-- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/docs/90-archive/todo-2026-11/rejected/06-subpixel-falzmarken-plan.md`](rejected/06-subpixel-falzmarken-plan.md)
 
 ### 7. Zero-JS Kompaktsatz & Copyfitting (DIN-5008-Toleranzbereich)
 - **Fokus:** Typografische Raumersparnis (4–8 Zeilen) ohne Layout-Kollaps oder Schrift-Quetschung beim Tippen.

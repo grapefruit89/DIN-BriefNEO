@@ -27,13 +27,15 @@ import {
   resolveCity,
   resolvePostcode
 } from './address-data.js';
-import { ClipboardAddressParser } from './clipboard-parser.js';
-import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
+import { Events, eventBus, hidePopoverSafe, showPopoverSafe } from './core.js';
 import { setCaretToEnd } from './document.js';
 import { Field } from './field.js';
+import { formatZahl } from './format.js';
+import { geoCacheHole, geoCacheSetze, geoCacheZaehle } from './geo-cache.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 import { letterState, setMeta } from './state.js';
 import { applyValue, commitElement } from './state-binding.js';
+import { initVorschlagsliste, klemmeAnSatzspiegel } from './suggestion-list.js';
 
 export {
   AddressData,
@@ -41,7 +43,6 @@ export {
   BUNDESLAENDER,
   buildFirmenIndex,
   buildOrtIndex,
-  ClipboardAddressParser,
   fetchGzipJson,
   getDistrict,
   lowerBound,
@@ -77,7 +78,7 @@ export function feld(id) {
  * @param {1 | -1} richtung
  * @returns {number} neuer Index
  */
-function bewegeAuswahl(items, von, richtung) {
+function navigiereListe(items, von, richtung) {
   const naechster = von < 0
     ? (richtung > 0 ? 0 : items.length - 1)
     : (von + richtung + items.length) % items.length;
@@ -225,6 +226,10 @@ AddressIntelligence.wireDOM = function wireDOM() {
   empfOrtEl.addEventListener('input', (/** @type {any} */ e) => {
     // Fiktive Testbrief-Adresse: nicht aufloesen, nicht ueberschreiben.
     if (empfOrtEl.hasAttribute('data-autofill-aus')) return;
+    /* Programmgesteuertes Fuellen (Testbrief) schickt ein Event OHNE
+       inputType; echte Eingaben (Tastatur, Paste) haben einen. Nur die
+       oeffnen die Liste - sonst blitzen alle Dropdowns kurz auf (2026-11-22). */
+    if (!(e instanceof InputEvent) || !e.inputType) return;
     if (e?.inputType?.startsWith('delete')) {
       userEditing = true;
     } else if (e?.inputType === 'insertText' && /\d/.test(e.data || '')) {
@@ -345,95 +350,43 @@ AddressIntelligence.wireDOM = function wireDOM() {
     };
 
     /** @param {Array<any>} liste @param {boolean} [alle] */
-    const zeichneAbsender = (liste, alle = false) => {
-      /* Nur Orte. Eine Stadt bringt aus lookupCityPlzs auch ihre Großempfänger
-         mit (Firmen/Behörden) — die gehören nicht in den Absender
-         (gemeldet 2026-11-22). */
-      const nurOrte = liste.filter((e) => (e.typ || 'Stadt') === 'Stadt');
-      const eintraege = flacheVorschlaege(nurOrte, alle ? Number.POSITIVE_INFINITY : maxSuggestions());
-      /* Bundesland nur bei gemischten Listen ("· Nordrhein-Westfalen" an
-         einzelnen Bonn-Zeilen war Rauschen). */
-      const staaten = new Set(eintraege.map((e) => e.state || '').filter(Boolean));
-      if (!eintraege.length) {
-        hidePopoverSafe(suggestionsPopover);
-        return;
-      }
-      const farben = farbenFuerListe(eintraege, (e) => (e.plz ? AddressIntelligence.getKreisKey(e.plz) : ''));
-      /* Gleicher Name in mehreren Kreisen: dort den Kreis zeigen. */
-      const kreiseJeName = new Map();
-      for (const e of eintraege) {
-        const n = e.name || e.city || '';
-        const set = kreiseJeName.get(n) ?? new Set();
-        set.add(e.plz ? AddressIntelligence.getKreisKey(e.plz) || '' : '');
-        kreiseJeName.set(n, set);
-      }
-
-      suggestionsPopover.replaceChildren();
-      eintraege.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = 'suggestion-item';
-        li.setAttribute('role', 'option');
-        li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
-        li.dataset.ortFarbe = farben[index];
-        li.dataset.typ = 'stadt';
-
-        const main = document.createElement('span');
-        main.className = 'suggestion-main';
-        if (item.plz) {
-          const plzTeil = document.createElement('span');
-          plzTeil.textContent = item.plz;
-          main.appendChild(plzTeil);
-          main.appendChild(document.createTextNode(' '));
-        }
-        const nameTeil = document.createElement('span');
-        nameTeil.className = 'city-val';
-        nameTeil.textContent = item.name || item.city || '';
-        main.appendChild(nameTeil);
-        if (!item.plz && (item.plzCount || 0) > 1) {
-          const anzahl = document.createElement('span');
-          anzahl.className = 'city-sub';
-          anzahl.textContent = `· ${item.plzCount} PLZs`;
-          main.appendChild(anzahl);
-        }
-        li.appendChild(main);
-
-        const mehrfach = (kreiseJeName.get(item.name || item.city || '')?.size || 0) > 1;
-        const kreisName = mehrfach && item.plz ? AddressIntelligence.getKreis(item.plz) : '';
-        let extra = '';
-        const istOrt = (item.typ || 'Stadt') === 'Stadt';
-        if (kreisName) extra = `· ${kreisName}`;
-        else if (item.district) {
-          const erster = String(item.district).split(',')[0].trim();
-          extra = `· ${erster || item.district}`;
-        } else if (item.state && staaten.size > 1) extra = `· ${BUNDESLAENDER[item.state] || item.state}`;
-        /* Badge sagt bereits, dass es eine Firma/Behörde ist. */
-        if (!istOrt) extra = '';
-        if (extra) {
-          const sub = document.createElement('span');
-          sub.className = 'district-val';
-          sub.textContent = extra;
-          li.appendChild(document.createTextNode(' '));
-          li.appendChild(sub);
-        }
-
-        li.addEventListener('mousedown', (ev) => {
-          ev.preventDefault();
-          /* Stadtsammelzeile ("Neustadt (9 PLZs)"): erst die PLZ zeigen. */
-          if ((item.plzCount || 0) > 1 && !item.plz) {
-            zeichneAbsender(AddressIntelligence.lookupCityPlzs(item.city), true);
-            return;
+    const zeichneAbsender = (liste, alle = false) =>
+      renderUniversalSuggestions(
+        liste,
+        liste.length,
+        absOrtEl,
+        null,
+        null,
+        suggestionsPopover,
+        absOrtEl,
+        alle,
+        {
+          nurOrte: true,
+          /** @param {any} item */
+          beiWahl: (item) => {
+            /* Stadtsammelzeile ("Neustadt (9 PLZs)"): erst die PLZ zeigen. */
+            if ((item.plzCount || 0) > 1 && !item.plz) {
+              zeichneAbsender(AddressIntelligence.lookupCityPlzs(item.city), true);
+              return true;
+            }
+            schreibeAbsender(item.plz || '', item.city || item.name || '');
+            setCaretToEnd(absOrtEl);
+            hidePopoverSafe(suggestionsPopover);
+            return true;
           }
-          schreibeAbsender(item.plz || '', item.city || item.name || '');
-          setCaretToEnd(absOrtEl);
-          hidePopoverSafe(suggestionsPopover);
-        });
-        suggestionsPopover.appendChild(li);
-      });
-      showPopoverSafe(suggestionsPopover);
-    };
+        }
+      );
 
     absOrtEl.addEventListener('blur', () => hidePopoverSafe(suggestionsPopover));
-    absOrtEl.addEventListener('input', () => {
+    /* Wie beim Empfaenger: Loeschen ist Nutzerabsicht. Ohne diese Spur hat der
+       5-Ziffern-Zweig den Ort nach dem Loeschen sofort wieder eingesetzt
+       ("53111 B" -> "53111" -> "53111 Bonn", gemeldet 2026-11-22). */
+    let absUserEditing = false;
+    absOrtEl.addEventListener('input', (/** @type {Event} */ ev) => {
+      if (!(ev instanceof InputEvent) || !ev.inputType) return;
+      if (ev.inputType.startsWith('delete')) absUserEditing = true;
+      else if (ev.inputType === 'insertText' && /\d/.test(ev.data || '')) absUserEditing = false;
+
       const raw = Field.getValue(absOrtEl).trim();
       if (absTimer) clearTimeout(absTimer);
       if (raw.length < 3) {
@@ -447,11 +400,31 @@ AddressIntelligence.wireDOM = function wireDOM() {
           absTimer = null;
           if (Field.getValue(absOrtEl).trim() !== raw) return;
           const res = AddressIntelligence.lookupPlz(raw);
-          if (res) {
+          if (res && !absUserEditing) {
             schreibeAbsender(res.plz, res.city);
+            hidePopoverSafe(suggestionsPopover);
+          } else {
             hidePopoverSafe(suggestionsPopover);
           }
         }, 180);
+        return;
+      }
+      /* Drei oder vier Ziffern: PLZ-Praefix. Der Empfaenger hatte diesen Zweig
+         immer, der Absender nicht — "531" lieferte dort null Treffer, obwohl
+         "53111 Bonn" existiert (gemeldet 2026-11-22). */
+      const prefixMatch = raw.match(/^(\d{3,4})$/);
+      if (prefixMatch) {
+        const prefix = prefixMatch[1];
+        absTimer = setTimeout(() => {
+          absTimer = null;
+          const matches = AddressIntelligence.lookupPrefix(prefix, 15);
+          if (matches.length > 0) {
+            const isPlzList = matches.every((/** @type {any} */ m) => m.isSinglePlz && m.plz);
+            zeichneAbsender(matches, isPlzList);
+          } else {
+            hidePopoverSafe(suggestionsPopover);
+          }
+        }, 120);
         return;
       }
       absTimer = setTimeout(() => {
@@ -463,9 +436,10 @@ AddressIntelligence.wireDOM = function wireDOM() {
 
   // Case C: Eingabe im Firma-Feld (Großkunden & Behörden Direkt-Lookup)
   if (empfFirmaEl) {
-    empfFirmaEl.addEventListener('input', () => {
+    empfFirmaEl.addEventListener('input', (/** @type {Event} */ ev) => {
       // Fiktive Testbrief-Firma: kein Grosskunden-Lookup.
       if (empfFirmaEl.hasAttribute('data-autofill-aus')) return;
+      if (!(ev instanceof InputEvent) || !ev.inputType) return;
       const rawText = Field.getValue(empfFirmaEl).trim();
 
       if (firmaDebounceTimer) clearTimeout(firmaDebounceTimer);
@@ -508,10 +482,10 @@ AddressIntelligence.wireDOM = function wireDOM() {
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      bewegeAuswahl(/** @type {HTMLElement[]} */ (items), currentIndex, 1);
+      navigiereListe(/** @type {HTMLElement[]} */ (items), currentIndex, 1);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      bewegeAuswahl(/** @type {HTMLElement[]} */ (items), currentIndex, -1);
+      navigiereListe(/** @type {HTMLElement[]} */ (items), currentIndex, -1);
     } else if (e.key === 'Enter') {
       if (items.length > 0) {
         e.preventDefault();
@@ -526,6 +500,9 @@ AddressIntelligence.wireDOM = function wireDOM() {
 
   empfOrtEl.addEventListener('keydown', handleKeyNav);
   if (empfFirmaEl) empfFirmaEl.addEventListener('keydown', handleKeyNav);
+  /* Beide Ortfelder fuellen dasselbe Popover - ohne diese Zeile reagierte die
+     Absender-Liste nicht auf Pfeile/Enter (gemessen 2026-11-22). */
+  if (absOrtEl) absOrtEl.addEventListener('keydown', handleKeyNav);
 };
 
 /**
@@ -540,6 +517,15 @@ export const GRUPPE_AB_PLZ = 8;
 
 /**
  * Klappt Stadt-Zeilen mit wenigen PLZs direkt in die Liste aus.
+ *
+ * Name vs. Zweck (docs/meta/SEMANTIC-ANCHORS.md, Abschnitt 3): "flach" meint
+ * die DATENFORM (Sammelzeilen zu Einzelzeilen), das Muster heisst
+ * **Progressive Disclosure**.
+ *
+ * Muster: **Progressive Disclosure** — grosse Staedte bleiben eine Zeile
+ * ("Neustadt · 9 PLZs"), kleine klappen sofort auf. Ueber `GRUPPE_AB_PLZ`
+ * entscheidet die Datenlage, nicht die Ansicht.
+ *
  *
  * Entfernt dabei Dubletten: `resolveCityInput('troi')` liefert sowohl
  * "Troisdorf (3 PLZs)" als auch "Troisdorf 53840" — nach dem Ausklappen waere
@@ -567,6 +553,103 @@ export function flacheVorschlaege(liste, limit = Number.POSITIVE_INFINITY) {
     }
   }
   return out;
+}
+
+/**
+ * Wie lange ein per IP ermittelter Standort gilt. Ein Tag reicht: der Punkt
+ * soll die Naehe gewichten, nicht einen Aufenthaltsverlauf aufzeichnen.
+ */
+export const GEO_BIAS_TTL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Naehe-Punkt fuer die Strassensuche — drei Stufen, keine davon ein neuer
+ * Empfaenger:
+ *
+ *   1. `din_sender_coords` — Koordinaten der **Absender-PLZ**. Sie entstehen
+ *      lokal beim Tippen der PLZ (address.js:1743) und kosten 0 Netzanfragen.
+ *      Das ist der genaueste Punkt, den die App ohne Zutun hat.
+ *   2. IP-Standort ueber Geoapify (`/v1/ipinfo`), 24 h zwischengespeichert.
+ *      Derselbe Empfaenger wie jede Strassensuche, dieselbe Datenkategorie
+ *      (die IP sieht Geoapify ohnehin bei jeder Suche) — kein neuer Abfluss.
+ *      Gemessen 2026-11-22: Stadt-Ebene, ~5 km genau (Troisdorf -> Siegburg).
+ *   3. nichts — dann geht die Suche **ohne** `bias` raus. Das ist bewusst
+ *      besser als ein fester Punkt (frueher Bonn): ohne Bias nutzt Geoapify
+ *      die Client-IP als Kontext, was fuer den Nutzer naeher liegt als eine
+ *      fremde Stadt (gemessen 2026-11-22: ohne bias kamen regionale Treffer).
+ *
+ * Der Punkt geht als `bias=proximity:` in die Suche und **schraenkt nichts
+ * ein**: Geoapify dokumentiert "bias influences ranking without excluding
+ * matches" (Address Autocomplete API). Alle Treffer bleiben, die nahen oben.
+ *
+ * @param {string} [key]
+ * @returns {Promise<{ lat: number, lon: number, quelle: 'absender' | 'ip', ort?: string, ts?: number } | null>}
+ */
+export async function ermittleGeoBias(key) {
+  const absender = /** @type {{ lat?: number, lon?: number } | null} */ (
+    loadJSON(STORAGE_KEYS.senderCoords, null)
+  );
+  if (typeof absender?.lat === 'number' && typeof absender?.lon === 'number') {
+    return { lat: absender.lat, lon: absender.lon, quelle: 'absender' };
+  }
+
+  const zwischen = /** @type {{ lat?: number, lon?: number, ts?: number, ort?: string } | null} */ (
+    loadJSON(STORAGE_KEYS.geoBias, null)
+  );
+  if (
+    typeof zwischen?.lat === 'number' &&
+    typeof zwischen?.lon === 'number' &&
+    Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds - Number(zwischen.ts || 0) < GEO_BIAS_TTL_MS
+  ) {
+    return /** @type {any} */ ({ ...zwischen, quelle: 'ip' });
+  }
+
+  if (!key) return null;
+
+  try {
+    const antwort = await fetch(`https://api.geoapify.com/v1/ipinfo?apiKey=${encodeURIComponent(key)}`);
+    if (!antwort.ok) return null;
+    const daten = await antwort.json();
+    const lat = daten?.location?.latitude;
+    const lon = daten?.location?.longitude;
+    if (typeof lat !== 'number' || typeof lon !== 'number') return null;
+    const eintrag = { lat, lon, quelle: 'ip', ort: daten?.city?.name || '', ts: Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds };
+    saveJSON(STORAGE_KEYS.geoBias, eintrag);
+    return /** @type {any} */ (eintrag);
+  } catch {
+    /* offline, CSP oder kein Netz: ohne Bias fragen (Geoapify nutzt die IP). */
+    return null;
+  }
+}
+
+/**
+ * Query fuer die Strassen-Autovervollstaendigung (Geoapify).
+ * `type=street` und ein kleines Limit sind der ganze Geschwindigkeits-
+ * unterschied (gemessen 2026-11-22, gleiche Leitung):
+ *   limit=20, ohne type .................. 1751 ms
+ *   limit=8,  type=street ................  536 ms (2. Lauf 353 ms)
+ * `filter=countrycode:de` bleibt noetig: ohne ihn kamen oesterreichische
+ * Treffer zu "Hauptstrasse" (gemessen). Mit type=street kostet er kaum.
+ * `bias=proximity` ist eine weiche Relevanz-Gewichtung (**proximity bias**):
+ * Naegeles Treffer zuerst, ohne fremde Treffer auszuschliessen.
+ * @param {string} text
+ * @param {string} key
+ * @param {{ lon: number, lat: number } | null} [bias]
+ * @returns {string}
+ */
+export function strassenSuchPfad(text, key, bias) {
+  const params = new URLSearchParams({
+    text,
+    apiKey: key,
+    lang: 'de',
+    limit: '8',
+    type: 'street',
+    filter: 'countrycode:de',
+    format: 'json'
+  });
+  /* Nur wenn ein Punkt bekannt ist. Sonst lieber ohne Bias: Geoapify nimmt
+     dann die Client-IP als Kontext — naeher am Nutzer als jede feste Stadt. */
+  if (bias) params.set('bias', `proximity:${bias.lon},${bias.lat}`);
+  return `/v1/geocode/autocomplete?${params.toString()}`;
 }
 
 /**
@@ -637,13 +720,22 @@ export function farbenFuerListe(eintraege, kreisVon) {
  * @param {HTMLElement} popoverEl
  * @param {HTMLElement | null} [anchorEl]
  * @param {boolean} [isPlzList=false]
+ * @param {{ nurOrte?: boolean, beiWahl?: (item: any) => boolean }} [optionen]
+ *   `nurOrte`: Firmen/Behoerden ausblenden (Absender). `beiWahl`: eigene
+ *   Auswahl-Logik; `true` = behandelt.
  */
-function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasseEl, popoverEl, anchorEl = null, isPlzList = false) {
+/* @review 2026-11-22 EINZIGER Renderer fuer Ortslisten (Empfaenger + Absender).
+   Optionen: nurOrte (keine Firmen im Absender), beiWahl (eigene Auswahl).
+   Nicht wieder eine zweite Kopie daneben bauen. */
+function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasseEl, popoverEl, anchorEl = null, isPlzList = false, optionen = {}) {
   const render = () => {
     popoverEl.replaceChildren();
 
     /** @param {any} item */
     const selectItem = (item) => {
+      /* Eigene Auswahl (Absender-Ort): der Aufrufer entscheidet, was mit dem
+         Treffer passiert, und meldet mit `true`, dass er ihn behandelt hat. */
+      if (optionen.beiWahl?.(item)) return;
       /* Stadtteil-Gruppe (grosse Stadt): deren PLZ anzeigen. */
       if (Array.isArray(item.plzs)) {
         renderUniversalSuggestions(item.plzs, item.plzs.length, ortEl, firmaEl, strasseEl, popoverEl, anchorEl, true);
@@ -677,7 +769,20 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       if (t === 'behörde' || t === 'behoerde' || t === 'gericht') return 1;
       return 2;
     };
-    const eintraege = flacheVorschlaege(matches, isPlzList ? Number.POSITIVE_INFINITY : maxSuggestions())
+    /* Der Absender zeigt nur Orte: eine Stadt bringt aus lookupCityPlzs auch
+       ihre Grossempfaenger mit, die gehoeren nicht in die Ruecksendezeile.
+       Bei einer Grossempfaenger-PLZ (53840 = BwConsulting, city Troisdorf)
+       bleibt der ORT der Text der Zeile - der Betrieb gehoert ins Firmenfeld,
+       nicht in die Rucksendezeile (gemeldet 2026-11-22). */
+    const quelle = optionen.nurOrte
+      ? matches.filter(istOrt).map((e) => {
+          if (e.city && e.name && e.city !== e.name) {
+            return { ...e, name: e.city, typ: 'Stadt' };
+          }
+          return e;
+        })
+      : matches;
+    const eintraege = flacheVorschlaege(quelle, isPlzList ? Number.POSITIVE_INFINITY : maxSuggestions())
       .toSorted((a, b) => {
         const ra = rang(a);
         const rb = rang(b);
@@ -691,6 +796,11 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
         }
         return 0;
       });
+
+    if (!eintraege.length) {
+      hidePopoverSafe(popoverEl);
+      return;
+    }
 
     /* Bundesland nur, wenn es die Zeile von den anderen desselben Namens
        unterscheidet: bei "frankfurt am main" sind 114 Zeilen Hessen, zwei
@@ -772,7 +882,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       } else if (!item.isSinglePlz && (item.plzCount || 0) > 1) {
         const countSub = document.createElement('span');
         countSub.className = 'city-sub';
-        Field.setValue(countSub, `· ${item.plzCount} PLZs`);
+        Field.setValue(countSub, `· ${formatZahl(item.plzCount)} PLZs`);
         leftWrapper.appendChild(countSub);
       }
 
@@ -801,7 +911,19 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       /* Bei Großempfängern sagt das Badge schon, was es ist — der Zusatz
          "· Großempfänger" wurde abgeschnitten und raubte dem Namen Platz. */
       if (item.typ && item.typ !== 'Stadt') extraText = '';
-      if (item.district || (item.typ && item.typ !== 'Stadt')) li.title = `${item.name || item.city || ''}${item.typ && item.typ !== 'Stadt' ? '' : ` — ${item.district}`}`;
+      /* WCAG 1.4.1 ("Farbe nie als einziges Mittel"): Bei Firmen, Behoerden und
+         Gerichten steckt der Typ sonst NUR in der Farbe (data-typ -> color).
+         Deshalb zusaetzlich als Text - im Tooltip und fuer Vorleseprogramme
+         (.sr-only), ohne die Liste lauter zu machen (Vorgabe 2026-11-22). */
+      const typWort = item.typ && item.typ !== 'Stadt' ? String(item.typ) : '';
+      const titelZusatz = typWort || (item.district ? String(item.district) : '');
+      if (titelZusatz) li.title = `${item.name || item.city || ''} — ${titelZusatz}`;
+      if (typWort) {
+        const nurVorlesen = document.createElement('span');
+        nurVorlesen.className = 'sr-only';
+        nurVorlesen.textContent = ` — ${typWort}`;
+        li.appendChild(nurVorlesen);
+      }
       if (extraText) {
         li.appendChild(document.createTextNode(' '));
         const districtSpan = document.createElement('span');
@@ -823,11 +945,14 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       hintLi.setAttribute('role', 'option');
       hintLi.setAttribute('aria-disabled', 'true');
       hintLi.setAttribute('aria-selected', 'false');
-      Field.setValue(hintLi, `${totalCount} Treffer – tippe weiter`);
+      Field.setValue(hintLi, `${formatZahl(totalCount)} Treffer – tippe weiter`);
       popoverEl.appendChild(hintLi);
     }
 
     bindListSelection(popoverEl, eintraege, selectItem);
+    /* So weit nach unten wie das Blatt erlaubt (20 mm Rand) — weniger
+       Scrollen bei langen Listen (Vorgabe 2026-11-22). */
+    klemmeAnSatzspiegel(popoverEl, /** @type {HTMLElement} */ (anchorEl || ortEl));
   };
 
   render();
@@ -858,6 +983,10 @@ function abbreviateName(fullName) {
 }
 
 /**
+ * Muster: **derived state mit klebrigem Nutzer-Override** (wie "controlled vs.
+ * uncontrolled input"): die Zeile folgt der Automatik, solange niemand sie
+ * anfasst — danach gehoert sie dem Menschen und wird nicht mehr ueberschrieben.
+ *
  * Entscheidet, ob die Ruecksendezeile neu geschrieben werden darf.
  * Reine Funktion, damit die vier Faelle ohne DOM-Zustand testbar sind:
  * leer/Entwurf -> schreiben, Nutzertext -> stehen lassen, geloescht -> leer lassen.
@@ -905,7 +1034,13 @@ export function initSenderSync() {
   const absender = feld('rucksendeangabe');
   const unterschrift = feld('unterschrift');
 
-  if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
+  /* DEGRADATION STATT ABBRUCH (Invariante 2026-11-22): nur das Ziel ist
+     Pflicht — ohne Ruecksendezeile gibt es nichts zu spiegeln. Jedes Quellfeld
+     wird einzeln verdrahtet; fehlt eines, bleibt sein Segment leer
+     (Field.getValue(null) === ''), die anderen arbeiten weiter. Vorher stand
+     hier ein Guard ueber ALLE fuenf Felder: ein fehlendes Feld haette die
+     ganze Absender-Spiegelung abgeschaltet. */
+  if (!absender) return;
 
   /** @param {HTMLElement | null} el @returns {string} */
   const lies = (el) => Field.getValue(el).trim();
@@ -969,12 +1104,13 @@ export function initSenderSync() {
     setMeta(letterState, 'rucksendeangabe', { herkunft: 'manuell' });
   });
 
-  unterschrift.addEventListener('input', () => {
+  unterschrift?.addEventListener('input', () => {
     if (schreibeGerade) return;
     unterschriftModus = 'manuell';
   });
 
   const spiegleUnterschrift = () => {
+    if (!unterschrift) return; /* Feld nicht vorhanden: nichts zu spiegeln. */
     const name = lies(infoName);
     const jetzt = lies(unterschrift);
     if (unterschriftModus === 'unklar') {
@@ -983,12 +1119,12 @@ export function initSenderSync() {
     if (unterschriftModus === 'auto' && jetzt !== name) schreibe(unterschrift, name);
   };
 
-  infoName.addEventListener('input', () => {
+  infoName?.addEventListener('input', () => {
     spiegleFeld(0, lies(infoName));
     spiegleUnterschrift();
   });
-  infoStreet.addEventListener('input', () => spiegleFeld(1, lies(infoStreet)));
-  infoCity.addEventListener('input', () => spiegleFeld(2, lies(infoCity)));
+  infoStreet?.addEventListener('input', () => spiegleFeld(1, lies(infoStreet)));
+  infoCity?.addEventListener('input', () => spiegleFeld(2, lies(infoCity)));
 
   eventBus.subscribe(Events.DOCUMENT_CHANGED, (/** @type {any} */ payload) => {
     /* Undo/Redo/Reset: Segmente aus dem Zustand neu lesen.
@@ -1048,16 +1184,76 @@ export function adressRelevanz(item, query) {
 }
 
 /**
+ * Ist der Eintrag ein ORT (und keine Firma)?
+ *
+ * `typ` allein reicht nicht: Grossempfaenger-PLZ wie 53840 Troisdorf tragen
+ * `typ: 'Firma'` (BwConsulting GmbH), sind aber ein Ort — `city` ist Troisdorf,
+ * `name` der Betrieb. Umgekehrt traegt 53718 den Firmennamen als `city`
+ * ("Ahrens + Sieberz"): dort ist `city === name` und es ist kein Ort.
+ *
+ * Regel: Ort, wenn `city` und `name` sich unterscheiden (dann ist `name` der
+ * Betrieb) ODER der Typ ausdruecklich 'Stadt' ist.
+ * @param {{ typ?: string, city?: string, name?: string }} eintrag
+ * @returns {boolean}
+ */
+export function istOrt(eintrag) {
+  if (!eintrag) return false;
+  const city = String(eintrag.city || '');
+  const name = String(eintrag.name || '');
+  if (city && name && city !== name) return true;
+  return (eintrag.typ || 'Stadt') === 'Stadt';
+}
+
+/**
+ * Ortsvorschlaege fuer PLZ + Ort — **eine** Wahrheit fuer Feld und Debug-Ausgabe.
+ *
+ * Drei Faelle, gemessen 2026-11-22:
+ *   - genau 5 Ziffern  -> lookupPlz (exakter Ort, `modus: 'plz'`)
+ *   - 3-4 Ziffern      -> lookupPrefix ("537" -> Siegburg, Hennef, ...)
+ *   - Text ab 3 Zeichen-> resolveCityInput (Orte, PLZ-Listen, Firmen)
+ *
+ * Der Debug-Pfad nutzte vorher nur `resolveCityInput` und meldete fuer "537"
+ * null Treffer, obwohl das Feld fuenf zeigte (gemeldet 2026-11-22).
+ *
+ * @param {string} raw
+ * @param {number} [max]
+ * @param {{ nurOrte?: boolean }} [opts]
+ * @returns {{ items: any[], modus: 'kurz' | 'plz' | 'prefix' | 'text' }}
+ */
+export function ortsVorschlaege(raw, max = 24, { nurOrte = false } = {}) {
+  const text = String(raw || '').trim();
+  if (text.length < 3) return { items: [], modus: 'kurz' };
+
+  if (/^\d{5}$/.test(text)) {
+    const res = AddressIntelligence.lookupPlz(text);
+    return { items: res ? [res] : [], modus: 'plz' };
+  }
+
+  const nur = (/** @type {any[]} */ items) => (nurOrte ? items.filter(istOrt) : items);
+
+  const prefix = text.match(/^(\d{3,4})$/);
+  if (prefix) {
+    return {
+      items: nur(AddressIntelligence.lookupPrefix(prefix[1], Math.max(max, 15))),
+      modus: 'prefix'
+    };
+  }
+
+  const res = AddressIntelligence.resolveCityInput(text, max);
+  return { items: nur(res.items || []), modus: 'text' };
+}
+
+/**
  * Initialisiert Adress-Dienste (Geoapify, Offline-Intelligence, Absender-Proximity).
  */
 export function initAddressServices() {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (feld('input-geoapify-key'));
   const statusEl = feld('geoapify-status');
-  const inputAddressSearch = /** @type {HTMLInputElement | null} */ (feld('input-anschrift-suche'));
-  const addressSuggestions = feld('anschrift-vorschlaege');
-  const addressSearchContainer = feld('anschrift-suche-container');
-
-  if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !addressSearchContainer) return;
+  /* Nur der Key ist Pflicht. Die Anschrift-Suche ist am 2026-11-22 entfallen
+     (Nutzer: "wir suchen nicht in einer potentiellen Zwischenablage"); damit
+     haengen Key-Status, Strassen- und Ortssuche nicht mehr an einem Feld,
+     das es nicht mehr gibt. */
+  if (!inputGeoapifyKey) return;
 
   /**
    * @param {'valid' | 'invalid' | 'pending' | 'error' | ''} status
@@ -1071,21 +1267,30 @@ export function initAddressServices() {
     }
   }
 
-  /** @type {AbortController | null} */
-  let activeAbortController = null;
-  /* Zaehlt jede Eingabe im Suchfeld. Eine Antwort darf nur rendern, wenn ihre
-   * Generation noch die aktuelle ist (B3-03): der Abort greift nur, wenn
-   * danach ein NEUER Request startet — bei "Feld geleert" oder "< 3 Zeichen"
-   * startet keiner, und die alte Antwort blieb stehen. */
-  let suchGeneration = 0;
-  /** @type {any} */
-  let debounceSearchTimeout = null;
+  /**
+   * Dev-Komfort: hat der lokale Server einen Key (`/__geokey`, aus
+   * `~/.secrets/geoapify`), wird er wie eine Eingabe gespeichert. Auf einem
+   * normalen Webserver antwortet der Pfad mit 404 — dann bleibt alles beim
+   * gewohnten Weg (Feld ausfuellen). Kein Fehler, kein Rauschen.
+   */
+  const holeDevGeokey = async () => {
+    if (load(STORAGE_KEYS.geoapifyKey, '')) return;
+    try {
+      const antwort = await fetch('/__geokey', { cache: 'no-store' });
+      if (!antwort.ok) return;
+      const key = (await antwort.text()).trim();
+      if (!key) return;
+      save(STORAGE_KEYS.geoapifyKey, key);
+      if (inputGeoapifyKey) inputGeoapifyKey.value = key;
+      setGeoapifyState('valid', '✓ Key lokal geladen.');
+    } catch {
+      /* kein Dev-Server, offline oder CORS: normaler Weg */
+    }
+  };
+  void holeDevGeokey();
+
   /** @type {any} */
   let keyDebounceTimeout = null;
-  /** @type {AddressEntry[]} */
-  let renderedSuggestions = [];
-  let activeSuggestionIndex = -1;
-
   // Load initial settings
   const savedKey = load(STORAGE_KEYS.geoapifyKey, '') || '';
   inputGeoapifyKey.value = savedKey;
@@ -1112,11 +1317,6 @@ export function initAddressServices() {
     keyDebounceTimeout = setTimeout(() => {
       validateKeyWithHeartbeat(val);
     }, 500);
-  });
-
-  // A11y: Sync aria-expanded state of combobox with popover toggle
-  addressSuggestions.addEventListener('toggle', (e) => {
-    inputAddressSearch.setAttribute('aria-expanded', String(/** @type {any} */ (e).newState === 'open'));
   });
 
   /**
@@ -1155,82 +1355,6 @@ export function initAddressServices() {
     }
   }
 
-  /**
-   * Sucht im eingebauten PLZ-/Ortsverzeichnis (ohne Netz, ohne Key).
-   * Liefert nur Ort/PLZ - das Verzeichnis kennt keine Strassennamen.
-   * @param {string} query
-   * @returns {AddressEntry[]}
-   */
-  function sucheOffline(query) {
-    try {
-      const q = String(query || '').trim();
-      /* PLZ-Suche: lookupUniversal durchsucht nur Namen. 5 Ziffern = exakt,
-         3-4 = Praefix (lookupPrefix kennt nur diesen Bereich). */
-      if (/^\d{5}$/.test(q)) {
-        const stadt = AddressIntelligence.plzToCity.get(q);
-        if (stadt) return [{ street: '', housenumber: '', postcode: q, city: stadt, formatted: `${q} ${stadt}`, source: 'offline' }];
-        return [];
-      }
-      if (/^\d{3,4}$/.test(q)) {
-        /** @type {AddressEntry[]} */
-        const treffer = (AddressIntelligence.lookupPrefix(q, 8) || []).map((t) => {
-          const plz = String(t.plz || '');
-          const stadt = String(t.city || '');
-          return { street: '', housenumber: '', postcode: plz, city: stadt, formatted: `${plz} ${stadt}`.trim(), source: 'offline' };
-        });
-        return treffer;
-      }
-      const res = AddressIntelligence.lookupUniversal(query, 8);
-      return (res.items || []).map((i) => {
-        const plz = i.plz || '';
-        const stadt = i.city || i.name || '';
-        const istOrt = i.typ === 'Stadt';
-        return {
-          street: '',
-          housenumber: '',
-          postcode: plz,
-          city: stadt,
-          formatted: istOrt
-            ? [plz, stadt].filter(Boolean).join(' ')
-            : `${i.name}${plz ? `, ${plz} ${stadt}` : ''}`,
-          source: 'offline'
-        };
-      });
-    } catch {
-      return [];
-    }
-  }
-
-  // --- LOCAL ADDRESS BOOK FEATURE ---
-  /**
-   * @returns {AddressEntry[]}
-   */
-  function getLocalAddressBook() {
-    return /** @type {AddressEntry[]} */ (loadJSON(STORAGE_KEYS.addresses, []));
-  }
-
-  /**
-   * @param {AddressEntry} item
-   */
-  function saveToLocalAddressBook(item) {
-    const book = getLocalAddressBook();
-    if (!book.find(entry => entry.formatted === item.formatted)) {
-      book.unshift(item);
-      if (book.length > 50) book.pop();
-      saveJSON(STORAGE_KEYS.addresses, book);
-    }
-  }
-
-  /**
-   * @param {string} query
-   * @returns {AddressEntry[]}
-   */
-  function fuzzySearchLocal(query) {
-    const book = getLocalAddressBook();
-    const q = query.toLowerCase();
-    return book.filter(item => item.formatted.toLowerCase().includes(q)).slice(0, 5);
-  }
-
   /* Geoapify laeuft auf zwei erreichbaren Hosts mit identischer API
      (geprueft 2026-11-15: beide antworten auf eine ungueltige Key-Anfrage mit
      demselben 401-Body). Der zweite wird nur benutzt, wenn der erste mit
@@ -1245,7 +1369,7 @@ export function initAddressServices() {
    * @param {AbortController} controller
    * @returns {Promise<{ antwort: Response, host: string }>}
    */
-  async function holeJsonMitFailover(pfad, controller) {
+  async function holeMitFailover(pfad, controller) {
     let letzterFehler = null;
     for (const host of GEOAPIFY_HOSTS) {
       try {
@@ -1262,13 +1386,16 @@ export function initAddressServices() {
     throw letzterFehler ?? new Error('Kein Geoapify-Host erreichbar');
   }
 
-  // Geoapify In-Memory Cache (LRU: Treffer ruecken nach vorn)
+  /* Zwei Ebenen: Session-Map (sofort, LRU) und ein Ring im localStorage, der
+     auch einen Reload ueberlebt (geo-cache.js, 512 KB). Strasse-Treffer werden
+     dafuer auf die Felder gekuerzt, die die Liste braucht: 9,8 KB -> 0,4 KB je
+     Suchbegriff (gemessen 2026-11-22), 1 MB fasst damit ~2.900 statt ~104. */
   /** @type {Map<string, AddressEntry[]>} */
   const apiCache = new Map();
   const CACHE_MAX = 100;
 
   /** @param {string} key @returns {AddressEntry[] | undefined} */
-  function cacheHole(key) {
+  function mapHole(key) {
     const wert = apiCache.get(key);
     if (wert) {
       apiCache.delete(key);
@@ -1278,12 +1405,54 @@ export function initAddressServices() {
   }
 
   /** @param {string} key @param {AddressEntry[]} wert */
-  function cacheSetze(key, wert) {
+  function mapSetze(key, wert) {
     if (apiCache.size >= CACHE_MAX) {
       const aeltester = apiCache.keys().next().value;
       if (typeof aeltester === 'string') apiCache.delete(aeltester);
     }
     apiCache.set(key, wert);
+  }
+
+  /** @param {string} key @returns {AddressEntry[] | undefined} */
+  function cacheHole(key) {
+    const ausMap = mapHole(key);
+    if (ausMap) return ausMap;
+    const roh = /** @type {any} */ (geoCacheHole(key));
+    if (!roh || !Array.isArray(roh.d)) return undefined;
+    /* Im Ring liegen Strasse-Treffer als Zeilen [street, hausnr, plz, ort, land]
+       (9,8 KB -> 0,4 KB), Adressfelder-Treffer unveraendert als Objekte. */
+    const wert = /** @type {AddressEntry[]} */ (
+      roh.art === 'strasse'
+        ? roh.d.map((/** @type {any[]} */ r) => ({
+            street: r[0],
+            housenumber: r[1],
+            postcode: r[2],
+            city: r[3],
+            country_code: r[4]
+          }))
+        : roh.d
+    );
+    mapSetze(key, wert);
+    return wert;
+  }
+
+  /** @param {string} key @param {AddressEntry[]} wert */
+  function cacheSetze(key, wert) {
+    mapSetze(key, wert);
+    if (key.startsWith('strasse:')) {
+      geoCacheSetze(key, {
+        art: 'strasse',
+        d: wert.map((/** @type {any} */ r) => [
+          r.street || '',
+          r.housenumber || '',
+          r.postcode || '',
+          r.city || '',
+          r.country_code || ''
+        ])
+      });
+    } else {
+      geoCacheSetze(key, { art: 'adresse', d: wert });
+    }
   }
 
   /* Verbindung vorwaermen, sobald der Nutzer das Feld anfasst: der erste
@@ -1304,301 +1473,11 @@ export function initAddressServices() {
     }
   }
 
-  /* Kein `once`: hat das Feld beim Laden schon den Fokus (Autofokus, Reload mit
-     gespeichertem Fokus), ist das `focus`-Event längst vorbei und ein
-     `once`-Listener liefe nie — im Test genau so passiert. Die Funktion ist
-     über `vorgewaermt` ohnehin idempotent. */
-  inputAddressSearch.addEventListener('focus', waermeVerbindungVor);
-  inputAddressSearch.addEventListener('input', waermeVerbindungVor);
-  inputAddressSearch.addEventListener('blur', () => hidePopoverSafe(addressSuggestions));
-  if (document.activeElement === inputAddressSearch) waermeVerbindungVor();
-
-  // Tastatursteuerung für das native Listbox-Popover
-  inputAddressSearch.addEventListener('keydown', (event) => {
-    if (!renderedSuggestions.length) return;
-    const key = event.key;
-    if (key === 'ArrowDown' || key === 'ArrowUp') {
-      event.preventDefault();
-      const optionen = /** @type {HTMLElement[]} */ (Array.from(addressSuggestions.querySelectorAll('[role=option]')));
-      const richtung = /** @type {1 | -1} */ (key === 'ArrowDown' ? 1 : -1);
-      activeSuggestionIndex = bewegeAuswahl(optionen, activeSuggestionIndex, richtung);
-      inputAddressSearch.setAttribute('aria-activedescendant', `anschrift-vorschlag-${activeSuggestionIndex}`);
-    } else if (key === 'Enter' && activeSuggestionIndex >= 0) {
-      event.preventDefault();
-      selectSuggestion(renderedSuggestions[activeSuggestionIndex]);
-    } else if (key === 'Escape') {
-      activeSuggestionIndex = -1;
-      inputAddressSearch.removeAttribute('aria-activedescendant');
-    }
-  });
-
-  // Optimierter Input Handler
-  inputAddressSearch.addEventListener('input', () => {
-    clearTimeout(debounceSearchTimeout);
-    const query = inputAddressSearch.value.trim();
-    const generation = ++suchGeneration;
-
-    if (query.length < 3) {
-      if (activeAbortController) activeAbortController.abort();
-      hidePopoverSafe(addressSuggestions);
-      return;
-    }
-
-    // 1. INSTANT LOCAL SEARCH: Ohne Debounce sofort anzeigen! (0ms Latenz)
-    const localMatches = fuzzySearchLocal(query);
-    for (const m of localMatches) {
-      m.source = 'local';
-    }
-    /* Ohne API-Key war das Feld praktisch tot: nur das persoenliche
-       Adressbuch wurde durchsucht. Jetzt kommt das eingebaute PLZ-/Orts-
-       verzeichnis dazu - es kennt Orte, PLZ, Ortsteile und Firmen, aber
-       KEINE Strassennamen. Strassen brauchen weiter den Key. */
-    const offlineMatches = sucheOffline(query);
-    const sofort = mischeNachRelevanz([localMatches, offlineMatches], query);
-
-    if (!sofort.length && !load(STORAGE_KEYS.geoapifyKey, '')) {
-      zeigeSuchHinweis('Keine Treffer im Ortsverzeichnis. Strassen suchen braucht einen API-Schlüssel (Einstellungen).');
-    } else {
-      renderSuggestions(sofort, query, false);
-    }
-
-    // 2. REMOTE SEARCH (Debounced)
-    debounceSearchTimeout = setTimeout(() => {
-      performAddressSearch(query, sofort, generation);
-    }, 200);
-  });
-
-  /**
-   * @param {string} query
-   * @param {AddressEntry[]} localMatches
-   * @param {number} generation
-   */
-  async function performAddressSearch(query, localMatches, generation) {
-    if (activeAbortController) activeAbortController.abort();
-    activeAbortController = new AbortController();
-
-    if (!navigator.onLine) return;
-
-    const key = load(STORAGE_KEYS.geoapifyKey, '');
-    if (!key) return;
-
-    // 3. CACHE HIT: Sofortiges Rendering ohne Netzwerk!
-    const lock = AddressIntelligence.targetLock;
-    const cacheKey = `${lock ? `${lock.plz} ` : ''}${query}`.toLowerCase();
-    const ausCache = cacheHole(cacheKey);
-    if (ausCache) {
-      mergeAndRender(localMatches, ausCache, query);
-      return;
-    }
-
-    const coords = /** @type {{ lat: number, lon: number } | null} */ (loadJSON(STORAGE_KEYS.senderCoords, null));
-
-    const searchText = lock ? `${query}, ${lock.plz} ${lock.city}` : query;
-    let pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=5&format=json&filter=countrycode:de`;
-    if (!lock && coords?.lat && coords?.lon) {
-      pfad += `&bias=proximity:${coords.lon},${coords.lat}`;
-    }
-
-    try {
-      const { antwort: response } = await holeJsonMitFailover(pfad, activeAbortController);
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          save(STORAGE_KEYS.geoapifyKey, '');
-          const keyEl = /** @type {HTMLInputElement | null} */ (feld('input-geoapify-key'));
-          if (keyEl) keyEl.value = '';
-          setGeoapifyState('invalid', '✗ Key abgelaufen (401/403).');
-          notify(Constants.TOASTS.GEOAPIFY.KEY_EXPIRED, 'error');
-        } else {
-          console.warn(`[Address] Autocomplete HTTP ${response.status}`);
-          notify(Constants.TOASTS.GEOAPIFY.UNAVAILABLE(response.status), 'warning');
-        }
-        return;
-      }
-      const data = await response.json();
-
-      /* Hausnummern raus (Nutzerwunsch 2026-11-13): es geht um die korrekten
-         Strassennamen. Die Anzeige ist Strasse + PLZ + Ort, ohne Nummer; so
-         fallen auch die vielen Treffer derselben Strasse zu einem zusammen. */
-      const gesehen = new Set();
-      /** @type {AddressEntry[]} */
-      const parsedSuggestions = (data.results || []).map((/** @type {any} */ p) => {
-        const street = p.street || '';
-        const postcode = p.postcode || '';
-        const city = p.city || '';
-        return {
-          street,
-          housenumber: '',
-          postcode,
-          city,
-          formatted: [street, [postcode, city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
-          source: 'geoapify'
-        };
-      }).filter((/** @type {AddressEntry} */ s) => {
-        if (!s.city && !s.postcode) return false;
-        const schluessel = `${s.street}|${s.postcode}`;
-        if (gesehen.has(schluessel)) return false;
-        gesehen.add(schluessel);
-        return true;
-      });
-      /* Frueher mussten Strasse UND Stadt vorhanden sein; jede Stadt- oder
-         PLZ-Suche (ohne Strasse) fiel damit komplett raus - "Troisdorf" und
-         "53840" zeigten gar nichts (gemeldet 2026-11-13). */
-
-      cacheSetze(cacheKey, parsedSuggestions);
-      /* Ueberholte Antwort verwerfen: der Nutzer hat inzwischen weitergetippt
-       * oder das Feld geleert (B3-03). */
-      if (generation !== suchGeneration) return;
-      mergeAndRender(localMatches, parsedSuggestions, query);
-    } catch (err) {
-      const error = /** @type {Error} */ (err);
-      if (error.name !== 'AbortError') {
-        console.warn('[Address] Autocomplete search failed:', error);
-        notify(Constants.TOASTS.GEOAPIFY.NETWORK_ERROR, 'warning');
-      }
-    }
-  }
-
-  /**
-   * @param {AddressEntry[]} localMatches 
-   * @param {AddressEntry[]} remoteMatches 
-   * @param {string} query 
-   */
-  /**
-   * Mischt Quellen dublettenfrei und sortiert nach Relevanz.
-   * @param {AddressEntry[][]} quellen
-   * @param {string} query
-   * @returns {AddressEntry[]}
-   */
-  function mischeNachRelevanz(quellen, query) {
-    /** @type {AddressEntry[]} */
-    const combined = [];
-    for (const quelle of quellen) {
-      for (const eintrag of quelle) {
-        if (combined.some((c) => c.formatted === eintrag.formatted)) continue;
-        combined.push(eintrag);
-      }
-    }
-    combined.sort((a, b) => adressRelevanz(a, query) - adressRelevanz(b, query));
-    return combined;
-  }
-
-  /**
-   * @param {AddressEntry[]} localMatches
-   * @param {AddressEntry[]} remoteMatches
-   * @param {string} query
-   */
-  function mergeAndRender(localMatches, remoteMatches, query) {
-    renderSuggestions(mischeNachRelevanz([localMatches, remoteMatches], query), query, true);
-  }
-
-  /**
-   * @param {AddressEntry[]} suggestions
-   * @param {string} _query
-   * @param {boolean} allowZeroClick
-   */
-  function renderSuggestions(suggestions, _query, allowZeroClick) {
-    if (!addressSuggestions) return;
-    addressSuggestions.replaceChildren();
-    renderedSuggestions = suggestions.slice(0, 5);
-    activeSuggestionIndex = -1;
-    inputAddressSearch?.removeAttribute('aria-activedescendant');
-
-    if (suggestions.length === 0) {
-      hidePopoverSafe(addressSuggestions);
-      return;
-    }
-
-    /* Bei mehr als 5 Treffern stand hier NUR der Hinweis - man konnte nichts
-       anklicken. Jetzt: die besten 5 plus Hinweis als letzte Zeile. */
-    const mehrAlsFuenf = allowZeroClick && suggestions.length > 5;
-
-    renderedSuggestions.forEach((item, index) => {
-      const li = document.createElement('li');
-      li.id = `anschrift-vorschlag-${index}`;
-      li.setAttribute('role', 'option');
-      li.setAttribute('aria-selected', 'false');
-      Field.setValue(li, item.formatted);
-      
-      if (item.source === 'local') {
-        const badge = document.createElement('span');
-        Field.setValue(badge, '⭐ Lokal');
-        badge.className = 'badge-local';
-        li.appendChild(badge);
-      }
-      
-      li.dataset.index = String(index);
-      addressSuggestions.appendChild(li);
-    });
-
-    if (mehrAlsFuenf) {
-      const statusLi = document.createElement('li');
-      statusLi.className = 'suggestion-hint';
-      statusLi.setAttribute('role', 'option');
-      statusLi.setAttribute('aria-disabled', 'true');
-      statusLi.setAttribute('aria-selected', 'false');
-      Field.setValue(statusLi, `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`);
-      addressSuggestions.appendChild(statusLi);
-    }
-
-    bindListSelection(addressSuggestions, renderedSuggestions, selectSuggestion);
-
-    showPopoverSafe(addressSuggestions);
-  }
-
-  /**
-   * Eine einzelne, nicht anklickbare Hinweiszeile im Vorschlags-Popover.
-   * @param {string} text
-   */
-  function zeigeSuchHinweis(text) {
-    if (!addressSuggestions) return;
-    addressSuggestions.replaceChildren();
-    renderedSuggestions = [];
-    activeSuggestionIndex = -1;
-    const li = document.createElement('li');
-    li.className = 'suggestion-hint';
-    li.setAttribute('role', 'option');
-    li.setAttribute('aria-disabled', 'true');
-    li.setAttribute('aria-selected', 'false');
-    Field.setValue(li, text);
-    addressSuggestions.appendChild(li);
-    showPopoverSafe(addressSuggestions);
-  }
-
-  /**
-   * @param {AddressEntry} item
-   */
-  function selectSuggestion(item) {
-    const empfStrasse = feld('empfaenger-strasse');
-    const empfOrt = feld('empfaenger-ort');
-
-    /* Nur fuellen, was der Treffer wirklich hat: ein Stadt-/PLZ-Treffer hat
-       keine Strasse und darf das Empfaengerfeld nicht leeren. */
-    if (empfStrasse && item.street) {
-      applyValue('empfaenger-strasse', item.street, 'auto');
-    }
-    if (empfOrt && (item.postcode || item.city)) {
-      applyValue('empfaenger-ort', `${item.postcode} ${item.city}`.trim(), 'auto');
-    }
-
-    hidePopoverSafe(addressSuggestions);
-    /* Zustand mit aufraeumen: sonst zeigen ArrowDown/Enter auf Treffer einer
-     * Suche, die der Nutzer schon abgeschlossen hat (Befund aus F4). */
-    renderedSuggestions = [];
-    activeSuggestionIndex = -1;
-    if (inputAddressSearch) {
-      inputAddressSearch.value = '';
-      inputAddressSearch.removeAttribute('aria-activedescendant');
-    }
-
-    saveToLocalAddressBook(item);
-
-    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-  }
-
   // --- TIER 1: OFFLINE ADDRESS INTELLIGENCE ---
-  AddressIntelligence.init().then(() => {
+  void (async () => {
+    await AddressIntelligence.init();
     AddressIntelligence.wireDOM();
-  });
+  })();
 
   // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias
   const absenderPlzOrtEl = feld('absender-ort') || feld('rucksendeangabe');
@@ -1621,135 +1500,130 @@ export function initAddressServices() {
         const match = text.match(/(\d{5})/);
         if (match) {
           const plz = match[1];
-          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(plz)}&type=postcode&filter=countrycode:de&format=json&apiKey=${encodeURIComponent(key)}&limit=1`, {
-            signal: AbortSignal.timeout(8000),
-          })
-            .then(r => r.json())
-            .then(data => {
-              if (data?.results?.length) {
-                const result = data.results[0];
-                if (result.lat && result.lon) {
-                  saveJSON(STORAGE_KEYS.senderCoords, { lat: result.lat, lon: result.lon });
-                }
-              }
-            }).catch(console.debug);
+          void (async () => {
+            const antwort = await fetch(
+              `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(plz)}&type=postcode&filter=countrycode:de&format=json&apiKey=${encodeURIComponent(key)}&limit=1`,
+              { signal: AbortSignal.timeout(8000) }
+            );
+            const daten = await antwort.json();
+            const result = daten?.results?.[0];
+            if (result?.lat && result?.lon) {
+              saveJSON(STORAGE_KEYS.senderCoords, { lat: result.lat, lon: result.lon });
+            }
+          })().catch(console.debug);
         }
       }, 500);
     });
   }
 
-  /* Strassen-Vorschlaege fuer den Absender (Geoapify).
-     Regeln (Vorgabe 2026-11-22):
-     - unabhaengig von allen anderen Feldern: gesucht wird nur der getippte Name
-     - Relevanz per Naehe: Absender-Koordinaten, sonst Bonn als Standard
-     - Liste reicht bis 20 mm ueber den Blattrand, rechts 20 mm Abstand
-     - ohne API-Key oder ohne Netz passiert nichts (offline-first) */
-  const absStrasseEl = feld('absender-strasse');
+  /* Strassen-Vorschlaege (Geoapify) fuer BEIDE Strassenfelder: Absender und
+     Empfaenger. Bedienung kommt aus `initVorschlagsliste`; hier stehen nur
+     Abruf (mit LRU-Cache) und was beim Klick passiert.
+     - gesucht wird nur der getippte Name, unabhaengig von anderen Feldern
+     - Relevanz per Naehe (Standard Bonn)
+     - ohne API-Key oder ohne Netz: keine Liste (offline-first)
+     - laufende Anfrage wird beim naechsten Tastendruck abgebrochen */
   const strassePopover = feld('strasse-vorschlaege');
-  if (absStrasseEl && strassePopover) {
-    /** @type {any} */
-    let strasseTimer = null;
-    /* Bonn als Standard-Naehe (Heimfallpunkt, gemessen 2026-11-22). */
-    const BONN = { lon: 7.0982068, lat: 50.73743 };
+  if (strassePopover) {
+    /** @type {AbortController | null} */
+    let strassenController = null;
+    /* Schluessel der zuletzt angezeigten Strasse-Treffer. Beim Klick wird er
+       gezaehlt (LFU: gewaehlte Begriffe bleiben laenger im Ring). */
+    let letzterStrassenSchluessel = '';
 
-    /** Breite/Hoehe so setzen, dass 20 mm Blattrand bleiben. */
-    /* 20 mm = 75,6 px bei 96 dpi (DIN 5008 Rand). */
-    const RAND = 76;
+    /** @param {any} r Geoapify-Treffer @returns {{ text: string, zusatz: string, wert: any }} */
+    const zuVorschlag = (r) => ({
+      text: [r.street, r.housenumber].filter(Boolean).join(' '),
+      zusatz: `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`,
+      wert: r
+    });
 
-    /**
-     * Haelt die Liste INNERHALB des A4-Blatts: rechts bis zum 20-mm-Rand,
-     * unten bis 20 mm ueber die Blattunterkante. Das Absenderfeld steht selbst
-     * am rechten Blattrand, deshalb waechst die Liste nach links.
-     */
-    const passeGroesse = () => {
-      const feldRect = absStrasseEl.getBoundingClientRect();
-      const blatt = document.getElementById('kern')?.getBoundingClientRect();
-      const linksGrenze = (blatt ? blatt.left : 0) + RAND;
-      const rechtsGrenze = (blatt ? blatt.right : window.innerWidth) - RAND;
-      const untenGrenze = (blatt ? blatt.bottom : window.innerHeight) - RAND;
-      /* Schmal halten: der Inhalt ist kurz (Strasse + Ort), 560 px liessen
-         300 px leer stehen. Rechtsbuendig am 20-mm-Rand bleibt. */
-      const breite = Math.max(300, Math.min(420, rechtsGrenze - linksGrenze));
-      const links = Math.max(linksGrenze, Math.min(feldRect.right - breite, rechtsGrenze - breite));
-      const oben = feldRect.bottom + 4;
-      strassePopover.style.left = `${Math.round(links)}px`;
-      strassePopover.style.top = `${Math.round(oben)}px`;
-      strassePopover.style.width = `${Math.round(breite)}px`;
-      strassePopover.style.maxHeight = `${Math.max(220, Math.round(untenGrenze - oben - 8))}px`;
-    };
+    /* @review 2026-11-22 EIN Abruf fuer beide Strassenfelder (initStrasse ruft
+       diese Funktion zweimal). AbortController bricht die Vorabfrage ab;
+       leere Treffer werden als Negative-Cache abgelegt. */
+    /** @type {ReturnType<typeof ermittleGeoBias> | null} */
+    let geoBiasLauf = null;
+    /** @param {string} text */
+    const holeStrassen = async (text) => {
+      if (text.length < 3 || !navigator.onLine) return [];
+      const key = load(STORAGE_KEYS.geoapifyKey, '');
+      if (!key) return [];
+      const schluessel = `strasse:${text.toLowerCase()}`;
+      letzterStrassenSchluessel = schluessel;
+      const ausCache = cacheHole(schluessel);
+      /* Auch eine LEERE Trefferliste ist ein Ergebnis: sonst fragt jeder
+         erneute Tastendruck dieselbe nichtsnutzige Zeichenfolge wieder an
+         (Vorgabe 2026-11-22: "alle Ergebnisse speichern"). */
+      if (ausCache) return ausCache.map(zuVorschlag);
 
-    absStrasseEl.addEventListener('blur', () => hidePopoverSafe(strassePopover));
-    absStrasseEl.addEventListener('input', () => {
-      if (absStrasseEl.hasAttribute('data-autofill-aus')) return;
-      if (strasseTimer) clearTimeout(strasseTimer);
-      const text = Field.getValue(absStrasseEl).trim();
-      if (text.length < 3 || !navigator.onLine) {
-        hidePopoverSafe(strassePopover);
-        return;
-      }
-      strasseTimer = setTimeout(async () => {
-        const key = load(STORAGE_KEYS.geoapifyKey, '');
-        if (!key) {
-          hidePopoverSafe(strassePopover);
-          return;
+      strassenController?.abort();
+      strassenController = new AbortController();
+      try {
+        /* Einmal ermitteln, nicht je Tastendruck. Scheitert der IP-Weg,
+           wird der Lauf verworfen, damit ein spaeterer Versuch neu darf. */
+        geoBiasLauf ??= ermittleGeoBias(key);
+        const bias = await geoBiasLauf;
+        /* Kein Punkt ermittelbar: Lauf verwerfen (spaeterer Versuch darf neu)
+           und die Suche ohne bias stellen — Geoapify nutzt dann die IP. */
+        if (!bias) geoBiasLauf = null;
+        const { antwort } = await holeMitFailover(
+          strassenSuchPfad(text, key, bias),
+          strassenController
+        );
+        if (!antwort.ok) return [];
+        const daten = await antwort.json();
+        const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
+        if (!treffer.length) {
+          cacheSetze(schluessel, []);
+          return [];
         }
-        /* Immer Bonn als Naehe: die Suche darf nicht davon abhaengen, was in
-           den anderen Feldern steht (Vorgabe 2026-11-22). */
-        const pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=20&format=json&filter=countrycode:de&bias=proximity:${BONN.lon},${BONN.lat}`;
-        try {
-          const { antwort } = await holeJsonMitFailover(pfad, new AbortController());
-          if (!antwort.ok) {
-            hidePopoverSafe(strassePopover);
-            return;
-          }
-          const daten = await antwort.json();
-          const treffer = (daten?.results || []).filter((/** @type {any} */ r) => r.street);
-          strassePopover.replaceChildren();
-          if (!treffer.length) {
-            hidePopoverSafe(strassePopover);
-            return;
-          }
-          treffer.forEach((/** @type {any} */ r) => {
-            const li = document.createElement('li');
-            li.className = 'suggestion-item';
-            li.dataset.typ = 'adresse';
-            /* Keine Vorauswahl: hervorgehoben wird nur, worauf der Zeiger
-               steht (Vorgabe 2026-11-22). */
-            li.setAttribute('role', 'option');
-            li.setAttribute('aria-selected', 'false');
-            const main = document.createElement('span');
-            main.className = 'suggestion-main';
-            const name = document.createElement('span');
-            name.className = 'city-val';
-            name.textContent = [r.street, r.housenumber].filter(Boolean).join(' ');
-            const sub = document.createElement('span');
-            sub.className = 'city-sub';
-            sub.textContent = `· ${[r.postcode, r.city].filter(Boolean).join(' ')}`;
-            main.append(name, sub);
-            li.append(main);
-            li.addEventListener('mousedown', (ev) => {
-              ev.preventDefault();
-              applyValue('absender-strasse', name.textContent, 'auto');
-              /* Passende PLZ/Ort immer mitschreiben (Vorgabe 2026-11-22). */
-              const ortFeld = feld('absender-ort');
-              const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
-              if (ortFeld && plzOrt) {
-                applyValue('absender-ort', plzOrt, 'auto');
-                eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-ort' });
-              }
-              eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: 'absender-strasse' });
-              eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-              hidePopoverSafe(strassePopover);
-            });
-            strassePopover.append(li);
-          });
-          passeGroesse();
-          showPopoverSafe(strassePopover);
-        } catch (err) {
-          hidePopoverSafe(strassePopover);
+        cacheSetze(schluessel, /** @type {any} */ (treffer));
+        return treffer.map(zuVorschlag);
+      } catch (err) {
+        /* Abbruch ist kein Fehler: der naechste Tastendruck fragt neu. */
+        if (/** @type {Error} */ (err)?.name !== 'AbortError') {
           console.debug('[Address] Strassen-Vorschlaege fehlgeschlagen:', err);
         }
-      }, 350);
-    });
+        return [];
+      }
+    };
+
+    /** @param {string} feldId @param {string} ortId */
+    const initStrasse = (feldId, ortId) => {
+      const el = feld(feldId);
+      if (!el) return;
+      /* Erster Tastendruck: Socket vorwaermen (derselbe Weg wie beim
+         Adress-Suchfeld, kein externer Verweis im HTML -> A38 bleibt gruen). */
+      el.addEventListener('focus', waermeVerbindungVor);
+      initVorschlagsliste({
+        feld: el,
+        popover: strassePopover,
+        /* 180 ms statt 350: das Geoapify-Beispiel antwortet beim Tippen
+           schneller (Vorgabe 2026-11-22: "etwas langsam"). */
+        verzoegerung: 180,
+        hole: holeStrassen,
+        beiWahl: (/** @type {any} */ v) => {
+          const r = v.wert || {};
+          /* Erst hier zaehlt der Begriff als "gebraucht" - nicht beim Tippen.
+             Das ist die Admission-Policy des Rings (siehe geo-cache.js):
+             nur eine Uebernahme ins Feld macht eine Abfrage wertvoll. */
+          geoCacheZaehle(letzterStrassenSchluessel);
+          applyValue(feldId, v.text, 'auto');
+          /* Passende PLZ/Ort immer mitschreiben. */
+          const ortFeld = feld(ortId);
+          const plzOrt = `${r.postcode || ''} ${r.city || ''}`.trim();
+          if (ortFeld && plzOrt) {
+            applyValue(ortId, plzOrt, 'auto');
+            AddressIntelligence.targetLock = { plz: r.postcode || '', city: r.city || '' };
+            eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: ortId });
+          }
+          eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'auto', feld: feldId });
+          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+        }
+      });
+    };
+
+    initStrasse('absender-strasse', 'absender-ort');
+    initStrasse('empfaenger-strasse', 'empfaenger-ort');
   }
 }

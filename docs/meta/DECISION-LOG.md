@@ -4120,3 +4120,1584 @@ keine Unklarheit. `tools/id-register.js` prüft jetzt auch die Deckung von `W` g
   5. Mechanisches CI-Budget-Gate in `tools/repo-map-check.mjs` verankert (`AGENTS.md` <= 70 Z., `map.md` <= 100 Z.).
   6. Test-Isolation repariert: `<div id="anrede">` im HTML-Fixture `test/index.html` ergänzt, sodass isolierte Filter-Läufe (z. B. `--filter="PLZ|Address"`, `--filter=DraftManager`) fehlerfrei durchlaufen.
 - **Folge:** Token-Ersparnis pro KI-Start ~80 %, 0 % Regressionsrisiko, Fitness-Score 100 % clean.
+
+---
+
+## 2026-11-22 — Unterrand-Schalter rein deklarativ (`:root:has()`), kein zweiter Setzer
+
+**Ausgangsfrage des Users:** „wo kann man JavaScript loswerden? also gegen CSS/HTML tauschen?"
+
+**Befund (gemessen):** Von den 560 Zeilen Dropdown-/Overlay-Bedienung sind nur
+zwei Zeilen durch CSS ersetzbar — der Unterrand. Alles andere ist Verhalten
+(Debounce, Tastatur, ARIA, Datenabruf) oder der Blattrand-Deckel, den `anchor()`
+in `max-height` nicht kann (`CSS.supports` = false, fiel auf `62vh` zurück).
+
+**Umsetzung:** `--rand-u` hängt jetzt am Schalter, wie `--fuss-hoehe` an
+`#toggle-fuss`:
+
+```css
+:root:has(#btn-rand-u-30:checked) { --rand-u: 30mm; }   /* Default 20mm bleibt */
+```
+
+- `settings.js` setzt keinen Inline-Wert mehr, sondern gibt den von `boot.js`
+  mit `removeProperty()` ab. Reihenfolge: erst Schalter stellen, dann abgeben —
+  dadurch kein Frame mit falschem Wert.
+- `boot.js` bleibt als Pre-Paint-Snapshot (blocking script im `<head>`, sieht
+  den Schalter noch nicht).
+- Tests: 3 alte (Computed-Style nach `applySettings`) durch 2 ersetzt —
+  CSS-Vertrag (`--rand-u: 20mm`, `:has(#btn-rand-u-30:checked)` → 30 mm, kein
+  `setProperty('--rand-u')` in `settings.js`) + Whitelist-Normalisierung
+  (30 bleibt, 25 → 20).
+
+**Nachweis im laufenden System:** gespeichert 30 → `inline: (keiner)`,
+`computed: 30mm`, Schalter an; Klick aus → 20 mm; Klick an → 30 mm;
+`localStorage.din_settings.randU = 30`. Tests 400/400, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Bezugssystem der Vorschlagslisten ist das Blatt, nicht das Fenster
+
+**Nutzer-Vorgabe (wörtlich):** „das dropdown soll absolut zu din a4 seite sein!
+zu nichts anderem.. die din a4 seite ist der arbeitsbereicht".
+
+**Gemessenes Problem:** Die Listen waren am Feld verankert und mit Fensterwerten
+gedeckelt. Im Infoblock (Feld 125…190 mm) lief die Ortsliste dadurch 14 mm über
+den rechten Blattrand hinaus (pop rechts 204,4 mm bei 210 mm Blattbreite);
+`max-width: min(560px, 92vw)` und `max-height: min(62vh, 760px)` bezogen sich
+auf das Fenster.
+
+**Umsetzung:**
+
+| Regel | vorher | jetzt |
+|---|---|---|
+| Breite | `min(560px, 92vw)` | `165 mm` (= 210 − 25 links − 20 rechts) |
+| Höhe | `min(62vh, 760px)` | `165 mm` Fallback, exakt per JS bis 20 mm vor Blatt-Unterrand |
+| `passeAnBlattrand` | `min(Blatt, Fenster)` | nur Blatt; Fenster nur, wenn kein Blatt existiert |
+| Infoblock-Felder (`#absender-ort`, `#absender-strasse`) | linksbündig | `right: anchor(right)` — wächst nach innen |
+| Mehrseiten | `#kern`-Unterkante | Unterkante der **ersten** Seite (`top + width × 297/210`) |
+
+**Nachweis (gemessen, Blatt 210 × 297 mm):** Empfänger-Liste 25…190 mm,
+Absender-Liste 110,6…190 mm, Straßen-Liste 110,6…190 mm, alle mit Unterkante
+274,7 mm (297 − 20 − 2,3). Keine Liste verlässt mehr das Blatt.
+
+**Grenze der Regel:** Die Sidebar-Listen (Anschrift-Suche, Zwischenablage) liegen
+nicht auf dem Blatt; für sie bleibt das Fenster der Bezug.
+
+---
+
+## 2026-11-22 — Geoapify-Treffer im Ringspeicher (512 KB, `localStorage`)
+
+**Vorschlag des Users:** „um abrufe zu sparen sollten wir vielleicht alle ergebnisse
+die wir bekommen speichern? also ringspeicher? vllt 1mb?" — entschieden: **512 KB**.
+
+**Gemessen (gleiche Anfrage):**
+
+| Variante | je Suchbegriff | Einträge je MB |
+|---|---|---|
+| Geoapify-Rohantwort | 9,8 KB | ~104 |
+| nur `street, housenumber, postcode, city, country_code` | 0,4 KB | ~2.900 |
+
+**Wo:** `localStorage` — strukturierte Daten gehören per Gesetz **S1** dorthin;
+**A34** verbietet IndexedDB für strukturierte Daten (Ausnahme bleibt
+`binary-storage.js` für Binär-Assets). Ein eigener IndexedDB-Store wäre ein
+Gesetzesbruch gewesen.
+
+**Umsetzung:** `website/js/geo-cache.js` (neu), FNV-1a-Hash als Schlüssel,
+Index `{h,b,l,t}` im RAM und verzögert geschrieben (400 ms, plus `pagehide`),
+Verdrängung nach Alter, Kollisionsschutz über die Originalschlüssel-Länge.
+`address.js` hält die Session-Map davor und kürzt Straßentreffer beim Ablegen.
+
+**Nachweis:** Ein Suchbegriff belegt 428 Byte. Nach einem **Reload** liefert
+derselbe Begriff die Liste mit **0 API-Abrufen** (567 ms ab erstem Tastendruck,
+davon 350 ms Tippen + 180 ms Debounce); kalt kostet derselbe Begriff ~500–600 ms
+Netz zusätzlich. Tests 406/406, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Ring auf 1 MB, Verdrängung nach LFU (Zähler nur bei Übernahme)
+
+**Nutzer-Vorgabe:** größerer Ring und ein Zähler „wie oft die Adresse gesucht
+wurde" — aber ausdrücklich nur für das, „was nachher tatsächlich ins Feld kommt".
+
+**Anker:** Das ist **LFU (Least Frequently Used)** mit **LRU-Tie-Break**; die
+Zählung erst bei der Übernahme ist eine **Admission-Policy** mit implizitem
+Feedback (Klick statt Abfrage). Verwandt: TinyLFU (Doorkeeper), LFUDA (Alterung),
+GDSF (Häufigkeit pro Byte).
+
+**Umsetzung:**
+
+| Punkt | Wert |
+|---|---|
+| Deckel | 512 KB → **1 MB** (~2.400 Begriffe bei 428 Byte) |
+| Zähler | `n` je Eintrag, nur über `geoCacheZaehle()` — aufgerufen in der Straßen-Auswahl (beide Felder) und in `selectSuggestion` der Sidebar-Suche |
+| Verdrängung | `n` aufsteigend, dann Schreibreihenfolge → **nie Gewähltes fliegt zuerst** |
+| Neusuchen | `geoCacheSetze` behält `n` (ein Begriff verliert seine Wertigkeit nicht, nur weil er erneut gesucht wird) |
+
+**Nachweis:** Ring geleert → „Hauptstr" suchen: Zähler **0** (Suchen allein
+zählt nicht) → erste Auswahl **1** → zweite Auswahl **2**; Belegung 428 Byte von
+1.048.576. Tests: 3 neue (Zähler nur bei Übernahme, Zähler überlebt Neusuchen,
+gewählter Begriff überlebt die Verdrängung), 409/409, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Auch leere Trefferlisten in den Ring (Negative-Cache)
+
+**Nutzer-Vorgabe:** „alle Sachen speichern die wir suchen also alle Ergebnisse …
+weniger Abfragen; aber nur die Sachen die wir aktiv übernehmen sollen negativ
+gezählt werden."
+
+**Befund:** Die Straßensuche verwarf leere Antworten vor dem Ablegen
+(`if (!treffer.length) return []`) und der Cache-Treffer verlangte
+`ausCache?.length` — eine gemerkte leere Liste wäre also ohnehin ignoriert
+worden. Jede sinnlose Zeichenfolge kostete damit **jedes Mal** einen Abruf.
+
+**Umsetzung:** leere Liste wird gespeichert (`cacheSetze(schluessel, [])`) und
+beim Lesen als Treffer erkannt (`if (ausCache)` statt `ausCache?.length`).
+Adressfeld-Suche legte leere Listen schon vorher ab.
+
+**Nachweis:** „Zzqqxww" → 1. Versuch: 1 Abruf, 0 Treffer, Ring 88 Byte;
+2. Versuch: **0 Abrufe**, weiterhin 0 Treffer. Zähler bleibt 0,
+`gewaehlt: 0` — leere Ergebnisse werden nie gewertet.
+Tests: 1 neuer (410/410), Fitness 100 %.
+
+---
+
+## 2026-11-22 — A65 in den Law Catalog: keine dynamische Codeausführung, keine HTML-Injektion
+
+**Nutzer-Vorgabe:** „Kein innerHTML, kein eval, kein document.execCommand — diesen
+veralteten Dreck will ich da nicht haben." Prüfung des Bestands ergab: zwei der drei
+waren **schon** verboten und maschinell geprüft — A61 (kein `innerHTML`/`setHTMLUnsafe`),
+A52 (kein `execCommand`), A48 (keine Date-API). Es fehlten `eval`, `new Function`,
+die String-Form von `setTimeout`/`setInterval`, `insertAdjacentHTML` und `document.write`.
+
+**Neu:**
+
+| Ort | Änderung |
+|---|---|
+| `docs/norm/Immutable-Law-Catalog.md` | **A65** (HARD BAN, `website/**`); A48 zusätzlich um `.getTime()` erweitert |
+| `tools/antipatterns/web.json` | Regel **W8** (`catalog_ref: A65`), Version 1.1.2 |
+| `tools/antipatterns/base.json` | B2-Pattern um `\.getTime\(` erweitert |
+| `docs/meta/ID-REGISTER.md` | A-Bereich A1–A65 |
+
+**Rot-Nachweis (Gate wirklich scharf):** temporäre Datei mit `eval('1+1')` →
+`[CRITICAL] [W8] Verstoss … A65`; mit `new Date().getTime()` → B2/A48 schlägt an.
+Nach dem Entfernen: 52 Regeln, 0 Verstöße. Produktivcode war bereits sauber
+(0 Treffer für alle fünf Muster).
+
+---
+
+## 2026-11-22 — A66–A68: die Modell-Reflexe aus dem Law Catalog heraushalten
+
+**Nutzer-Vorgabe:** „mehr Sachen draufpacken, die eine normale LLM immer und immer
+wieder einbauen möchte, weil es halt das etablierte LLM-Wissen ist."
+
+**Neu (alle maschinell geprüft, Produktivcode war bereits sauber):**
+
+| Law | Verbot | Regel | Typischer Modell-Reflex |
+|---|---|---|---|
+| **A66** | kein Fremd-Framework und keine Utility-Bibliothek (kein React, kein Vue, kein Svelte, kein Angular, kein jQuery, kein lodash, kein axios, kein Tailwind) | **W9** | „nimm dafür eine Bibliothek" |
+| **A67** | CommonJS/Bundler-Artefakte (`require(`, `module.exports`, `process.env`, `__dirname`) | **W10** | „baue eine Build-Pipeline" |
+| **A68** | `alert()`, `confirm()`, `prompt()` als UI | **W11** | „nimm `confirm()` für die Rückfrage" |
+
+**Rot-Nachweis:** eine Temp-Datei mit `import … from 'lodash/debounce'`, `require('x')`
+und `confirm()/alert()` löste **drei** CRITICAL-Treffer aus (W9, W10, W11); nach dem
+Entfernen 55 Regeln, 0 Verstöße.
+
+---
+
+## 2026-11-22 — Alle rohen Farb-Literale tokenisiert (79 → 0)
+
+**Nutzer-Vorgabe:** „dann bitte diese tokenisieren" (79 rohe Literale in Regeln).
+
+**Umsetzung:** ein Token-Block `2c. FARB-ROLLEN & LISTENPALETTE` in `base.css`
+mit 40 Rollen-Tokens plus den 21 Palettentönen `--ort-ton-0…20` (vorher 21
+einzelne `oklch()`-Werte in `sidebar.css`). Betroffen: `base.css`,
+`sheet-common.css`, `sheet.css`, `sheet-multipage.css`, `sidebar.css`.
+
+Beispiele: `--farbe-weiss`, `--farbe-schatten`, `--farbe-text-anthrazit`,
+`--farbe-ueberlauf*` (Überlauf-Warnung), `--status-erfolg/offen/fehler-*`
+(Speicherstatus), `--liste-firma/-behoerde/-strasse`, `--ton-formal/-hoeflich/-locker`.
+
+**Nachweis gleiche Optik (gemessen, computed style):**
+`--liste-firma` = `oklch(45% 0.16 255)` → Zeile rendert `oklch(0.45 0.16 255)`;
+`--ort-ton-3` = `oklch(0.56 0.19 53)`; `--farbe-weiss` = `oklch(100% 0 0)`.
+Screenshot vor/nach identisch.
+
+**Tokenbestand:** 170 Namen auf der Seite, davon **65 Farbtokens**. 13 Tokens
+haben am `:root` keinen Wert — das ist korrekt: sie werden *scoped* gesetzt
+(`--ort-ton` je Zeile, `--items` je Container, `--active-idx` je Segment).
+Ein Test wurde angepasst (Puls-Startfarbe kommt jetzt aus
+`--farbe-erfolg-flaeche`). Tests 410/410, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Anrede: Team-Formen für Firmen, „Liebe,"-Fehlbildung behoben
+
+**Vorlage des Users:** zwei Übersichten deutscher Anreden (karrierebibel +
+eine 5-stufige Liste) mit dem Auftrag „80/20 reicht".
+
+**Befund:** Für einen Empfänger ohne Ansprechpartner, aber mit Firma, kamen die
+allgemeinen Formen — darunter die grammatisch falsche Zeile **„Liebe,"** (die
+Casual-Ersetzung `Hallo` → `Liebe` lief auch auf „Hallo,").
+
+**Übernommen (bewusst nur das):**
+
+| Fall | neu |
+|---|---|
+| nur Firma | `Sehr geehrtes Team der <Firma>,` (formal), `Guten Tag zusammen,` (höflich), `Hallo zusammen,` (locker) |
+| nur Firma, formal | zusätzlich `Sehr geehrte Damen und Herren,` als Rückfallzeile |
+| ohne alles | unverändert, aber ohne die Fehlbildung |
+
+**Bewusst NICHT übernommen** (80/20 bzw. Gesetzeslage):
+- regionale Formen (`Moin`, `Servus`) und `Hi`/`Hey` — passen nicht zum Brief;
+- Tageszeit-Anreden (`Guten Morgen,`) — bräuchten eine Uhr, A48 verbietet die Date-API;
+- Gendern (`Liebe*r`, `Mitarbeitende`) — Stilrichtlinie, nicht Aufgabe der App;
+- Mehrpersonen-Anreden — Empfängerfeld kennt nur eine Person.
+
+Gemessen im Browser: nur Firma → 5 Varianten (2/2/1) in den drei Farbgruppen;
+mit „Frau Lara Croft" unverändert 5 (2/1/2). Tests 412/412, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Korrektur: Tageszeit-Anreden gehen doch (Temporal statt Date)
+
+**Korrektur einer eigenen Aussage (gleicher Tag).** Im Eintrag „Team-Formen für
+Firmen" steht, Tageszeit-Anreden seien nicht übernommen, weil sie „eine Uhr
+bräuchten — A48 verbietet die Date-API". **Das war falsch.** A48 verbietet
+`new Date()`/`Date.now`/`Date.parse`; der Ersatz ist ausdrücklich **`Temporal`**
+(A50: `Temporal.Now` nur mit expliziter IANA-Zone). Gemessen im laufenden
+Chrome 156: `Temporal.Now.zonedDateTimeISO('Europe/Berlin').hour` = 20 → die
+Uhr war die ganze Zeit verfügbar.
+
+**Nutzervorlage:** „wir haben temporal! Guten Morgen, Herr …"
+
+**Umsetzung:**
+
+| Datei | Zusatz |
+|---|---|
+| `website/js/format.js` | `aktuelleStunde()` — eine Stelle für „wie spät ist es", zoniert via `Temporal` (A50) |
+| `website/js/salutation.js` | `tageszeitGruss(stunde)` (reine Funktion) + Variante im höflichen Ton |
+
+Fenster: 5–10 „Guten Morgen", 11–17 „Guten Tag", 18–4 „Guten Abend". Ohne Uhr
+(`NaN`) bleibt es bei „Guten Tag" — die Automatik ändert sich nicht, nur die
+Auswahlliste bietet die passende Form an.
+
+**Gemessen (20:31):** „Guten Tag Frau Croft," **und** „Guten Abend Frau Croft,"
+stehen nebeneinander; 6 Varianten gesamt (2/2/2). Tests 414/414 (2 neue), Fitness 100 %.
+
+---
+
+## 2026-11-22 — 3×3 Grußformeln, Auswahl am Grußfeld
+
+**Nutzer-Vorgabe:** „wir haben jetzt 6 Grußformen? vielleicht wären 3×3 perfekt —
+und wenn ich ins Grußfeld gehe, wird das auch zum Dropdown und zeigt die zur
+Anrede passenden Sätze."
+
+**Umsetzung:**
+
+| Ebene | Inhalt |
+|---|---|
+| Daten | `SALUTATION_TONES[ton].closings` — je drei: formal `Mit freundlichen Grüßen` / `Mit freundlichem Gruß` / `Freundliche Grüße`; höflich `Freundliche Grüße` / `Beste Grüße` / `Viele Grüße`; locker `Beste Grüße` / `Viele Grüße` / `Herzliche Grüße` |
+| Automatik | unverändert: die **erste** Form ist `closing` und wird gesetzt, wenn die Anrede/Tonalität wechselt |
+| Auswahl | `#grussformel` hängt jetzt an `initVorschlagsliste` (Popover `#gruss-vorschlaege`, `statisch: true`) — zeigt die drei Formen der aktuellen Tonalität, farbig wie die Anrede-Gruppen |
+| Klebriger Override | eine manuelle Grußwahl setzt `userSet`; ein späterer Tonalitätswechsel überschreibt sie **nicht** |
+| `#seedAuto` | erkennt jetzt alle neun Formen als „automatisch" (vorher nur die drei ersten) |
+
+**Nachweis (live gemessen, Klickkette):**
+`Hallo Frau Croft,` + `Beste Grüße` → formelle Anrede → `Mit freundlichen Grüßen`
+→ `Liebe Frau Croft,` → `Beste Grüße` → manuell `Herzliche Grüße` → formelle
+Anrede → **bleibt** `Herzliche Grüße`. Liste sitzt 25…190 mm im Blatt, drei
+Einträge, Unterkante 192 mm. Tests 416/416 (1 neuer 3×3-Vertrag), Fitness 100 %.
+
+---
+
+## 2026-11-22 — Debug-Panel als Einstellung, Sichtbarkeit per CSS, Zahlen mit Tausenderpunkt
+
+**Nutzer-Vorgabe:** „kann man das so machen, dass ich das in den Einstellungen
+einschalten kann? und wenn ich auf das X klicke soll das weggehen! dann möchte
+ich das möglichst mit wenig JavaScript auskommt!" — plus: „Zahlen mit
+1.000er Trennpunkt".
+
+**Umsetzung (drei JS-Zeilen fürs Ein-/Ausschalten gespart):**
+
+| Ebene | Lösung |
+|---|---|
+| Schalter | `#toggle-debug` in den Einstellungen; `DEFAULT_SETTINGS.debugPanel = false`, gespeichert wie die anderen Schalter |
+| Sichtbarkeit | **reines CSS**: `#debug-panel { display: none }` + `:root:has(#toggle-debug:checked) #debug-panel { display: block }` |
+| Schließen | das × ist ein `<label for="toggle-debug">` — nativ, ohne JS; es schaltet den Schalter und damit die Einstellung aus |
+| Markup | Panel steht **statisch** in `index.html` (12 Zeilen Werte + freie Liste); JS schreibt nur `textContent` |
+| Laden | Modul nur bei aktivem Schalter (dynamischer Import in `main.js`); Takt (1,5 s) läuft nur bei `display !== none` |
+| Zahlen | `formatZahl()` in `format.js` (`Intl.NumberFormat('de-DE')`): 10184 → `10.184`; genutzt im Panel, im Treffer-Hinweis und bei „n PLZs" |
+
+**Nachweis:** Schalter an → `display: block`, 352×718 px links neben der
+Seitenleiste, Werte `10.184 / 6.664 / 303`; × → `display: none`,
+`din_settings.debugPanel = false`. Tests 418/418, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Debug-Panel: Kopieren je Dropdown-Feld und Fehler-Ring
+
+**Nutzer-Vorgabe:** im Debug-Panel „die offene Liste gegen Copy-to-Clipboard für
+alle Dropdown-Felder" tauschen — je Feld das, was das Dropdown anbieten würde.
+
+**Umsetzung:**
+
+| Knopf | Quelle |
+|---|---|
+| Anrede | `salutationVarianten(name, firma, Stunde)` — mit Tonalität in Klammern |
+| Gruß | `SALUTATION_TONES[stil].closings` |
+| Ort Empf. / Abs. | `AddressIntelligence.resolveCityInput` bzw. `lookupPlz` (offline) |
+| Straße Empf. / Abs. | `strassenSuchPfad` + echter Abruf (ohne Cache — zeigt den Jetzt-Stand) |
+
+Dazu zwei weitere Knöpfe: **Zustand (.json)** (Debug-Werte + Brief-JSON +
+Fehler) und **Fehler (.txt)**. Der Eintrag „Offene Liste" zeigt nur noch
+Kennzahl, nicht mehr die Einträge.
+
+**Fehler-Ring:** neues Modul `website/js/log.js` (50 Einträge) fängt
+`console.error`, `console.warn`, `error`-Events und unbehandelte
+Promise-Ablehnungen ab; die Meldungen gehen unverändert an die Konsole.
+Installiert in `main.js` vor dem ersten Boot-Schritt, damit auch Boot-Fehler
+ankommen.
+
+**Nachweis:** alle sechs Knöpfe liefern Text (z. B. `Straße (Absender:
+Hauptstr)` → 4 Treffer). „Zustand (.json)" liefert 21 Debug-Zeilen, das
+Brief-JSON und den Fehler-Ring (`[{erzeugt, debug, brief, fehler}]`).
+Tests 419/419, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Brushing & Linking am Blatt, Copy-Block im Debug-Panel
+
+**1. Blatt ↔ Einstellungen (Nutzerwunsch: „wie ein Hover, aber an anderer Stelle").**
+Reines CSS über `:has()`, kein Zustand, kein JS:
+
+| Zeiger auf | hebt hervor |
+|---|---|
+| `din-falzmarke-1/2`, `din-lochmarke` | Schalterzeile „Falz- & Lochmarken" |
+| `din-anlagenvermerk` | Zeile „Anlagen" |
+| `din-geschaeftsangaben` | Zeile „Fußzeile (§ 35a)" |
+| und jeweils umgekehrt | die Blatt-Elemente (2 px gestrichelt) |
+
+**Fund dabei:** die Marken sind **1 px hohe** Linien (45×1 bzw. 30×1 px) und
+stehen auf `pointer-events: none` (sheet.css:120). Ohne Gegenmaßnahme ist der
+Hover nicht erreichbar. Das `::after` der Marke bekommt `inset: -6px -2px` und
+`pointer-events: auto` — Trefferfläche 49×13 px, im linken Blattrand, wo kein
+Text liegt (Textklick bleibt bei `din-kern`).
+
+**2. Debug-Panel: „Anrede & Gruß" gebündelt.**
+Ein Block zeigt jetzt *aktuell* **und** *Angebot*: `Anrede jetzt`, `Gruß jetzt`,
+`Empfänger`, dann alle Anreden (mit Tonalität) und die Grüße der aktuellen
+Tonalität. Dazu ein Knopf, der das Paar kopiert.
+
+**3. „Copy to Clipboard"-Sektion** mit einem Knopf **Alles** (Tonalität, Anrede,
+Gruß, Orte Empf./Abs., Straßen Empf./Abs.) plus die vier Einzelknöpfe.
+
+**4. Kopierausgabe spiegelt jetzt das Dropdown.** Vorher stand der *ganze*
+Stadtteil-String (`· Zentrum, Castell, Nordstadt`), das Dropdown zeigt nur den
+ersten. Jetzt identisch. Die Zeilen **ohne** Stadtteil (`53103 Bonn`,
+`53255 Bonn`) stehen weiter am Ende — das ist die NULLS-LAST-Gruppierung aus
+dem Berlin-Fix, nicht ein Fehler.
+
+**Nachweis:** `Anrede & Gruß` liefert 6 Anreden mit `[formal|polite|casual]` und
+3 Grüße; `Ort Empf.` liefert `53111 Bonn · Zentrum` … `53255 Bonn`;
+Markentreffer bei dy = −5…+5 px. Tests 419/419, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Copy-Ausgabe maschinenlesbar, Knöpfe niedrigschwellig
+
+**Nutzer-Vorgabe:** „nur als niedrigschwelliges Copy to Clipboard", „Feld-ID
+dazupacken, damit eine KI die Instanz zuordnen kann", „was soll auf dem Knopf
+stehen?"
+
+**Begriffe (Antwort auf die Frage):**
+
+| Begriff | richtig? | Anmerkung |
+|---|---|---|
+| **Anrede** | ✅ | DIN-5008-Begriff |
+| **Grußformel** | ✅ | DIN-5008-Begriff; „Grußform" ist umgangssprachlich |
+| Anrede + Gruß zusammen | — | kein eigener Normbegriff; man sagt „Anrede und Grußformel" |
+| **Tonalität** | ⚠️ | unser internes Wort für die Stilebene (formal/polite/casual); linguistisch „Register" |
+
+**Umsetzung:** Sektion heißt „Anrede & Grußformel", der Knopf schlicht
+**„Kopieren"** (2 s danach „✓ Kopiert"), der Sammelknopf **„Alles kopieren"**.
+Das Panel zeigt weiter die lesbare Ansicht (Tonalität, Anrede jetzt, Gruß jetzt,
+Angebote); die **maschinenlesbare** Fassung entsteht nur in der Zwischenablage:
+
+```
+Anrede & Grußformel
+-------------------
+Tonalität: casual
+
+feld id: anrede
+aktueller wert: Hallo Frau Croft,
+mögliche werte (6):
+  - Sehr geehrte Frau Croft,   [formal]
+  …
+  - Hallo Frau Croft,   [casual]   <- aktuell
+
+feld id: grussformel
+aktueller wert: Beste Grüße
+mögliche werte (3):
+  - Beste Grüße   <- aktuell
+  …
+```
+
+`<- aktuell` markiert in beiden Listen den gerade gesetzten Wert — so sieht man
+auf einen Blick, was zusammenpasst. Tests 419/419, Fitness 100 %.
+
+---
+
+## 2026-11-22 — Dev-Geokey aus `~/.secrets/geoapify` (nur lokaler Server)
+
+**Problem:** Nach einem Reload (oder in einem frischen Profil) fehlte der
+Geoapify-Key, die Straßensuche war tot. Ihn jedes Mal zu tippen ist auf dem
+Entwicklerrechner unnötig.
+
+**Loesung, zweigeteilt:**
+
+1. `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/tools/static-server.mjs` —
+   neue Route `GET /__geokey`. Liest `$DIN_GEOKEY_FILE` oder
+   `~/.secrets/geoapify`, trimmt, antwortet `text/plain`. Fehlt die Datei:
+   **404** mit `Kein Dev-Key` (kein Fehler, kein Log).
+2. `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/js/address.js` —
+   `holeDevGeokey()`: nur wenn `localStorage` leer ist, ein `fetch('/__geokey')`;
+   bei `!ok` passiert **nichts**. Sonst wird der Key wie eine Eingabe
+   gespeichert (`STORAGE_KEYS.geoapifyKey`) und der Status steht auf
+   `✓ Key lokal geladen.`
+
+**Warum in `tools/` und nicht in `website/`:** Der Endpunkt existiert nur auf
+dem lokalen Dev-Server. In Produktion antwortet der Pfad 404 — die App
+verhaelt sich dort voellig normal (Feld ausfuellen). Kein Key im Repo, kein
+Key im Build.
+
+**Gemessen (2026-11-22, 127.0.0.1:8088):**
+
+| Pruefung | Ergebnis |
+|---|---|
+| `curl /__geokey` mit Datei | HTTP 200, 32 Bytes |
+| `curl /__geokey` mit `DIN_GEOKEY_FILE=/tmp/…fehlt` | HTTP 404, `Kein Dev-Key` |
+| Reload mit Datei | `din_geoapify_key` = 32 Zeichen im `localStorage`, Feld gefuellt, Status `✓ Key lokal geladen.` |
+| Strassensuche „Rathausplatz" | 8 Treffer in 1204 ms, erster `Rathausplatz · 53859 Niederkassel` |
+| Reload ohne Datei (Port 8099) | kein Key, Feld leer, **0 Log-Meldungen**, App laeuft |
+
+Die Ports 8088 und 8099 haben getrennte `localStorage`-Bereiche (nach
+`clear()` auf 8099 blieb der Key auf 8088 erhalten) — belegt, dass der Test
+wirklich auf der anderen Origin lief.
+
+**Nachtrag A45-Praezisierung (2026-11-22, Nutzerentscheidung „Regel
+praezisieren"):** `tools/build_db.js` meldete den Endpunkt als
+`A45: Referenz "/__geokey" fuehrt aus website/ heraus` (Fitness 99,61 %).
+Der Befund war ein Fehlalarm des Scanners: `fetch('/pfad')` laedt keine Datei
+aus dem Repository, sondern fragt den ausliefernden Server; bei 404 laeuft die
+App unveraendert. `tools/isolation.js` behandelt `fetch()` deshalb getrennt:
+
+| Aufruf | vorher | jetzt |
+|---|---|---|
+| `fetch('/__geokey')` | A45-Verstoss | erlaubt (Same-Origin-URL-Pfad) |
+| `fetch('https://api.geoapify.com/…')` | erlaubt (A38) | erlaubt (A38) |
+| `fetch('../../tools/x.json')` | Verstoss | Verstoss |
+| `fetch('/home/…')` | Verstoss | Verstoss |
+| `fetch('https://evil.example/')` | Verstoss | Verstoss |
+| `import '../../docs/x.js'`, `url(../..)` | Verstoss | Verstoss |
+
+Gegenprobe gegen ein Testverzeichnis: 3 von 3 echten Verstoessen erkannt,
+`/__geokey` nicht mehr gemeldet. Law Catalog A45 um den Satz zur
+Same-Origin-Praezisierung ergaenzt. Fitness wieder 100,0 %.
+
+**Nebenbefund, nicht geaendert:** der Scanner erfasst nackte
+`import '…'`-Anweisungen und `url(…)` ohne Anfuehrungszeichen nicht
+(vorbestehende Luecke, unabhaengig von dieser Aenderung).
+
+---
+
+## 2026-11-22 — Straßensuche: Nähe aus Absender-PLZ, dann IP, dann Bonn
+
+**Problem (Nutzer):** Straßennamen gibt es tausendfach. „Idealerweise wäre es,
+wenn zuerst Straßennamen angezeigt werden, die beim Benutzer in der Nähe sind."
+PLZ und Stadt laufen lokal über die eingebaute JSON; nur die Straße braucht
+Geoapify — und damit gibt es in genau dem Moment, in dem die Frage entsteht,
+auch einen Key.
+
+**Drei Stufen, in dieser Reihenfolge (`ermittleGeoBias`, address.js):**
+
+| Stufe | Quelle | Netzanfragen | Genauigkeit |
+|---|---|---|---|
+| 1 | `din_sender_coords` — Koordinaten der **Absender-PLZ**, entstehen beim Tippen der PLZ (address.js:1743) | **0** | exakt |
+| 2 | `/v1/ipinfo` (Geoapify), 24 h in `din_geo_bias` | 1 pro Tag | Stadt-Ebene, gemessen ~5 km |
+| 3 | `STRASSEN_BIAS` (Bonn) | 0 | Notnagel |
+
+**Kein neuer Empfänger:** `/v1/ipinfo` geht an dieselbe Adresse wie jede
+Straßensuche, und die IP sieht Geoapify dort ohnehin. Kein Standortdialog, keine
+Browser-Freigabe, kein `navigator.geolocation`.
+
+**Kein Filter:** der Punkt geht als `bias=proximity:` in die Query. Geoapify:
+„bias influences ranking without excluding matches" — alle Treffer bleiben.
+
+**Einmal je Sitzung:** `geoBiasLauf` (Promise) hält das Ergebnis; scheitert der
+IP-Weg, wird der Lauf verworfen und ein späterer Versuch darf neu.
+
+**Gemessen (2026-11-22, Debug-Profil, Standort Troisdorf):**
+
+| Prüfung | Ergebnis |
+|---|---|
+| `/v1/ipinfo` | HTTP 200, 127 ms, `Siegburg (Wolsdorf)`, `50.8 / 7.21184` |
+| Such-URL | `…&type=street&filter=countrycode:de&bias=proximity:7.21184,50.8` |
+| Treffer „Gartenstraße" | Siegburg, Sankt Augustin, Lohmar, Hennef — **8 Treffer, 0 ipinfo-Aufrufe** (Cache) |
+| gleicher Begriff, Bias Hamburg | Hamburg, Schenefeld, Halstenbek, Ellerbek → Bias wirkt eindeutig |
+| Cache-Hit in der Geo-Suche | gar kein Netz-Request (Bias wird nicht gebraucht) |
+
+**A48/A50:** die Zeitstempel nutzen `Temporal.Now.zonedDateTimeISO('Europe/Berlin').epochMilliseconds`
+— `Date.now()` ist per A48 verboten, `Temporal.Now` ohne IANA-Zone per A50.
+
+**Tests:** 5 neue Fälle (PLZ vor IP ohne Netz, IP einmal + Cache, ohne Key Bonn,
+HTTP 404 → Bonn ohne Cache, Cache älter als 24 h wird erneuert). Gesamt 424.
+
+**Nachtrag 2026-11-22 (Nutzer: „ohne Netz gibt es via Geoapify sowieso nichts
+… Bonn könnte man dann auch lassen"):** Die dritte Stufe ist entfallen.
+`STRASSEN_BIAS` (Bonn) wurde geloescht, `ermittleGeoBias` liefert `null`, und
+`strassenSuchPfad` haengt `bias=proximity:` nur noch an, wenn ein Punkt bekannt
+ist.
+
+**Warum das nicht nur Aufraeumen ist:** Bonn war nicht neutral, sondern
+schlechter. Gemessen 2026-11-22 mit demselben Begriff „Hauptstraße":
+
+| Query | Treffer |
+|---|---|
+| ohne `bias` | Sankt Augustin, Lohmar (Geoapify nutzt die Client-IP) |
+| `bias=proximity:9.99,53.55` (Hamburg) | Hamburg, Schenefeld, Halstenbek |
+| `bias=proximity:7.09,50.73` (Bonn) | haette nach Bonn gezogen |
+
+Ein fester Punkt ueberstimmt den Kontext, den Geoapify ohnehin hat. Ohne Punkt
+ist die Suche also naeher am Nutzer als mit Bonn.
+
+**Gemessen nach dem Umbau:** „Kirchstraße" → `53840 Troisdorf` **an erster
+Stelle**, dann Sankt Augustin, Lohmar, Hennef — 8 Treffer, ein Request mit
+`bias=proximity:7.21184,50.8`, kein `ipinfo` (Cache). Tests 425/425.
+
+---
+
+## 2026-11-22 — Kalender für #datum (eigener Bau, keine Bibliothek)
+
+**Wunsch:** „auf das Datumsfeld klicken und dann einen Kalender bekommen …
+wie der normale HTML-Datepicker, nur schön", deutsche Langform, Monate
+wechseln/auswählen, ein „Heute".
+
+**Warum eigener Bau:** `air-datepicker` ist technisch passend (MIT, 0
+Abhängigkeiten), aber A66 verbietet Fremdbibliotheken ohne Ausnahme — und das
+Paket ist seit 2 Jahren ohne Update, bringt eigenes CSS (zweite Design-Wahrheit)
+und ein Webpack-Artefakt. Der native `<input type="date">` zeigt ISO-Format und
+fremde Optik.
+
+**Umsetzung:** `website/js/date-picker.js` (neu) + ~95 Zeilen CSS in
+`sidebar.css` + Popover in `index.html` neben `#datum`.
+
+| Bedienung | Verhalten |
+|---|---|
+| Klick aufs Feld | Kalender öffnet unter dem Feld, rechtsbündig (CSS Anchor `--anchor-datum`) |
+| Klick auf einen Tag | schreibt `22. November 2026`, `input` + `change`, schließt, Fokus zurück |
+| Titel „November 2026" | wechselt zur Monatsansicht (12 Monate), Klick auf Monat → Tagesgitter |
+| `‹` / `›` | ein Monat zurück/vor · `«` / `»` ein Jahr |
+| **Heute** | übernimmt das heutige Datum und schließt |
+| Esc | schließt ohne Änderung, Fokus zurück ins Feld |
+| Tippen | bleibt unverändert möglich — der Kalender schreibt, er erzwingt nichts |
+
+**Zeitrechnung:** ausschließlich `Temporal` (A48/A50), „heute" =
+`Temporal.Now.zonedDateTimeISO('Europe/Berlin')`. Die Langform kommt aus
+`formatDatum(iso, { format: 'alpha' })` — dieselbe Funktion, die den Brief
+befüllt, also keine zweite Formatwahrheit.
+
+**Fund beim Testen:** `Temporal.PlainDate.from({year,month,day})` benutzt
+standardmäßig `overflow: 'constrain'` und macht aus dem **31. Februar
+stillschweigend den 28.** Der Test `leseDatum('31. Februar 2026')` hat das
+aufgedeckt; jetzt steht `{ overflow: 'reject' }`, damit ungültige Eingaben
+`null` ergeben statt eines erfundenen Datums.
+
+**Gemessen (2026-11-22, 127.0.0.1:8088):**
+
+| Prüfung | Ergebnis |
+|---|---|
+| Öffnen per Klick | offen, Kopf „November 2026", 30 Tage, Wochentage Mo–So, „22" als heute markiert |
+| Position | 264 px = 70 mm, rechtsbündig am Feld (Δ 0 px), vollständig im Blatt (1367…1631 bei Blatt 913…1707) |
+| Tag 5. wählen | Feld `5. November 2026`, Popover zu, `aria-expanded="false"` |
+| Monatsansicht | Titel `2026`, 12 Knöpfe Januar…Dezember |
+| September + Jahr | `September 2025` / `September 2026`, 30 Tage |
+| Heute | Feld `22. November 2026`, Popover zu |
+| Esc | zu, Fokus im Feld |
+| Auswahl 24.12. + Reload | Feld behält `24. Dezember 2026` (nicht von `applyLetterDate()` überschrieben) |
+| Druck | `[popover] { display: none !important }` in `sheet.css:325` — der Kalender kann nie im PDF landen |
+
+**Tests:** 7 neue Fälle (Monatstage, Schaltjahr, Montag-Start, Monatsnamen,
+drei Schreibweisen, ungültige Daten → null, `heute()`). Gesamt 432.
+
+---
+
+## 2026-11-22 — Date getötet: Temporal ist die einzige Zeitquelle
+
+**Vorgabe:** „Temporal ist König, töte Date()".
+
+**Befund vorher:** kein `new Date(`/`Date.now(` in `website/` — aber zwei
+Hintertüren, durch die Date wieder hereinkam:
+
+| Stelle | was sie tat |
+|---|---|
+| `format.js` `formatDatum` | `input.getFullYear()` / `.getMonth()` / `.getDate()` — ein Date-Objekt wurde formatiert |
+| `format.js` `formatUhrzeit` | `input.getHours()` / `.getMinutes()` / `.getSeconds()` |
+| `format.js` `isValidCalendarDate` | eigener Schaltjahr-Schieber (zweite Kalender-Wahrheit) |
+| `format.js` Node-Fallback | `monatsNamen`-Array (zweite Format-Wahrheit) |
+
+Die Date-Zweige wurden **nur von zwei Tests** benutzt, nicht vom Produktivcode.
+
+**Jetzt:**
+
+- `formatDatum` nimmt `Temporal.PlainDate` oder String (ISO / TT.MM.JJJJ),
+  parst über `bauePlainDate()` mit **`overflow: 'reject'`** und formatiert
+  ausschließlich mit `toLocaleString('de-DE', …)`.
+- `isValidCalendarDate` und der Monatsnamen-Fallback sind **gelöscht** —
+  Temporal entscheidet, ob ein Datum existiert.
+- `formatUhrzeit` nimmt nur noch Strings.
+- **A48 verschärft:** verboten sind jetzt auch `.getFullYear()`, `.getMonth()`,
+  `.getDate()`, `.getHours()`, `.getMinutes()`, `.getSeconds()`,
+  `.toISOString()`, `.toLocaleDateString()` — sonst kommt Date über die
+  Methoden zurück. `tools/antipatterns/base.json` (B2) und der Law Catalog
+  sind nachgezogen.
+
+**Gemessen (Browser, 2026-11-22):**
+
+```
+Boot           "22. November 2026"
+Kalender-Klick "9. November 2026"
+alpha          "4. September 2026"
+numerisch      "04.09.2026"
+iso            "2026-09-04"
+ungültig       "31.02.2026"  (unverändert, kein erfundenes Datum)
+Uhrzeit        "08:05"
+Log            0 Meldungen
+```
+
+`grep -n "new Date|Date.now|getFullYear|getMonth()|getDate()|getHours" website/js/*.js`
+→ **0 Treffer**. Tests 432/432, Fitness 100 %.
+
+**Nachtrag Debug-Panel (2026-11-22):** Die vier Einzelknöpfe und „Alles
+kopieren" sind durch **drei Zeilen mit je einem Knopf „Copy to Clipboard"**
+ersetzt:
+
+| Block | Inhalt der Zwischenablage |
+|---|---|
+| Anrede & Grußformel | Tonalität, Anrede (aktuell + 6 Angebote mit [formal/polite/casual]), Grußformel (aktuell + 3) |
+| Straßen (Absender & Empfänger) | `Bias:`-Zeile, dann beide Felder mit aktuellem Wert und je 8 Angeboten |
+| PLZ + Ort (Absender & Empfänger) | beide Felder mit aktuellem Wert und der lokalen Ortsliste |
+
+Straßen und Orte gehen **immer als Paar** in die Kopie (Absender zuerst), nur
+die Anrede behält ihre sichtbare Tabelle. `<- aktuell` wird jetzt **einmal**
+pro Feld gesetzt: stand nur „Kirchstraße" im Feld, begannen mehrere Treffer
+damit und die Kopie behauptete zwei aktuelle Werte.
+
+Gemessen: Anrede 20 Zeilen, Straßen 21 Zeilen (Bias „Siegburg 50.80/7.21"),
+Orte 32 Zeilen; alle drei Knöpfe zeigen „✓ Kopiert".
+
+**Nachtrag (2026-11-22):** Die sichtbare Tabelle im Block „Anrede & Grußformel"
+ist entfallen — es bleibt **nur der Knopf**. Damit zeigt das Debug-Panel genau
+drei Zeilen (Anrede & Grußformel, Straßen, PLZ + Ort), jede mit „Copy to
+Clipboard"; die Werte stehen ausschließlich in der Zwischenablage.
+Der JS-Block, der `dbg-tonalitaet`/`dbg-anrede-*`/`dbg-gruss-*` füllte, ist
+mitgelöscht — sonst wäre er toter Code gegen nicht mehr existierende Elemente.
+Gemessen: 0 alte `dd`-IDs, 3 Blöcke, Kopie unverändert (Tonalität + 6 Anreden),
+0 Log-Meldungen.
+
+---
+
+## 2026-11-22 — `#stil-select` entfällt: Tonalität kommt aus der Anrede-Wahl
+
+**Nutzer:** „das kann denke ich komplett weg, wir haben ja jetzt dafür 2
+Dropdown-Felder" (Anrede + Grußformel).
+
+**Befund vorher:** `#stil-select` war die einzige **Bedienung** für
+`settings.formality`. Der Wert wurde aber schon vorher von der Anrede-Wahl
+gesetzt: `#uebernehme(v)` ruft `#setStyle(v.style)` **vor** dem Schreiben der
+Anrede („Stil zuerst, der Gruß zieht nach"). Das Auswahlfeld war also ein
+zweiter Weg zum selben Zustand — und der einzige, der die Tonalität ohne
+Anredewechsel ändern konnte.
+
+**Jetzt:**
+
+| Datei | Änderung |
+|---|---|
+| `website/index.html` | der `<div class="seitenleiste-field-group">` mit `#stil-select` ist gelöscht |
+| `salutation.js` | `init()` bindet kein Select mehr; `#setStyle()` schreibt kein Select mehr; **neu:** `export function aktuelleTonalitaet()` als einzige Lesestelle für `din_settings.formality` |
+| `boot-state.js` | der Pre-Paint-Block für `#stil-select` ist entfernt (Kommentar nennt das Datum) |
+| `debug-panel.js` | `Tonalität:` und die Gruß-Liste lesen `aktuelleTonalitaet()` statt `stil.value` |
+| `testbrief.js` | `currentStyle = aktuelleTonalitaet()` statt Select-Wert |
+| `test/all.js` | Boot-Ratsche und der Reihenfolge-Test nennen `#stil-select` nicht mehr |
+
+`settings.formality` bleibt gespeichert (keine Migration nötig); die Tonalität
+überlebt einen Reload, nur das Control ist weg.
+
+**Gemessen (2026-11-22):**
+
+```
+#stil-select im DOM            weg
+Anrede "Hallo Frau Croft," gewählt
+  → din_settings.formality     "casual"
+  → Grußvorschläge           Beste Grüße · Viele Grüße · Herzliche Grüße
+  → Debug-Kopie              "Tonalität: casual"
+Testbrief                      Gruß "Beste Grüße" (casual)
+Log                            0 Meldungen
+```
+
+Nebenbefund, nicht geändert: der Testbrief leitet die **Anrede** aus der
+Figuren-Beziehung ab (formal/vertraut), nicht aus der Tonalität — der Gruß
+folgt der Tonalität. Das ist Addon-Logik, unabhängig von dieser Änderung.
+
+---
+
+## 2026-11-22 — Anschrift-Suche und Clipboard-Parser entfernt
+
+**Nutzer:** „wir suchen nicht in einer potentiellen Zwischenablage nach einer
+vielleicht vorhandenen Adresse" … „kann komplett gepurged werden, braucht
+keiner mehr".
+
+**Weg ist:**
+
+| Was | Umfang |
+|---|---|
+| `<search id="anschrift-suche-container">` (Label, `#input-anschrift-suche`, `#anschrift-vorschlaege`) | HTML |
+| `#btn-zwischenablage-anschrift` + `#clipboard-candidates-popover` | HTML |
+| `website/js/clipboard-parser.js` (Re-Export) und `website/addons/clipboard-parser/clipboard-parser.js` (24 KB) | gelöscht |
+| Addon-Registrierung in `addons.js` | entfernt |
+| Anschrift-Suche-Renderer in `address.js`: `sucheOffline`, Adressbuch (`getLocalAddressBook`, `saveToLocalAddressBook`), `fuzzySearchLocal`, `performAddressSearch`, `fusioniereNachRelevanz`, `mergeAndRender`, `renderSuggestions`, `zeigeSuchHinweis`, `selectSuggestion` | **395 Zeilen** |
+| CSS: `#anschrift-vorschlaege`-Regeln, `#input-anschrift-suche`-Anchor, `#clipboard-*`, `.field-highlight` (Puls) | ~190 Zeilen |
+
+**Wichtig — die Kopplung, die fast gebrochen wäre:** `initAddressServices()`
+begann mit
+
+```js
+if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !addressSearchContainer) return;
+```
+
+Damit hingen **Key-Status, Straßen- und Ortssuche** an den Suchfeldern. Ohne
+Umbau hätte das Löschen der Suche die halbe Adressfunktion mitgenommen. Der
+Guard prüft jetzt nur noch `inputGeoapifyKey`.
+
+**Die vier Feld-Popover** (`#plz-suggestions-popover`, `#strasse-vorschlaege`,
+`#anrede-vorschlaege`, `#gruss-vorschlaege`) lagen im gelöschten `<search>`.
+Sie stehen jetzt als eigene Geschwister in `#zone-dokument` — der DOM-Ort ist
+belanglos, weil die Position über CSS-Anchor am jeweiligen Feld hängt.
+
+**Testabdeckung ehrlich:** `test/corpus/run.js` hing an
+`ClipboardAddressParser.isStreetLine/isCorporate/METADATA_LINE_REGEX/parse`.
+Die Parser-Prüfungen sind entfernt; Fälle, die nur diese Erwartungen tragen,
+zählen als **`skipped`** (69), nicht als bestanden: `7 ok, 0 fail, 4 known,
+69 skipped`. 407 Unit-Tests (vorher 432: −25 Parser-/Such-Tests).
+
+**Gemessen nach dem Purge (Browser):**
+
+```
+Suchfeld weg, Clipboard-Knopf weg, 4 Popover vorhanden
+Ortssuche "Bonn"       → 39 Treffer, erster "53111 Bonn · Zentrum"
+Straßensuche           → 8 Treffer, erster "Kirchstraße · 53840 Troisdorf"
+Anrede                 → 6 Varianten
+Geoapify-Key           → 32 Zeichen, Status "valid"
+Ortspopover            → am Feld, darunter, im Blatt (460 px)
+Log                    0 Meldungen
+```
+
+---
+
+## 2026-11-22 — Init degradiert statt abzubrechen (Invariante + Tests)
+
+**Anlass:** Die Anschrift-Suche hing per Guard an `initAddressServices()` —
+also am einzigen Eingang für Key-Status, Straßen- und Ortssuche. Ein fehlendes
+Suchfeld hätte drei fremde Features abgeschaltet. Nutzer: „warum hängt da
+irgendwas am Button? Ist das noch woanders so?"
+
+**Sauberste Lösung statt Pflaster:**
+
+1. **Invariante** (`docs/meta/INIT-INVARIANTE.md`): Eine `init*`-Funktion steigt
+   nur aus, wenn ihr *eigenes* Ziel fehlt; optionale Teile werden einzeln
+   verdrahtet. Verboten ist ein Guard über mehrere unabhängige Features.
+2. **`initSenderSync`**: Guard von fünf Feldern auf `!absender` reduziert
+   (das Ziel). `infoName?.addEventListener`, `spiegleUnterschrift()` kehrt
+   früh zurück, wenn `#unterschrift` fehlt. `Field.getValue(null) === ''`,
+   fehlende Quellen ergeben also ein leeres Segment statt eines Abbruchs.
+3. **`initImportExport`**: gemeinsamer Guard über vier Elemente entfernt;
+   Export, Kopieren und Import sind jetzt drei Slices. Ein fehlender
+   Import-Knopf schaltet den Export nicht mehr ab.
+4. **Zwei Tests erzwingen die Invariante**:
+   - `initSenderSync: ohne #unterschrift spiegelt der Name weiter`
+   - `initImportExport: ohne Import-Elemente exportiert der Knopf`
+     (stubbt `showSaveFilePicker` und prüft den Dateinamen)
+
+**Audit aller `init*`-Funktionen (2026-11-22):** kein weiterer Fall bündelt
+fremde Features. `initDatePicker`, `initFormatSync`, `initStateBinding`,
+`initAddonDispatcher`, `initToastSystem`, `initDebugPanel` prüfen jeweils nur
+ihr eigenes Element bzw. pro Klick. Tabelle in `INIT-INVARIANTE.md`.
+
+Tests 409/409 (neu: 2 Degradations-Tests), Fitness 100 %.
+
+**Nachtrag (2026-11-22): Zonentitel „Brief" unsichtbar.** Das sichtbare
+`<h2 class="seitenleiste-h2">Brief</h2>` ist entfallen (Nutzerwunsch), die
+`.seitenleiste-h2`-Regel ebenfalls. Damit die h3-Gruppen keinen Waisen haben,
+bleibt die Überschrift als `sr-only` stehen und benennt die Zone per
+`aria-labelledby="zone-dokument-titel"`. Der Struktur-Test prüft jetzt die
+Absicht („jede Zone ist benannt") statt der Zahl der h2.
+Gemessen: `position: absolute`, 1×1 px, `clip: rect(0,0,0,0)` — optisch weg,
+für Screenreader vorhanden.
+
+**Korrektur (2026-11-22): Kollateralschaden beim Purge.** Meine Aussage
+„Anschrift-Suche und Clipboard-Parser entfernt, gemessen: 0 Log-Meldungen"
+war unvollständig. Beim 99-Zeilen-Schnitt in `sidebar.css` sind **drei
+Anker-Regeln** mitgelöscht worden, die nichts mit der Suche zu tun hatten:
+
+| Regel | Folge |
+|---|---|
+| `#anrede-vorschlaege` (`position-anchor: --anchor-anrede`) | Dropdown oben links im Fenster (x=0, y=4) statt am Feld |
+| `#gruss-vorschlaege` (Anker, Stil, Hover, `[data-gruppe]`-Töne) | dito, zusätzlich fehlte der Farbverlauf blau→rot |
+| `#strasse-vorschlaege` (`position-anchor: --anchor-absender-strasse`) | dito |
+| `#anrede-vorschlaege li[data-gruppe=…]` | Gruppenfarbe fehlte |
+
+**Warum die Tests es nicht fanden:** Es gab keinen Test, der die
+Anker-Regeln prüft. `npm test` und die Browser-Messung deckten nur das
+Öffnen und die Trefferzahl ab, nicht die Position.
+
+**Behoben:** Die Regeln sind aus `164568b~1` wiederhergestellt. Nachgemessen
+mit Fokus (nur dann greift `body:has(…:focus)`):
+
+```
+anrede        dx=0  dy=4  Breite 624  anchor --anchor-anrede
+gruss         dx=0  dy=4  Breite 624  anchor --anchor-gruss
+strasseEmpf   dx=0  dy=4  Breite 302  anchor --anchor-empfaenger-strasse
+ort           dx=0  dy=4  Breite 460  anchor --anchor-ort
+Gruppenton    oklch(0.58 0.19 25 / 0.18)   (casual, rot)
+```
+
+**Neuer Wächter:** `Popover-Anker (Ratsche gegen CSS-Kollateralschaden)`
+prüft für jede Popover-ID, dass ein CSS-Block `position-anchor` **und**
+`anchor(bottom)` enthält. Gegenprobe gegen die kaputte Version: 0 Treffer
+für anrede/gruss/strasse → der Test hätte den Fehler gemeldet.
+
+**Offen (nicht kaputt):** der `.autocomplete-dropdown`-Block (3 Regeln) wird
+von keinem HTML-Element mehr genutzt — toter CSS, kein Fehler.
+
+**Korrektur 2 (2026-11-22): Ortspopover zu breit.** `#plz-suggestions-popover`
+hatte `min-width: max(300px, anchor-size(width))`. Im Infoblock ist das
+Absender-Feld nur **246 px** breit — die Liste stand 54 px über und ragte nach
+links über die Rücksendezeile.
+
+Jetzt: `min-width: anchor-size(width)` (mindestens Feldbreite, nach oben offen
+bis 165 mm, damit lange Organisationsnamen weiter Platz haben).
+
+Gemessen:
+
+| Feld | Feldbreite | Popover | rechtsbündig | Überstand |
+|---|---|---|---|---|
+| `#absender-ort` | 246 | **246** | ja | 0 |
+| `#empfaenger-ort` | 302 | 460 (Inhalt der Bonn-Liste) | nein, wächst nach rechts | 0 |
+| `#empfaenger-strasse` | 302 | 302 | ja | 0 |
+
+Der Empfänger-Fall ist unverändert (die Liste war immer inhaltsbreit und bleibt
+im Blatt) — nur der erzwungene 300-px-Minimum im schmalen Infoblock ist weg.
+Cache-Buster live24.
+
+**Korrektur 3 (2026-11-22): Absender-Ort ohne PLZ-Präfix und ohne Lösch-Spur.**
+Nutzer: „ich tippe hier 531, bekomme kein Dropdown" und „53111 B, noch ein
+Zeichen löschen — steht direkt wieder 53111 Bonn".
+
+Beides waren Lücken im **Absender**-Zweig; der Empfänger hatte sie von Anfang an:
+
+| Fall | Empfänger | Absender (vorher) |
+|---|---|---|
+| 3–4 Ziffern (`531`) | `lookupPrefix('531')` → 6 Treffer („Bonn · 21 PLZs") | nur `resolveCityInput('531')` → **0 Treffer** |
+| Löschen im 5-Ziffern-Feld | `userEditing` verhindert das Ergänzen | 180 ms später wieder `53111 Bonn` |
+
+Jetzt hat der Absender-Zweig denselben Präfix-Pfad (`lookupPrefix`) und eine
+eigene `absUserEditing`-Spur (delete → true, Ziffer eingetippt → false).
+
+**Gemessen (Browser):**
+
+```
+"531"    → 4 Treffer, erster "Bonn · 21 PLZs"
+"53111"  → "53111 Bonn" (Autofill wie beim Empfänger)
+"53111 B" + Backspace → bleibt "53111" (kein Wiedereinsetzen)
+```
+
+**Tests:** `lookupPrefix('531')` liefert Bonn; eine Ratsche hält fest, dass
+`lookupPrefix` und `absUserEditing` im Absender-Block stehen (der Handler hängt
+in einer Closure und lässt sich im Testkontext nicht zuverlässig auslösen —
+das Verhalten ist im Browser gemessen). 412 Tests.
+
+**Korrektur 4 (2026-11-22): Debug-Kopie log für Orte, Text nennt falsche Ursachen.**
+
+Nutzer: „537 zeigt im Copy 0 Treffer, das Feld zeigt 5" und „der Key liegt und
+funktioniert nachweislich".
+
+| Problem | Ursache | Behebung |
+|---|---|---|
+| Copy meldet 0 Treffer für „537" | `dropdownInhalt('ort-*')` nutzte nur `resolveCityInput` (kennt keine 3–4-Ziffern-Präfixe) | neue gemeinsame Funktion **`ortsVorschlaege(raw, max)`** in `address.js`; Debug nutzt sie |
+| Meldung „Eingabe zu kurz, **kein Key** oder keine Treffer" | ein Sammelsatz für drei Ursachen — bei der **lokalen** Ortssuche ist „kein Key" sachlich falsch | `DropdownInhalt.grund` (`kurz` / `kein-key` / `keine-treffer`), jeweils eigener Satz |
+
+**Gemessen nach dem Fix:**
+
+```
+"53"   → 0, Text: "(keine — Eingabe zu kurz, mindestens 3 Zeichen)"
+"537"  → 5 Treffer: 53718, 53721 Siegburg, 53773 Hennef, 53783 Eitorf, 53797 Lohmar
+"538"  → 11 Treffer, darunter 53840/53842/53844 Troisdorf
+```
+
+Zur Frage „wie viele Treffer gäbe es bei 53": **112 PLZ** beginnen mit 53
+(68 verschiedene Einträge), aber die Suche startet bewusst bei **3 Zeichen** —
+`lookupPrefix('53')` liefert technisch 0.
+
+**Datenbefund, nicht geändert:** `53718` trägt in `orte.json.gz` den „Ort"
+„Ahrens + Sieberz" (Firmen-PLZ). GeoNames führt solche Großkunden-PLZ so; für
+den Absender ist das kein Ort. Eine Korrektur braucht eine Override-Liste im
+Build (`tools/build_plz_data.mjs`) — bewusst nicht still gefiltert.
+
+**Korrektur 5 (2026-11-22): 53840 Troisdorf fehlte in der Ortssuche.**
+Nutzer: „53840 Troisdorf fehlt".
+
+**Ursache:** `53840` trägt `typ: "Firma"` (dort sitzt die BwConsulting GmbH als
+Großempfänger), `city` ist aber korrekt **Troisdorf**. Der Filter
+`(typ || 'Stadt') === 'Stadt'` warf den Eintrag deshalb weg — in
+`renderUniversalSuggestions` **und** in der Debug-Kopie.
+
+**Regel jetzt an einer Stelle: `istOrt(eintrag)`**
+
+```
+Ort, wenn city und name sich unterscheiden (dann ist name der Betrieb)
+oder der Typ ausdrücklich 'Stadt' ist.
+```
+
+| Eintrag | city | name | typ | istOrt |
+|---|---|---|---|---|
+| 53840 | Troisdorf | BwConsulting GmbH | Firma | ✅ Ort |
+| 53804 | Much | Much | Stadt | ✅ Ort |
+| 53877 | Euskirchen | P & G Manufacturing | Firma | ✅ Ort |
+| 53718 | Ahrens + Sieberz | Ahrens + Sieberz | Stadt | ⚠️ bleibt (Datenfall) |
+
+Zusätzlich zeigt die **Ortssuche** bei Großempfänger-PLZ den **Ort** als
+Zeile (`53840 Troisdorf · Troisdorf-Mitte`), nicht den Betrieb — der gehört
+ins Firmenfeld. Der Hinweis „Großempfänger" bleibt bei 53877/53879 sichtbar.
+
+**Gemessen:** `ortsVorschlaege('538', {nurOrte:true})` → 11 Treffer,
+`53840 Troisdorf` enthalten, keine Firmennamen in der Liste.
+
+**Offen (Daten, nicht Code):** `53718` führt „Ahrens + Sieberz" selbst als
+`city`; `53884` führt „Feldpostleitstelle Mechernich" als Ort. Das ist nur
+über eine Override-Liste im Build (`tools/build_plz_data.mjs`) zu lösen.
+
+---
+
+## 2026-11-22 — Lighthouse „Agentic Browsing": ARIA-Fehler und llms.txt
+
+**Befund 1: `aria-expanded` auf `#datum` (von mir eingebaut).**
+`input[type=text]` ohne Rolle darf laut ARIA 1.2 kein `aria-expanded` tragen —
+Lighthouse meldete „Elements must only use supported ARIA attributes". Der
+Kalender ist ein `<dialog>`-Popover, also ist `aria-haspopup="dialog"` das
+richtige Attribut.
+
+- HTML: `aria-expanded="false"` → `aria-haspopup="dialog"`
+- `date-picker.js`: alle drei `setAttribute('aria-expanded', …)` entfernt
+  (öffnen, schließen, `toggle`-Listener)
+
+**Befund 2: `llms.txt` fehlte.** Neu: `website/llms.txt` (1096 Bytes, HTTP 200)
+mit H1, Links auf `index.html` und `js/README.md` und einem Abschnitt
+„Hinweise für Agenten" (Feld-IDs, Popover-Verhalten, lokal vs. Geoapify).
+
+**Befund 3: „3 forms missing WebMCP annotations" — Fehlalarm.** Die drei
+`<form>`-Elemente sind `method="dialog"`-Bestätigungen in Dialogen
+(„Verstanden", „Abbrechen"). Sie als Tool zu annotieren würde einem Agenten
+erlauben, Dialoge abzusenden — kein Nutzen, nur Risiko. Für DIN-BriefNEO ist
+die **Imperative API** der richtige Weg (Tools statt Form-Submit), und die ist
+in Chrome 156 ohne Flag nicht verfügbar (`navigator.modelContext` fehlt,
+gemessen). Bleibt offen, siehe unten.
+
+---
+
+## 2026-11-22 — `window.dinApi`: Brief-Schnittstelle für Agenten
+
+**Wunsch:** „eine Schnittstelle, die ein Agent nutzen kann, um den Brief
+komplett zu schreiben und zu bedienen."
+
+**Entscheidung: kein WebMCP, sondern ein einfaches JS-Objekt.** WebMCP
+(Chrome 156) ist ohne Origin-Trial/Flag nicht vorhanden — gemessen:
+`navigator.modelContext === undefined`, `modelContextTesting === undefined`.
+Ein `window.dinApi` funktioniert heute in jedem Browser, ist per Konsole, CDP
+und Test aufrufbar; WebMCP wäre später ein dünner Wrapper darüber.
+
+**Datei:** `website/js/api.js` (neu), eingebunden als Boot-Schritt
+„Agenten-API". Alles ist Aufsatz auf vorhandener Logik — `applyValue`,
+`ortsVorschlaege`, `formatDatum`, `salutationVarianten`,
+`buildDINLetterJSON`. Keine zweite Wahrheit.
+
+| Funktion | Wirkung |
+|---|---|
+| `hilfe()` | Feldliste (28), Schalter (3), Signaturen, Hinweis was fehlt |
+| `lesen()` | alle Feldwerte + Schalter, `anzahlFelder` |
+| `setzen(id, wert)` | ein Feld; unbekannte IDs → `{ok:false, fehler}` statt Throw |
+| `anrede(name, firma?, ton?)` | Anrede + Grußformel passend zur Tonalität |
+| `adresse(rolle, daten)` | Empfänger/Absender; leere Angaben werden übersprungen |
+| `datum(eingabe)` | ISO, `TT.MM.JJJJ` oder Langform → Langform |
+| `exportieren()` | dieselbe JSON-Struktur wie „Speichern (.json)" |
+
+**Fund beim Testen:** `applyValue` ist der *Programm*-Schreiber und feuert
+bewusst **kein** `input` (sonst Endlosschleifen). Die Absender-Spiegelung
+(`initSenderSync`) hängt aber an `DOCUMENT_CHANGED` — ohne dieses Signal blieb
+die Rücksendezeile leer. Die API publiziert es jetzt nach jedem Schreiben
+(`schreibe()`), und die Zeile stimmt: „M. Mustermann • Musterweg 5 • 53840
+Troisdorf".
+
+**Bewusst nicht enthalten:** Drucken, Datei-Dialoge (Unterschrift, Schrift),
+Dialoge. Diese brauchen eine Nutzergeste; die API sagt das in `hilfe()`.
+
+**Gemessen (Browser, frischer Zustand):**
+
+```
+adresse('empfaenger', {...})  ok
+adresse('absender', {...})    ok  → Rücksendezeile vollständig
+anrede(..., 'casual')         "Hallo Frau Croft," / "Beste Grüße"
+datum('2026-12-24')           "24. Dezember 2026"
+setzen('gibt-es-nicht')       {ok:false, fehler:… 'hilfe() zeigt die Liste'}
+exportieren()                 {ok:true, brief.format, brief.fields[…]}
+```
+
+`website/llms.txt` nennt die API jetzt für Agenten. Tests: 5 neue Fälle (420).
+
+---
+
+## 2026-11-22 — Responsive Layout: `desktop.css` + `mobile.css`
+
+**Ausgangslage:** keine `max-width`-Media-Query. Auf 412 px (Pixel 9) war die
+Shell 1034 px breit (240 Leiste + 794 Blatt), `overflow: hidden` machte das
+Blatt zu 57 % abgeschnitten **und** unerreichbar.
+
+**Struktur:** Das Grid wurde aus `base.css` herausgezogen (dort steht nur noch
+`display: grid`), die Spalte lebt jetzt in `desktop.css`.
+
+| Datei | Media Query | Verhalten |
+|---|---|---|
+| `css/desktop.css` | `min-width: 700px` | Leiste links, Blatt rechts, Blattbereich schiebbar |
+| `css/mobile.css` | `max-width: 699px` | Leiste oben (deckend, `50dvh`, eigener Scroll), Blatt darunter schiebbar |
+
+**Warum 700 und nicht 900:** Bei 800×640 ist das Band-Layout (Leiste oben)
+schlechter als eine volle Leiste plus schiebbares Blatt — gemessen und im
+Screenshot verglichen. Unter 700 px ist das Band richtig.
+
+**Drei Fallen, alle gemessen:**
+
+1. **Der Flex-Container ist `#brief-ansicht`, nicht `#viewport`.** Ein
+   `justify-content` auf `#viewport` änderte nichts.
+2. **`sheet-multipage.css` setzt `justify-content: center !important`** mit
+   `#viewport:not([data-seiten]) #brief-ansicht` (2 IDs + Attribut). Eine
+   einfache Regel verliert; nötig ist gleiche Spezifität **plus** `!important`
+   und spätere Ladung:
+   ```css
+   #viewport:not([data-seiten]) #brief-ansicht,
+   #viewport[data-seiten="1"] #brief-ansicht { justify-content: flex-start !important; }
+   ```
+3. **`din-blatt` trägt `margin: 0 39.15px`** (auto) — bei Überlauf zentriert
+   das negativ. Deshalb `#viewport din-blatt { margin-inline: 0 }`.
+
+**Ergebnis (gemessen, `innerWidth` nach Emulation):**
+
+| Breite | Spalten | Blatt links | unter der Leiste | schiebbar | sichtbar |
+|---|---|---|---|---|---|
+| 640 | `640px` | 20 | nein | ja | 78 % |
+| 819 | `240px 579px` | **260** | **nein** | ja | 70 % |
+| 1152 | `240px 912px` | 299 (zentriert) | nein | nein | 100 % |
+
+**Datum tiefer (2026-11-22):** Nutzer: „das datum kann gerne noch etwas weiter
+runter vllt knapp über die falzzeile".
+
+Gemessen (mm von Blatt-Oberkante):
+
+| | vorher | jetzt |
+|---|---|---|
+| Datum | 59,7 – 64,6 | **77,7 – 82,6** |
+| Falzmarke 1 | 87,0 | 87,0 |
+| Betreff | 89,0 | 89,0 |
+| Luft zur Falz | 22,4 | **4,4** |
+| Luft zum Betreff | 24,4 | 6,4 |
+
+Umsetzung: `#datum { margin-top: 18mm }` in `sheet-common.css` (Zeile 433,
+**außerhalb** des `@media print`-Blocks — gilt damit auch im PDF). Der
+Infoblock selbst wurde nicht angefasst; der Betreff wandert nicht.
+
+**Font-Fallback im Dev-Server (2026-11-22):** Nutzer: „für lokale Tests habe ich
+`fonts/` und das soll für den Testserver im Debug-Browser genauso funktionieren
+wie `~/.secrets/geoapify`."
+
+`tools/static-server.mjs` liefert jetzt Schriften aus `<repo>/fonts/`, wenn sie
+unter `website/fonts/` fehlen — gleiche Idee wie `/__geokey`:
+
+| Fall | Verhalten |
+|---|---|
+| Datei in `website/fonts/` vorhanden | wird normal ausgeliefert (Inter) |
+| fehlt dort, liegt in `<repo>/fonts/` | **Dev-Server** liefert sie durch (200) |
+| fehlt in beiden | **404** — Browser nimmt seine Ersatzschrift |
+
+Die Regel greift **nur** für Pfade in einem `fonts/`-Ordner und **nur**
+innerhalb von `<repo>/fonts` — kein Zugriff auf andere Repo-Dateien. Die
+App-URL bleibt `../fonts/…` (A45-konform, kein Pfad aus `website/` heraus).
+
+Gemessen:
+
+```
+/website/fonts/aptos.woff2                  200  17 848 B
+/website/fonts/michelangelus-regular.woff2  200  23 212 B
+/website/fonts/inter_18pt-regular.woff2     200  17 864 B
+/website/fonts/gibt-es-nicht.woff2          404       9 B
+App: Test-Aptos und Test-Michelangelus laden (document.fonts.check true)
+```
+
+Damit braucht `website/fonts/` **keine** lokalen Kopien mehr: die zwei
+Nicht-Inter-Schriften liegen ausschließlich in `fonts/` (gitignored).
+
+---
+
+## 2026-11-22 — CSS-Altlasten auf die Verbotsliste (B6/B7)
+
+**Nutzer:** „bitte alle auf die Verbotsliste setzen, da wo auch today() steht —
+das darf nie wieder eingebaut werden."
+
+Zwei neue Antipattern-Regeln in `tools/antipatterns/base.json`:
+
+| ID | Muster | Ersatz |
+|---|---|---|
+| **B6** | `-webkit-`, `-moz-`, `-ms-` | Standard-Eigenschaft (`backdrop-filter`, `user-select`, `appearance`) |
+| **B7** | `float:`, `clear:`, `zoom:`, `expression(`, `progid:` | Flex/Grid, `margin-inline-start: auto`, `transform: scale()`, `@supports` |
+
+Gegenprobe mit einer Wegwerf-Datei: B6 1 Treffer, B7 5 Treffer, nach dem
+Löschen 0. Regeln gesamt: 55 → **57**.
+
+**Bestand vorher:** genau ein Treffer — `float: right` in `.badge-local`
+(`sidebar.css:625`). Die Klasse wurde **nirgends** verwendet (kein HTML, kein
+JS) — also toter CSS, 9 Zeilen entfernt statt modernisiert.
+
+**Was der Bericht vorher zeigte:** 0 Vendor-Prefixes, 0 `clear`/`zoom`/
+`expression`/`progid` — das CSS war bereits sauber. Die Verbotsliste hält es
+so.
+
+---
+
+## 2026-11-23 — Liberation Sans als Vanilla-Standard, Schriften aus `fonts/`
+
+**Nutzer:** „ich möchte das der komplette brief Default Vanilla ein
+eingedampftes Liberation Sans Font Subset hat."
+
+### Was jetzt ausgeliefert wird
+
+Im Repo liegen genau zwei Familien, beide DACH-eingedampft:
+
+| Datei | Quelle | Größe |
+|---|---|---|
+| `liberation-sans-regular.woff2` | LiberationSans-Regular.ttf (401,1 KB) | 17 560 B |
+| `liberation-sans-bold.woff2` | LiberationSans-Bold.ttf (404,7 KB) | 17 004 B |
+| `inter_18pt-regular.woff2` | Inter_18pt-Regular.ttf (334,6 KB) | 15 208 B |
+| `inter_18pt-bold.woff2` | Inter_18pt-Bold.ttf (336,1 KB) | 15 664 B |
+
+**Warum Liberation Sans Standard ist:** DIN 5008 Kap. 20.7.1 nennt Arial und
+Helvetica ausdrücklich. Liberation Sans ist die freie, **metrisch identische**
+Umsetzung — gemessen: Breite von „Hamburgefonstiv MMM 12345 äöüß" bei 40 px ist
+in beiden **638,1 px**. Ein Brief bricht also zeilenweise wie ein Arial-Brief um.
+
+Der Stack wurde dafür getrennt:
+
+```css
+--font-system-stack: "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+--font-brief-stack:  "Test-Liberation", "Liberation Sans", Arial, ...;
+```
+
+Vorher stand `Aptos`, `Segoe UI`, `-apple-system` vorn — gemessen ergab
+`font-family: "Aptos"` **593,7 px** statt 638,1 px. Damit brach derselbe Brief
+auf Windows, macOS und Linux unterschiedlich um.
+
+### Lokale Schriften (`<repo>/fonts/`)
+
+`fonts/` ist gitignoriert; das Verzeichnis ist die Wahrheit:
+
+- `tools/static-server.mjs` liefert die Liste unter `/__fonts`
+  (`.woff2` vor `.ttf`, Inter/Liberation ausgeblendet, weil schon ausgeliefert).
+- `website/js/font-feature.js` baut daraus die Gruppe „Nur lokal (fonts/, n)"
+  und lädt per `FontFace`-API.
+- Auf GitHub Pages gibt es den Endpunkt nicht (404) → Gruppe fehlt, keine 404
+  auf Schriften. Aptos und Michelangelus sind damit aus dem HTML und aus
+  `FONT_PRESETS` entfernt.
+
+Nebenbefund: `.gitignore` hatte `fonts/` ohne führenden Schrägstrich — das
+Muster traf auch `website/fonts/` und hätte neue ausgelieferte Schriften stumm
+gesperrt. Jetzt `/fonts/`.
+
+### Systemschriften-Liste
+
+166 Familien auf diesem Rechner. Neu:
+
+- Blacklist für Emoji/Symbol/Icons (Muster deckt Windows, macOS, Linux ab).
+- Monospace wird **gemessen** (`iiii` == `MMMM`), nicht am Namen erkannt —
+  „Hack" und „TeX Gyre Cursor" heißen nicht „Mono".
+- Suchfeld über der Auswahl filtert live; Label zeigt „Systemschriften (n)".
+- Gegenprobe mit Attrappe: 10 Namen rein → 3 übrig (C059, Liberation Sans,
+  Noto Sans), 7 aussortiert.
+
+### Pfeiltasten
+
+Chrome rendert das Select mit `appearance: base-select`. Bei **geschlossener**
+Liste ändern ArrowUp/ArrowDown den Wert nicht mehr (gemessen: Tastendruck kommt
+an, `change` bleibt aus). `font-feature.js` fängt die Tasten jetzt selbst ab
+(Arrow, PageUp/Down, Home/End), setzt `selectedIndex` und löst `change` aus.
+Vorschau ist auf 120 ms entprellt, damit Durchblättern nicht jede Stufe lädt
+und speichert.
+
+---
+
+## 2026-11-23 — Optische Schriftgröße automatisch angleichen (font-size-adjust)
+
+**Nutzer:** „die schrift im haupttext ist ganz schön klein! kann man das
+irgendwie automatisch korrigieren? also das wir nicht für jeden font eine
+einzelne schriftgröße machen?"
+
+Genau dafür ist `font-size-adjust` da: **eine Zahl für alle Schriften**, keine
+Einzelgrößen. Gemessene x-Höhen (Anteil der Schriftgröße):
+
+| Schrift | x-Höhe | mit adjust 0.52 |
+|---|---|---|
+| Liberation Sans / Arial / Noto Sans | 0,535 | −2,8 % |
+| Inter | 0,545 | −4,6 % |
+| DejaVu Sans | 0,55 | −5,5 % |
+| Cantarell | 0,48 | +8 % |
+| Droid Arabic Kufi | 0,46 | +13 % |
+
+Der Wert stand auf `0.52` und hat damit **die eigene Standardschrift um 2,8 %
+geschrumpft**. Neu: `0.535` = exakt die x-Höhe von Liberation Sans. Damit
+rendert der Standard in Originalgröße, alles andere wird auf dieselbe optische
+Größe gezogen.
+
+**Zweiter Fehler dabei:** `<input>`-Felder erben Schrift-Eigenschaften nicht.
+`font-family: inherit` und `font-size: inherit` standen dort, `font-size-adjust`
+fehlte — gemessen hatten `#betreff`, `#anrede`, `#grussformel`, `#unterschrift`
+und die Fußzeilen-Felder `adjust: none`, während der Fließtext daneben mit
+`0.52` rechnete. Bei Schriften mit abweichender x-Höhe standen die Zeilen also
+schief zueinander. Jetzt `font-size-adjust: inherit` in beiden Feld-Blöcken.
+
+Beide Regeln (`base.css` und `sheet-common.css`) tragen denselben Wert.
+
+---
+
+## 2026-11-23 — Schriften ohne lateinische Buchstaben gefiltert
+
+**Nutzer:** „können wir diese auch direkt blacklisten? 59 ohne lateinische
+Buchstaben ← der Ärger: Droid Arabic Kufi, Noto Sans Thai"
+
+Ja — aber **gemessen, nicht als Namensliste**. Eine Liste mit „Noto Sans Thai,
+Droid Arabic Kufi, …" wäre auf dem nächsten Rechner falsch und bei jedem
+Font-Update veraltet. Der Test läuft zur Laufzeit: Breite von „Hamburgefonstiv"
+und „x" gegen eine garantiert fehlende Familie. Sind beide gleich, liefert der
+Browser nur Ersatz — die Schrift hat keine lateinischen Glyphen.
+
+**Warum das nicht nur Kosmetik ist:** `font-size-adjust` nimmt die x-Höhe der
+**ersten** Schrift im Stack. Hat die keine lateinischen Glyphen, wird der
+Ersatztext passend zu ihrer Metrik skaliert. Gemessen im Brief, gleicher Text
+und gleiche Breite:
+
+| Schrift | Zeilen | Höhe |
+|---|---|---|
+| Test-Liberation | 17 | 238 px |
+| Carlito | 17 | 238 px |
+| **Droid Arabic Kufi mit adjust** | **13** | **170 px** |
+| Droid Arabic Kufi ohne adjust | 17 | 248 px |
+
+Also 24 % kleiner — genau der Eindruck „mega klein". Carlito ist messbar
+**nicht** kleiner; die 2 % sind Design, keine Größe.
+
+**Bestand vorher:** 166 Familien, davon 59 ohne lateinische Buchstaben
+(Droid Arabic Kufi, Noto Sans Thai, Noto Sans Devanagari, Noto Serif Tamil,
+Noto Sans Arabic, …).
+
+**Nachher:** 166 → **82** Einträge. Alle Nicht-Latein-Schriften verschwinden,
+Carlito/Liberation/Cantarell/DejaVu bleiben.
+
+Die Filterkette ist jetzt: Namens-Blacklist (Emoji/Symbol/Icons) → Monospace
+(gemessen) → lateinische Buchstaben (gemessen) → alphabetisch.
+
+### Nachtrag: vierte Stufe „sieht aus wie Text"
+
+**Nutzer:** „manche waren dabei die garkein a-z hatten sondern nur symbole und
+quatsch."
+
+Berechtigt: `D050000L` (URW Dingbats) hat a–z belegt, zeichnet aber Bildchen —
+der Latein-Test allein laesst sie durch. Dritte Messung ergaenzt:
+
+| Merkmal | Textfont | Symbolfont |
+|---|---|---|
+| `H` / `x` (Hoehe) | ≥ 1,15 (Liberation 1,28) | ≈ 1 (D050000L 1,01) |
+| `W` / `i` (Breite) | ≥ 2 (Liberation 4,2) | ≈ 1 (D050000L 1,1) |
+| Unterlaenge bei `p` | > 0 (Liberation 21) | 0 |
+
+**Gemessene Filterkette (166 Familien):**
+
+| Stufe | danach |
+|---|---|
+| Start | 166 |
+| Namenslisten (Emoji/Symbol/Icons) | 161 |
+| Mono-Verdacht am Namen | 138 |
+| Mono gemessen | 137 |
+| Latein gemessen | 82 |
+| Wie-Text gemessen | **80** |
+
+Die vierte Stufe entfernt genau zwei: `D050000L` und `Latin Modern Roman Caps`
+(Versalien-Schnitt ohne Kleinbuchstaben — kann keinen Fliesstext setzen).
+
+### Nachtrag: falscher Schriftschnitt bei Systemschriften
+
+**Nutzer:** „C059 sieht komisch fett aus — was ist damit?"
+
+`queryLocalFonts()` liefert alle Schnitte einer Familie, **nicht** in sinnvoller
+Reihenfolge. Fuer C059 kommt zuerst `Bold Italic`, dann `Bold`, `Italic`,
+`Regular`. Der Code nahm den ersten Eintrag — also die fette Kursive.
+
+Gemessen: **101 von 166** Familien hatten keinen Regular als ersten Eintrag
+(C059 → Bold Italic, Caladea → Bold, Cantarell → Bold, FreeSans → Mittel, …).
+
+Fix: `schnittRang()` bewertet den Stil (Regular/Normal/Book/Roman/Mittel = 0,
+unbekannt = 1, Light/Demi/Thin = 2, Bold = 3, Italic = 4) und der niedrigste
+Rang gewinnt. Auf Wortgrenzen geprueft, weil einige Familien ihre Schnitte
+nummerieren (`10 Regular`, `8 Bold`).
+
+Nachher: C059 → Roman, Cantarell → Regular, Caladea → Regular,
+Latin Modern Roman → 10 Regular.
+
+**Restbefund (12 Familien ohne normalen Schnitt):** `Noto Sans CJK` (nur Thin),
+`Noto Serif CJK` (nur ExtraLight), `URW Bookman` (Demi/Light), `Z003`
+(nur Medium Italic). Sie sind jetzt nicht mehr falsch, sondern zeigen ihren
+einzigen Schnitt — ob sie in der Liste bleiben, ist eine eigene Entscheidung.
+
+### Nachtrag: Familien ohne normalen Schnitt entfernt (fünfte Stufe)
+
+**Nutzer:** „ich glaube sowas kann man auch komplett rausschmeissen … ich will
+**WIRKLICH** DACH / Latin, fertig. keine Bock auf x Kopien für die halbe Welt,
+weniger ist mehr."
+
+Beim Sammeln wird jetzt mitgeschrieben, welche Familien einen Schnitt mit Rang 0
+(Regular/Normal/Book/Roman/Mittel) haben. Familien, die nur Thin, nur Demi oder
+nur kursiv anbieten, kommen nicht in die Auswahl.
+
+Entfernt: `Noto Sans CJK` (5 Varianten, nur Thin), `Noto Serif CJK` (5, nur
+ExtraLight), `URW Bookman` (Demi/Light), `Z003` (Medium Italic).
+Stand: **80 → 68**.
+
+**Was NICHT per Messung geht:** die verbliebenen Welt-Schriften mit
+Latein-Beigabe — `TH Baijam` … `TH SarabunPSK` (13), `Vazirmatn`,
+`PakType Naskh Basic` (3), `Padauk`, `RIT Meera New`, `RIT Rachana`,
+`Laksaman`, `Jomolhari`, `Noto Sans Sinhala`, `Noto Sans Math`,
+`Latin Modern Math`, `TeX Gyre … Math`. Sie haben echte lateinische Glyphen
+(deshalb bestehen sie Stufe 4) und deutsche Umlaute. Ein Test auf „ä ö ü ß ẞ €"
+trennt sie nicht: er meldet auch `C059` ohne `ö` und `Latin Modern Roman` ohne
+`öß` — beides nachweislich falsch, das sind Breitenzufälle. Eine harte
+Messgrenze ist damit erreicht.
+
+### Nachtrag: Welt-Schriften per Namensliste entfernt (36 Familien)
+
+**Nutzer:** „ich will **WIRKLICH** DACH / Latin, fertig. keine Bock auf x
+Kopien für die halbe Welt, weniger ist mehr."
+
+Messen reicht hier nicht: die 32 Welt-Schriften haben echte lateinische
+Glyphen, deutsche Umlaute und Textproportionen — sie bestehen jede Stufe.
+Ein Test auf „ä ö ü ß ẞ €" trennt sie nicht, er meldet auch `C059` ohne `ö`
+und `Latin Modern Roman` ohne `öß` (beides falsch — Breitenzufall).
+
+Deshalb eine kurze Namensliste `WELT_SCHRIFT`:
+
+| Muster | betroffen |
+|---|---|
+| `TH …` | 14 Thai-Schriften (SarabunPSK, Baijam, Chakra Petch, …) |
+| `PakType`, `Vazirmatn` | 4 arabische/persische |
+| `RIT …` | 2 (Meera New, Rachana) |
+| `Padauk`, `Laksaman`, `Jomolhari`, `Sinhala` | 4 |
+| `Math`, `STIX` | 8 (Formelsatz) |
+
+**Bilanz der ganzen Kette:**
+
+| Stufe | Familien |
+|---|---|
+| Start | 166 |
+| Emoji/Symbol/Icons (Namen) | 161 |
+| Mono-Verdacht (Namen) | 138 |
+| Mono (gemessen) | 137 |
+| Latein (gemessen) | 82 |
+| Wie-Text (gemessen) | 80 |
+| Normaler Schnitt (gemessen) | 68 |
+| Welt-Schriften (Namen) | **36** |
+
+36 echte Latein-Familien: Adwaita Sans, C059, Caladea, Cantarell, Carlito,
+Comfortaa, DejaVu Sans, Droid Sans, FreeSans, Latin Modern (10 Schnitte),
+Liberation Sans (+ Narrow), Michelangelus, Nimbus Roman/Sans (+ Narrow),
+Noto Sans, Noto Serif, Open Sans, P052, TeX Gyre (7), URW Gothic.
+
+### Korrektur: Welt-Schriften per cmap statt per Namensliste
+
+**Nutzer:** „nein nix hartcodieren!!! das muss beim nächsten user auf windows
+laufen und beim übernächsten auf mac!"
+
+Berechtigt. Die Namensliste aus dem vorigen Eintrag ist **entfernt**
+(`WELT_SCHRIFT` gelöscht). Stattdessen wird die Schriftdatei selbst gelesen:
+
+1. `FontData.blob()` liefert die echte TTF/OTF-Datei.
+2. `leseCmap()` liest die `cmap`-Tabelle (Format 4 für BMP, Format 12 für
+   UCS-4) und beantwortet exakt: enthält die Schrift diesen Codepoint?
+3. `FREMD_PROBEN` sind 20 Stichproben aus nicht-lateinischen Schriften (Thai,
+   Arabisch, Hebräisch, Devanagari, Bengali, Tamil, Telugu, Kannada,
+   Malayalam, Sinhala, Myanmar, Khmer, Lao, Tibetisch, Georgisch, Armenisch,
+   Äthiopisch, CJK, Hangul, Kana).
+4. Bringt die Datei **irgendeines** davon mit, ist sie für diese Schrift gebaut
+   → nicht anbieten.
+
+**Warum nicht per Breitenvergleich:** fehlt einer Schrift ein Zeichen, springt
+der Browser auf die Ersatzschrift — und ist die geprüfte Schrift selbst die
+Ersatzschrift des Systems für diese Sprache, sind beide Breiten gleich. Bei
+`Vazirmatn` und `Padauk` (beide die Standard-Ersatzschrift auf diesem Rechner)
+war der Test deshalb blind. Die cmap fragt die Datei direkt.
+
+**Ergebnis:** 40 Familien, ohne eine einzige Namensliste. Als Welt-Schrift
+erkannt werden unter anderem `DejaVu Sans` (Arabisch/Hebräisch), `Liberation
+Sans` (Hebräisch), `FreeSans` (Armenisch/Georgisch), alle `Noto Sans/Serif`
+Skript-Familien, `TH …` (Thai), `Vazirmatn`, `PakType`, `Padauk`, `RIT …`,
+`Jomolhari`, `Laksaman`.
+
+Kosten: 878 ms einmalig beim Klick auf „Systemschriften laden", solange der
+Knopf gesperrt ist. Lesefehler zählen als „nicht fremd" — lieber eine Schrift
+zu viel als eine fehlende Liste.
+
+`Liberation Sans` fällt mit heraus, weil die Systemdatei hebräische Zeichen
+enthält. Der Brief-Standard ist davon unberührt: das ist `Test-Liberation`
+(mitgeliefertes DACH-Subset), nicht die Systemdatei.
+
+### Korrektur: Dichte statt „enthält fremde Zeichen"
+
+**Nutzer:** „das das hier passiert ist — Liberation Sans fällt mit raus, die
+Systemdatei enthält hebräische Zeichen. ist schon doof."
+
+Richtig. „Enthält ein Zeichen" ist nicht „ist für diese Schrift gebaut".
+`Liberation Sans` hat hebräische Zeichen, deckt Latein aber vollständig ab.
+
+Neuer Maßstab: **Deckungsdichte pro Zeichenbereich**.
+
+```
+Dichte = belegte Codepoints / Größe des Bereichs
+Latein-Bereiche: U+0020–024F und U+1E00–1EFF
+28 Fremdbereiche: Thai, Lao, Tibetisch, Myanmar, Georgisch, Hangul,
+  Äthiopisch, Cherokee, Khmer, Mongolisch, Kana, CJK, Armenisch, Hebräisch,
+  Arabisch, Syrisch, Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamil,
+  Telugu, Kannada, Malayalam, Sinhala
+→ Aussortiert wird nur, wenn die beste Fremd-Dichte die Latein-Dichte
+  übersteigt.
+```
+
+Gemessen (`leseBereiche()` liest die cmap als Bereichsliste, `deckungsDichte()`
+schneidet sie mit jedem Skriptbereich):
+
+| Schrift | Latein | beste Fremd-Dichte | Ergebnis |
+|---|---|---|---|
+| Liberation Sans | voll | Hebräisch niedriger | **bleibt** |
+| DejaVu Sans | voll | Arabisch/Hebräisch niedriger | **bleibt** |
+| Noto Sans Thai | minimal | Thai voll | raus |
+| TH SarabunPSK | mittel | Thai höher | raus |
+| Vazirmatn | hoch | Arabisch niedriger | bleibt |
+
+Ergebnis: 40 → **43 Familien**. `Liberation Sans`, `DejaVu Sans` und
+`Droid Sans` sind zurück, alle 14 Thai-Schriften weiter draußen. `Vazirmatn`
+bleibt, weil sein Latein dichter ist als sein Arabisch — es ist damit eine
+Lateinschrift, die auch Persisch kann.
+
+Laufzeit unverändert ~880 ms beim Laden.
+
+### Echte Fettschrift für Systemschriften (400 + 700)
+
+**Nutzer:** „sie behalten alle Schnitte und mappen sie auf Gewichte … das wäre
+die nächste sinnvolle Ausbaustufe."
+
+Alle Schnitte zu laden ist keine Option: `Noto Sans` hat hier **72 Dateien mit
+44,7 MB**, Carlito 4 Dateien mit 2,7 MB (gemessen 2026-11-23). Geladen werden
+deshalb genau zwei: **400 und 700**, normale Breite, nicht kursiv.
+
+- `gewichtAusStil()` mappt den Stil-Namen auf 100–900 (dieselbe Zuordnung wie
+  im Chrome-Beispiel von Boxy SVG).
+- `naechster(400, 0)` und `naechster(700, 500)` wählen den passenden Schnitt.
+  Für die Fettschrift ist auch ein Demi/SemiBold (600) recht — besser als die
+  synthetische Verdickung aus dem Regular.
+- Beim Wechsel auf eine andere Schrift oder ein Preset werden die Faces wieder
+  abgemeldet (`#entladeSystemFaces`) — vorher blieben sie für die
+  Seitenlebensdauer in `document.fonts` (Befund beim Test).
+
+Gemessen nach dem Umbau:
+
+| Auswahl | geladene Faces |
+|---|---|
+| `sys:Carlito` | Carlito:400, Carlito:700 |
+| `sys:URW Gothic` | URW Gothic:400, URW Gothic:700 (das Demi) |
+| `sys:TeX Gyre Chorus` | nur 400 — kein fetter Schnitt vorhanden |
+| `default` | keine (aufgeräumt) |
+
+31 von 43 Familien haben ein echtes 700; die übrigen 12 sind überwiegend
+Mathe-Schnitte (`… Math`) und `URW Gothic` (Demi → 700).
+
+**Warum keine „Fake-Fettschrift über 1 pt größer":** Die DIN-Geometrie ist in
+Millimetern gesetzt, `font-size` kommt aus `data-font` und speist den
+Zeilenumbruch. Ein Punkt mehr verschiebt Umbrüche und lässt den Betreff aus dem
+Raster laufen. Außerdem regelt `font-size-adjust` bereits die optische Größe —
+eine größere Regular ist keine Fettschrift, sie ist nur größer. Wenn kein
+fetter Schnitt existiert, übernimmt die Browser-Synthese (Strichverdickung) das
+und das ist der bessere Kompromiss.
+
+### DACH-Kernzeichen als Filterstufe (cmap, exakt)
+
+**Nutzer:** „wir müssen einen wirklich guten smarten Filter bauen, dass man
+danach wirklich nur noch das sieht, was Latin DE CH AT ist — mit Umlauten …
+sind wir da? ich will das 80/20 machen."
+
+**Ja, wir sind da.** Gemessen über die cmap aller 43 Familien:
+
+| Prüfung | Ergebnis |
+|---|---|
+| `ä ö ü ß` vorhanden | **43 von 43** — keiner fehlt ein Kernzeichen |
+| `ẞ` vorhanden | 14 von 43 |
+| `ẞ` und `€` vorhanden | 6 von 43 (Adwaita Sans, DejaVu Sans, Michelangelus, Noto Sans, Noto Serif, STIX) |
+
+Die Stufe ist trotzdem eingebaut (`hatDachKern`), damit sie auf Windows und
+macOS greift, wo ASCII-only-Schriften vorkommen: dort fällt eine Schrift ohne
+`ä ö ü ß` raus. Auf diesem Rechner ändert sie nichts (43 → 43).
+
+**Bewusst nicht verlangt: `ẞ`.** 29 von 43 Familien haben es nicht, und in einem
+normalen Brief kommt der Großbuchstabe nicht vor. Das ist die 80/20-Entscheidung:
+lieber 43 Schriften als 6.
+
+**Der Standard ist davon unberührt.** Der Brief startet auf `Test-Liberation`
+(`website/fonts/liberation-sans-regular.woff2` + `-bold.woff2`), wie vom Nutzer
+bestätigt: „das ist das fest eingebaute default modell, dafür ist der DIN Brief
+gebaut."
+
+### Formelsatz, Schmalschnitte und TeX-Sippe entfernt (18 Familien)
+
+**Nutzer:** „die haben doch TeX oder Math oder so im Namen? kann man das per
+Regex abschießen?"
+
+Zwei davon sind gemessen, eine per Name:
+
+| Stufe | Kriterium | entfernt |
+|---|---|---|
+| Formelsatz | cmap-Block U+1D400–1D7FF > 500 Zeichen | 7 (Latin Modern Math, STIX, TeX Gyre … Math) |
+| Schmalschnitt | Breite ÷ x-Höhe < 5 | 3 (Liberation Sans Narrow 4,59 · Nimbus Sans Narrow 4,75 · TeX Gyre Heros Cn 4,76) |
+| TeX-Sippe | Name `^(TeX Gyre\|Latin Modern)` | 15 |
+
+Gemessene Werte für den Schmalschnitt-Vergleich: normale Textschriften liegen
+ab 5,6 (Liberation Sans 5,60 · Droid Sans 5,65 · Nimbus Sans 5,78), der Median
+über alle 43 war 6,28.
+
+Warum die Namensliste hier unbedenklich ist, anders als bei den Welt-Schriften:
+`TeX Gyre` und `Latin Modern` heißen auf Windows, macOS und Linux gleich (sie
+kommen aus TeX Live) und sind keine Systemschriften. `Math` bleibt trotzdem
+eine Messung, weil sich der Name je Familie unterscheiden kann.
+
+**Bilanz: 43 → 18.** Übrig: Adwaita Sans, C059, Caladea, Cantarell, Carlito,
+Comfortaa, DejaVu Sans, Droid Sans, Liberation Sans, Michelangelus, Nimbus
+Roman, Nimbus Sans, Noto Sans, Noto Serif, Open Sans, P052, URW Gothic,
+Vazirmatn.

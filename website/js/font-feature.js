@@ -17,19 +17,386 @@ import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistenc
 /** @typedef {import('./settings.js').SettingsManager} SettingsManager */
 
 /**
- * Lokale DIN-5008 Testschriften (eingedampft)
+ * Mitgelieferte DIN-5008-Testschriften (eingedampft, liegen in
+ * `website/fonts/`). Schriften, die nur lokal in `<repo>/fonts/` liegen,
+ * stehen hier bewusst NICHT: sie kommen zur Laufzeit über `/__fonts`
+ * (siehe `ladeLokaleSchriften`) und funktionieren nur im Dev-Server.
  * @type {Record<string, string>}
  */
 export const FONT_PRESETS = {
   default: '',
-  inter: '"Test-Inter", sans-serif',
-  aptos: '"Test-Aptos", sans-serif',
-  michelangelus: '"Test-Michelangelus", serif'
+  /* Fallback bewusst Liberation Sans/Arial: das DACH-Subset hat keine
+     franzoesischen Akzente — "Renée" bekommt so das e mit derselben
+     Konstruktion, nicht aus einer fremden Ersatzschrift. */
+  inter: '"Test-Inter", "Liberation Sans", Arial, sans-serif'
 };
+
+/**
+ * Schriften, die im Brief nichts zu suchen haben: Emoji-, Symbol- und
+ * Icon-Fonts. Die Muster decken Windows (`Segoe UI Emoji`, `Webdings`),
+ * macOS (`Apple Color Emoji`) und Linux (`Noto Color Emoji`, `Unifont`) ab.
+ * Die Liste kommt vom Betriebssystem, deshalb muss sie markenuebergreifend
+ * sein — ein reiner Linux-Filter waere auf dem naechsten Rechner blind.
+ */
+const SYSTEM_FONT_BLACKLIST =
+  /emoji|symbol|dingbat|webding|wingding|marlett|font awesome|material (icon|symbol)|twemoji|unifont|lastresort|notdef/i;
+
+/**
+ * TeX-Schriften. Anders als bei den Welt-Schriften ist eine Namensliste hier
+ * unbedenklich: „TeX Gyre" und „Latin Modern" kommen aus der TeX-Live-
+ * Distribution und heissen auf Windows, macOS und Linux identisch. Sie sind
+ * auch keine Systemschriften — sie tauchen nur auf, wo TeX installiert ist.
+ *
+ * Die Familien selbst sind gute Latein-Schriften (Gyre Heros ist ein
+ * Helvetica-Nachbau), aber fuer einen DIN-Brief braucht sie niemand: es sind
+ * 15 Eintraege, die die Liste nur fuellen.
+ */
+const TEX_SCHRIFT = /^(TeX Gyre|Latin Modern)/i;
+
+/** Monospace-Verdacht am Namen — schneller Vorfilter vor der Messung. */
+const MONO_NAME = /mono|\bcode\b|courier|consol|terminal|fixed|typewriter|iosevka|cursor/i;
+
+/**
+ * Stichproben aus Schriften, die nicht lateinisch sind. Verglichen wird nicht
+ * „enthaelt irgendein Zeichen davon" — das wuerde `Liberation Sans` wegen
+ * seiner hebraeischen Zeichen aussortieren, obwohl es eine Lateinschrift ist.
+ * Verglichen wird die **Dichte**: wie viel Prozent des jeweiligen Zeichen-
+ * bereichs deckt die Datei ab? Wer Thai dichter abdeckt als Latein, ist eine
+ * Thaischrift.
+ */
+const SKRIPTE = [
+  { name: 'Latein', von: 0x0020, bis: 0x024f },
+  { name: 'Latein-Ext', von: 0x1e00, bis: 0x1eff },
+  { name: 'Thai', von: 0x0e00, bis: 0x0e7f },
+  { name: 'Lao', von: 0x0e80, bis: 0x0eff },
+  { name: 'Tibetisch', von: 0x0f00, bis: 0x0fff },
+  { name: 'Myanmar', von: 0x1000, bis: 0x109f },
+  { name: 'Georgisch', von: 0x10a0, bis: 0x10ff },
+  { name: 'Hangul', von: 0xac00, bis: 0xd7a3 },
+  { name: 'Aethiopisch', von: 0x1200, bis: 0x137f },
+  { name: 'Cherokee', von: 0x13a0, bis: 0x13ff },
+  { name: 'Khmer', von: 0x1780, bis: 0x17ff },
+  { name: 'Mongolisch', von: 0x1800, bis: 0x18af },
+  { name: 'Kana', von: 0x3040, bis: 0x30ff },
+  { name: 'CJK', von: 0x4e00, bis: 0x9fff },
+  { name: 'Armenisch', von: 0x0530, bis: 0x058f },
+  { name: 'Hebraeisch', von: 0x0590, bis: 0x05ff },
+  { name: 'Arabisch', von: 0x0600, bis: 0x06ff },
+  { name: 'Syrisch', von: 0x0700, bis: 0x074f },
+  { name: 'Devanagari', von: 0x0900, bis: 0x097f },
+  { name: 'Bengali', von: 0x0980, bis: 0x09ff },
+  { name: 'Gurmukhi', von: 0x0a00, bis: 0x0a7f },
+  { name: 'Gujarati', von: 0x0a80, bis: 0x0aff },
+  { name: 'Oriya', von: 0x0b00, bis: 0x0b7f },
+  { name: 'Tamil', von: 0x0b80, bis: 0x0bff },
+  { name: 'Telugu', von: 0x0c00, bis: 0x0c7f },
+  { name: 'Kannada', von: 0x0c80, bis: 0x0cff },
+  { name: 'Malayalam', von: 0x0d00, bis: 0x0d7f },
+  { name: 'Sinhala', von: 0x0d80, bis: 0x0dff }
+];
+
+/** Bereiche, die als „lateinisch" gelten (Grundalphabet + Ergaenzungen). */
+const LATEIN_BEREICHE = new Set(['Latein', 'Latein-Ext']);
+
+/**
+ * Liest die `cmap`-Tabelle einer Schriftdatei und gibt die belegten
+ * Codepoint-Bereiche zurueck (Format 12: exakte Gruppen, Format 4: Segmente).
+ * @param {ArrayBuffer} puffer
+ * @returns {Array<[number, number]> | null}
+ */
+function leseBereiche(puffer) {
+  try {
+    const dv = new DataView(puffer);
+    const anzahl = dv.getUint16(4);
+    let cmap = -1;
+    for (let i = 0; i < anzahl; i++) {
+      const rec = 12 + i * 16;
+      const tag = String.fromCharCode(dv.getUint8(rec), dv.getUint8(rec + 1), dv.getUint8(rec + 2), dv.getUint8(rec + 3));
+      if (tag === 'cmap') {
+        cmap = dv.getUint32(rec + 8);
+        break;
+      }
+    }
+    if (cmap < 0) return null;
+
+    const untertabellen = dv.getUint16(cmap + 2);
+    let format12 = -1;
+    let format4 = -1;
+    for (let i = 0; i < untertabellen; i++) {
+      const rec = cmap + 4 + i * 8;
+      const plattform = dv.getUint16(rec);
+      const kodierung = dv.getUint16(rec + 2);
+      const offset = cmap + dv.getUint32(rec + 4);
+      const format = dv.getUint16(offset);
+      if (format === 12 && (plattform === 0 || plattform === 3)) format12 = offset;
+      else if (format === 4 && (plattform === 0 || (plattform === 3 && kodierung <= 1))) format4 = offset;
+    }
+
+    if (format12 >= 0) {
+      const gruppen = dv.getUint32(format12 + 12);
+      /** @type {Array<[number, number]>} */
+      const bereiche = [];
+      for (let g = 0; g < gruppen; g++) {
+        const o = format12 + 16 + g * 12;
+        bereiche.push([dv.getUint32(o), dv.getUint32(o + 4)]);
+      }
+      return bereiche;
+    }
+
+    if (format4 >= 0) {
+      const segmente = dv.getUint16(format4 + 6) / 2;
+      const endBasis = format4 + 14;
+      const startBasis = endBasis + segmente * 2 + 2;
+      /** @type {Array<[number, number]>} */
+      const bereiche = [];
+      for (let s = 0; s < segmente; s++) {
+        const von = dv.getUint16(startBasis + s * 2);
+        const bis = dv.getUint16(endBasis + s * 2);
+        if (bis > von) bereiche.push([von, bis]);
+      }
+      return bereiche;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Wie viel Prozent eines Codepoint-Bereichs deckt die Schrift ab?
+ * @param {Array<[number, number]>} bereiche
+ * @param {number} von
+ * @param {number} bis
+ * @returns {number} 0 bis 1
+ */
+function deckungsDichte(bereiche, von, bis) {
+  let treffer = 0;
+  for (const [a, b] of bereiche) {
+    const start = Math.max(a, von);
+    const ende = Math.min(b, bis);
+    if (ende >= start) treffer += ende - start + 1;
+  }
+  return treffer / (bis - von + 1);
+}
+
+/**
+ * Formelsatz erkennen: Schriften mit dem Block „Mathematical Alphanumeric
+ * Symbols" (U+1D400–1D7FF) sind fuer Mathematik gebaut. Gemessen 2026-11-23:
+ * Latin Modern Math 945 Zeichen, STIX 996, TeX Gyre … Math je 994 —
+ * waehrend echte Textschriften dort fast nichts haben (DejaVu Sans 117).
+ * @param {Array<[number, number]>} bereiche
+ * @returns {boolean}
+ */
+function istFormelsatz(bereiche) {
+  let treffer = 0;
+  for (const [a, b] of bereiche) {
+    const start = Math.max(a, 0x1d400);
+    const ende = Math.min(b, 0x1d7ff);
+    if (ende >= start) treffer += ende - start + 1;
+  }
+  return treffer > 500;
+}
+
+/**
+ * Schmalschnitt erkennen: Breite eines Wortes im Verhaeltnis zur x-Hoehe.
+ * Gemessen 2026-11-23: Liberation Sans Narrow 4,59 · Nimbus Sans Narrow 4,75 ·
+ * TeX Gyre Heros Cn 4,76 — normale Textschriften liegen ab 5,6.
+ * Der Bezug auf die x-Hoehe macht den Wert unabhaengig von der Schriftgroesse.
+ * @param {string} family
+ * @returns {boolean}
+ */
+function istSchmal(family) {
+  try {
+    if (!messKontext) messKontext = document.createElement('canvas').getContext('2d');
+    if (!messKontext) return false;
+    messKontext.font = `40px ${JSON.stringify(family)}`;
+    const breite = messKontext.measureText('Hamburgefonstiv').width;
+    messKontext.font = `100px ${JSON.stringify(family)}`;
+    const hoehe = messKontext.measureText('x').actualBoundingBoxAscent;
+    if (!(hoehe > 0)) return false;
+    return breite / hoehe < 5;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Kernzeichen des DACH-Raums: ae, oe, ue, sz. Wer die nicht hat, kann keinen
+ * deutschen Brief setzen — egal wie gut das Latein sonst aussieht. Geprueft
+ * wird die cmap, nicht die Breite: der Breitentest meldete `C059` faelschlich
+ * „ohne o-Umlaut" (2026-11-23).
+ *
+ * `ẞ` (U+1E9E) wird bewusst NICHT verlangt: 29 von 43 Familien haben es nicht,
+ * und in einem normalen Brief kommt es nicht vor.
+ * @param {Array<[number, number]>} bereiche
+ * @returns {boolean}
+ */
+function hatDachKern(bereiche) {
+  return [0x00e4, 0x00f6, 0x00fc, 0x00df].every((cp) => bereiche.some(([a, b]) => cp >= a && cp <= b));
+}
+
+/**
+ * Ist die Schrift fuer ein anderes Schriftsystem gebaut als fuer Latein?
+ * Massstab ist die Dichte im jeweiligen Zeichenbereich, nicht das blosse
+ * Vorhandensein: `Liberation Sans` enthaelt hebraeische Zeichen, deckt Latein
+ * aber deutlich dichter ab (gemessen 2026-11-23) — es bleibt eine Lateinschrift.
+ * @param {Array<[number, number]>} bereiche
+ * @returns {boolean}
+ */
+function istFremdschrift(bereiche) {
+  let latein = 0;
+  let fremd = 0;
+  for (const skript of SKRIPTE) {
+    const dichte = deckungsDichte(bereiche, skript.von, skript.bis);
+    if (LATEIN_BEREICHE.has(skript.name)) latein = Math.max(latein, dichte);
+    else fremd = Math.max(fremd, dichte);
+  }
+  return fremd > latein;
+}
+
+/**
+ * Numerisches Gewicht aus dem Schnitt-Namen — dieselbe Zuordnung, die auch
+ * Boxy SVG im Chrome-Beispiel nutzt. `queryLocalFonts()` liefert nur Text.
+ * @param {string} [stil]
+ * @returns {number} 100 bis 900
+ */
+function gewichtAusStil(stil) {
+  const s = String(stil || '').toLowerCase();
+  if (/thin|hairline/.test(s)) return 100;
+  if (/extralight|ultralight/.test(s)) return 200;
+  if (/light/.test(s)) return 300;
+  if (/semi\s*bold|demibold|demi/.test(s)) return 600;
+  if (/extrabold|ultrabold/.test(s)) return 800;
+  if (/black|heavy/.test(s)) return 900;
+  if (/bold|fett/.test(s)) return 700;
+  if (/medium/.test(s)) return 500;
+  return 400;
+}
+
+/**
+ * Wie „normal" ist ein Schriftschnitt? 0 = Regular, hoeher = ungeeigneter.
+ * `queryLocalFonts()` liefert alle Schnitte einer Familie, oft mit Bold oder
+ * Bold Italic zuerst — ohne diese Sortierung landet die fette Kursive im Brief.
+ * @param {string} [stil]
+ * @returns {number}
+ */
+function schnittRang(stil) {
+  const s = String(stil || '').toLowerCase();
+  /* Manche Familien nummerieren ihre Schnitte: „10 Regular", „8 Bold".
+     Deshalb auf Wortgrenzen pruefen, nicht auf den ganzen String. */
+  const kursiv = /italic|oblique|kursiv|slanted/.test(s);
+  const normal = /\b(regular|normal|book|roman|mittel|standard)\b/.test(s);
+  if (normal && !kursiv) return 0;
+  if (kursiv) return 4;
+  if (/bold|fett|black|heavy/.test(s)) return 3;
+  if (/light|thin|hairline|extralight|demi|semi|medium/.test(s)) return 2;
+  return 1;
+}
+
+/** @type {CanvasRenderingContext2D | null} */
+let messKontext = null;
+
+/**
+ * Misst, ob eine Familie dicktengleich setzt. Namenslisten sind unvollstaendig:
+ * „Hack" oder „TeX Gyre Cursor" heissen nicht „Mono". Messen funktioniert auf
+ * jedem Betriebssystem, weil `queryLocalFonts()` keine Metadaten mitliefert.
+ * @param {string} family
+ * @returns {boolean}
+ */
+function istMonospace(family) {
+  try {
+    if (!messKontext) messKontext = document.createElement('canvas').getContext('2d');
+    if (!messKontext) return false;
+    messKontext.font = `40px ${JSON.stringify(family)}`;
+    const i = messKontext.measureText('iiii').width;
+    const m = messKontext.measureText('MMMM').width;
+    if (!(i > 0) || !(m > 0)) return false;
+    return Math.abs(i - m) < 0.01 * Math.max(i, m);
+  } catch {
+    return false;
+  }
+}
+
+/** @type {{ latein: number, x: number } | null} */
+let ersatzBreiten = null;
+
+/**
+ * Kann die Familie lateinische Buchstaben setzen? Gemessen, nicht geraten:
+ * `queryLocalFonts()` liefert nur Namen. Verglichen wird mit einer garantiert
+ * fehlenden Familie — fehlt ein Zeichen, liefert der Browser fuer beide
+ * denselben Ersatz, dann sind die Breiten gleich.
+ *
+ * Warum das zaehlt: `font-size-adjust` nimmt die x-Hoehe der ERSTEN Schrift im
+ * Stack. Hat die keine lateinischen Glyphen, wird der Ersatztext passend zu
+ * einer arabischen/thailaendischen Metrik skaliert — gemessen 2026-11-23:
+ * Droid Arabic Kufi, 13 statt 17 Zeilen bei gleicher Breite. Solche Schriften
+ * koennen einen deutschen Brief nicht setzen und gehoeren nicht in die Liste.
+ * @param {string} family
+ * @returns {boolean}
+ */
+function hatLateinischeBuchstaben(family) {
+  try {
+    if (!messKontext) messKontext = document.createElement('canvas').getContext('2d');
+    if (!messKontext) return true;
+    if (!ersatzBreiten) {
+      messKontext.font = '40px "__din_brief_gibt_es_nicht__"';
+      ersatzBreiten = {
+        latein: messKontext.measureText('Hamburgefonstiv').width,
+        x: messKontext.measureText('x').width
+      };
+    }
+    messKontext.font = `40px ${JSON.stringify(family)}`;
+    const latein = messKontext.measureText('Hamburgefonstiv').width;
+    const x = messKontext.measureText('x').width;
+    /* Beide muessen abweichen, sonst ist es Zufall: eine Schrift mit echtem
+       Latin trifft nie den Ersatz in beiden Zeichenfolgen exakt. */
+    return Math.abs(latein - ersatzBreiten.latein) > 0.5 || Math.abs(x - ersatzBreiten.x) > 0.2;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Sieht die Schrift aus wie Text? Faengt Schriften, die a–z haben, die Zeichen
+ * aber als Bildchen zeichnen. Webdings/Wingdings deckt die Namensliste ab,
+ * `D050000L` (URW Dingbats) nicht — der Name sagt nichts.
+ *
+ * Ein Textfont hat drei Merkmale, ein Symbolfont keins davon:
+ * - Grossbuchstabe deutlich hoeher als Kleinbuchstabe (H/x rund 1,3)
+ * - `W` deutlich breiter als `i` (rund 4:1)
+ * - Unterlaenge bei `p` (> 0)
+ *
+ * Gemessen 2026-11-23 an 82 Familien: genau `D050000L` faellt durch
+ * (1,01 / 1,1 / 0), waehrend Liberation (1,28 / 4,2 / 21) und Carlito
+ * (1,35 / 3,9 / 17) klar bestehen.
+ * @param {string} family
+ * @returns {boolean}
+ */
+function siehtAusWieText(family) {
+  try {
+    if (!messKontext) messKontext = document.createElement('canvas').getContext('2d');
+    if (!messKontext) return true;
+    messKontext.font = `100px ${JSON.stringify(family)}`;
+    const schmal = messKontext.measureText('i').width;
+    const breit = messKontext.measureText('W').width;
+    const hochGross = messKontext.measureText('H').actualBoundingBoxAscent;
+    const hochKlein = messKontext.measureText('x').actualBoundingBoxAscent;
+    const unterlaenge = messKontext.measureText('p').actualBoundingBoxDescent;
+    if (!(schmal > 0) || !(hochKlein > 0)) return false;
+    return hochGross / hochKlein >= 1.15 && breit / schmal >= 2 && unterlaenge > 0;
+  } catch {
+    return true;
+  }
+}
 
 export class FontFeature {
   /** @type {SettingsManager | null} */
   #settingsManager;
+
+  /** Entprellung fuer die Pfeiltasten-Vorschau (siehe #vorschau). */
+  #vorschauTimer = 0;
+  /** Zaehler, damit eine spaete Anfrage die neuere nicht ueberschreibt. */
+  #vorschauToken = 0;
 
   /**
    * @param {SettingsManager | { settings: any, updateSettings?: () => void } | null} [settingsManager]
@@ -46,8 +413,30 @@ export class FontFeature {
 
     /** Installierte Familien aus der Local Font Access API: Name -> FontData. */
     this.systemFonts = new Map();
+    /** Familien, die einen normalen Schnitt haben (Regular/Normal/Book/Roman). */
+    this.systemFamilienMitNormal = new Set();
+    /** Familien, deren Datei Zeichen fremder Schriftsysteme mitbringt. */
+    this.systemFremdSchrift = new Set();
+    /** Familien ohne die DACH-Kernzeichen (ae oe ue sz). */
+    this.systemOhneDach = new Set();
+    /** Familien mit Formelsatz-Zeichen (U+1D400–1D7FF). */
+    this.systemFormelsatz = new Set();
+    /** Alle Schnitte je Familie (Regular, Bold, Italic …). */
+    this.systemAlle = new Map();
+    /** @type {FontFace[]} */
+    this.activeSystemFaces = [];
+
+    /** Lokale Testschriften aus `<repo>/fonts/`: Dateiname -> Familie. */
+    this.lokaleSchriften = new Map();
     /** @type {FontFace | null} */
-    this.activeSystemFace = null;
+    this.activeLokalFace = null;
+
+    /** Suchfeld ueber der Auswahl (filtert nur die Systemschriften). */
+    this.filterFeld = /** @type {HTMLInputElement | null} */ (document.getElementById('schrift-filter'));
+    /** @type {HTMLOptGroupElement | null} */
+    this.systemGruppe = null;
+    /** @type {string[]} */
+    this.systemSchriften = [];
 
     /** @type {FontFace | null} */
     this.activeFontFace = null;
@@ -61,6 +450,7 @@ export class FontFeature {
     this.attachListeners();
     this.initFontInjection();
     this.#initSystemFonts();
+    void this.ladeLokaleSchriften();
     this.isReady = true;
   }
 
@@ -102,9 +492,35 @@ export class FontFeature {
     try {
       const fonts = await api();
       this.systemFonts.clear();
+      this.systemAlle.clear();
+      this.systemFamilienMitNormal = new Set();
       for (const font of fonts) {
-        if (!this.systemFonts.has(font.family)) this.systemFonts.set(font.family, font);
+        /* `queryLocalFonts()` liefert ALLE Schnitte einer Familie, und zwar
+           nicht in sinnvoller Reihenfolge: bei C059 steht „Bold Italic" vorn
+           (gemessen 2026-11-23: 101 von 166 Familien haben keinen Regular als
+           ersten Eintrag). Wer nur den ersten nimmt, laedt fette Kursive —
+           genau der Befund „C059 sieht komisch fett aus". Also den Rang
+           vergleichen und den normalsten Schnitt behalten. */
+        const rang = schnittRang(font.style);
+        const bisher = this.systemAlle.get(font.family) || [];
+        bisher.push(font);
+        this.systemAlle.set(font.family, bisher);
+        const vorhanden = this.systemFonts.get(font.family);
+        if (!vorhanden || rang < schnittRang(vorhanden.style)) {
+          this.systemFonts.set(font.family, font);
+        }
+        /* Familien ohne normalen Schnitt (nur Thin, nur Demi, nur kursiv) sind
+           fuer einen Brief unbrauchbar — sie kommen gar nicht erst in die
+           Auswahl. */
+        if (rang === 0) this.systemFamilienMitNormal.add(font.family);
       }
+      /* Welt-Schriften aussortieren: ihre Datei bringt Zeichen fremder
+         Schriftsysteme mit. Das steht exakt in der `cmap` — kein Raten, keine
+         Namensliste, funktioniert auf Windows und macOS genauso. */
+      this.systemFremdSchrift = new Set();
+      this.systemOhneDach = new Set();
+      this.systemFormelsatz = new Set();
+      await this.#ermittleSchriftEigenschaften();
       this.#baueSystemOptionen();
     } catch (e) {
       console.warn('[FontFeature] Systemschriften nicht verfügbar:', e);
@@ -113,48 +529,265 @@ export class FontFeature {
     }
   }
 
+  /**
+   * Liest fuer jede Familie die Schriftdatei einmal und bestimmt daraus zwei
+   * Dinge: deckt sie ein fremdes Schriftsystem ab, und hat sie die
+   * DACH-Kernzeichen. Ein Lesefehler zaehlt als unauffaellig — lieber eine
+   * Schrift zu viel in der Liste als eine zu wenig.
+   */
+  async #ermittleSchriftEigenschaften() {
+    await Promise.all(
+      [...this.systemFonts.entries()].map(async ([familie, daten]) => {
+        try {
+          const bereiche = leseBereiche(await (await daten.blob()).arrayBuffer());
+          if (!bereiche) return;
+          if (istFremdschrift(bereiche)) this.systemFremdSchrift.add(familie);
+          if (!hatDachKern(bereiche)) this.systemOhneDach.add(familie);
+          if (istFormelsatz(bereiche)) this.systemFormelsatz.add(familie);
+        } catch {
+          /* Datei nicht lesbar: nicht aussortieren. */
+        }
+      })
+    );
+  }
+
   #baueSystemOptionen() {
     if (!this.selectFont) return;
     const alt = this.selectFont.querySelector('optgroup[data-systemschriften]');
     if (alt) alt.remove();
+
+    /* Vor dem Aufbau filtern, in dieser Reihenfolge:
+       1. Emoji/Symbol/Icons raus (Namensmuster, deckt Windows/macOS/Linux ab)
+       2. Monospace raus (gemessen — „Hack" und „TeX Gyre Cursor" heissen
+          nicht „Mono", sind es aber)
+       3. Schriften ohne lateinische Buchstaben raus (gemessen — sie koennen
+          einen deutschen Brief nicht setzen und verfaelschen font-size-adjust)
+       4. Schriften, die keine Buchstaben zeichnen, sondern Bildchen
+          (gemessen — Dingbats mit a–z-Belegung wie D050000L) */
+    this.systemSchriften = [...this.systemFonts.keys()]
+      .filter((familie) => !SYSTEM_FONT_BLACKLIST.test(familie))
+      .filter((familie) => !MONO_NAME.test(familie))
+      .filter((familie) => !istMonospace(familie))
+      .filter((familie) => hatLateinischeBuchstaben(familie))
+      .filter((familie) => siehtAusWieText(familie))
+      .filter((familie) => this.systemFamilienMitNormal.has(familie))
+      .filter((familie) => !this.systemFremdSchrift.has(familie))
+      .filter((familie) => !this.systemOhneDach.has(familie))
+      .filter((familie) => !this.systemFormelsatz.has(familie))
+      .filter((familie) => !istSchmal(familie))
+      .filter((familie) => !TEX_SCHRIFT.test(familie))
+      .sort((a, b) => a.localeCompare(b, 'de'));
+
     const gruppe = document.createElement('optgroup');
     gruppe.setAttribute('data-systemschriften', '');
-    gruppe.label = 'Systemschriften (lokal)';
-    for (const family of [...this.systemFonts.keys()].sort((a, b) => a.localeCompare(b, 'de'))) {
+    this.systemGruppe = gruppe;
+    this.selectFont.append(gruppe);
+
+    if (this.filterFeld) {
+      this.filterFeld.hidden = this.systemSchriften.length === 0;
+      this.filterFeld.value = '';
+    }
+    this.#filtereSystemschriften();
+  }
+
+  /**
+   * Filtert die gebaute Liste auf die Sucheingabe. Die Optionen werden neu
+   * geschrieben statt einzelne `hidden` zu setzen — Zuverlaessigkeit vor
+   * Sparsamkeit: ein `hidden` auf `<option>` wird je nach Chrome-Version
+   * unterschiedlich ernst genommen.
+   */
+  #filtereSystemschriften() {
+    const gruppe = this.systemGruppe;
+    if (!gruppe) return;
+    const suche = (this.filterFeld?.value || '').trim().toLowerCase();
+    const treffer = suche ? this.systemSchriften.filter((f) => f.toLowerCase().includes(suche)) : this.systemSchriften;
+
+    gruppe.replaceChildren();
+    for (const familie of treffer) {
       const option = document.createElement('option');
-      option.value = `sys:${family}`;
-      option.textContent = family;
+      option.value = `sys:${familie}`;
+      option.textContent = familie;
       gruppe.append(option);
     }
-    this.selectFont.append(gruppe);
+    gruppe.label = suche
+      ? `Systemschriften (${treffer.length} von ${this.systemSchriften.length})`
+      : `Systemschriften (${this.systemSchriften.length})`;
+
+    /* Eine bereits gewaehlte Systemschrift soll die Suche ueberleben. */
+    const gewaehlt = this.settings.previewFont;
+    if (typeof gewaehlt === 'string' && gewaehlt.startsWith('sys:') && treffer.includes(gewaehlt.slice(4)) && this.selectFont) {
+      this.selectFont.value = gewaehlt;
+    }
   }
 
   /**
    * Laedt eine installierte Familie als `FontFace` und setzt sie als
    * Briefschrift. Der Wert kommt als `sys:<Familie>` aus der Auswahlliste.
+   *
+   * Geladen werden hoechstens zwei Schnitte: 400 und 700, normale Breite, nicht
+   * kursiv. Ohne ein echtes 700-Face setzt der Browser die Fettschrift aus dem
+   * Regular zusammen („faux bold") — breiiger und zu breit, im Druck sichtbar.
+   * Alle Schnitte zu laden waere zu teuer: `Noto Sans` hat hier 72 Dateien mit
+   * 44,7 MB (gemessen 2026-11-23), Carlito 4 Dateien mit 2,7 MB.
    * @param {string} family
    */
   async #applySystemFont(family) {
-    const daten = this.systemFonts.get(family);
-    if (!daten) return;
-    if (this.activeSystemFace && typeof document.fonts !== 'undefined') {
-      document.fonts.delete(this.activeSystemFace);
-      this.activeSystemFace = null;
+    const ersatz = this.systemFonts.get(family);
+    if (!ersatz) return;
+    this.#entladeSystemFaces();
+
+    /** @type {Map<number, any>} */
+    const gewaehlt = new Map();
+    /** @type {Array<{ daten: any, gewicht: number }>} */
+    const kandidaten = [];
+    for (const daten of this.systemAlle.get(family) || [ersatz]) {
+      const stil = String(daten.style || '');
+      /* Breitenvarianten ueberspringen: “Condensed”, “Narrow”, “Expanded” sind
+         eigene Familien. Kursiv ebenfalls — der Brief setzt kein Kursiv. */
+      if (/condensed|narrow|expanded|wide/i.test(stil)) continue;
+      if (/italic|oblique|slanted|kursiv/i.test(stil)) continue;
+      kandidaten.push({ daten, gewicht: gewichtAusStil(stil) });
+    }
+    /**
+     * Naechstgelegener Schnitt zu einem Zielgewicht.
+     * @type {(ziel: number, minimum: number) => { daten: any, gewicht: number } | undefined}
+     */
+    const naechster = (ziel, minimum) =>
+      kandidaten
+        .filter((k) => k.gewicht >= minimum)
+        .sort((a, b) => Math.abs(a.gewicht - ziel) - Math.abs(b.gewicht - ziel))[0];
+    const normal = naechster(400, 0);
+    if (normal) gewaehlt.set(400, normal.daten);
+    /* Fuer die Fettschrift reicht auch ein Demi/SemiBold (600): besser als die
+       synthetische Verdickung, die der Browser sonst aus dem Regular baut.
+       Gemessen 2026-11-23: 12 von 43 Familien haben kein echtes 700. */
+    const fett = naechster(700, 500);
+    if (fett && fett.daten !== normal?.daten) gewaehlt.set(700, fett.daten);
+    if (gewaehlt.size === 0) gewaehlt.set(400, ersatz);
+
+    const faces = [];
+    for (const [gewicht, daten] of gewaehlt) {
+      try {
+        const face = new FontFace(family, await (await daten.blob()).arrayBuffer(), {
+          weight: String(gewicht),
+          style: 'normal'
+        });
+        await face.load();
+        document.fonts.add(face);
+        faces.push(face);
+      } catch (e) {
+        console.warn(`[FontFeature] Schnitt ${gewicht} nicht ladbar:`, e);
+      }
+    }
+    if (faces.length === 0) {
+      notify(Constants.TOASTS.FONT.FORMAT_ERROR, 'error');
+      return;
+    }
+    this.activeSystemFaces = faces;
+    document.documentElement.style.setProperty(
+      '--active-font-family',
+      `"${family}", var(--font-brief-stack)`,
+    );
+  }
+
+  /** Entfernt die zuletzt geladenen Systemschrift-Schnitte. */
+  #entladeSystemFaces() {
+    for (const face of this.activeSystemFaces) {
+      document.fonts.delete(face);
+    }
+    this.activeSystemFaces = [];
+  }
+
+  /* --- Lokale Testschriften (Ordner <repo>/fonts/) ------------------------
+   * `fonts/` ist komplett gitignoriert, also dürfen dort Schriften liegen, die
+   * nicht ins Repo gehören (Lizenz, eigene Tests). Der Ordner ist die Wahrheit:
+   * der Dev-Server listet ihn unter `/__fonts`, die App baut daraus die Auswahl.
+   * In Produktion gibt es den Endpunkt nicht (404) — dann fehlt die Gruppe und
+   * es wird keine Datei angefordert, die dort gar nicht liegt. Kein Fehler. */
+  async ladeLokaleSchriften() {
+    let liste = null;
+    try {
+      const antwort = await fetch('/__fonts', { cache: 'no-store' });
+      if (antwort.ok) liste = await antwort.json();
+    } catch {
+      liste = null;
+    }
+    const vorhanden = Array.isArray(liste)
+      ? liste.filter((eintrag) => eintrag && typeof eintrag.datei === 'string')
+      : [];
+
+    if (this.selectFont && vorhanden.length > 0 && !this.selectFont.querySelector('optgroup[data-lokal]')) {
+      const gruppe = document.createElement('optgroup');
+      gruppe.setAttribute('data-lokal', '');
+      gruppe.label = `Nur lokal (fonts/, ${vorhanden.length})`;
+      for (const eintrag of vorhanden) {
+        this.lokaleSchriften.set(eintrag.datei, eintrag.familie || `Lokal-${eintrag.datei}`);
+        const option = document.createElement('option');
+        option.value = `lokal:${eintrag.datei}`;
+        option.textContent = eintrag.name || eintrag.datei;
+        gruppe.append(option);
+      }
+      this.selectFont.append(gruppe);
+    }
+
+    const gespeichert = this.settings.previewFont;
+    if (typeof gespeichert === 'string' && gespeichert.startsWith('lokal:')) {
+      if (vorhanden.length > 0) {
+        this.applyFontPreset(gespeichert);
+      } else {
+        /* Die Datei ist weg (anderer Rechner, oder der lokale Ordner fehlt).
+           Ehrlich zurueck auf Standard statt still auf eine fremde Schrift. */
+        this.settings.previewFont = 'default';
+        if (this.selectFont) this.selectFont.value = 'default';
+        this.#applyPresetCss('default');
+        this.#saveSettings();
+      }
+    }
+  }
+
+  /**
+   * Laedt eine Datei aus `<repo>/fonts/` als FontFace. Der Pfad `/fonts/...`
+   * zeigt im Dev-Server auf das Repo-Wurzelverzeichnis — derselbe Ursprung
+   * wie `/__fonts`.
+   * @param {string} datei
+   */
+  async #applyLokaleFont(datei) {
+    const familie = this.lokaleSchriften.get(datei);
+    if (!familie) return;
+    if (this.activeLokalFace) {
+      document.fonts.delete(this.activeLokalFace);
+      this.activeLokalFace = null;
     }
     try {
-      const blob = await daten.blob();
-      const face = new FontFace(family, await blob.arrayBuffer());
+      const face = new FontFace(familie, `url(/fonts/${encodeURIComponent(datei)})`);
       await face.load();
       document.fonts.add(face);
-      this.activeSystemFace = face;
+      this.activeLokalFace = face;
       document.documentElement.style.setProperty(
         '--active-font-family',
-        `"${family}", var(--font-system-stack)`,
+        `"${familie}", var(--font-brief-stack)`,
       );
     } catch (e) {
-      console.warn('[FontFeature] Systemschrift nicht ladbar:', e);
+      console.warn('[FontFeature] lokale Schrift nicht ladbar:', e);
       notify(Constants.TOASTS.FONT.FORMAT_ERROR, 'error');
     }
+  }
+
+  /**
+   * Entprellte Vorschau fuer die Pfeiltasten. Haelt jemand die Taste, wird
+   * nicht fuer jede Stufe eine Datei geladen, sondern erst 120 ms nach dem
+   * Stehenbleiben; eine neuere Anfrage macht die aeltere wertlos (Token).
+   * @param {string} val
+   * @param {boolean} speichern
+   */
+  #vorschau(val, speichern) {
+    const token = ++this.#vorschauToken;
+    if (this.#vorschauTimer) clearTimeout(this.#vorschauTimer);
+    this.#vorschauTimer = setTimeout(() => {
+      this.#vorschauTimer = 0;
+      if (token !== this.#vorschauToken) return;
+      this.applyFontPreset(val, { speichern });
+    }, 120);
   }
 
   applyInitialFont() {
@@ -162,8 +795,12 @@ export class FontFeature {
     /* Eine Systemschrift ueberlebt den Reload nicht: die Liste entsteht erst
        auf Klick (Berechtigung). Bliebe der Wert stehen, zeigte die Auswahl
        leer und der Brief still die Standardschrift — dann lieber gleich
-       zurueck auf `default`, sichtbar und ehrlich. */
-    const waehlbar = gespeichert in FONT_PRESETS || gespeichert === 'default';
+       zurueck auf `default`, sichtbar und ehrlich.
+       Lokale Schriften aus `fonts/` werden dagegen geladen: ihre Liste kommt
+       vom Dev-Server (siehe ladeLokaleSchriften) und ist beim naechsten Start
+       wieder da. Fehlt sie trotzdem, raeumt ladeLokaleSchriften den Wert auf. */
+    const istLokal = typeof gespeichert === 'string' && gespeichert.startsWith('lokal:');
+    const waehlbar = gespeichert in FONT_PRESETS || gespeichert === 'default' || istLokal;
     const activePreset = waehlbar ? gespeichert : 'default';
     if (!waehlbar) {
       this.settings.previewFont = 'default';
@@ -207,13 +844,14 @@ export class FontFeature {
      * Schrift ist optional, und ein Toast bei jedem Oeffnen (z. B. blockierte
      * IndexedDB durch einen anderen Tab) waere Laerm ohne Handlungsoption.
      * Speichern ist die andere Richtung: dort ist der Toast Pflicht. */
-    loadBlob('font').then((blob) => {
+    void (async () => {
+      const blob = await loadBlob('font');
       if (blob) {
         this.injectFont(blob);
       } else {
         this.updateFontStatusUI(false);
       }
-    });
+    })();
   }
 
   /**
@@ -284,30 +922,50 @@ export class FontFeature {
   }
 
   /**
-   * Schaltet zwischen lokalen Test-Schriftarten (Inter, Aptos, Michelangelus)
-   * und dem Standard-System-Stack um.
+   * Schaltet die Briefschrift um.
+   *
+   * Drei Sorten Wert:
+   * - `default` / ein Key aus FONT_PRESETS → mitgelieferte Schrift (CSS-Variable)
+   * - `sys:<Familie>` → installierte Systemschrift, als FontFace geladen
+   * - `lokal:<Datei>` → Schrift aus `<repo>/fonts/`, ebenfalls als FontFace
+   *
    * @param {string} val
+   * @param {{ speichern?: boolean }} [optionen] `speichern: false` fuer die
+   *   Vorschau beim Durchblaettern — dann bleibt localStorage unberuehrt.
    */
-  applyFontPreset(val) {
-    /* Systemschriften laufen an den Presets vorbei: `sys:<Familie>` wird als
-       FontFace geladen, nicht als fester Stack. */
+  applyFontPreset(val, { speichern = true } = {}) {
     if (typeof val === 'string' && val.startsWith('sys:')) {
-      const family = val.slice(4);
-      this.settings.previewFont = val;
-      void this.#applySystemFont(family);
-      this.#saveSettings();
+      if (speichern) {
+        this.settings.previewFont = val;
+        this.#saveSettings();
+      }
+      void this.#applySystemFont(val.slice(4));
+      return;
+    }
+    if (typeof val === 'string' && val.startsWith('lokal:')) {
+      this.#entladeSystemFaces();
+      if (speichern) {
+        this.settings.previewFont = val;
+        this.#saveSettings();
+      }
+      void this.#applyLokaleFont(val.slice(6));
       return;
     }
     const choice = val in FONT_PRESETS ? val : 'default';
-    this.settings.previewFont = choice;
-    if (this.selectFont) {
-      this.selectFont.value = choice;
+    /* Beim Wechsel weg von einer Systemschrift deren FontFaces abmelden —
+       sonst bleiben sie fuer die Seitenlebensdauer in `document.fonts`. */
+    this.#entladeSystemFaces();
+    if (speichern) {
+      this.settings.previewFont = choice;
+      if (this.selectFont) {
+        this.selectFont.value = choice;
+      }
+      this.#saveSettings();
     }
 
     if (!this.activeFontFace) {
       this.#applyPresetCss(choice);
     }
-    this.#saveSettings();
   }
 
   resetFont() {
@@ -332,9 +990,65 @@ export class FontFeature {
 
   attachListeners() {
     if (this.selectFont) {
-      this.selectFont.addEventListener('change', (e) => {
-        const val = /** @type {HTMLSelectElement} */ (e.target).value;
-        this.applyFontPreset(val);
+      /* `change` kommt beim Bestaetigen, `input` schon bei jeder Pfeiltaste im
+         offenen Dropdown. Beides abhoeren: so laesst sich die Liste mit den
+         Pfeiltasten durchblaettern, waehrend der Brief rechts live wechselt.
+         Gespeichert wird nur beim `change` — Blaettern ist kein Entschluss. */
+      for (const ereignis of ['input', 'change']) {
+        this.selectFont.addEventListener(ereignis, (e) => {
+          const val = /** @type {HTMLSelectElement} */ (e.target).value;
+          this.#vorschau(val, ereignis === 'change');
+        });
+      }
+
+      /* Pfeiltasten bei GESCHLOSSENER Liste. Chrome rendert das Select seit
+         2025 mit `appearance: base-select`; dort bewegen ArrowUp/ArrowDown
+         den Wert nicht mehr, sondern nur den Seitenlauf (gemessen 2026-11-23:
+         Tastendruck kommt an, `change` bleibt aus). Deshalb selbst schritt-
+         weise weitergehen — die Vorschau haengt am `change`, das wir ausloesen. */
+      this.selectFont.addEventListener('keydown', (e) => {
+        if (!this.selectFont) return;
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
+        const anzahl = this.selectFont.options.length;
+        if (anzahl === 0) return;
+        const jetzt = Math.max(0, this.selectFont.selectedIndex);
+        let ziel = jetzt;
+        switch (e.key) {
+          case 'ArrowDown':
+            ziel = Math.min(anzahl - 1, jetzt + 1);
+            break;
+          case 'ArrowUp':
+            ziel = Math.max(0, jetzt - 1);
+            break;
+          case 'PageDown':
+            ziel = Math.min(anzahl - 1, jetzt + 10);
+            break;
+          case 'PageUp':
+            ziel = Math.max(0, jetzt - 10);
+            break;
+          case 'Home':
+            ziel = 0;
+            break;
+          case 'End':
+            ziel = anzahl - 1;
+            break;
+          default:
+            return;
+        }
+        e.preventDefault();
+        if (ziel === jetzt) return;
+        this.selectFont.selectedIndex = ziel;
+        /* `change` von Hand: die Statuszeile der Einstellungen haengt daran,
+           und der Listener oben zieht die Vorschau entprellt nach. */
+        this.selectFont.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+
+    if (this.filterFeld) {
+      let timer = 0;
+      this.filterFeld.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => this.#filtereSystemschriften(), 80);
       });
     }
 

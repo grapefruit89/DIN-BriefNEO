@@ -40,7 +40,6 @@ Code; dann diesen Wegweiser korrigieren.
 |---|---|---|---|
 | Paste, Caret, Zeilenlimit, `contenteditable` | `website/js/document.js`, `website/css/sheet-common.css` | `--filter=DraftManager` | beide |
 | Adress-Autocomplete, PLZ, Großkunden | `website/js/address.js`, `website/js/address-data.js` | `--filter="PLZ|Address"` | beide |
-| Zwischenablage-Parsing | `website/js/clipboard-parser.js` | `--filter=Clipboard` | test-runner |
 | Persistenz, Export/Import, Undo | `website/js/persistence.js`, `website/js/draft-manager.js`, `website/js/binary-storage.js` | `--filter="DraftManager|Import/Export|51-storage"` | beide |
 | Form A/B, Mehrseiten, Umbruch | `website/css/sheet.css`, `website/css/sheet-multipage.css`, `website/js/multipage-controller.js`, `website/js/settings.js` | `--filter="Layout|Scrollbars"` (nur indirekt) | beide |
 | Druck-/Layout-Bug (visuell) | `docs/css/ADR-MESS-SCHLEIFE.md`, `website/css/sheet-multipage.css`, `tools/print-messung.mjs` | `--filter=Druck`, `node tools/print-messung.mjs --saetze 42` | test-runner |
@@ -118,9 +117,15 @@ website/js/persistence.js        localStorage, DIN-Letter-Schema, Metadaten, Exp
 website/js/draft-manager.js      Autosave, Undo/Redo, Mehr-Tab-Sync, Reset
 website/js/address.js            UI-Fassade für Adressen: Vorschlagsliste, Tastatur, Geoapify
 website/js/address-data.js       100 % DOM-frei: Offline-Index, Suche, Dekompression
-website/js/clipboard-parser.js   Heuristik für unstrukturierte Anschriften (Impressum, CSV)
 website/js/salutation.js         Anrede/Grußformel-Engine, Auto-Seed
 website/js/field.js             Minimale Feld-Abstraktion (isNative/getValue/setValue)
+website/js/suggestion-list.js   Gemeinsames Gerüst für Vorschlagslisten (Klick, Tasten, Blur)
+website/js/geo-cache.js         Ringspeicher für Geoapify-Treffer (1 MB, localStorage)
+website/js/debug-panel.js       Selbstauskunft (Schalter „Debug-Panel“ in den Einstellungen)
+website/js/geo-cache.js         Ringspeicher (1 MB, LFU) — Review: docs/meta/REVIEW-anrede-dropdown.md
+website/js/api.js             window.dinApi: Brief-Schnittstelle für Agenten (lesen/setzen/anrede/adresse/datum/export)
+website/js/date-picker.js      Kalender-Popover für #datum (Temporal, deutsche Langform, Monatsansicht, Heute)
+website/js/log.js               Ringpuffer der letzten 50 Fehler/Warnungen (Debug-Panel)
 website/js/format.js             Reine DIN-5008-Formatter + Mikro-Typografie
 website/js/signature.js          Unterschrift-Upload, Kompression, Drag/Rotate
 website/js/font-feature.js       Font-Presets, Upload, FontFace + IndexedDB

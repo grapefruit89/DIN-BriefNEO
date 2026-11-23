@@ -3,6 +3,22 @@
 
 /* css/sheet-multipage.css — DIN-A4-Blatt Mehrseiten-Layout (Multicol Level 2) */
 
+/* ---------------------------------------------------------------------------
+   WARUM HIER SO VIELE `!important` STEHEN (67 Stueck, Stand 2026-11-22)
+
+   Nicht aus Bequemlichkeit — anders geht es nicht. Diese Datei baut den
+   Bildschirm in ein Mehrseiten-Blatt um (Multicol, geklonte Koepfe, @page).
+   Sie muss dabei Regeln aus `base.css` und `sheet-common.css` ueberstimmen, die
+   fuer das EINSEITIGE Blatt geschrieben sind und zum Teil spaeter geladen
+   werden: `#viewport`, `#brief-ansicht`, `#kern` — jeweils mit ID-Spezifitaet.
+   Mit gleicher Spezifitaet und spaeterer Ladereihenfolge gewinnt sonst die
+   einseitige Regel, und das Layout bricht (belegt: `justify-content: center`
+   aus dieser Datei schlug am 2026-11-22 eine spaetere Regel mit zwei IDs).
+
+   Wer hier `!important` entfernt, muss die Gegenprobe im Mehrseiten-Modus
+   fahren: zwei Seiten Text, Betreff auf Seite 2, Fusszeile, Druck-PDF.
+   --------------------------------------------------------------------------- */
+
 :root {
   --seite: 297mm;
   --luecke: 8mm;                 /* sichtbarer Abstand zwischen zwei Blättern auf dem Bildschirm */
@@ -23,6 +39,14 @@
      (gemeldet 2026-11-16). Dritte Verwendung derselben Zahl. */
   --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke) + var(--fuss-hoehe)); /* 53mm, mit Fuss 68mm */
 }
+/* Unterrand-Schalter "30 mm" (Experten, nicht normgerecht): reine CSS-Ableitung
+   aus dem Schalter statt Inline-Style aus settings.js (2026-11-22). Gleiches
+   Muster wie --fuss-hoehe an #toggle-fuss. boot.js setzt den Wert einmalig vor
+   dem ersten Paint (FOUC-Schutz); ab initApp entscheidet diese Regel. */
+:root:has(#btn-rand-u-30:checked) {
+  --rand-u: 30mm;
+}
+
 
 /* Spacer-Höhe auf Seite 1: schiebt den Betreff an die DIN-5008-Position.
    Ableitung statt Doppelpflege — die Falzmarke ist die Quelle, der Betreff
@@ -138,7 +162,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     /* 0.5pt = 0,176 mm im Druck. Chromium klemmt sub-pixel Rahmenbreiten auf dem
        Bildschirm auf 1px (auch bei DPR 2) — der Unterschied ist nur im Druck/PDF
        sichtbar. Wert deckt sich mit print.css / print-multipage.css. */
-    border-bottom: 0.5pt solid oklch(0.35 0 0);
+    border-bottom: 0.5pt solid var(--farbe-linie-anthrazit);
     pointer-events: none;
     z-index: 10;
   }
@@ -262,7 +286,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     background:
       linear-gradient(var(--blatt-hintergrund) 0 var(--seite), transparent var(--seite))
       0 0 / 100% calc(var(--seite) + var(--luecke)) repeat-y;
-    filter: drop-shadow(0 4px 14px oklch(0 0 0 / 12%));
+    filter: drop-shadow(0 4px 14px var(--farbe-schatten-weich));
     box-sizing: border-box;
     display: block;
     overflow: visible;
@@ -448,13 +472,13 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   @top-left {
     padding-left: 25mm;
     font: 9pt var(--font-system-stack, sans-serif);
-    color: oklch(25% 0 0);
+    color: var(--farbe-text-dunkel);
     vertical-align: middle;
   }
   @top-right {
     padding-right: 20mm;
     font: 9pt var(--font-system-stack, sans-serif);
-    color: oklch(25% 0 0);
+    color: var(--farbe-text-dunkel);
     vertical-align: middle;
     content: "Seite " counter(page) " von " counter(pages);
   }
@@ -477,7 +501,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   html, body {
     overflow: visible !important;
     height: auto !important;
-    background: oklch(100% 0 0) !important;
+    background: var(--farbe-weiss) !important;
   }
 
   #probe {

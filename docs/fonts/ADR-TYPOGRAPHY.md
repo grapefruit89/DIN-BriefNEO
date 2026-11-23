@@ -18,7 +18,6 @@ doc_links:
   - ADR-BINARY-ASSETS
   - ADR-HTML
 code_links:
-  - fonts/subset_fonts.py
   - website/css/base.css
   - website/js/settings.js
 error_patterns:
@@ -51,7 +50,7 @@ Durch gezieltes **DIN-5008-Subsetting** mit Brotli-Kompression (`.woff2`) wird d
 
 ### 1.3 Reproduzierbarkeit
 Die Pipeline ist vollständig automatisiert und deterministisch im Repository verankert:
-- **Werkzeug:** `fonts/subset_fonts.py`
+- **Werkzeug:** `fonts/subset_fonts.py` — **lokal, nicht im Repo** (`fonts/` ist komplett gitignored, Lizenz)
 - **Engine:** Python-Modul `fontTools.subset` (`sys.executable, "-m", "fontTools.subset"` mit `brotli`)
 - **Quell-Verzeichnis:** `fonts/*.[to]tf`
 - **Ziel-Verzeichnis:** `website/fonts/*.woff2`
@@ -140,7 +139,24 @@ Fügt der Nutzer Text mit Zeichen außerhalb der DIN-Allowlist ein (z. B. ein ja
 
 ### 5.1 CSS `@font-face`-Deklarationen (`website/css/base.css`)
 
+Im Repo liegen genau **zwei** Familien (DACH + Normzeichen eingedampft):
+Liberation Sans (**Standard**, metrisch identisch zu Arial) und Inter.
+
 ```css
+@font-face {
+  font-family: "Test-Liberation";
+  src: url("../fonts/liberation-sans-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test-Liberation";
+  src: url("../fonts/liberation-sans-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: "Test-Inter";
   src: url("../fonts/inter_18pt-regular.woff2") format("woff2");
@@ -155,30 +171,115 @@ Fügt der Nutzer Text mit Zeichen außerhalb der DIN-Allowlist ein (z. B. ein ja
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: "Test-Aptos";
-  src: url("../fonts/aptos.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Test-Michelangelus";
-  src: url("../fonts/michelangelus-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+
+:root {
+  /* Bedienoberflaeche: Systemschrift */
+  --font-system-stack: "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  /* Brief: die mitgelieferte, eingedampfte Liberation Sans zuerst */
+  --font-brief-stack: "Test-Liberation", "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --active-font-family: var(--font-brief-stack);
 }
 
 din-blatt {
-  font-family: var(--active-font-family, var(--font-system-stack));
+  font-family: var(--active-font-family, var(--font-brief-stack));
   font-size-adjust: 0.52;
   font-variant-numeric: tabular-nums;
 }
 ```
 
+**Warum Liberation Sans Standard ist:** DIN 5008 Kap. 20.7.1 nennt Arial und
+Helvetica ausdruecklich. Liberation Sans ist deren freie, metrisch identische
+Umsetzung — ein Brief bricht zeilenweise genauso um wie ein Arial-Brief
+(gemessen 2026-11-23: Breite 638,1 px in beiden). Weil die Datei mitgeliefert
+wird, ist der Vanilla-Brief auf jedem Betriebssystem gleich; fehlende Zeichen
+ausserhalb des DACH-Subsets (z. B. `é`) fallen auf die echte Liberation Sans
+bzw. Arial zurueck — gleiche Konstruktion, gleiche Metrik.
+
+**Nicht im Repo, nur lokal:** Aptos (Microsoft) und Michelangelus (kommerziell)
+sowie eigene Testschriften liegen ausschliesslich in `<repo>/fonts/`
+(gitignoriert). Der Dev-Server listet sie unter `/__fonts` aus, die App laedt
+sie per `FontFace`-API; auf GitHub Pages fehlen sie — statt eine 404 zu laden.
+
 ### 5.2 Settings-Steuerung (`website/js/settings.js`)
 Der `SettingsManager` verwaltet die Schriftartenauswahl zentral und typisiert:
-- `settings.previewFont`: `'default' | 'inter' | 'aptos' | 'michelangelus'`
+- `settings.previewFont`: `'default' | 'inter' | 'sys:<Familie>' | 'lokal:<Datei>'`
 - Schaltet `--active-font-family` deklarativ am `:root`-Element um.
 - Bleibt 100 % kompatibel mit dem IndexedDB-Binär-Upload benutzerdefinierter Schriften (`#btn-schrift-aktion`, siehe [[ADR-BINARY-ASSETS]]).
+
+## Zeichensatz der Web-Schriften: DACH-only (2026-11-22)
+
+**Entscheidung des Nutzers:** „keine ausländischen Fonts, nur DACH — Deutschland,
+Österreich, Schweiz — plus die unsichtbaren Zeichen."
+
+DIN 5008 schreibt **keinen** Zeichenvorrat vor. Kapitel 5 („Zeichensatz und
+Datenaustausch") sagt nur: „Die Zeichen aus dem Zeichenvorrat von
+Anwendungsprogrammen dürfen verwendet werden" und empfiehlt ISO/IEC 10646
+(Unicode). Verlangt werden konkret: geschütztes Leerzeichen (7.2), bedingter
+Trennstrich (6.1), Anführungszeichen (8.3–8.5), § (9.1), & (9.2).
+
+### Enthalten (172 Codepoints)
+
+| Bereich | Zeichen |
+|---|---|
+| ASCII | a–z, A–Z, 0–9, alle Satzzeichen |
+| — | Ä Ö Ü ä ö ü |
+| — | ß und ẞ (großes Eszett) |
+| — | geschütztes Leerzeichen (DIN 7.2) |
+| — | bedingter Trennstrich — **in Inter nicht vorhanden**, Browser nutzt Fallback |
+| — | „ “ ” ‚ ‘ ’ (DIN 8.3–8.5) |
+| — | § (DIN 9.1) |
+| — | © ® ° ± × ² ³ µ ¼ ½ ¾ (Währung, Maß, Rechnen) |
+| — | Striche, Bullets, Mittelpunkt, Ellipse, Schmal-Leerzeichen |
+| — | € № ™ |
+| — | − ≈ ≤ ≥ ⌀ |
+| — | ✓ ✗ ⟨ ⟩ |
+
+### Bewusst NICHT enthalten
+
+`é è ê á à â ç ñ` (französisch), `U+0100–017F` (polnisch/tschechisch/türkisch).
+Namen damit rendern in der Ersatzschrift. Bewusste Entscheidung: ein DIN-Brief
+an deutschsprachige Empfänger.
+
+### Größen
+
+| Datei | Quelle | vorher | jetzt (DACH) |
+|---|---|---|---|
+| `liberation-sans-regular.woff2` | LiberationSans-Regular.ttf | 401,1 KB | **17 560 B** |
+| `liberation-sans-bold.woff2` | LiberationSans-Bold.ttf | 404,7 KB | **17 004 B** |
+| `inter_18pt-regular.woff2` | Inter_18pt-Regular.ttf | 334,6 KB | **15 208 B** |
+| `inter_18pt-bold.woff2` | Inter_18pt-Bold.ttf | 336,1 KB | **15 664 B** |
+
+Das Build-Script (`fonts/subset_fonts.py`) ist **nicht versioniert** (`fonts/`
+ist komplett gitignored). Die Liste oben ist deshalb die Quelle der Wahrheit im
+Repo.
+
+### Lizenz
+
+Liberation Sans steht unter **SIL Open Font License 1.1** (Weitergabe erlaubt,
+Lizenz muss mitgeliefert werden). Die Lizenzdatei liegt als
+`website/fonts/LICENSE-Liberation.txt` neben den Schriften. Inter steht
+ebenfalls unter SIL OFL 1.1.
+
+Aptos (Microsoft) und Michelangelus (kommerziell) dürfen nicht weitergegeben
+werden — sie bleiben in `<repo>/fonts/` und erreichen die veröffentlichte Seite
+nie.
+
+### Lokale Testschriften (`<repo>/fonts/`)
+
+Was dort liegt, erscheint in der Auswahl — ohne Code-Änderung:
+
+1. Datei nach `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/fonts/` legen
+   (`.woff2`, `.ttf` oder `.otf`).
+2. Seite neu laden.
+3. Die Gruppe „Nur lokal (fonts/)" zeigt die Schrift, die Datei wird per
+   `FontFace`-API geladen.
+
+Der Dev-Server liefert die Liste unter `/__fonts` (`tools/static-server.mjs`).
+Inter- und Liberation-Quelldateien werden dort ausgeblendet, weil sie bereits
+als Subset ausgeliefert werden.
+
+**Pfeiltasten:** Bei geschlossener Auswahl ändern sich die eingebauten
+Pfeiltasten von Chrome nicht mehr (`appearance: base-select`); `font-feature.js`
+fängt sie selbst ab und zieht den Brief live mit. Gespeichert wird erst nach
+dem Stehenbleiben (120 ms Entprellung), damit Durchblättern nicht jede Stufe in
+`localStorage` schreibt.

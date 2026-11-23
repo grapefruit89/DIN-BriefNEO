@@ -107,6 +107,39 @@ function hatLateinischeBuchstaben(family) {
   }
 }
 
+/**
+ * Sieht die Schrift aus wie Text? Faengt Schriften, die a–z haben, die Zeichen
+ * aber als Bildchen zeichnen. Webdings/Wingdings deckt die Namensliste ab,
+ * `D050000L` (URW Dingbats) nicht — der Name sagt nichts.
+ *
+ * Ein Textfont hat drei Merkmale, ein Symbolfont keins davon:
+ * - Grossbuchstabe deutlich hoeher als Kleinbuchstabe (H/x rund 1,3)
+ * - `W` deutlich breiter als `i` (rund 4:1)
+ * - Unterlaenge bei `p` (> 0)
+ *
+ * Gemessen 2026-11-23 an 82 Familien: genau `D050000L` faellt durch
+ * (1,01 / 1,1 / 0), waehrend Liberation (1,28 / 4,2 / 21) und Carlito
+ * (1,35 / 3,9 / 17) klar bestehen.
+ * @param {string} family
+ * @returns {boolean}
+ */
+function siehtAusWieText(family) {
+  try {
+    if (!messKontext) messKontext = document.createElement('canvas').getContext('2d');
+    if (!messKontext) return true;
+    messKontext.font = `100px ${JSON.stringify(family)}`;
+    const schmal = messKontext.measureText('i').width;
+    const breit = messKontext.measureText('W').width;
+    const hochGross = messKontext.measureText('H').actualBoundingBoxAscent;
+    const hochKlein = messKontext.measureText('x').actualBoundingBoxAscent;
+    const unterlaenge = messKontext.measureText('p').actualBoundingBoxDescent;
+    if (!(schmal > 0) || !(hochKlein > 0)) return false;
+    return hochGross / hochKlein >= 1.15 && breit / schmal >= 2 && unterlaenge > 0;
+  } catch {
+    return true;
+  }
+}
+
 export class FontFeature {
   /** @type {SettingsManager | null} */
   #settingsManager;
@@ -216,16 +249,20 @@ export class FontFeature {
     const alt = this.selectFont.querySelector('optgroup[data-systemschriften]');
     if (alt) alt.remove();
 
-    /* Vor dem Aufbau filtern: Emoji/Symbol/Icon raus (Namensmuster, deckt
-       Windows/macOS/Linux ab), Monospace raus (gemessen, nicht geraten —
-       „Hack" und „TeX Gyre Cursor" heissen nicht „Mono", sind es aber) und
-       Schriften ohne lateinische Buchstaben raus (gemessen: sie koennen einen
-       deutschen Brief nicht setzen und verfaelschen font-size-adjust). */
+    /* Vor dem Aufbau filtern, in dieser Reihenfolge:
+       1. Emoji/Symbol/Icons raus (Namensmuster, deckt Windows/macOS/Linux ab)
+       2. Monospace raus (gemessen — „Hack" und „TeX Gyre Cursor" heissen
+          nicht „Mono", sind es aber)
+       3. Schriften ohne lateinische Buchstaben raus (gemessen — sie koennen
+          einen deutschen Brief nicht setzen und verfaelschen font-size-adjust)
+       4. Schriften, die keine Buchstaben zeichnen, sondern Bildchen
+          (gemessen — Dingbats mit a–z-Belegung wie D050000L) */
     this.systemSchriften = [...this.systemFonts.keys()]
       .filter((familie) => !SYSTEM_FONT_BLACKLIST.test(familie))
       .filter((familie) => !MONO_NAME.test(familie))
       .filter((familie) => !istMonospace(familie))
       .filter((familie) => hatLateinischeBuchstaben(familie))
+      .filter((familie) => siehtAusWieText(familie))
       .sort((a, b) => a.localeCompare(b, 'de'));
 
     const gruppe = document.createElement('optgroup');

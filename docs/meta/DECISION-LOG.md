@@ -5418,3 +5418,31 @@ Carlito/Liberation/Cantarell/DejaVu bleiben.
 
 Die Filterkette ist jetzt: Namens-Blacklist (Emoji/Symbol/Icons) → Monospace
 (gemessen) → lateinische Buchstaben (gemessen) → alphabetisch.
+
+### Nachtrag: vierte Stufe „sieht aus wie Text"
+
+**Nutzer:** „manche waren dabei die garkein a-z hatten sondern nur symbole und
+quatsch."
+
+Berechtigt: `D050000L` (URW Dingbats) hat a–z belegt, zeichnet aber Bildchen —
+der Latein-Test allein laesst sie durch. Dritte Messung ergaenzt:
+
+| Merkmal | Textfont | Symbolfont |
+|---|---|---|
+| `H` / `x` (Hoehe) | ≥ 1,15 (Liberation 1,28) | ≈ 1 (D050000L 1,01) |
+| `W` / `i` (Breite) | ≥ 2 (Liberation 4,2) | ≈ 1 (D050000L 1,1) |
+| Unterlaenge bei `p` | > 0 (Liberation 21) | 0 |
+
+**Gemessene Filterkette (166 Familien):**
+
+| Stufe | danach |
+|---|---|
+| Start | 166 |
+| Namenslisten (Emoji/Symbol/Icons) | 161 |
+| Mono-Verdacht am Namen | 138 |
+| Mono gemessen | 137 |
+| Latein gemessen | 82 |
+| Wie-Text gemessen | **80** |
+
+Die vierte Stufe entfernt genau zwei: `D050000L` und `Latin Modern Roman Caps`
+(Versalien-Schnitt ohne Kleinbuchstaben — kann keinen Fliesstext setzen).

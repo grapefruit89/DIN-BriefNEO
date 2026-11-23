@@ -184,6 +184,8 @@ export class FontFeature {
 
     /** Installierte Familien aus der Local Font Access API: Name -> FontData. */
     this.systemFonts = new Map();
+    /** Familien, die einen normalen Schnitt haben (Regular/Normal/Book/Roman). */
+    this.systemFamilienMitNormal = new Set();
     /** @type {FontFace | null} */
     this.activeSystemFace = null;
 
@@ -253,6 +255,7 @@ export class FontFeature {
     try {
       const fonts = await api();
       this.systemFonts.clear();
+      this.systemFamilienMitNormal = new Set();
       for (const font of fonts) {
         /* `queryLocalFonts()` liefert ALLE Schnitte einer Familie, und zwar
            nicht in sinnvoller Reihenfolge: bei C059 steht „Bold Italic" vorn
@@ -260,10 +263,15 @@ export class FontFeature {
            ersten Eintrag). Wer nur den ersten nimmt, laedt fette Kursive —
            genau der Befund „C059 sieht komisch fett aus". Also den Rang
            vergleichen und den normalsten Schnitt behalten. */
+        const rang = schnittRang(font.style);
         const vorhanden = this.systemFonts.get(font.family);
-        if (!vorhanden || schnittRang(font.style) < schnittRang(vorhanden.style)) {
+        if (!vorhanden || rang < schnittRang(vorhanden.style)) {
           this.systemFonts.set(font.family, font);
         }
+        /* Familien ohne normalen Schnitt (nur Thin, nur Demi, nur kursiv) sind
+           fuer einen Brief unbrauchbar — sie kommen gar nicht erst in die
+           Auswahl. */
+        if (rang === 0) this.systemFamilienMitNormal.add(font.family);
       }
       this.#baueSystemOptionen();
     } catch (e) {
@@ -292,6 +300,7 @@ export class FontFeature {
       .filter((familie) => !istMonospace(familie))
       .filter((familie) => hatLateinischeBuchstaben(familie))
       .filter((familie) => siehtAusWieText(familie))
+      .filter((familie) => this.systemFamilienMitNormal.has(familie))
       .sort((a, b) => a.localeCompare(b, 'de'));
 
     const gruppe = document.createElement('optgroup');

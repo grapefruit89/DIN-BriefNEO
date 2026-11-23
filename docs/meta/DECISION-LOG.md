@@ -5470,3 +5470,27 @@ Latin Modern Roman → 10 Regular.
 `Noto Serif CJK` (nur ExtraLight), `URW Bookman` (Demi/Light), `Z003`
 (nur Medium Italic). Sie sind jetzt nicht mehr falsch, sondern zeigen ihren
 einzigen Schnitt — ob sie in der Liste bleiben, ist eine eigene Entscheidung.
+
+### Nachtrag: Familien ohne normalen Schnitt entfernt (fünfte Stufe)
+
+**Nutzer:** „ich glaube sowas kann man auch komplett rausschmeissen … ich will
+**WIRKLICH** DACH / Latin, fertig. keine Bock auf x Kopien für die halbe Welt,
+weniger ist mehr."
+
+Beim Sammeln wird jetzt mitgeschrieben, welche Familien einen Schnitt mit Rang 0
+(Regular/Normal/Book/Roman/Mittel) haben. Familien, die nur Thin, nur Demi oder
+nur kursiv anbieten, kommen nicht in die Auswahl.
+
+Entfernt: `Noto Sans CJK` (5 Varianten, nur Thin), `Noto Serif CJK` (5, nur
+ExtraLight), `URW Bookman` (Demi/Light), `Z003` (Medium Italic).
+Stand: **80 → 68**.
+
+**Was NICHT per Messung geht:** die verbliebenen Welt-Schriften mit
+Latein-Beigabe — `TH Baijam` … `TH SarabunPSK` (13), `Vazirmatn`,
+`PakType Naskh Basic` (3), `Padauk`, `RIT Meera New`, `RIT Rachana`,
+`Laksaman`, `Jomolhari`, `Noto Sans Sinhala`, `Noto Sans Math`,
+`Latin Modern Math`, `TeX Gyre … Math`. Sie haben echte lateinische Glyphen
+(deshalb bestehen sie Stufe 4) und deutsche Umlaute. Ein Test auf „ä ö ü ß ẞ €"
+trennt sie nicht: er meldet auch `C059` ohne `ö` und `Latin Modern Roman` ohne
+`öß` — beides nachweislich falsch, das sind Breitenzufälle. Eine harte
+Messgrenze ist damit erreicht.

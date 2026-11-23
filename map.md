@@ -20,7 +20,7 @@ summary: "Kanonische LLM-Map, Verzeichnis-Inventar und Task-to-File-Matrix für 
 | [`website/`](website/) | Produktive Vanilla Web-App: HTML, CSS, JS-Module, `website/fonts/` (WOFF2) |
 | [`docs/`](docs/) | Doku gespiegelt: `docs/css/`, `docs/js/`, `docs/data/`, `docs/norm/`, `docs/meta/` |
 | [`tools/`](tools/) | CLI-Werkzeuge: Server (`start.sh`, `dev.sh`), Gates (`build_db.js`), Runner |
-| [`fonts/`](fonts/) | Rohschriften (`.ttf`) und Typografie-Pipeline ([`fonts/subset_fonts.py`](fonts/subset_fonts.py)) |
+| `fonts/` | Rohschriften (`.ttf`) und Typografie-Pipeline (`fonts/subset_fonts.py`). **Nicht versioniert** (Lizenz) — Zeichensatz und Aufbau: [`docs/fonts/ADR-TYPOGRAPHY.md`](docs/fonts/ADR-TYPOGRAPHY.md) |
 | [`test/`](test/) | Test-Suite: Unit-Tests, Korpus-Gate (76/80), Chrome-Runner ([`test/all.js`](test/all.js)) |
 | [`batch/`](batch/) | Batch-Verarbeitung, Kontrakte und Kaskaden-Skripte |
 

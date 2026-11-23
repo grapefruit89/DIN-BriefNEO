@@ -220,6 +220,105 @@ function tonAusGrussformel(grussformel) {
   return 'polite';
 }
 
+/** Bedeutung je Feld: was hineingehört. Der Agent soll nicht raten müssen. */
+const FELD_ZWECK = /** @type {Record<string, string>} */ (Object.freeze({
+  'empfaenger-firma': 'Firma oder Institution des Empfängers — nur wenn kein Name gesetzt ist',
+  'empfaenger-name': 'Person, ggf. mit Titel und Anrede (z. B. „Frau Dr. Meier")',
+  'empfaenger-strasse': 'Straße und Hausnummer der Empfängeranschrift',
+  'empfaenger-ort': 'PLZ und Ort in einer Zeile, z. B. „53840 Troisdorf"',
+  'absender-name': 'Vor- und Nachname des Absenders',
+  'absender-strasse': 'Straße und Hausnummer des Absenders',
+  'absender-ort': 'PLZ und Ort des Absenders',
+  'absender-tel': 'Telefon mit Vorwahl, erscheint in der Fußzeile',
+  'absender-mail': 'E-Mail-Adresse, erscheint in der Fußzeile',
+  datum: 'Briefdatum in deutscher Langform („23. November 2026")',
+  vermerke: 'Postvermerk über der Anschrift, z. B. „Einschreiben" oder „Vertraulich"',
+  betreff: 'Betreffzeile ohne das Wort „Betreff"',
+  anrede: 'Anredezeile inklusive Komma am Ende',
+  text: 'Nur der Fließtext — Anrede und Grußformel gehören in ihre eigenen Felder',
+  grussformel: 'Grußformel ohne Komma („Mit freundlichen Grüßen")',
+  unterschrift: 'Name unter der Grußformel',
+  'anlagen-angabe': 'Anlagenvermerk, z. B. „Anlage 1: Vertrag"',
+  'fuss-firma': 'Firmenname im Fuß (Pflicht bei Geschäftsbriefen)',
+  'fuss-sitz': 'Sitz der Gesellschaft',
+  'fuss-gericht': 'Registergericht',
+  'fuss-hrb': 'Handelsregisternummer',
+  'fuss-vorstand': 'Vorstand (bei AG)',
+  'fuss-gf': 'Geschäftsführung (bei GmbH)',
+  'fuss-stnr': 'Steuernummer',
+  'fuss-ustid': 'USt-IdNr. nach § 27a UStG',
+  'fuss-bank': 'Bankverbindung',
+  'fuss-iban': 'IBAN, wird beim Setzen formatiert',
+  'fuss-bic': 'BIC, 8 oder 11 Zeichen',
+  'fuss-anschrift': 'Anschrift im Fuß, falls sie nicht oben steht'
+}));
+
+/** Pflichtangaben für einen versandfertigen Brief. */
+const FELD_PFLICHT = /** @type {Record<string, string>} */ (Object.freeze({
+  'empfaenger-firma': 'bedingt (oder Name)',
+  'empfaenger-name': 'bedingt (oder Firma)',
+  'empfaenger-strasse': 'ja',
+  'empfaenger-ort': 'ja',
+  'absender-name': 'ja',
+  'absender-strasse': 'ja',
+  'absender-ort': 'ja',
+  datum: 'ja',
+  betreff: 'ja',
+  anrede: 'ja',
+  text: 'ja',
+  grussformel: 'ja',
+  unterschrift: 'ja'
+}));
+
+/** Beispielwerte für den Katalog. */
+const FELD_BEISPIEL = /** @type {Record<string, string>} */ (Object.freeze({
+  'empfaenger-firma': 'Muster GmbH',
+  'empfaenger-name': 'Frau Dr. Meier',
+  'empfaenger-strasse': 'Musterweg 5',
+  'empfaenger-ort': '53840 Troisdorf',
+  'absender-name': 'Max Mustermann',
+  'absender-strasse': 'Beispielstraße 1',
+  'absender-ort': '50667 Köln',
+  'absender-tel': '0221 123456',
+  'absender-mail': 'max@example.org',
+  datum: '23. November 2026',
+  vermerke: 'Einschreiben',
+  betreff: 'Kündigung des Wartungsvertrags zum 31.12.2026',
+  anrede: 'Sehr geehrte Frau Dr. Meier,',
+  text: 'hiermit kündige ich den Wartungsvertrag fristgerecht zum 31.12.2026.',
+  grussformel: 'Mit freundlichen Grüßen',
+  unterschrift: 'Max Mustermann',
+  'anlagen-angabe': 'Anlage 1: Vertrag',
+  'fuss-iban': 'DE89 3704 0044 0532 0130 00',
+  'fuss-bic': 'COBADEFFXXX'
+}));
+
+/**
+ * Feldkatalog für `brief_hilfe`: Bedeutung plus die echten Grenzen aus dem DOM
+ * (maxlength, Mehrzeiligkeit) — damit ein Agent nicht raten muss.
+ * @param {string[]} ids
+ * @returns {Record<string, unknown>[]}
+ */
+function feldKatalog(ids) {
+  return ids.map((id) => {
+    const el = document.getElementById(id);
+    /** @type {HTMLInputElement | HTMLTextAreaElement | null} */
+    const eingabe = el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement ? el : null;
+    /** @type {Record<string, unknown>} */
+    const eintrag = {
+      id,
+      zweck: FELD_ZWECK[id] ?? el?.getAttribute('aria-label') ?? '',
+      pflicht: FELD_PFLICHT[id] ?? 'nein',
+      beispiel: FELD_BEISPIEL[id] ?? ''
+    };
+    if (eingabe && eingabe.maxLength > 0) eintrag.max = eingabe.maxLength;
+    if (eingabe instanceof HTMLTextAreaElement || el?.hasAttribute('contenteditable')) {
+      eintrag.mehrzeilig = true;
+    }
+    return eintrag;
+  });
+}
+
 /* ----------------------------------------------------------- Werkzeugliste */
 
 /**
@@ -374,11 +473,13 @@ export const WERKZEUGE = [
   {
     name: 'brief_hilfe',
     description:
-      'Zeigt Feld-IDs, Schalter und Funktionssignaturen des DIN-5008-Briefeditors. Zuerst aufrufen, wenn unklar ist, welche Felder es gibt.',
+      'Zeigt den Feldkatalog (was gehört in welches Feld, Pflicht, Beispiel, maxlength), die Schalter und die Funktionssignaturen. Immer zuerst aufrufen, wenn unklar ist, wohin ein Wert gehört.',
     nurLesen: true,
     ausfuehren: () => {
       const api = briefApi();
-      return api ? api.hilfe() : ohneApi();
+      if (!api) return ohneApi();
+      const basis = api.hilfe();
+      return { ...basis, katalog: feldKatalog(/** @type {string[]} */ (basis.felder ?? [])) };
     },
     inputSchema: { type: 'object', properties: {}, additionalProperties: false }
   },

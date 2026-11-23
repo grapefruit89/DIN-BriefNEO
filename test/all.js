@@ -3098,6 +3098,20 @@ describe('window.dinBriefAgent + WebMCP: Werkzeuge für Agenten (2026-11-23)', (
     }
   });
 
+  it('brief_hilfe liefert einen Feldkatalog mit Bedeutung', async () => {
+    initApi();
+    await initWebMCP();
+    const hilfe = await ausfuehren('brief_hilfe');
+    const katalog = /** @type {any[]} */ (/** @type {any} */ (hilfe).katalog);
+    assert(Array.isArray(katalog), 'katalog ist eine Liste');
+    assertEqual(katalog.length, /** @type {string[]} */ (hilfe.felder).length, 'ein Eintrag je Feld');
+    const ort = katalog.find((eintrag) => eintrag.id === 'empfaenger-ort');
+    assert(ort, 'empfaenger-ort im Katalog');
+    assert(String(ort.zweck).includes('PLZ'), 'PLZ/Ort ist erklärt');
+    assertEqual(ort.pflicht, 'ja');
+    assert(katalog.some((eintrag) => eintrag.id === 'vermerke'), 'vermerke ist dabei');
+  });
+
   it('unbekanntes Werkzeug ist ein Ergebnis, kein Wurf', async () => {
     const ergebnis = await ausfuehren('gibt-es-nicht');
     assertEqual(ergebnis.ok, false);

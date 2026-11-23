@@ -9,7 +9,7 @@
  */
 
 import { toggleAddon } from './addons.js';
-import { Events, eventBus, showToast, transitionOn } from './core.js';
+import { Events, eventBus, transitionOn } from './core.js';
 import { liveToken } from './live-bridge.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { applyValue } from './state-binding.js';
@@ -448,22 +448,10 @@ export function initAgentenHilfe() {
     }
   }
 
-  knopfKonfig.addEventListener('click', async () => {
-    const kopiert = await kopiere(agentenKonfiguration());
-    showToast(
-      kopiert
-        ? 'MCP-Config kopiert — <PFAD-ZUM-REPO> ersetzen'
-        : 'Zwischenablage gesperrt — Vorlage steht in docs/js/AGENTEN-WEBMCP.md',
-      kopiert ? 'info' : 'error'
-    );
+  knopfKonfig.addEventListener('click', () => {
+    void kopiere(agentenKonfiguration());
   });
-  knopfUrl.addEventListener('click', async () => {
-    const kopiert = await kopiere(agentenLiveAdresse());
-    showToast(
-      kopiert
-        ? 'Tab-URL kopiert — in einem Tab öffnen, dann schreibt der Agent hinein'
-        : 'Zwischenablage gesperrt — Vorlage steht in docs/js/AGENTEN-WEBMCP.md',
-      kopiert ? 'info' : 'error'
-    );
+  knopfUrl.addEventListener('click', () => {
+    void kopiere(agentenLiveAdresse());
   });
 }

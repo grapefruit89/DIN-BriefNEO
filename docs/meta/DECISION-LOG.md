@@ -5570,3 +5570,42 @@ zu viel als eine fehlende Liste.
 `Liberation Sans` fällt mit heraus, weil die Systemdatei hebräische Zeichen
 enthält. Der Brief-Standard ist davon unberührt: das ist `Test-Liberation`
 (mitgeliefertes DACH-Subset), nicht die Systemdatei.
+
+### Korrektur: Dichte statt „enthält fremde Zeichen"
+
+**Nutzer:** „das das hier passiert ist — Liberation Sans fällt mit raus, die
+Systemdatei enthält hebräische Zeichen. ist schon doof."
+
+Richtig. „Enthält ein Zeichen" ist nicht „ist für diese Schrift gebaut".
+`Liberation Sans` hat hebräische Zeichen, deckt Latein aber vollständig ab.
+
+Neuer Maßstab: **Deckungsdichte pro Zeichenbereich**.
+
+```
+Dichte = belegte Codepoints / Größe des Bereichs
+Latein-Bereiche: U+0020–024F und U+1E00–1EFF
+28 Fremdbereiche: Thai, Lao, Tibetisch, Myanmar, Georgisch, Hangul,
+  Äthiopisch, Cherokee, Khmer, Mongolisch, Kana, CJK, Armenisch, Hebräisch,
+  Arabisch, Syrisch, Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamil,
+  Telugu, Kannada, Malayalam, Sinhala
+→ Aussortiert wird nur, wenn die beste Fremd-Dichte die Latein-Dichte
+  übersteigt.
+```
+
+Gemessen (`leseBereiche()` liest die cmap als Bereichsliste, `deckungsDichte()`
+schneidet sie mit jedem Skriptbereich):
+
+| Schrift | Latein | beste Fremd-Dichte | Ergebnis |
+|---|---|---|---|
+| Liberation Sans | voll | Hebräisch niedriger | **bleibt** |
+| DejaVu Sans | voll | Arabisch/Hebräisch niedriger | **bleibt** |
+| Noto Sans Thai | minimal | Thai voll | raus |
+| TH SarabunPSK | mittel | Thai höher | raus |
+| Vazirmatn | hoch | Arabisch niedriger | bleibt |
+
+Ergebnis: 40 → **43 Familien**. `Liberation Sans`, `DejaVu Sans` und
+`Droid Sans` sind zurück, alle 14 Thai-Schriften weiter draußen. `Vazirmatn`
+bleibt, weil sein Latein dichter ist als sein Arabisch — es ist damit eine
+Lateinschrift, die auch Persisch kann.
+
+Laufzeit unverändert ~880 ms beim Laden.

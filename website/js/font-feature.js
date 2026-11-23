@@ -45,30 +45,54 @@ const SYSTEM_FONT_BLACKLIST =
 const MONO_NAME = /mono|\bcode\b|courier|consol|terminal|fixed|typewriter|iosevka|cursor/i;
 
 /**
- * Stichproben aus Schriften, die nicht lateinisch sind (Thai, Arabisch,
- * Hebraeisch, Devanagari, Bengali, Tamil, Telugu, Kannada, Malayalam, Sinhala,
- * Myanmar, Khmer, Lao, Tibetisch, Georgisch, Armenisch, Aethiopisch, CJK,
- * Hangul, Kana). Wer davon Zeichen MITBRINGT, ist fuer diese Schrift gebaut —
- * fuer einen deutschen Brief braucht sie niemand.
- *
- * Gemessen wird nicht per Breitenvergleich (das scheitert, wenn die Schrift
- * selbst die Ersatzschrift des Systems fuer diese Sprache ist), sondern direkt
- * in der `cmap` der Datei.
+ * Stichproben aus Schriften, die nicht lateinisch sind. Verglichen wird nicht
+ * „enthaelt irgendein Zeichen davon" — das wuerde `Liberation Sans` wegen
+ * seiner hebraeischen Zeichen aussortieren, obwohl es eine Lateinschrift ist.
+ * Verglichen wird die **Dichte**: wie viel Prozent des jeweiligen Zeichen-
+ * bereichs deckt die Datei ab? Wer Thai dichter abdeckt als Latein, ist eine
+ * Thaischrift.
  */
-const FREMD_PROBEN = [
-  0x0e01, 0x0627, 0x05d0, 0x0905, 0x0985, 0x0b85, 0x0c05, 0x0c85, 0x0d05,
-  0x0d85, 0x1000, 0x1780, 0x0e81, 0x0f40, 0x10d0, 0x0531, 0x1200,
-  0x4e2d, 0xac00, 0x3042
+const SKRIPTE = [
+  { name: 'Latein', von: 0x0020, bis: 0x024f },
+  { name: 'Latein-Ext', von: 0x1e00, bis: 0x1eff },
+  { name: 'Thai', von: 0x0e00, bis: 0x0e7f },
+  { name: 'Lao', von: 0x0e80, bis: 0x0eff },
+  { name: 'Tibetisch', von: 0x0f00, bis: 0x0fff },
+  { name: 'Myanmar', von: 0x1000, bis: 0x109f },
+  { name: 'Georgisch', von: 0x10a0, bis: 0x10ff },
+  { name: 'Hangul', von: 0xac00, bis: 0xd7a3 },
+  { name: 'Aethiopisch', von: 0x1200, bis: 0x137f },
+  { name: 'Cherokee', von: 0x13a0, bis: 0x13ff },
+  { name: 'Khmer', von: 0x1780, bis: 0x17ff },
+  { name: 'Mongolisch', von: 0x1800, bis: 0x18af },
+  { name: 'Kana', von: 0x3040, bis: 0x30ff },
+  { name: 'CJK', von: 0x4e00, bis: 0x9fff },
+  { name: 'Armenisch', von: 0x0530, bis: 0x058f },
+  { name: 'Hebraeisch', von: 0x0590, bis: 0x05ff },
+  { name: 'Arabisch', von: 0x0600, bis: 0x06ff },
+  { name: 'Syrisch', von: 0x0700, bis: 0x074f },
+  { name: 'Devanagari', von: 0x0900, bis: 0x097f },
+  { name: 'Bengali', von: 0x0980, bis: 0x09ff },
+  { name: 'Gurmukhi', von: 0x0a00, bis: 0x0a7f },
+  { name: 'Gujarati', von: 0x0a80, bis: 0x0aff },
+  { name: 'Oriya', von: 0x0b00, bis: 0x0b7f },
+  { name: 'Tamil', von: 0x0b80, bis: 0x0bff },
+  { name: 'Telugu', von: 0x0c00, bis: 0x0c7f },
+  { name: 'Kannada', von: 0x0c80, bis: 0x0cff },
+  { name: 'Malayalam', von: 0x0d00, bis: 0x0d7f },
+  { name: 'Sinhala', von: 0x0d80, bis: 0x0dff }
 ];
 
+/** Bereiche, die als „lateinisch" gelten (Grundalphabet + Ergaenzungen). */
+const LATEIN_BEREICHE = new Set(['Latein', 'Latein-Ext']);
+
 /**
- * Liest die `cmap`-Tabelle einer Schriftdatei: exakte Auskunft, welche
- * Codepoints die Schrift enthaelt. Deckt Format 4 (BMP) und Format 12 (UCS-4)
- * ab — das sind die Formate, die TTF/OTF im Feld nutzen.
+ * Liest die `cmap`-Tabelle einer Schriftdatei und gibt die belegten
+ * Codepoint-Bereiche zurueck (Format 12: exakte Gruppen, Format 4: Segmente).
  * @param {ArrayBuffer} puffer
- * @returns {((cp: number) => boolean) | null} null, wenn nicht lesbar
+ * @returns {Array<[number, number]> | null}
  */
-function leseCmap(puffer) {
+function leseBereiche(puffer) {
   try {
     const dv = new DataView(puffer);
     const anzahl = dv.getUint16(4);
@@ -98,41 +122,70 @@ function leseCmap(puffer) {
 
     if (format12 >= 0) {
       const gruppen = dv.getUint32(format12 + 12);
-      const start = format12 + 16;
-      return (cp) => {
-        for (let g = 0; g < gruppen; g++) {
-          const o = start + g * 12;
-          if (cp >= dv.getUint32(o) && cp <= dv.getUint32(o + 4)) return true;
-        }
-        return false;
-      };
+      /** @type {Array<[number, number]>} */
+      const bereiche = [];
+      for (let g = 0; g < gruppen; g++) {
+        const o = format12 + 16 + g * 12;
+        bereiche.push([dv.getUint32(o), dv.getUint32(o + 4)]);
+      }
+      return bereiche;
     }
 
     if (format4 >= 0) {
       const segmente = dv.getUint16(format4 + 6) / 2;
       const endBasis = format4 + 14;
       const startBasis = endBasis + segmente * 2 + 2;
-      const deltaBasis = startBasis + segmente * 2;
-      const rangeBasis = deltaBasis + segmente * 2;
-      return (cp) => {
-        if (cp > 0xffff) return false;
-        for (let s = 0; s < segmente; s++) {
-          if (cp > dv.getUint16(endBasis + s * 2)) continue;
-          if (cp < dv.getUint16(startBasis + s * 2)) return false;
-          const delta = dv.getInt16(deltaBasis + s * 2);
-          const range = dv.getUint16(rangeBasis + s * 2);
-          if (range === 0) return ((cp + delta) & 0xffff) !== 0;
-          const glyph = rangeBasis + s * 2 + range + (cp - dv.getUint16(startBasis + s * 2)) * 2;
-          if (glyph + 1 >= dv.byteLength) return false;
-          return dv.getUint16(glyph) !== 0;
-        }
-        return false;
-      };
+      /** @type {Array<[number, number]>} */
+      const bereiche = [];
+      for (let s = 0; s < segmente; s++) {
+        const von = dv.getUint16(startBasis + s * 2);
+        const bis = dv.getUint16(endBasis + s * 2);
+        if (bis > von) bereiche.push([von, bis]);
+      }
+      return bereiche;
     }
     return null;
   } catch {
     return null;
   }
+}
+
+/**
+ * Wie viel Prozent eines Codepoint-Bereichs deckt die Schrift ab?
+ * @param {Array<[number, number]>} bereiche
+ * @param {number} von
+ * @param {number} bis
+ * @returns {number} 0 bis 1
+ */
+function deckungsDichte(bereiche, von, bis) {
+  let treffer = 0;
+  for (const [a, b] of bereiche) {
+    const start = Math.max(a, von);
+    const ende = Math.min(b, bis);
+    if (ende >= start) treffer += ende - start + 1;
+  }
+  return treffer / (bis - von + 1);
+}
+
+/**
+ * Ist die Schrift fuer ein anderes Schriftsystem gebaut als fuer Latein?
+ * Massstab ist die Dichte im jeweiligen Zeichenbereich, nicht das blosse
+ * Vorhandensein: `Liberation Sans` enthaelt hebraeische Zeichen, deckt Latein
+ * aber deutlich dichter ab (gemessen 2026-11-23) — es bleibt eine Lateinschrift.
+ * @param {ArrayBuffer} puffer
+ * @returns {boolean}
+ */
+function istFremdschrift(puffer) {
+  const bereiche = leseBereiche(puffer);
+  if (!bereiche) return false;
+  let latein = 0;
+  let fremd = 0;
+  for (const skript of SKRIPTE) {
+    const dichte = deckungsDichte(bereiche, skript.von, skript.bis);
+    if (LATEIN_BEREICHE.has(skript.name)) latein = Math.max(latein, dichte);
+    else fremd = Math.max(fremd, dichte);
+  }
+  return fremd > latein;
 }
 
 /**
@@ -390,8 +443,7 @@ export class FontFeature {
       [...this.systemFonts.entries()].map(async ([familie, daten]) => {
         try {
           const blob = await daten.blob();
-          const hat = leseCmap(await blob.arrayBuffer());
-          if (hat && FREMD_PROBEN.some((cp) => hat(cp))) fremd.add(familie);
+          if (istFremdschrift(await blob.arrayBuffer())) fremd.add(familie);
         } catch {
           /* Datei nicht lesbar: nicht aussortieren. */
         }

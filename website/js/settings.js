@@ -9,7 +9,7 @@
  */
 
 import { toggleAddon } from './addons.js';
-import { Events, eventBus, transitionOn } from './core.js';
+import { Events, eventBus, showToast, transitionOn } from './core.js';
 import { liveToken } from './live-bridge.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { applyValue } from './state-binding.js';
@@ -436,24 +436,6 @@ export function initAgentenHilfe() {
   }
 
   /**
-   * Zeigt den Text im Dialog — der Weg, der auch ohne Zwischenablage-Recht
-   * funktioniert (Strg+C im markierten Textfeld).
-   * @param {string} text
-   * @param {string} meldung
-   */
-  function zeigeDialog(text, meldung) {
-    const dialog = /** @type {HTMLDialogElement | null} */ (document.getElementById('agenten-dialog'));
-    const feld = /** @type {HTMLTextAreaElement | null} */ (document.getElementById('agenten-text'));
-    const zeile = document.getElementById('agenten-dialog-hinweis');
-    if (!dialog || !feld) return;
-    feld.value = text;
-    if (zeile) zeile.textContent = meldung;
-    if (!dialog.open) dialog.showModal();
-    feld.focus();
-    feld.select();
-  }
-
-  /**
    * @param {string} text
    * @returns {Promise<boolean>} true = in der Zwischenablage
    */
@@ -467,23 +449,21 @@ export function initAgentenHilfe() {
   }
 
   knopfKonfig.addEventListener('click', async () => {
-    const text = agentenKonfiguration();
-    const kopiert = await kopiere(text);
-    zeigeDialog(
-      text,
+    const kopiert = await kopiere(agentenKonfiguration());
+    showToast(
       kopiert
-        ? 'Kopiert. <PFAD-ZUM-REPO> durch den Klon ersetzen, dann unter mcp.servers eintragen.'
-        : 'Zwischenablage gesperrt — Text ist markiert, mit Strg+C kopieren.'
+        ? 'MCP-Config kopiert — <PFAD-ZUM-REPO> ersetzen'
+        : 'Zwischenablage gesperrt — Vorlage steht in docs/js/AGENTEN-WEBMCP.md',
+      kopiert ? 'info' : 'error'
     );
   });
   knopfUrl.addEventListener('click', async () => {
-    const text = agentenLiveAdresse();
-    const kopiert = await kopiere(text);
-    zeigeDialog(
-      text,
+    const kopiert = await kopiere(agentenLiveAdresse());
+    showToast(
       kopiert
-        ? 'Kopiert. Adresse öffnen — danach schreibt der Agent in genau diesen Tab.'
-        : 'Zwischenablage gesperrt — Text ist markiert, mit Strg+C kopieren.'
+        ? 'Tab-URL kopiert — in einem Tab öffnen, dann schreibt der Agent hinein'
+        : 'Zwischenablage gesperrt — Vorlage steht in docs/js/AGENTEN-WEBMCP.md',
+      kopiert ? 'info' : 'error'
     );
   });
 }

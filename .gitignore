@@ -63,6 +63,7 @@ website/fonts/*
 !website/fonts/liberation-sans-regular.woff2
 !website/fonts/liberation-sans-bold.woff2
 !website/fonts/LICENSE-Liberation.txt
+!website/fonts/LICENSE-Inter.txt
 # fonts/ KOMPLETT: lokale Schriften und ihre Werkzeuge. Nichts davon ins Repo
 # (Lizenz: Aptos = Microsoft, Michelangelus = kommerziell).
 # Mit fuehrendem Schraegstrich: ohne ihn trifft das Muster auch

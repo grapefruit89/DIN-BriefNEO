@@ -5861,3 +5861,35 @@ gelöschte Module (`43-geoapify.js`, `52-import-export.js`, `46-clipboard-addres
 und behauptete drei Features, die es nicht mehr gibt. Nachgezogen; der
 Clipboard-Parser steht dort jetzt korrekt als **verworfen** (Commit `164568b`,
 „wir suchen nicht in einer potentiellen Zwischenablage").
+
+### Nachtrag: Altbestand `research_results` — was bleibt, was fliegt
+
+Der Ordner `Documents\dinbrief-temp\research_results` (33 Dateien, 16 MB) wurde
+gegen den aktuellen Stand geprüft. Die Chrome-Feature-Rohdaten bleiben (14 MB,
+außerhalb des Repos), der Rest ist in den Papierkorb gewandert.
+
+**1) Geoapify bleibt der einzige Adressanbieter — Photon/OpenPLZ/HERE verworfen.**
+Die Recherche (Multi-Provider-Vergleich, Latenz-Benchmarks) ist entschieden: die
+Alternativen waren messbar langsamer, und „key-frei" ist kein Vorteil, weil der
+Geoapify-Key optional ist und die Offline-PLZ ohne Netz arbeitet. Damit ist auch
+`brief_strasse_suchen` (Werkzeug) korrekt auf Geoapify festgelegt.
+
+**2) Vornamen-Tabelle (951 Namen) — verworfen.** Widerspricht der KISS-Anrede:
+kein Raten aus Namenslisten, der Nutzer überschreibt im Feld.
+
+**3) Impressum-/Zwischenablage-Parser — verworfen** (bleibt bei Commit `164568b`).
+
+**4) PLZ-/Großkunden-Altbestand (09/2026) — verworfen.** Die Pipeline im Repo ist
+SSoT; Daten werden beim Build frisch aus den Quellen geholt und geparst, nicht
+aus Altbeständen übernommen. Brotli bleibt trotz 18 % Ersparnis draußen (kein
+`Content-Encoding: br` auf Pages, `DecompressionStream` kann es in Chrome nicht).
+
+**5) Chrome-Radar bleibt — als Doku.** Die beiden Chromestatus-Dumps (2025/2026,
+433 Features 2026) bleiben außerhalb des Repos; das Auswertbare steht jetzt in
+`docs/css/CHROME-CSS-RADAR.md`: was wir schon nutzen (Multicol L2, `text-box-trim`,
+`field-sizing`, `light-dark`), welche Kandidaten zu DIN-5008 passen (unbedruckbare
+Ränder, `margin-trim`, hängender Einzug, `shrink-to-fit`) und was nur beobachtet wird.
+
+**6) Mobile — Zwischenlösung statt Sackgasse.** Es gibt keine `mobile.css`; bis
+dahin kommt ein Hinweis „der Editor ist für Desktop gebaut" (Issue #30), rein per
+Media Query, ohne Overlay-Falle und ohne Druckwirkung.

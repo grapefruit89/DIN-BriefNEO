@@ -68,6 +68,45 @@ function istMonospace(family) {
   }
 }
 
+/** @type {{ latein: number, x: number } | null} */
+let ersatzBreiten = null;
+
+/**
+ * Kann die Familie lateinische Buchstaben setzen? Gemessen, nicht geraten:
+ * `queryLocalFonts()` liefert nur Namen. Verglichen wird mit einer garantiert
+ * fehlenden Familie — fehlt ein Zeichen, liefert der Browser fuer beide
+ * denselben Ersatz, dann sind die Breiten gleich.
+ *
+ * Warum das zaehlt: `font-size-adjust` nimmt die x-Hoehe der ERSTEN Schrift im
+ * Stack. Hat die keine lateinischen Glyphen, wird der Ersatztext passend zu
+ * einer arabischen/thailaendischen Metrik skaliert — gemessen 2026-11-23:
+ * Droid Arabic Kufi, 13 statt 17 Zeilen bei gleicher Breite. Solche Schriften
+ * koennen einen deutschen Brief nicht setzen und gehoeren nicht in die Liste.
+ * @param {string} family
+ * @returns {boolean}
+ */
+function hatLateinischeBuchstaben(family) {
+  try {
+    if (!messKontext) messKontext = document.createElement('canvas').getContext('2d');
+    if (!messKontext) return true;
+    if (!ersatzBreiten) {
+      messKontext.font = '40px "__din_brief_gibt_es_nicht__"';
+      ersatzBreiten = {
+        latein: messKontext.measureText('Hamburgefonstiv').width,
+        x: messKontext.measureText('x').width
+      };
+    }
+    messKontext.font = `40px ${JSON.stringify(family)}`;
+    const latein = messKontext.measureText('Hamburgefonstiv').width;
+    const x = messKontext.measureText('x').width;
+    /* Beide muessen abweichen, sonst ist es Zufall: eine Schrift mit echtem
+       Latin trifft nie den Ersatz in beiden Zeichenfolgen exakt. */
+    return Math.abs(latein - ersatzBreiten.latein) > 0.5 || Math.abs(x - ersatzBreiten.x) > 0.2;
+  } catch {
+    return true;
+  }
+}
+
 export class FontFeature {
   /** @type {SettingsManager | null} */
   #settingsManager;
@@ -178,12 +217,15 @@ export class FontFeature {
     if (alt) alt.remove();
 
     /* Vor dem Aufbau filtern: Emoji/Symbol/Icon raus (Namensmuster, deckt
-       Windows/macOS/Linux ab) und Monospace raus (gemessen, nicht geraten —
-       „Hack" und „TeX Gyre Cursor" heissen nicht „Mono", sind es aber). */
+       Windows/macOS/Linux ab), Monospace raus (gemessen, nicht geraten —
+       „Hack" und „TeX Gyre Cursor" heissen nicht „Mono", sind es aber) und
+       Schriften ohne lateinische Buchstaben raus (gemessen: sie koennen einen
+       deutschen Brief nicht setzen und verfaelschen font-size-adjust). */
     this.systemSchriften = [...this.systemFonts.keys()]
       .filter((familie) => !SYSTEM_FONT_BLACKLIST.test(familie))
       .filter((familie) => !MONO_NAME.test(familie))
       .filter((familie) => !istMonospace(familie))
+      .filter((familie) => hatLateinischeBuchstaben(familie))
       .sort((a, b) => a.localeCompare(b, 'de'));
 
     const gruppe = document.createElement('optgroup');

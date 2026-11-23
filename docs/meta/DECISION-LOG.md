@@ -5380,3 +5380,41 @@ und die Fußzeilen-Felder `adjust: none`, während der Fließtext daneben mit
 schief zueinander. Jetzt `font-size-adjust: inherit` in beiden Feld-Blöcken.
 
 Beide Regeln (`base.css` und `sheet-common.css`) tragen denselben Wert.
+
+---
+
+## 2026-11-23 — Schriften ohne lateinische Buchstaben gefiltert
+
+**Nutzer:** „können wir diese auch direkt blacklisten? 59 ohne lateinische
+Buchstaben ← der Ärger: Droid Arabic Kufi, Noto Sans Thai"
+
+Ja — aber **gemessen, nicht als Namensliste**. Eine Liste mit „Noto Sans Thai,
+Droid Arabic Kufi, …" wäre auf dem nächsten Rechner falsch und bei jedem
+Font-Update veraltet. Der Test läuft zur Laufzeit: Breite von „Hamburgefonstiv"
+und „x" gegen eine garantiert fehlende Familie. Sind beide gleich, liefert der
+Browser nur Ersatz — die Schrift hat keine lateinischen Glyphen.
+
+**Warum das nicht nur Kosmetik ist:** `font-size-adjust` nimmt die x-Höhe der
+**ersten** Schrift im Stack. Hat die keine lateinischen Glyphen, wird der
+Ersatztext passend zu ihrer Metrik skaliert. Gemessen im Brief, gleicher Text
+und gleiche Breite:
+
+| Schrift | Zeilen | Höhe |
+|---|---|---|
+| Test-Liberation | 17 | 238 px |
+| Carlito | 17 | 238 px |
+| **Droid Arabic Kufi mit adjust** | **13** | **170 px** |
+| Droid Arabic Kufi ohne adjust | 17 | 248 px |
+
+Also 24 % kleiner — genau der Eindruck „mega klein". Carlito ist messbar
+**nicht** kleiner; die 2 % sind Design, keine Größe.
+
+**Bestand vorher:** 166 Familien, davon 59 ohne lateinische Buchstaben
+(Droid Arabic Kufi, Noto Sans Thai, Noto Sans Devanagari, Noto Serif Tamil,
+Noto Sans Arabic, …).
+
+**Nachher:** 166 → **82** Einträge. Alle Nicht-Latein-Schriften verschwinden,
+Carlito/Liberation/Cantarell/DejaVu bleiben.
+
+Die Filterkette ist jetzt: Namens-Blacklist (Emoji/Symbol/Icons) → Monospace
+(gemessen) → lateinische Buchstaben (gemessen) → alphabetisch.

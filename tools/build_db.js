@@ -112,9 +112,12 @@ function generateStructureMap(targetDir) {
   // ohnehin, es loest also nie eine Neuschreibung aus.
   let isoDate = '2026-10-17';
   try {
-    const { execSync } = require('child_process');
+    // execFileSync statt execSync: unter Windows zerlegt cmd.exe die
+    // einfachen Anführungszeichen des Pathspecs (':!docs') und git bricht mit
+    // "Invalid path" ab. Ohne Shell gibt es diese Klasse Fehler nicht.
+    const { execFileSync } = require('child_process');
     isoDate =
-      execSync("git log -1 --format=%cs -- docs ':!docs/STRUCTURE.md'", {
+      execFileSync('git', ['log', '-1', '--format=%cs', '--', 'docs', ':(exclude)docs/STRUCTURE.md'], {
         cwd: targetDir,
         encoding: 'utf8',
       }).trim() || isoDate;
@@ -149,7 +152,9 @@ ${produktionscodeTabelle()}
 | Datei | Zweck |
 |---|---|
 | build_db.js | Fitness Gate + SSoT-Sync |
-| agent_gateway.py | Lokales WebMCP-Gateway für Bash-/Agenten-Anbindung |
+| agent_gateway.py | Überholt: WebSocket-Gateway, ersetzt durch mcp-dinbrief.mjs |
+| mcp-dinbrief.mjs | MCP-Server (stdio) über CDP: Agenten schreiben Briefe und drucken PDF |
+| mcp-live.mjs | MCP-Server für einen normalen Tab ohne Debug-Port (Seite wählt sich per SSE ein) |
 | adr-check.js | Präventiver ADR-Drift-Wächter (Bijektion & Verwaiste Assets) |
 | reconciliation.js | Reality Reconciliation Engine (Evolutionary Fitness Score) |
 | check-feature.js | Portable BCD- und Browser-Feature-Abfrage (CLI) |

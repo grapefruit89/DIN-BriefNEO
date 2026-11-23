@@ -5751,3 +5751,76 @@ Die Anwendung liefert also nur Inter und Liberation Sans aus, beide SIL OFL 1.1.
 
 Die Dateien bleiben lokal in `<repo>/fonts/` (gitignoriert) und erreichen die
 veröffentlichte Seite nie.
+
+---
+
+## 2026-11-23 — WebMCP eingebaut, mit CLI-Brücke statt Polyfill
+
+**Anlass:** Der Wunsch, „dass jeglicher Agent den Brief komplett benutzen kann"
+— im Browser und in der Kommandozeile, veröffentlicht auf GitHub Pages.
+
+**Gemessen (Chrome 152, Live-Seite):** `navigator.modelContext`,
+`document.modelContext` und `modelContextTesting` sind `undefined`. Die API gibt
+es ab Chrome 149 nur hinter `chrome://flags/#enable-webmcp-testing` oder per
+Origin-Trial-Token. `window.dinApi` stand dagegen sofort bereit.
+
+**Entscheidung: keine zweite Wahrheit, sondern zwei Transporte über einer
+Fähigkeitsschicht.**
+
+1. `website/js/webmcp.js` (neu) definiert acht Werkzeuge als Daten (Name,
+   Beschreibung, JSON-Schema, `readOnlyHint`) und führt sie über
+   `window.dinApi` aus. Es registriert sie bei `document.modelContext`, wenn
+   vorhanden — und stellt immer `window.dinBriefAgent` bereit.
+2. `tools/mcp-dinbrief.mjs` (neu, zero-dependency) ist ein MCP-Server über
+   stdio: er startet oder findet Chrome mit DevTools-Protokoll, öffnet die
+   Seite und ruft `window.dinBriefAgent.run(name, args)` auf. Damit funktioniert
+   derselbe Vertrag auch dort, wo WebMCP fehlt (Helium, Firefox, CLI-Agenten).
+   Zusatzwerkzeuge der Brücke: `brief_als_pdf` (`Page.printToPDF`, A4 über
+   `preferCSSPageSize`) und `brief_seite_oeffnen`.
+3. `website/addons/webmcp-bridge.js` bleibt liegen, ist aber als **überholt**
+   markiert: er simulierte `modelContext` und brauchte dafür
+   `ws://127.0.0.1:8333`, was die CSP (`connect-src 'self'`) ohnehin blockiert.
+
+**Bewusst nicht gebaut:** kein „Verbinden"-Schalter in den Einstellungen (bei
+WebMCP gibt es nichts zu verbinden — der Agent besucht die Seite), keine
+Polyfill-Schicht, keine Ausweitung auf Datei-Dialoge, Druckdialoge oder
+Unterschrift-Upload (Nutzergeste).
+
+**Verifiziert:** `brief_schreiben` über MCP füllte Empfänger, Absender, Datum,
+Anrede, Betreff, Text, Unterschrift und Anlagen; `brief_als_pdf` erzeugte ein
+PDF mit MediaBox 594,96 × 841,92 pt (A4, eine Seite). `npm test`: 424 Fälle
+grün. Port 9222 war auf dem Testrechner von einem fremden Chrome belegt und
+lieferte HTTP 404 — die Brücke probiert deshalb 9222/9333/9444/9555 und
+überspringt belegte Ports ohne DevTools.
+
+**Doku:** `docs/js/AGENTEN-WEBMCP.md`, `website/llms.txt`, README.
+
+---
+
+## 2026-11-23 (Nachtrag) — Agenten-Kanal ohne Debug-Port, Seiten-Inspektion
+
+**Anlass:** „Ein CLI-Agent soll ohne Debug-Port in den live offenen Tab
+schreiben." Das geht mit der CDP-Brücke bewusst nicht — also dreht
+`tools/mcp-live.mjs` die Richtung um: Der Tab ruft an (Server-Sent-Events auf
+`127.0.0.1`), der Agent spricht MCP mit dem lokalen Dienst.
+
+- `website/js/live-bridge.js`: liest `#agent=<token>[@port]`, verbindet per
+  `EventSource`, führt Aufrufe über `ausfuehren()` aus. Ohne Token im Fragment
+  passiert nichts — kein Timer, kein Netz.
+- `tools/mcp-live.mjs`: MCP über stdio + HTTP-Kanal, Werkzeugliste direkt aus
+  `website/js/webmcp.js` (keine Kopie). Ports 8765…8795, belegte werden
+  übersprungen; der Port steht dann im Fragment.
+- CSP: `connect-src` erlaubt zusätzlich `http://127.0.0.1:*` (nur Loopback).
+- Verifiziert: normaler Tab (kein Flag, kein DevTools-Port), `brief_schreiben`
+  über den Kanal füllte den Brief, Toast „Agent verbunden".
+
+**Zwei Werkzeuge ergänzt** (jetzt zehn): `brief_seiten` und
+`brief_layout_setzen`. `brief_seiten` rechnet die Seitengeometrie selbst
+(`#kern`, `--seite` + `--luecke`) statt `body.dataset.seiten` zu lesen — der
+Wert hängt einen ResizeObserver-Frame nach und war nach `brief_schreiben`
+falsch. Zeilen werden über `Range.getClientRects()` gezählt, der Zeilentext
+über eine Binärsuche auf Zeichen-Rechtecken (ein Textknoten läuft über
+Seitengrenzen). Gemessen an einem 34-Zeilen-Brief: Seite 1 = 32 Zeilen,
+Seite 2 = 2 Zeilen, Warnung „Seite 2 hat nur 2 Zeile(n)"; Form A hält 34
+Zeilen, Form B 32. Das ist der Bildschirm, nicht das PDF — der Druckumbruch
+bleibt der CDP-Brücke vorbehalten.

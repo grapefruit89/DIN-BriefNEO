@@ -19,7 +19,14 @@ export function findBrowser() {
     '/opt/google/chrome/chrome'
   ];
   for (const p of absolut) if (existsSync(p)) return p;
-  for (const name of ['helium', 'chromium', 'google-chrome']) {
+  const windows = [
+    path.join(process.env.ProgramFiles || '', 'Google', 'Chrome', 'Application', 'chrome.exe'),
+    path.join(process.env['ProgramFiles(x86)'] || '', 'Google', 'Chrome', 'Application', 'chrome.exe'),
+    path.join(process.env.LOCALAPPDATA || '', 'Google', 'Chrome', 'Application', 'chrome.exe'),
+    path.join(process.env.ProgramFiles || '', 'Microsoft', 'Edge', 'Application', 'msedge.exe')
+  ];
+  for (const p of windows) if (existsSync(p)) return p;
+  for (const name of ['helium', 'chromium', 'google-chrome', 'chrome', 'chrome.exe', 'msedge.exe']) {
     for (const dir of (process.env.PATH || '').split(path.delimiter)) {
       const p = path.join(dir, name);
       if (existsSync(p)) return p;

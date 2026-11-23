@@ -12,6 +12,7 @@ import { DraftManager } from './draft-manager.js';
 import { Field } from './field.js';
 import { FontFeature } from './font-feature.js';
 import { applyLetterDate, formatTelefonnummer } from './format.js';
+import { initLiveBridge } from './live-bridge.js';
 import { installiereLog } from './log.js';
 import { initImportExport, MetadataService, requestPersistentStorage } from './persistence.js';
 import { SalutationFeature } from './salutation.js';
@@ -19,6 +20,7 @@ import { SettingsManager } from './settings.js';
 import { SignatureFeature } from './signature.js';
 import { letterState, toWire } from './state.js';
 import { applyState, applyValue, initStateBinding } from './state-binding.js';
+import { initWebMCP } from './webmcp.js';
 
 /**
  * Setzt den Postvermerk im Blattfeld und hält die Auswahlliste synchron.
@@ -184,6 +186,12 @@ function initApp() {
   bootStep('Adressdienste', () => initAddressServices());
   bootStep('Datums-Kalender', () => initDatePicker());
   bootStep('Agenten-API', () => initApi());
+  /* Nach der API: Werkzeuge brauchen dinApi. Ohne WebMCP im Browser bleibt
+     window.dinBriefAgent für die CLI-Bridge stehen (tools/mcp-dinbrief.mjs). */
+  bootStep('Agenten-Werkzeuge', () => void initWebMCP());
+  /* Nur aktiv, wenn die URL #agent=<token> trägt: dann wählt sich die Seite
+     bei tools/mcp-live.mjs ein (ohne Flag, ohne Debug-Port). */
+  bootStep('Agenten-Kanal', () => initLiveBridge());
   bootStep('Import/Export', () => initImportExport({
     collectDraft: () => toWire(letterState),
     /* D1 Stufe 6: Import ohne Reload. applyState ersetzt RAM + Projektion;

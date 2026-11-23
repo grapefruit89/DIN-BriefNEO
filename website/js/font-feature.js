@@ -189,6 +189,25 @@ function istFremdschrift(puffer) {
 }
 
 /**
+ * Numerisches Gewicht aus dem Schnitt-Namen — dieselbe Zuordnung, die auch
+ * Boxy SVG im Chrome-Beispiel nutzt. `queryLocalFonts()` liefert nur Text.
+ * @param {string} [stil]
+ * @returns {number} 100 bis 900
+ */
+function gewichtAusStil(stil) {
+  const s = String(stil || '').toLowerCase();
+  if (/thin|hairline/.test(s)) return 100;
+  if (/extralight|ultralight/.test(s)) return 200;
+  if (/light/.test(s)) return 300;
+  if (/semi\s*bold|demibold|demi/.test(s)) return 600;
+  if (/extrabold|ultrabold/.test(s)) return 800;
+  if (/black|heavy/.test(s)) return 900;
+  if (/bold|fett/.test(s)) return 700;
+  if (/medium/.test(s)) return 500;
+  return 400;
+}
+
+/**
  * Wie „normal" ist ein Schriftschnitt? 0 = Regular, hoeher = ungeeigneter.
  * `queryLocalFonts()` liefert alle Schnitte einer Familie, oft mit Bold oder
  * Bold Italic zuerst — ohne diese Sortierung landet die fette Kursive im Brief.
@@ -332,8 +351,10 @@ export class FontFeature {
     this.systemFamilienMitNormal = new Set();
     /** Familien, deren Datei Zeichen fremder Schriftsysteme mitbringt. */
     this.systemFremdSchrift = new Set();
-    /** @type {FontFace | null} */
-    this.activeSystemFace = null;
+    /** Alle Schnitte je Familie (Regular, Bold, Italic …). */
+    this.systemAlle = new Map();
+    /** @type {FontFace[]} */
+    this.activeSystemFaces = [];
 
     /** Lokale Testschriften aus `<repo>/fonts/`: Dateiname -> Familie. */
     this.lokaleSchriften = new Map();
@@ -401,6 +422,7 @@ export class FontFeature {
     try {
       const fonts = await api();
       this.systemFonts.clear();
+      this.systemAlle.clear();
       this.systemFamilienMitNormal = new Set();
       for (const font of fonts) {
         /* `queryLocalFonts()` liefert ALLE Schnitte einer Familie, und zwar
@@ -410,6 +432,9 @@ export class FontFeature {
            genau der Befund „C059 sieht komisch fett aus". Also den Rang
            vergleichen und den normalsten Schnitt behalten. */
         const rang = schnittRang(font.style);
+        const bisher = this.systemAlle.get(font.family) || [];
+        bisher.push(font);
+        this.systemAlle.set(font.family, bisher);
         const vorhanden = this.systemFonts.get(font.family);
         if (!vorhanden || rang < schnittRang(vorhanden.style)) {
           this.systemFonts.set(font.family, font);
@@ -520,29 +545,79 @@ export class FontFeature {
   /**
    * Laedt eine installierte Familie als `FontFace` und setzt sie als
    * Briefschrift. Der Wert kommt als `sys:<Familie>` aus der Auswahlliste.
+   *
+   * Geladen werden hoechstens zwei Schnitte: 400 und 700, normale Breite, nicht
+   * kursiv. Ohne ein echtes 700-Face setzt der Browser die Fettschrift aus dem
+   * Regular zusammen („faux bold") — breiiger und zu breit, im Druck sichtbar.
+   * Alle Schnitte zu laden waere zu teuer: `Noto Sans` hat hier 72 Dateien mit
+   * 44,7 MB (gemessen 2026-11-23), Carlito 4 Dateien mit 2,7 MB.
    * @param {string} family
    */
   async #applySystemFont(family) {
-    const daten = this.systemFonts.get(family);
-    if (!daten) return;
-    if (this.activeSystemFace && typeof document.fonts !== 'undefined') {
-      document.fonts.delete(this.activeSystemFace);
-      this.activeSystemFace = null;
+    const ersatz = this.systemFonts.get(family);
+    if (!ersatz) return;
+    this.#entladeSystemFaces();
+
+    /** @type {Map<number, any>} */
+    const gewaehlt = new Map();
+    /** @type {Array<{ daten: any, gewicht: number }>} */
+    const kandidaten = [];
+    for (const daten of this.systemAlle.get(family) || [ersatz]) {
+      const stil = String(daten.style || '');
+      /* Breitenvarianten ueberspringen: “Condensed”, “Narrow”, “Expanded” sind
+         eigene Familien. Kursiv ebenfalls — der Brief setzt kein Kursiv. */
+      if (/condensed|narrow|expanded|wide/i.test(stil)) continue;
+      if (/italic|oblique|slanted|kursiv/i.test(stil)) continue;
+      kandidaten.push({ daten, gewicht: gewichtAusStil(stil) });
     }
-    try {
-      const blob = await daten.blob();
-      const face = new FontFace(family, await blob.arrayBuffer());
-      await face.load();
-      document.fonts.add(face);
-      this.activeSystemFace = face;
-      document.documentElement.style.setProperty(
-        '--active-font-family',
-        `"${family}", var(--font-system-stack)`,
-      );
-    } catch (e) {
-      console.warn('[FontFeature] Systemschrift nicht ladbar:', e);
+    /**
+     * Naechstgelegener Schnitt zu einem Zielgewicht.
+     * @type {(ziel: number, minimum: number) => { daten: any, gewicht: number } | undefined}
+     */
+    const naechster = (ziel, minimum) =>
+      kandidaten
+        .filter((k) => k.gewicht >= minimum)
+        .sort((a, b) => Math.abs(a.gewicht - ziel) - Math.abs(b.gewicht - ziel))[0];
+    const normal = naechster(400, 0);
+    if (normal) gewaehlt.set(400, normal.daten);
+    /* Fuer die Fettschrift reicht auch ein Demi/SemiBold (600): besser als die
+       synthetische Verdickung, die der Browser sonst aus dem Regular baut.
+       Gemessen 2026-11-23: 12 von 43 Familien haben kein echtes 700. */
+    const fett = naechster(700, 500);
+    if (fett && fett.daten !== normal?.daten) gewaehlt.set(700, fett.daten);
+    if (gewaehlt.size === 0) gewaehlt.set(400, ersatz);
+
+    const faces = [];
+    for (const [gewicht, daten] of gewaehlt) {
+      try {
+        const face = new FontFace(family, await (await daten.blob()).arrayBuffer(), {
+          weight: String(gewicht),
+          style: 'normal'
+        });
+        await face.load();
+        document.fonts.add(face);
+        faces.push(face);
+      } catch (e) {
+        console.warn(`[FontFeature] Schnitt ${gewicht} nicht ladbar:`, e);
+      }
+    }
+    if (faces.length === 0) {
       notify(Constants.TOASTS.FONT.FORMAT_ERROR, 'error');
+      return;
     }
+    this.activeSystemFaces = faces;
+    document.documentElement.style.setProperty(
+      '--active-font-family',
+      `"${family}", var(--font-brief-stack)`,
+    );
+  }
+
+  /** Entfernt die zuletzt geladenen Systemschrift-Schnitte. */
+  #entladeSystemFaces() {
+    for (const face of this.activeSystemFaces) {
+      document.fonts.delete(face);
+    }
+    this.activeSystemFaces = [];
   }
 
   /* --- Lokale Testschriften (Ordner <repo>/fonts/) ------------------------
@@ -790,6 +865,7 @@ export class FontFeature {
       return;
     }
     if (typeof val === 'string' && val.startsWith('lokal:')) {
+      this.#entladeSystemFaces();
       if (speichern) {
         this.settings.previewFont = val;
         this.#saveSettings();
@@ -798,6 +874,9 @@ export class FontFeature {
       return;
     }
     const choice = val in FONT_PRESETS ? val : 'default';
+    /* Beim Wechsel weg von einer Systemschrift deren FontFaces abmelden —
+       sonst bleiben sie fuer die Seitenlebensdauer in `document.fonts`. */
+    this.#entladeSystemFaces();
     if (speichern) {
       this.settings.previewFont = choice;
       if (this.selectFont) {

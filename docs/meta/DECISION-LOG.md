@@ -5609,3 +5609,41 @@ bleibt, weil sein Latein dichter ist als sein Arabisch — es ist damit eine
 Lateinschrift, die auch Persisch kann.
 
 Laufzeit unverändert ~880 ms beim Laden.
+
+### Echte Fettschrift für Systemschriften (400 + 700)
+
+**Nutzer:** „sie behalten alle Schnitte und mappen sie auf Gewichte … das wäre
+die nächste sinnvolle Ausbaustufe."
+
+Alle Schnitte zu laden ist keine Option: `Noto Sans` hat hier **72 Dateien mit
+44,7 MB**, Carlito 4 Dateien mit 2,7 MB (gemessen 2026-11-23). Geladen werden
+deshalb genau zwei: **400 und 700**, normale Breite, nicht kursiv.
+
+- `gewichtAusStil()` mappt den Stil-Namen auf 100–900 (dieselbe Zuordnung wie
+  im Chrome-Beispiel von Boxy SVG).
+- `naechster(400, 0)` und `naechster(700, 500)` wählen den passenden Schnitt.
+  Für die Fettschrift ist auch ein Demi/SemiBold (600) recht — besser als die
+  synthetische Verdickung aus dem Regular.
+- Beim Wechsel auf eine andere Schrift oder ein Preset werden die Faces wieder
+  abgemeldet (`#entladeSystemFaces`) — vorher blieben sie für die
+  Seitenlebensdauer in `document.fonts` (Befund beim Test).
+
+Gemessen nach dem Umbau:
+
+| Auswahl | geladene Faces |
+|---|---|
+| `sys:Carlito` | Carlito:400, Carlito:700 |
+| `sys:URW Gothic` | URW Gothic:400, URW Gothic:700 (das Demi) |
+| `sys:TeX Gyre Chorus` | nur 400 — kein fetter Schnitt vorhanden |
+| `default` | keine (aufgeräumt) |
+
+31 von 43 Familien haben ein echtes 700; die übrigen 12 sind überwiegend
+Mathe-Schnitte (`… Math`) und `URW Gothic` (Demi → 700).
+
+**Warum keine „Fake-Fettschrift über 1 pt größer":** Die DIN-Geometrie ist in
+Millimetern gesetzt, `font-size` kommt aus `data-font` und speist den
+Zeilenumbruch. Ein Punkt mehr verschiebt Umbrüche und lässt den Betreff aus dem
+Raster laufen. Außerdem regelt `font-size-adjust` bereits die optische Größe —
+eine größere Regular ist keine Fettschrift, sie ist nur größer. Wenn kein
+fetter Schnitt existiert, übernimmt die Browser-Synthese (Strichverdickung) das
+und das ist der bessere Kompromiss.

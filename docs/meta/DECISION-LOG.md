@@ -5890,6 +5890,36 @@ aus Altbeständen übernommen. Brotli bleibt trotz 18 % Ersparnis draußen (kein
 `field-sizing`, `light-dark`), welche Kandidaten zu DIN-5008 passen (unbedruckbare
 Ränder, `margin-trim`, hängender Einzug, `shrink-to-fit`) und was nur beobachtet wird.
 
-**6) Mobile — Zwischenlösung statt Sackgasse.** Es gibt keine `mobile.css`; bis
-dahin kommt ein Hinweis „der Editor ist für Desktop gebaut" (Issue #30), rein per
+**6) Mobile - Zwischenlösung statt Sackgasse.** Es gibt keine `mobile.css`; bis
+dahin kommt ein Hinweis "der Editor ist für Desktop gebaut" (Issue #30), rein per
 Media Query, ohne Overlay-Falle und ohne Druckwirkung.
+
+## 2026-11-23 - Altbestand `alterarbeitsordner` geprüft, archiviert und gelöscht
+
+**Kontext:** `Documents\Other_Projects\DIN-Brief Neo\alterarbeitsordner` (2.448
+sichtbare Dateien, 168 MB) war der Sammelordner aller Vorstufen. Vor dem Löschen
+wurde er vollständig geprüft und gesichert.
+
+**Sicherung:** `alterarbeitsordner_2026-11-23.zip` (150,2 MB, 8.050 Dateien,
+217,9 MB entpackt) liegt neben `neuerarbeitsordner`. Die erste Tar-Variante war
+unvollständig, weil `tar.exe` dem Junction `DIN-BriefNEO\node_modules` folgte und
+danach abbrach (u. a. fehlten `Alte schinken`, `DIN Brief`, `Chhatlogs`). Neu
+gebaut mit `robocopy /XJ` (Junctions ausgeschlossen) und anschließend per
+Voll-Extraktion gegengeprüft: 8.050 Dateien, gleiche Byte-Summe.
+
+**Befund `Alte schinken\Platinum_DIN_2026` (37 Dateien, 0,1 MB, 17.03.2026):**
+reine Ghost-Spezifikation (`.brain/` mit Projektgedächtnis, 19 ADRs, 6
+JS-Modul-Steckbriefen, `index.html.md`). Nichts davon muss gerettet werden:
+
+- **Überholt:** ADR-020 "100 % ContentEditable" (heute dedizierte Inputs,
+  `contenteditable` nur im Briefkörper), ADR-016 PWA/Offline-First, ADR-011
+  Photon/GPS-Kaskade, Profil-Dialog, IBAN-Ghost-Overlay, Expert-Mode-Sidebar.
+- **Deckt sich mit heute:** DIN-Geometrie (25 mm links, 20 mm rechts, Form A
+  27 mm / Form B 45 mm, Falzmarken 105/210 mm, Lochmarke 148,5 mm), Validierung
+  für IBAN/PLZ/E-Mail, "No Ghost Data", "Assistiert, nicht bevormundet".
+- **Bereits entschieden:** Adressbuch (Issue #28), Geoapify als einziger
+  Adressanbieter, LLM-Protokoll (`docs/js/AGENTEN-WEBMCP.md`).
+
+**Ergebnis:** Der Ordner ist gelöscht. Im Elternverzeichnis liegen nur noch
+`neuerarbeitsordner` und das Archiv. Einziger Halt beim Löschen war eine offene
+Typora-Datei (`00_project_memory.md`); nach deren Schließen war der Rest weg.

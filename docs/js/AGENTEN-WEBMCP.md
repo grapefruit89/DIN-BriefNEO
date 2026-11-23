@@ -48,10 +48,9 @@ zwei Transporte über derselben Werkzeugliste:
 ## 2. Die Werkzeuge
 
 > **In der App:** Einstellungen → *Agenten (MCP)*. Dort steht der WebMCP-Status,
-> und zwei Knöpfe holen die fertige `mcp.servers`-Konfiguration bzw. die
-> Live-URL (inklusive markiertem Text im Dialog, falls die Zwischenablage
-> gesperrt ist). Nur der Repo-Pfad muss ersetzt werden — die Seite kann ihn
-> nicht kennen.
+> ein Knopf kopiert die fertige `mcp.servers`-Konfiguration. Nur der Repo-Pfad
+> muss ersetzt werden — die Seite kann ihn nicht kennen. Die Adresse für den
+> Kanal ohne Debug-Port steht weiter unten (`#agent=<token>@<port>`).
 
 `website/js/webmcp.js` definiert zehn Werkzeuge; sie sind gleichzeitig
 `window.dinBriefAgent.werkzeuge()`:

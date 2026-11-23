@@ -401,26 +401,16 @@ function agentenKonfiguration() {
 }
 
 /**
- * Die Adresse für den Kanal ohne Debug-Port. Token und Port stehen fest im
- * kopierten Befehl, sonst müsste man sie aus dem Server-Log fischen.
- * @returns {string}
- */
-function agentenLiveAdresse() {
-  return `${location.origin}${location.pathname}#agent=dinbrief@8766`;
-}
-
-/**
- * Füllt den „Agenten"-Abschnitt in den Einstellungen: Status und zwei
- * Kopierknöpfe. Kein Startknopf — eine Webseite kann keinen lokalen Prozess
- * starten; sie kann nur sagen, was zu tun ist.
+ * Füllt den „Agenten"-Abschnitt in den Einstellungen: Status und ein
+ * Kopierknopf für die MCP-Konfiguration. Kein Startknopf — eine Webseite kann
+ * keinen lokalen Prozess starten; sie kann nur sagen, was zu tun ist.
  * @returns {void}
  */
 export function initAgentenHilfe() {
   const status = document.getElementById('agenten-status');
   const knopfKonfig = document.getElementById('btn-agent-konfig');
-  const knopfUrl = document.getElementById('btn-agent-url');
   const hinweis = document.getElementById('agenten-hinweis');
-  if (!status || !knopfKonfig || !knopfUrl) return;
+  if (!status || !knopfKonfig) return;
 
   const agent = /** @type {any} */ (window).dinBriefAgent;
   const anzahl = typeof agent?.werkzeuge === 'function' ? agent.werkzeuge().length : 0;
@@ -450,8 +440,5 @@ export function initAgentenHilfe() {
 
   knopfKonfig.addEventListener('click', () => {
     void kopiere(agentenKonfiguration());
-  });
-  knopfUrl.addEventListener('click', () => {
-    void kopiere(agentenLiveAdresse());
   });
 }

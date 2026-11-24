@@ -371,6 +371,20 @@ export class SettingsManager {
 const MCP_PAKET = 'github:grapefruit89/DIN-BriefNEO#main';
 
 /**
+ * Die Seite, auf der der Knopf gedrückt wurde — ohne Fragment und ohne Suche.
+ *
+ * Der Server hängt sich an einen Tab, dessen Origin und Pfad dazu passen
+ * (`seiteOeffnen()` in tools/mcp-dinbrief.mjs), sonst öffnet er einen neuen.
+ * Damit steuert der Agent genau die Fassung, von der kopiert wurde: die
+ * veröffentlichte Seite oder die lokale Debug-Fassung auf 127.0.0.1:8088.
+ * @returns {string} leer, wenn die Seite nicht über http(s) läuft
+ */
+function agentenSeite() {
+  if (!location.protocol.startsWith('http')) return '';
+  return `${location.origin}${location.pathname}`;
+}
+
+/**
  * Die Konfiguration, die ein Coding-Agent erwartet.
  *
  * Form belegt am 2026-11-24: `opencode mcp add briefneo -- npx -y <paket>`
@@ -380,13 +394,16 @@ const MCP_PAKET = 'github:grapefruit89/DIN-BriefNEO#main';
  * @returns {string}
  */
 function agentenKonfiguration() {
+  const befehl = ['npx', '-y', MCP_PAKET];
+  const seite = agentenSeite();
+  if (seite) befehl.push(`--url=${seite}`);
   return JSON.stringify(
     {
       mcp: {
         servers: {
           briefneo: {
             type: 'local',
-            command: ['npx', '-y', MCP_PAKET]
+            command: befehl
           }
         }
       }

@@ -345,10 +345,11 @@
                 <dd>Passiert nichts. Die Werkzeuge sind ein Angebot an den Browser-Agenten,
                     den du installiert hast.</dd>
                 <dt>Coding-Agent</dt>
-                <dd>Ein Agent im Terminal sieht die Seite nicht. „📋 Config“ kopiert den
-                    Eintrag für opencode (<code>mcp.servers</code>); der Server
-                    <code>tools/mcp-dinbrief.mjs</code> holt den Tab über DevTools.
-                    Claude Code nimmt dasselbe Kommando per
+                <dd>Ein Agent im Terminal sieht die Seite nicht. „📋 Config kopieren“
+                    gibt den Eintrag für opencode (<code>mcp.servers</code>) aus —
+                    mit <code>--url=</code> auf <em>diese</em> Seite, damit er genau
+                    die Fassung steuert, die du gerade siehst (auch die lokale auf
+                    127.0.0.1:8088). Claude Code nimmt dasselbe Kommando per
                     <code>claude mcp add</code>.</dd>
               </dl>
               <p class="agenten-stand" id="agenten-info-status">wird geprüft …</p>

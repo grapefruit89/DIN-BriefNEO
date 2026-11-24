@@ -4,19 +4,19 @@
 /**
  * @file live-bridge.js — die Seite wählt sich bei einem lokalen Agenten ein.
  *
- * Warum es das gibt: WebMCP wirkt nur mit einem Agenten im Browser, und die
- * CDP-Brücke (`tools/mcp-dinbrief.mjs`) braucht einen Debug-Port. Für beides
- * gibt es einen dritten Weg, der ohne Flag und ohne Port auskommt: **die Seite
- * ruft an.** Mit `#agent=<token>` in der URL öffnet sie einen Server-Sent-
- * Events-Kanal zu `http://127.0.0.1:8765`, empfängt Werkzeugaufrufe und
- * antwortet per `fetch`. Der Agent in der Kommandozeile spricht mit
- * `tools/mcp-live.mjs`, nicht mit dem Browser.
+ * Warum es das gibt: WebMCP wirkt nur mit einem Agenten im Browser. Ein Agent
+ * in der Kommandozeile braucht einen Transport — und zwar einen ohne
+ * Debug-Port: **die Seite ruft an.** Mit einem Token (aus `#agent=<token>` oder
+ * aus der Einstellung `agentToken`) öffnet sie einen Server-Sent-Events-Kanal
+ * zu `http://127.0.0.1:8765`, empfängt Werkzeugaufrufe und antwortet per
+ * `fetch`. Der Agent in der Kommandozeile spricht mit `tools/mcp-live.mjs`,
+ * nicht mit dem Browser.
  *
  * Invarianten:
- * 1. **Ohne `#agent=` passiert nichts.** Kein Kanal, kein Timer, kein Netz —
+ * 1. **Ohne Token passiert nichts.** Kein Kanal, kein Timer, kein Netz —
  *    die veröffentlichte Seite verhält sich für Besucher exakt wie vorher.
  * 2. Ausgeführt wird über `ausfuehren()` aus webmcp.js: dieselbe Werkzeugliste,
- *    dieselbe Logik wie WebMCP und die CDP-Brücke.
+ *    dieselbe Logik wie WebMCP.
  * 3. Kein Schreibzugriff auf Dateien, kein Upload, keine Dialoge — nur das,
  *    was auch `dinApi` kann.
  */

@@ -40,7 +40,7 @@ summary: "Kanonische LLM-Map, Verzeichnis-Inventar und Task-to-File-Matrix für 
 | **Review der Branch-Änderungen** | [`docs/meta/REVIEW-anrede-dropdown.md`](docs/meta/REVIEW-anrede-dropdown.md) | siehe dort |
 | **Formatierung (Telefon, Datum, IBAN, Geld)** | `website/js/format.js` | `--filter=format` |
 | **Unterschrift, Stempel** | `website/js/signature.js`, `website/css/sheet-common.css` | `--filter=Signature` |
-| **Agenten, WebMCP, MCP-Bridge** | `website/js/webmcp.js`, `tools/mcp-dinbrief.mjs`, `docs/js/AGENTEN-WEBMCP.md` | `--filter="dinBriefAgent\|WebMCP"` |
+| **Agenten, WebMCP, MCP-Bridge** | `website/js/webmcp.js`, `tools/mcp-live.mjs`, `docs/js/AGENTEN-WEBMCP.md` | `--filter="dinBriefAgent\|WebMCP"` |
 | **Schriften & Subsetting** | `website/js/font-feature.js`, `fonts/subset_fonts.py` | `--filter=FontFeature` |
 | **Seitenleiste, Dialoge, Theme** | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` |
 | **Boot, FOUC, Reihenfolge** | `website/js/boot.js`, `website/js/boot-state.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` |

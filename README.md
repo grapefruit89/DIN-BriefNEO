@@ -96,9 +96,9 @@ Kommandozeile. Eine Fähigkeitsschicht (`window.dinApi`), zwei Transporte:
   149+ hinter `chrome://flags/#enable-webmcp-testing` oder per Origin Trial. Die
   Seite registriert zehn Werkzeuge (`brief_schreiben`, `brief_lesen`, …), sobald
   `document.modelContext` vorhanden ist. Fehlt die API, passiert nichts.
-- **MCP** (stdio, zero-dependency): `tools/mcp-live.mjs` (ohne Debug-Port, die
-  Seite meldet sich) oder `tools/mcp-dinbrief.mjs` (über das DevTools-Protokoll).
-  Beide reichen genau die Werkzeuge der Seite durch — keine eigenen dazu.
+- **MCP** (stdio, zero-dependency): `tools/mcp-live.mjs` — kein Debug-Port, die
+  Seite meldet sich selbst am lokalen Kanal. Reicht genau die Werkzeuge der
+  Seite durch, keine eigenen dazu.
 - **Konsole/CDP**: `window.dinApi` und `window.dinBriefAgent` stehen nach dem
   Boot bereit, ohne Flag.
 

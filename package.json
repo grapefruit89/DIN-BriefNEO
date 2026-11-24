@@ -21,8 +21,5 @@
     "privacy-first",
     "offline-first"
   ],
-  "bin": {
-    "din-briefneo-mcp": "tools/mcp-dinbrief.mjs"
-  },
   "license": "MIT"
 }

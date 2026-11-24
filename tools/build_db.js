@@ -152,8 +152,7 @@ ${produktionscodeTabelle()}
 | Datei | Zweck |
 |---|---|
 | build_db.js | Fitness Gate + SSoT-Sync |
-| agent_gateway.py | Überholt: WebSocket-Gateway, ersetzt durch mcp-dinbrief.mjs |
-| mcp-dinbrief.mjs | MCP-Server (stdio) über CDP: Agenten schreiben Briefe und drucken PDF |
+| agent_gateway.py | Überholt: WebSocket-Gateway, ersetzt durch mcp-live.mjs |
 | mcp-live.mjs | MCP-Server für einen normalen Tab ohne Debug-Port (Seite wählt sich per SSE ein) |
 | adr-check.js | Präventiver ADR-Drift-Wächter (Bijektion & Verwaiste Assets) |
 | reconciliation.js | Reality Reconciliation Engine (Evolutionary Fitness Score) |

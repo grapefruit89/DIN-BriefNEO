@@ -187,7 +187,7 @@ function initApp() {
   bootStep('Datums-Kalender', () => initDatePicker());
   bootStep('Agenten-API', () => initApi());
   /* Nach der API: Werkzeuge brauchen dinApi. Ohne WebMCP im Browser bleibt
-     window.dinBriefAgent für die CLI-Bridge stehen (tools/mcp-dinbrief.mjs). */
+     window.dinBriefAgent für den Live-Kanal stehen (tools/mcp-live.mjs). */
   bootStep('Agenten-Werkzeuge', () => void initWebMCP());
   /* Nur aktiv, wenn die URL #agent=<token> trägt: dann wählt sich die Seite
      bei tools/mcp-live.mjs ein (ohne Flag, ohne Debug-Port). */

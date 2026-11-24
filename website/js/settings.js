@@ -369,47 +369,6 @@ export class SettingsManager {
  * ========================================================================================= */
 
 /**
- * Die Seite, auf der der Knopf gedrückt wurde — ohne Fragment und ohne Suche.
- *
- * Der Server hängt sich an einen Tab, dessen Origin und Pfad dazu passen
- * (`seiteOeffnen()` in tools/mcp-dinbrief.mjs), sonst öffnet er einen neuen.
- * Damit steuert der Agent genau die Fassung, von der kopiert wurde: die
- * veröffentlichte Seite oder die lokale Debug-Fassung auf 127.0.0.1:8088.
- * @returns {string} leer, wenn die Seite nicht über http(s) läuft
- */
-function agentenSeite() {
-  if (!location.protocol.startsWith('http')) return '';
-  return `${location.origin}${location.pathname}`;
-}
-
-/**
- * Die Konfiguration mit Debug-Port (CDP-Brücke).
- *
- * Nimmt den Tab, dessen Adresse der aktuellen Seite entspricht. Nur als
- * zweite Wahl gedacht: verlangt ein Chrome mit `--remote-debugging-port`.
- * @returns {string}
- */
-function agentenKonfigurationCdp() {
-  const befehl = ['node', 'tools/mcp-dinbrief.mjs'];
-  const seite = agentenSeite();
-  if (seite) befehl.push(`--url=${seite}`);
-  return JSON.stringify(
-    {
-      mcp: {
-        servers: {
-          briefneo: {
-            type: 'local',
-            command: befehl
-          }
-        }
-      }
-    },
-    null,
-    2
-  );
-}
-
-/**
  * Die Konfiguration für den Live-Kanal: die Seite meldet sich beim Programm.
  * Kein Debug-Port, kein Flag — der Standardweg.
  * @param {string} token
@@ -470,7 +429,6 @@ export function initAgentenHilfe() {
   const kanalStatus = document.getElementById('agenten-kanal-status');
   const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-agent-kanal'));
   const knopfLive = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-agent-konfig'));
-  const knopfCdp = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-agent-konfig-cdp'));
   if (!status) return;
 
   const agent = /** @type {any} */ (window).dinBriefAgent;
@@ -537,7 +495,5 @@ export function initAgentenHilfe() {
     zeigeKanal({ verbunden: false });
     await kopiere(knopfLive, () => agentenKonfigurationLive(token));
   });
-
-  knopfCdp?.addEventListener('click', () => kopiere(knopfCdp, agentenKonfigurationCdp));
 }
 

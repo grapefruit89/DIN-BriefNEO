@@ -9,7 +9,7 @@
  *
  * ⚠️ STATUS: ÜBERHOLT, GEPARKT (Stand 2026-11-23).
  * Ersetzt durch js/webmcp.js: dort liegen die Werkzeuge, die WebMCP nativ
- * registriert und die tools/mcp-dinbrief.mjs über CDP aufruft. Dieser Polyfill
+ * registriert und die tools/mcp-live.mjs über den Kanal aufruft. Dieser Polyfill
  * tat so, als gäbe es modelContext, und brauchte dafür einen WebSocket auf
  * 127.0.0.1 — den die CSP (connect-src 'self') ohnehin blockiert.
  * Bleibt als Zeitdokument liegen; wird nicht geladen, nicht importiert.

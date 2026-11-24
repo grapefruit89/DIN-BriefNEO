@@ -17,7 +17,7 @@ doc_links:
 code_links:
   - 'website/js/webmcp.js'
   - 'website/js/api.js'
-  - 'tools/mcp-dinbrief.mjs'
+  - 'tools/mcp-live.mjs'
 depends_on: []
 ---
 
@@ -25,7 +25,7 @@ depends_on: []
 
 > **Kurzfassung:** Es gibt drei Schichten. `api.js` kann den Brief schreiben.
 > `webmcp.js` beschreibt diese Fähigkeiten als Werkzeuge (Name, Beschreibung,
-> JSON-Schema) und meldet sie bei WebMCP an. `tools/mcp-dinbrief.mjs` reicht
+> JSON-Schema) und meldet sie bei WebMCP an. `tools/mcp-live.mjs` reicht
 > dieselben Werkzeuge an Agenten in der Kommandozeile durch. Alle drei nutzen
 > **eine** Wahrheit: `window.dinApi`.
 
@@ -38,12 +38,12 @@ der Model Context Tool Inspector.
 
 Ein Agent in der Kommandozeile (opencode, Claude Code, Codex) sieht WebMCP
 nicht: statische GitHub-Pages-Seite, kein Server, kein Endpunkt. Deshalb gibt es
-zwei Transporte über derselben Werkzeugliste:
+einen zweiten Transport über derselben Werkzeugliste:
 
 | Transport | Zielgruppe | Wie |
 |---|---|---|
 | WebMCP (`document.modelContext`) | Agenten im Browser | Seite besuchen, Werkzeuge werden beim Laden registriert |
-| MCP über stdio (`tools/mcp-dinbrief.mjs`) | Agenten in der Kommandozeile | MCP-Server steuert Chrome per DevTools-Protokoll |
+| MCP über stdio (`tools/mcp-live.mjs`) | Agenten in der Kommandozeile | die Seite meldet sich an einem lokalen Kanal; kein Debug-Port |
 
 ## 2. Die Werkzeuge
 
@@ -121,83 +121,44 @@ Getestet am 2026-11-23 mit Chrome 158, Flag über
 `browser.enabled_labs_experiments: ["enable-webmcp-testing@1"]` im Profil
 (das ist genau das, was `chrome://flags` schreibt).
 
-## 4. In der Kommandozeile (MCP)
+## 4. In der Kommandozeile (ohne Debug-Port)
+
+Ein Agent im Terminal sieht die Seite nicht. Deshalb dreht
+`tools/mcp-live.mjs` die Richtung um: **die Seite ruft an.** Kein Debug-Port,
+kein Flag, keine Erweiterung.
 
 ```bash
-node tools/mcp-dinbrief.mjs --check
+node tools/mcp-live.mjs --check   # Kanal starten, Werkzeuge und Öffnen-URL zeigen
 ```
 
-`--check` startet bei Bedarf ein eigenes Chrome (eigenes Profil unter
-`~/.local/share` bzw. `%LOCALAPPDATA%\din-briefneo\agent-profile`), öffnet die
-Seite und listet die Werkzeuge. Ports 9222, 9333, 9444, 9555 werden der Reihe
-nach probiert; ein belegter Port ohne DevTools (fremdes Chrome) wird
-übersprungen.
+Ablauf im Alltag: in der Seitenleiste **Einstellungen → MCP-Brücke** den
+Schalter „Kanal aktiv" einschalten, „📋 Config kopieren" drücken und den Block
+in den Agenten einfügen:
+
+```jsonc
+{ "mcp": { "servers": { "briefneo": {
+    "type": "local",
+    "command": ["node", "tools/mcp-live.mjs", "--token=<32 Hex-Zeichen>"] } } } }
+```
+
+Der Token entsteht **in der Seite** (16 Zufallsbytes), nicht im Programm. Ohne
+passenden Token antwortet der Kanal mit `403`. Startet der Agent den Server,
+meldet sich der offene Tab von selbst; in der Seitenleiste steht dann
+„verbunden".
 
 | Option | Vorgabe |
 |---|---|
-| `--url=<adresse>` | `https://grapefruit89.github.io/DIN-BriefNEO/` |
-| `--cdp=<adresse>` | automatische Portwahl |
-| `--no-launch` | kein eigener Browser; vorhandenes CDP nutzen |
-| `--browser=<pfad>` | `findBrowser()` (Chrome, Chromium, Helium, Edge) |
-| `--profile=<ordner>` | Agenten-Profil |
+| `--token=<hex>` | zufällig — dann muss die Seite mit `#agent=<token>` geöffnet werden |
+| `--url=<adresse>` | `https://grapefruit89.github.io/DIN-BriefNEO/` (nur für die Öffnen-Hilfe) |
+| `--port=<n>` | 8765; belegte Ports werden übersprungen (8766, 8775, 8785, 8795) |
 
-Als MCP-Server eintragen. opencode (V2) erwartet ihn unter `mcp.servers`.
-Die pfadfreie Variante (das ist, was der Knopf in den Einstellungen kopiert):
-
-```jsonc
-{
-  "mcp": {
-    "servers": {
-      "briefneo": {
-        "type": "local",
-        "command": ["npx", "-y", "github:grapefruit89/DIN-BriefNEO#main"]
-      }
-    }
-  }
-}
-```
-
-`npx` holt den Server beim ersten Start aus dem Repo (Voraussetzung: Node).
-Wer den Klon schon hat, kann auch direkt zeigen:
-
-```jsonc
-{ "command": ["node", "<repo>/tools/mcp-dinbrief.mjs"] }
-```
-
-Oder per CLI: `opencode mcp add briefneo -- node <repo>/tools/mcp-dinbrief.mjs`.
-Der Server startet beim Verbinden Chrome und öffnet die App ein Mal; das Fenster
-bleibt stehen, damit der Nutzer sieht, was geschrieben wird.
-
-Claude Code und andere MCP-Clients nehmen dasselbe Kommando:
-
-```bash
-claude mcp add briefneo -- node <repo>/tools/mcp-dinbrief.mjs
-```
-
-## 4b. Ohne Debug-Port: die Seite ruft an
-
-Für einen **normalen Tab** (kein Flag, kein `--remote-debugging-port`) dreht
-`tools/mcp-live.mjs` die Richtung um:
-
-```bash
-node tools/mcp-live.mjs
-# [din-briefneo-live-mcp] Kanal: http://127.0.0.1:8765
-# [din-briefneo-live-mcp] Öffnen: https://…/DIN-BriefNEO/#agent=<token>
-```
-
-Diese Adresse in **irgendeinem** Chrome öffnen. Die Seite liest das Token aus
-dem Fragment, hängt sich per Server-Sent-Events an den lokalen Dienst und
-meldet „Agent verbunden". Ab dann gehen `tools/call` durch den Kanal in den
-Tab — ohne Erweiterung, ohne DevTools-Protokoll.
-
-- Ports 8765, 8766, 8775, 8785, 8795 werden probiert; ein belegter Port wird
-  übersprungen und steht dann im Fragment (`#agent=<token>@8766`).
-- Die Werkzeugliste kommt aus `website/js/webmcp.js` — dieselbe Datei, die
-  WebMCP bedient. Keine Kopie.
-- Dieselbe Werkzeugliste wie die CDP-Brücke; es gibt keine Zusatzwerkzeuge
-  mehr (2026-11-24).
+- Werkzeugliste kommt aus `website/js/webmcp.js` — dieselbe Datei, die WebMCP
+  bedient. Keine Kopie, keine Zusatzwerkzeuge.
 - CSP: `connect-src` erlaubt `http://127.0.0.1:*` — nur Loopback, und nur die
   Seite selbst spricht dort.
+- Die frühere CDP-Brücke (`tools/mcp-dinbrief.mjs`, Debug-Port) ist am
+  2026-11-24 entfernt: sie bot keine Brief-Funktion zusätzlich, nur
+  Browser-Steuerung.
 
 ## 5. Grenzen (bewusst)
 
@@ -220,7 +181,6 @@ Tab — ohne Erweiterung, ohne DevTools-Protokoll.
 
 ```bash
 node tools/test-runner.mjs --filter="dinBriefAgent|WebMCP|Agenten-Kanal"   # 9 Fälle
-node tools/mcp-dinbrief.mjs --check                          # 10 Werkzeuge (CDP)
-node tools/mcp-live.mjs --check                              # 10 Werkzeuge (Kanal)
+node tools/mcp-live.mjs --check                              # 15 Werkzeuge
 node tools/build_db.js                                       # Fitness-Gate + Wegweiser
 ```

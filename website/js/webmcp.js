@@ -11,7 +11,7 @@
  * ruft sie auf, statt das DOM zu erraten. Fehlt `document.modelContext`
  * (Chrome ohne Origin-Trial/Flag, Firefox, Safari), bleibt genau eine Wirkung
  * übrig: `window.dinBriefAgent` als derselbe Vertrag, den die CLI-Bridge
- * (`tools/mcp-dinbrief.mjs`) über CDP aufruft.
+ * (`tools/mcp-live.mjs`) über den lokalen Kanal aufruft.
  *
  * Invarianten:
  * 1. Kein Netz, keine Abhängigkeit, kein DOM-Wissen — jede Ausführung läuft

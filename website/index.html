@@ -331,8 +331,6 @@
               <button type="button" id="btn-agent-konfig" class="btn w-full agenten-kopieren"
                       title="MCP-Konfiguration für den Coding-Agenten kopieren (ohne Debug-Port)">📋 Config kopieren</button>
               <small id="agenten-kanal-status" class="agenten-kanal-status">aus</small>
-              <button type="button" id="btn-agent-konfig-cdp" class="btn w-full agenten-kopieren"
-                      title="Zweite Wahl: braucht ein Chrome mit Debug-Port">📋 mit Debug-Port</button>
             </div>
 
             <!-- Overlay: natives Popover (Top-Layer, Escape/Klick daneben schliesst) -->
@@ -352,10 +350,6 @@
                 <dt>Tokenschutz</dt>
                 <dd>Der Token entsteht hier in der Seite und steht in der kopierten Config.
                     Ohne passenden Token antwortet der Kanal mit <code>403</code>.</dd>
-                <dt>Zweite Wahl</dt>
-                <dd>„📋 mit Debug-Port“ steuert den Tab über die DevTools-Schnittstelle
-                    (<code>tools/mcp-dinbrief.mjs</code>). Nötig nur, wenn der Browser mit
-                    <code>--remote-debugging-port</code> läuft.</dd>
               </dl>
               <p class="agenten-stand" id="agenten-info-status">wird geprüft …</p>
             </div>

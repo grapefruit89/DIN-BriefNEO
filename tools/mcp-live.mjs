@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // tools/mcp-live.mjs — MCP-Server (stdio) für einen ganz normalen Browser-Tab.
 //
-// Warum: `mcp-dinbrief.mjs` steuert Chrome über das DevTools-Protokoll — das
-// braucht `--remote-debugging-port`. Wer den nicht will, dreht die Richtung um:
+// Warum: ein Agent im Terminal sieht die Seite nicht. Statt einem Browser mit
+// Debug-Port dreht dieser Server die Richtung um:
 // **die Seite ruft an.** Ein Tab, der mit `#agent=<token>` geöffnet wurde,
 // hängt an einem Server-Sent-Events-Kanal; dieser Server nimmt MCP über stdio
 // an und schiebt die Aufrufe durch den Kanal.

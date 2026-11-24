@@ -58,8 +58,9 @@ export const DEFAULT_SETTINGS = {
    * einschaltet. Ein Addon darf den Brief nicht von selbst veraendern. */
   pluginGeschaeftsangaben: false,
   previewFont: 'default',
-  /* Ansicht, keine Briefdaten: Blatt-Zoom 1 = 100 %, Nacht-Grundhelligkeit. */
-  ansichtZoom: 1,
+  /* Ansicht, keine Briefdaten: Blatt-Zoom 1.03 = 103 % (am Referenzmonitor 1:1),
+   Nacht-Grundhelligkeit der Palette. */
+  ansichtZoom: 1.03,
   nachtHelligkeit: 0.5,
   formality: 'formal',
   randU: 20

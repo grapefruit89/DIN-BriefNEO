@@ -10,7 +10,7 @@
  * Einstellung den Reload überlebt, auch ohne offenes Debug-Panel.
  *
  * Gespeichert wird in `din_settings`:
- *   `ansichtZoom`       1 = 100 %, erlaubt 0.9–1.1 (±10 %)
+ *   `ansichtZoom`       1.03 = 103 % (Vorgabe), erlaubt 0.9–1.1 (±10 %)
  *   `nachtHelligkeit`   Grundhelligkeit der Nachtpalette, 0.38–0.68
  */
 
@@ -38,6 +38,8 @@ export const NACHT_MIN = 0.38;
 export const NACHT_MAX = 0.68;
 /** Erlaubte Spanne des Zooms (1 = 100 %). */
 export const ZOOM_MIN = 0.9;
+/** 103 %: am Referenzmonitor ist das Blatt damit 1:1 (CSS-mm sind 96 dpi). */
+export const ZOOM_VORGABE = 1.03;
 export const ZOOM_MAX = 1.1;
 
 /**
@@ -75,7 +77,7 @@ export function wendeNachtpalette(basis) {
  * @returns {void}
  */
 export function wendeZoom(faktor) {
-  const wert = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Number(faktor) || 1));
+  const wert = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Number(faktor) || ZOOM_VORGABE));
   document.documentElement.style.setProperty('--ansicht-zoom', String(wert));
 }
 
@@ -86,7 +88,7 @@ export function wendeZoom(faktor) {
  */
 export function wendeGespeicherteAnsicht() {
   const gespeichert = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-  wendeZoom(typeof gespeichert.ansichtZoom === 'number' ? gespeichert.ansichtZoom : 1);
+  wendeZoom(typeof gespeichert.ansichtZoom === 'number' ? gespeichert.ansichtZoom : 1.03);
   wendeNachtpalette(
     typeof gespeichert.nachtHelligkeit === 'number' ? gespeichert.nachtHelligkeit : 0.5
   );

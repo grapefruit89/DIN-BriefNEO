@@ -687,6 +687,15 @@ export const WERKZEUGE = [
         notiere(api.setzen(feld, zuSchreiben), feld, gesetzt, fehler);
       }
       if (gesetzt.length === 0) return { ok: false, fehler: 'keine verwertbaren Angaben' };
+      // Sicherstellen, dass das Addon „Geschäftsangaben (§ 35a)" aktiv und sichtbar ist
+      const elPlugin =
+        typeof document === 'undefined' ? null : document.getElementById('toggle-plugin-geschaeftsangaben');
+      if (elPlugin instanceof HTMLInputElement && !elPlugin.checked) {
+        elPlugin.checked = true;
+        elPlugin.dispatchEvent(new Event('change', { bubbles: true }));
+      } else if (typeof document !== 'undefined') {
+        document.documentElement.dataset.pluginGeschaeft = 'true';
+      }
       notiere(api.setzen('toggle-fuss', true), 'toggle-fuss', gesetzt, fehler);
       return { ok: fehler.length === 0, gesetzt, fehler };
     },
@@ -719,7 +728,10 @@ export const WERKZEUGE = [
       if (!/^\d{5}$/.test(plz)) return { ok: false, fehler: 'plz muss fünfstellig sein' };
       const ort = text(argumente, 'ort');
       try {
-        const { ortsVorschlaege } = await import('./address.js');
+        const { AddressIntelligence, ortsVorschlaege } = await import('./address.js');
+        if (typeof AddressIntelligence?.init === 'function') {
+          await AddressIntelligence.init();
+        }
         const antwort = ortsVorschlaege(plz, 3, { nurOrte: true });
         const treffer = (antwort.items ?? []).map((eintrag) => ({
           plz: String(eintrag.plz ?? plz),
@@ -833,7 +845,10 @@ export const WERKZEUGE = [
         const plz = plzTreffer[1];
         const ortName = ort.replace(plz, '').trim();
         try {
-          const { ortsVorschlaege } = await import('./address.js');
+          const { AddressIntelligence, ortsVorschlaege } = await import('./address.js');
+          if (typeof AddressIntelligence?.init === 'function') {
+            await AddressIntelligence.init();
+          }
           const vorhanden = (ortsVorschlaege(plz, 3, { nurOrte: true }).items ?? []).map((eintrag) =>
             String(eintrag.city ?? eintrag.ort ?? eintrag.name ?? '')
           );

@@ -85,6 +85,7 @@ function element(id) {
 function schreibe(id, wert) {
   applyValue(id, wert, 'logic');
   eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'logic', feld: id });
+  eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
 }
 
 /**

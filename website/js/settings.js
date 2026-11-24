@@ -11,7 +11,7 @@
 import { toggleAddon } from './addons.js';
 import { wendeGespeicherteAnsicht } from './ansicht.js';
 import { Events, eventBus, transitionOn } from './core.js';
-import { aufKanalStatus, kanalOffen, kanalStarten, kanalStoppen, neuerToken } from './live-bridge.js';
+import { aufKanalStatus, kanalOffen, kanalStarten, kanalStoppen, kanalVerbunden, neuerToken } from './live-bridge.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { applyValue } from './state-binding.js';
 
@@ -459,11 +459,12 @@ export function initAgentenHilfe() {
     const einstellungen = agentenEinstellungen();
     if (schalter.checked) {
       const token = agentenKanalSichern();
-      zeigeKanal({ verbunden: false });
+      zeigeKanal({ verbunden: kanalVerbunden() });
       void token;
     } else {
       saveJSON(STORAGE_KEYS.settings, { ...einstellungen, agentKanal: false });
       kanalStoppen();
+      zeigeKanal({ verbunden: false });
     }
   });
 
@@ -492,8 +493,17 @@ export function initAgentenHilfe() {
 
   knopfLive?.addEventListener('click', async () => {
     const token = agentenKanalSichern();
-    zeigeKanal({ verbunden: false });
+    zeigeKanal({ verbunden: kanalVerbunden() });
     await kopiere(knopfLive, () => agentenKonfigurationLive(token));
+  });
+
+  window.addEventListener('storage', (ereignis) => {
+    if (ereignis.key === STORAGE_KEYS.settings) {
+      const akt = agentenEinstellungen();
+      if (!akt.agentKanal && kanalOffen()) {
+        kanalStoppen();
+      }
+    }
   });
 }
 

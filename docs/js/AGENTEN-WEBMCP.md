@@ -47,15 +47,12 @@ einen zweiten Transport über derselben Werkzeugliste:
 
 ## 2. Die Werkzeuge
 
-> **In der App:** Einstellungen → *Agenten (MCP)* — drei Zeilen: Schalter,
-> Status, Kopierknopf. Der Schalter entscheidet, ob Agenten den Brief schreiben
-> dürfen (Standard: an — ohne angeschlossenen Agenten passiert ohnehin nichts).
-> Ausgeschaltet lehnt jeder Werkzeugaufruf mit einer Begründung ab; die
-> Werkzeugliste selbst verschwindet erst nach dem Neuladen, weil die API kein
-> Abmelden kennt. Der Knopf kopiert die fertige `mcp.servers`-Konfiguration —
-> ohne Pfad, weil der Server per npx direkt aus dem Repo kommt.
+> **In der App:** Einstellungen → *Agent verbinden* — drei Zeilen: Schalter,
+> Status, Kopierknopf. Der Schalter „Zugriff erlauben" entscheidet, ob Agenten den Brief
+> schreiben dürfen. Der Knopf „Verbindung kopieren" kopiert die fertige `mcp.servers`-Konfiguration
+> mit dem aktuellen Token.
 
-`website/js/webmcp.js` definiert zehn Werkzeuge; sie sind gleichzeitig
+`website/js/webmcp.js` definiert 15 Werkzeuge; sie sind gleichzeitig
 `window.dinBriefAgent.werkzeuge()`:
 
 | Werkzeug | Wirkung | readOnly |
@@ -109,7 +106,7 @@ passiert nichts — `initWebMCP()` erkennt das, registriert nichts und lässt nu
 Prüfen in der Konsole:
 
 ```js
-await document.modelContext.getTools()   // zehn Werkzeuge mit Schema
+await document.modelContext.getTools()   // 15 Werkzeuge mit Schema
 await document.modelContext.executeTool(
   (await document.modelContext.getTools()).find((t) => t.name === 'brief_lesen')
 )
@@ -131,8 +128,8 @@ kein Flag, keine Erweiterung.
 node tools/mcp-live.mjs --check   # Kanal starten, Werkzeuge und Öffnen-URL zeigen
 ```
 
-Ablauf im Alltag: in der Seitenleiste **Einstellungen → MCP-Brücke** den
-Schalter „Kanal aktiv" einschalten, „📋 Config kopieren" drücken und den Block
+Ablauf im Alltag: in der Seitenleiste **Einstellungen → Agent verbinden** den
+Schalter „Zugriff erlauben" einschalten, „📋 Verbindung kopieren" drücken und den Block
 in den Agenten einfügen:
 
 ```jsonc

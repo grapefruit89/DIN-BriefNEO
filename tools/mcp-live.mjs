@@ -16,7 +16,7 @@
 //   node tools/mcp-live.mjs --check             # Status und Öffnungs-URL
 //   node tools/mcp-live.mjs --url=http://127.0.0.1:8088/website/index.html
 
-import { randomBytes } from 'node:crypto';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { createServer } from 'node:http';
 import net from 'node:net';
 import { createInterface } from 'node:readline';
@@ -35,12 +35,25 @@ const wert = (name, fallback) => {
   return treffer ? treffer.slice(name.length + 1) : fallback;
 };
 
+const tokenWert = wert('--token', '');
 const optionen = {
   url: wert('--url', APP_URL),
-  token: wert('--token', randomBytes(4).toString('hex')),
+  token: tokenWert && tokenWert.trim() ? tokenWert.trim() : randomBytes(16).toString('hex'),
   port: Number(wert('--port', '0')),
   pruefen: argumente.includes('--check')
 };
+
+/**
+ * Vergleicht Tokens zeitkonstant (Schutz gegen Timing-Angriffe).
+ * @param {string | null | undefined} kandidat
+ * @returns {boolean}
+ */
+function tokenGueltig(kandidat) {
+  if (typeof kandidat !== 'string' || !kandidat) return false;
+  const a = Buffer.from(kandidat);
+  const b = Buffer.from(optionen.token);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
 
 /**
  * Belegt? Ein fremdes Programm auf 8765 darf den Kanal nicht blockieren.
@@ -86,9 +99,31 @@ function oeffnen() {
   return `${optionen.url}#agent=${optionen.token}${marker}`;
 }
 
+/**
+ * CORS- und PNA-Header für den lokalen Loopback-Server.
+ * @param {import('node:http').IncomingMessage | null} [req]
+ * @returns {Record<string, string>}
+ */
+function corsHeaders(req = null) {
+  const origin = req?.headers?.origin || '';
+  const istErlaubt =
+    !origin ||
+    origin === 'null' ||
+    origin.startsWith('http://127.0.0.1:') ||
+    origin.startsWith('http://localhost:') ||
+    origin === 'https://grapefruit89.github.io';
+  return {
+    'Access-Control-Allow-Origin': istErlaubt ? (origin || '*') : 'https://grapefruit89.github.io',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Private-Network': 'true',
+    'Cache-Control': 'no-store'
+  };
+}
+
 /** @type {import('node:http').ServerResponse | null} */
 let kanal = null;
-/** @type {Map<string, (ergebnis: unknown) => void>} */
+/** @type {Map<string, { loesen: (ergebnis: unknown) => void, ablehnen: (fehler: Error) => void }>} */
 const offen = new Map();
 let naechsteId = 0;
 
@@ -96,14 +131,14 @@ let naechsteId = 0;
  * @param {import('node:http').ServerResponse} res
  * @param {number} status
  * @param {unknown} koerper
+ * @param {import('node:http').IncomingMessage | null} [req]
  */
-function json(res, status, koerper) {
+function json(res, status, koerper, req = null) {
   const text = JSON.stringify(koerper);
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
     'Content-Length': Buffer.byteLength(text),
-    'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'no-store'
+    ...corsHeaders(req)
   });
   res.end(text);
 }
@@ -111,14 +146,10 @@ function json(res, status, koerper) {
 /**
  * @param {import('node:http').ServerResponse} res
  * @param {number} status
+ * @param {import('node:http').IncomingMessage | null} [req]
  */
-function leer(res, status) {
-  res.writeHead(status, {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Cache-Control': 'no-store'
-  });
+function leer(res, status, req = null) {
+  res.writeHead(status, corsHeaders(req));
   res.end();
 }
 
@@ -129,7 +160,12 @@ function leer(res, status) {
 async function koerper(req) {
   /** @type {Buffer[]} */
   const teile = [];
-  for await (const stueck of req) teile.push(Buffer.from(stueck));
+  let bytes = 0;
+  for await (const stueck of req) {
+    bytes += stueck.length;
+    if (bytes > 1024 * 1024) throw new Error('Anfragekörper zu groß (> 1 MB)');
+    teile.push(Buffer.from(stueck));
+  }
   const text = Buffer.concat(teile).toString('utf8');
   return text ? JSON.parse(text) : {};
 }
@@ -153,9 +189,15 @@ function anSeiteSenden(name, eingabe, timeoutMs = 90000) {
       offen.delete(id);
       ablehnen(new Error(`Zeitüberschreitung: ${name}`));
     }, timeoutMs);
-    offen.set(id, (ergebnis) => {
-      clearTimeout(frist);
-      loesen(ergebnis);
+    offen.set(id, {
+      loesen: (ergebnis) => {
+        clearTimeout(frist);
+        loesen(ergebnis);
+      },
+      ablehnen: (fehler) => {
+        clearTimeout(frist);
+        ablehnen(fehler);
+      }
     });
     ziel.write(`event: call\ndata: ${JSON.stringify({ id, name, arguments: eingabe })}\n\n`);
   });
@@ -164,47 +206,80 @@ function anSeiteSenden(name, eingabe, timeoutMs = 90000) {
 /* ------------------------------------------------------------------ HTTP-Kanal */
 
 const server = createServer(async (req, res) => {
-  const adresse = new URL(req.url || '/', `http://127.0.0.1:${optionen.port}`);
+  let adresse;
+  try {
+    adresse = new URL(req.url || '/', `http://127.0.0.1:${optionen.port}`);
+  } catch {
+    json(res, 400, { ok: false, fehler: 'ungültige URL' }, req);
+    return;
+  }
   const pfad = adresse.pathname;
 
   if (req.method === 'OPTIONS') {
-    leer(res, 204);
+    leer(res, 204, req);
     return;
   }
 
   if (pfad === '/health') {
-    json(res, 200, {
-      ok: true,
-      tab: Boolean(kanal),
-      werkzeuge: werkzeugListe().length,
-      oeffnen: oeffnen()
-    });
+    // Sicherheitsinvariante: kein Token/URL im unauthentifizierten /health leaken!
+    json(
+      res,
+      200,
+      {
+        ok: true,
+        tab: Boolean(kanal),
+        werkzeuge: werkzeugListe().length
+      },
+      req
+    );
     return;
   }
 
   if (pfad === '/events') {
-    if (adresse.searchParams.get('token') !== optionen.token) {
-      json(res, 403, { ok: false, fehler: 'falsches Token' });
+    if (!tokenGueltig(adresse.searchParams.get('token'))) {
+      json(res, 403, { ok: false, fehler: 'falsches Token' }, req);
       return;
     }
+
+    // Wenn ein neuer Tab kommt, den alten Stream sauber schließen
+    if (kanal && kanal !== res && !kanal.destroyed && !kanal.writableEnded) {
+      try {
+        kanal.write('event: close\ndata: {"grund":"neuer Tab verbunden"}\n\n');
+        kanal.end();
+      } catch {
+        /* ignorieren */
+      }
+    }
+
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-store',
       Connection: 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
-      'X-Accel-Buffering': 'no'
+      'X-Accel-Buffering': 'no',
+      ...corsHeaders(req)
     });
     res.write('event: ready\ndata: {}\n\n');
     kanal = res;
     log('Tab verbunden');
+
     const takt = setInterval(() => {
+      if (res.writableEnded || res.destroyed) {
+        clearInterval(takt);
+        return;
+      }
       res.write(': ping\n\n');
     }, 20000);
+
     req.on('close', () => {
       clearInterval(takt);
       if (kanal === res) {
         kanal = null;
         log('Tab getrennt');
+        // Offene Anfragen sofort abweisen statt 90s zu warten
+        for (const [id, eintrag] of offen.entries()) {
+          offen.delete(id);
+          eintrag.ablehnen(new Error('Tab getrennt während Werkzeugaufruf'));
+        }
       }
     });
     return;
@@ -213,25 +288,25 @@ const server = createServer(async (req, res) => {
   if (pfad === '/result' && req.method === 'POST') {
     try {
       const daten = await koerper(req);
-      if (daten.token !== optionen.token) {
-        json(res, 403, { ok: false, fehler: 'falsches Token' });
+      if (!tokenGueltig(daten.token)) {
+        json(res, 403, { ok: false, fehler: 'falsches Token' }, req);
         return;
       }
-      const fertig = offen.get(String(daten.id));
-      if (!fertig) {
-        json(res, 404, { ok: false, fehler: 'unbekannte Aufruf-ID' });
+      const eintrag = offen.get(String(daten.id));
+      if (!eintrag) {
+        json(res, 404, { ok: false, fehler: 'unbekannte Aufruf-ID' }, req);
         return;
       }
       offen.delete(String(daten.id));
-      fertig(daten.result);
-      json(res, 200, { ok: true });
+      eintrag.loesen(daten.result);
+      json(res, 200, { ok: true }, req);
     } catch (problem) {
-      json(res, 400, { ok: false, fehler: problem instanceof Error ? problem.message : String(problem) });
+      json(res, 400, { ok: false, fehler: problem instanceof Error ? problem.message : String(problem) }, req);
     }
     return;
   }
 
-  json(res, 404, { ok: false, fehler: 'unbekannter Pfad' });
+  json(res, 404, { ok: false, fehler: 'unbekannter Pfad' }, req);
 });
 
 /* --------------------------------------------------------------- MCP-Protokoll */
@@ -241,6 +316,9 @@ const server = createServer(async (req, res) => {
  * @returns {Promise<any | null>}
  */
 async function bearbeiten(nachricht) {
+  if (!nachricht || typeof nachricht !== 'object' || Array.isArray(nachricht)) {
+    return { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Ungültige JSON-RPC-Nachricht' } };
+  }
   const { id, method, params = {} } = nachricht;
   if (id === undefined) return null;
   try {
@@ -265,13 +343,24 @@ async function bearbeiten(nachricht) {
     if (method === 'tools/call') {
       const name = String(params.name || '');
       const eingabe = typeof params.arguments === 'object' && params.arguments !== null ? params.arguments : {};
-      const ergebnis = await anSeiteSenden(name, eingabe);
-      const fehler = ergebnis && typeof ergebnis === 'object' && /** @type {any} */ (ergebnis).ok === false;
-      return {
-        jsonrpc: '2.0',
-        id,
-        result: { content: [{ type: 'text', text: JSON.stringify(ergebnis, null, 2) }], isError: Boolean(fehler) }
-      };
+      try {
+        const ergebnis = await anSeiteSenden(name, eingabe);
+        const fehler = ergebnis && typeof ergebnis === 'object' && /** @type {any} */ (ergebnis).ok === false;
+        return {
+          jsonrpc: '2.0',
+          id,
+          result: { content: [{ type: 'text', text: JSON.stringify(ergebnis, null, 2) }], isError: Boolean(fehler) }
+        };
+      } catch (callProblem) {
+        return {
+          jsonrpc: '2.0',
+          id,
+          result: {
+            content: [{ type: 'text', text: callProblem instanceof Error ? callProblem.message : String(callProblem) }],
+            isError: true
+          }
+        };
+      }
     }
     return { jsonrpc: '2.0', id, error: { code: -32601, message: `Methode nicht unterstützt: ${method}` } };
   } catch (problem) {
@@ -311,19 +400,23 @@ let kette = Promise.resolve();
 zeilen.on('line', (zeile) => {
   const text = zeile.trim();
   if (!text) return;
-  kette = kette.then(async () => {
-    let nachricht;
-    try {
-      nachricht = JSON.parse(text);
-    } catch {
-      process.stdout.write(
-        `${JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'JSON nicht lesbar' } })}\n`
-      );
-      return;
-    }
-    const antwort = await bearbeiten(nachricht);
-    if (antwort) process.stdout.write(`${JSON.stringify(antwort)}\n`);
-  });
+  kette = kette
+    .then(async () => {
+      let nachricht;
+      try {
+        nachricht = JSON.parse(text);
+      } catch {
+        process.stdout.write(
+          `${JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'JSON nicht lesbar' } })}\n`
+        );
+        return;
+      }
+      const antwort = await bearbeiten(nachricht);
+      if (antwort) process.stdout.write(`${JSON.stringify(antwort)}\n`);
+    })
+    .catch((problem) => {
+      log('Unerwarteter Stdio-Fehler:', problem instanceof Error ? problem.message : String(problem));
+    });
 });
 zeilen.on('close', () => {
   void kette.then(() => process.exit(0));

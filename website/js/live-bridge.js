@@ -101,6 +101,15 @@ export function neuerToken() {
 
 /** @type {{ token: string, port: number, beenden: () => void } | null} */
 let aktuelle = null;
+let istVerbunden = false;
+
+/**
+ * Meldet, ob der Kanal aktuell aktiv mit einem Server verbunden ist.
+ * @returns {boolean}
+ */
+export function kanalVerbunden() {
+  return istVerbunden;
+}
 
 /** @type {(stand: { verbunden: boolean, token?: string, port?: number }) => void} */
 let statusMelder = () => {};
@@ -126,15 +135,31 @@ export function kanalStarten(token, port = BRIDGE_PORT) {
 
   /** @type {EventSource} */
   const quelle = new EventSource(`${basis}/events?token=${encodeURIComponent(token)}`);
+  let warVerbunden = false;
 
   quelle.addEventListener('open', () => {
-    showToast('Agent verbunden — schreibbereit', 'info');
+    istVerbunden = true;
+    if (!warVerbunden) {
+      showToast('Agent verbunden — schreibbereit', 'info');
+      warVerbunden = true;
+    }
     statusMelder({ verbunden: true, token, port });
   });
 
-  /* EventSource versucht es selbst weiter; jeder Fehlversuch ist nur ein Status. */
+  /* EventSource versucht es selbst weiter; wenn der Server 403 liefert oder schließt, sauber stoppen */
   quelle.addEventListener('error', () => {
-    statusMelder({ verbunden: false, token, port });
+    istVerbunden = false;
+    if (quelle.readyState === EventSource.CLOSED) {
+      statusMelder({ verbunden: false, token, port });
+      kanalStoppen();
+    } else {
+      statusMelder({ verbunden: false, token, port });
+    }
+  });
+
+  quelle.addEventListener('close', () => {
+    istVerbunden = false;
+    kanalStoppen();
   });
 
   quelle.addEventListener('call', async (ereignis) => {
@@ -166,6 +191,7 @@ export function kanalStarten(token, port = BRIDGE_PORT) {
  * @returns {void}
  */
 export function kanalStoppen() {
+  istVerbunden = false;
   if (!aktuelle) return;
   aktuelle.beenden();
   aktuelle = null;

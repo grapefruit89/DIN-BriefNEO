@@ -508,20 +508,11 @@
           <strong>Blatt-Zoom</strong>
           <output id="dbg-zoom-wert">100 %</output>
         </div>
-        <input type="range" id="dbg-zoom" min="80" max="140" step="0.5" value="100"
+        <input type="range" id="dbg-zoom" min="90" max="110" step="1" value="100"
                aria-label="Zoomstufe des Blattes">
         <small>Wird gespeichert. Im Druck immer 100 %.</small>
       </div>
-      <div class="debug-block debug-zoom">
-        <div class="debug-block-kopf">
-          <strong>Originalgröße</strong>
-        </div>
-        <p><small>Lineal an das weiße Blatt halten: wie breit ist es wirklich?</small></p>
-        <input type="number" id="dbg-kalibrierung" min="100" max="500" step="1" value="210"
-               aria-label="Gemessene Blattbreite in Millimetern" class="input-field">
-        <button type="button" id="dbg-kalibrieren" class="btn w-full">Blatt auf 210 mm setzen</button>
-        <small id="dbg-kalibrierung-status">Der Browser kennt die Pixel-Dichte nicht — deshalb einmal messen.</small>
-      </div>
+
       <dl class="debug-tabelle" id="debug-felder"></dl>
       <div class="debug-block">
         <div class="debug-block-kopf">

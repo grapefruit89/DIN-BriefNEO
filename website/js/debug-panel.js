@@ -19,7 +19,7 @@
 
 import { ortsVorschlaege, strassenSuchPfad } from './address.js';
 import { AddressIntelligence } from './address-data.js';
-import { kalibriereAufOriginal, nachtCss, speichereAnsicht, wendeNachtpalette, wendeZoom } from './ansicht.js';
+import { nachtCss, speichereAnsicht, wendeNachtpalette, wendeZoom } from './ansicht.js';
 import { collectDraft } from './document.js';
 import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
@@ -341,27 +341,13 @@ function initAnsichtRegler() {
       const faktor = Number(zoom.value) / 100;
       wendeZoom(faktor);
       speichereAnsicht('ansichtZoom', faktor);
-      zoomWert.textContent = `${(Math.round(faktor * 1000) / 10).toFixed(1).replace('.', ',')} %`;
+      zoomWert.textContent = `${Math.round(faktor * 100)} %`;
     };
     zoom.addEventListener('input', anwenden);
     zoom.value = String(Math.round((loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS).ansichtZoom ?? 1) * 100));
     anwenden();
   }
 
-  /* Kalibrierung: gemessene Blattbreite -> Zoom, bei dem 210 mm auch 210 mm sind. */
-  const messwert = /** @type {HTMLInputElement | null} */ (document.getElementById('dbg-kalibrierung'));
-  const knopf = document.getElementById('dbg-kalibrieren');
-  const meldung = document.getElementById('dbg-kalibrierung-status');
-  if (messwert && knopf && zoom) {
-    knopf.addEventListener('click', () => {
-      const faktor = kalibriereAufOriginal(Number(messwert.value), Number(zoom.value) / 100);
-      zoom.value = String(Math.round(faktor * 200) / 2);
-      if (zoomWert) zoomWert.textContent = `${Math.round(faktor * 100)} %`;
-      if (meldung) {
-        meldung.textContent = `Zoom ${(Math.round(faktor * 1000) / 10).toFixed(1).replace('.', ',')} % — das Blatt ist jetzt 210 mm breit.`;
-      }
-    });
-  }
 }
 
 /* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init */export function initDebugPanel() {

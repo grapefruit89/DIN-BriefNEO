@@ -10,7 +10,7 @@
  * Einstellung den Reload überlebt, auch ohne offenes Debug-Panel.
  *
  * Gespeichert wird in `din_settings`:
- *   `ansichtZoom`       1 = 100 %, erlaubt 0.6–1.6
+ *   `ansichtZoom`       1 = 100 %, erlaubt 0.9–1.1 (±10 %)
  *   `nachtHelligkeit`   Grundhelligkeit der Nachtpalette, 0.38–0.68
  */
 
@@ -37,8 +37,8 @@ const NACHT_TOKENS = [
 export const NACHT_MIN = 0.38;
 export const NACHT_MAX = 0.68;
 /** Erlaubte Spanne des Zooms (1 = 100 %). */
-export const ZOOM_MIN = 0.6;
-export const ZOOM_MAX = 1.6;
+export const ZOOM_MIN = 0.9;
+export const ZOOM_MAX = 1.1;
 
 /**
  * @param {number} basis Grundhelligkeit 0.38–0.68
@@ -77,28 +77,6 @@ export function wendeNachtpalette(basis) {
 export function wendeZoom(faktor) {
   const wert = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Number(faktor) || 1));
   document.documentElement.style.setProperty('--ansicht-zoom', String(wert));
-}
-
-/**
- * Setzt den Zoom so, dass das Blatt **wirklich** 210 mm breit auf dem Schirm ist.
- *
- * Der Browser kennt die Pixel-Dichte nicht (CSS-mm sind per Definition 96 dpi),
- * also muss der Nutzer einmal messen: Lineal an das weiße Blatt, gemessene
- * Breite in Millimetern eintragen. Faktor = Soll / Ist, bezogen auf den Zoom,
- * bei dem gemessen wurde.
- * @param {number} gemessenMm Breite des Blattes auf dem Schirm in mm
- * @param {number} [bisherigerZoom] Zoom, bei dem gemessen wurde (Standard: aktuell)
- * @returns {number} der neue Zoom-Faktor (schon angewandt)
- */
-export function kalibriereAufOriginal(gemessenMm, bisherigerZoom) {
-  const ist = Number(gemessenMm);
-  const vorher = Number(bisherigerZoom) || 1;
-  if (!(ist > 50) || !(ist < 600)) return vorher;
-  /* Soll 210 mm / gemessene Breite * der Zoom, bei dem gemessen wurde. */
-  const faktor = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, (210 / ist) * vorher));
-  wendeZoom(faktor);
-  speichereAnsicht('ansichtZoom', faktor);
-  return faktor;
 }
 
 /**

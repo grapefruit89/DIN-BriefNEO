@@ -318,13 +318,33 @@
             </div>
             <hr class="seitenleiste-divider">
 
-            <div class="seitenleiste-subgroup">
-              <div class="seitenleiste-switch-row">
-                <h3 class="seitenleiste-label" id="agenten-titel">Agenten (MCP)</h3>
-                <input type="checkbox" switch id="agenten-aktiv" aria-labelledby="agenten-titel" checked>
+            <div class="seitenleiste-subgroup agenten-block">
+              <div class="agenten-kopf">
+                <h3 class="seitenleiste-label" id="agenten-titel">Web-MCP Server</h3>
+                <button type="button" class="agenten-info" popovertarget="agenten-info"
+                        aria-label="Was ist der Web-MCP-Server?">info</button>
               </div>
-              <p class="workbench-status" id="agenten-status">wird geprüft …</p>
               <button type="button" id="btn-agent-konfig" class="btn w-full">📋 MCP-Config</button>
+            </div>
+
+            <!-- Overlay: natives Popover (Top-Layer, Escape/Klick daneben schliesst) -->
+            <div id="agenten-info" popover class="agenten-popover" aria-labelledby="agenten-info-titel">
+              <h4 id="agenten-info-titel">Web-MCP Server</h4>
+              <p>Die Seite beschreibt ihre Fähigkeiten als <strong>15 Werkzeuge</strong>
+                 (Brief lesen und schreiben, Anrede, Datum, Fuß, Prüfung, PDF).
+                 Ein Agent ruft sie auf, statt Felder zu raten.</p>
+              <dl class="agenten-liste">
+                <dt>Im Browser</dt>
+                <dd>WebMCP über <code>document.modelContext</code> — kein Port, keine Verbindung.</dd>
+                <dt>Kommandozeile</dt>
+                <dd><code>npx github:grapefruit89/DIN-BriefNEO#main</code> — spricht MCP über
+                    stdio und steuert den Tab per DevTools-Protokoll.</dd>
+                <dt>Live-Kanal</dt>
+                <dd><code>http://127.0.0.1:8765</code> — <code>GET /events?token=…</code> und
+                    <code>POST /result</code>; Token steht im URL-Fragment (<code>#agent=&lt;token&gt;</code>).</dd>
+              </dl>
+              <p class="agenten-stand" id="agenten-info-status">wird geprüft …</p>
+              <p class="agenten-fuss">Anleitung: <code>docs/js/AGENTEN-WEBMCP.md</code></p>
             </div>
           </div>
         </section>

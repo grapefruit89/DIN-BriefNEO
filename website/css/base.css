@@ -172,32 +172,57 @@ body {
   view-transition-name: none;
 
   /* --- TAGMODUS --- */
-  --c-viewport-day: oklch(0.96 0.01 250);
-  --c-seitenleiste-day: oklch(0.98 0.005 250);
+  /* Schreibtisch 0.96 -> 0.90: das weisse Papier hat sonst keinen Rand.
+     Papier bleibt reines Weiss (--c-blatt-day: 100%). */
+  --c-viewport-day: oklch(0.87 0.008 250);
+  --c-seitenleiste-day: oklch(0.965 0.005 250);
   --c-card-day: oklch(1 0 0);
-  --c-border-day: oklch(0.90 0.01 250);
+  --c-border-day: oklch(0.85 0.008 250);
   --c-text-day: oklch(0.15 0.02 250);
   --c-muted-day: oklch(0.45 0.02 250);
   --c-accent-day: oklch(0.40 0.14 260);
   --c-danger-day: oklch(0.55 0.22 25);
-  --c-segment-day: oklch(0.92 0.01 250);
+  --c-segment-day: oklch(0.88 0.008 250);
   --c-blatt-day: oklch(100% 0 0);
   --c-tinte-day: oklch(0% 0 0);
   --c-schwach-day: oklch(50% 0 0);
 
-  /* --- NACHTMODUS (NO-FLIP: Konsistente dunkle Schrift, blendfrei heruntergedimmt) --- */
-  --c-viewport-night: oklch(0.68 0.01 250);       /* Dunklerer Schreibtisch (gibt dem Blatt Tiefe) */
-  --c-seitenleiste-night: oklch(0.74 0.015 250);   /* Mattes, ruhiges Werkzeug-Grau */
-  --c-card-night: oklch(0.79 0.01 250);           /* Input-Karten heben sich dezent ab */
-  --c-border-night: oklch(0.60 0.02 250);         /* Saubere Konturlinien */
-  --c-text-night: oklch(0.15 0.02 250);           /* 🚨 KEIN FLIP! Sattes Anthrazit-Dunkel */
-  --c-muted-night: oklch(0.35 0.02 250);          /* Gedämpftere Beschriftungen */
-  --c-accent-night: oklch(0.35 0.13 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
-  --c-danger-night: oklch(0.35 0.20 25);
-  --c-segment-night: oklch(0.69 0.015 250);       /* Schalter-Vertiefungen */
-  --c-blatt-night: oklch(0.85 0.005 250);         /* Gedimmtes Papier (blendfrei, wie Papier unter Abendlampe) */
-  --c-tinte-night: oklch(0.12 0.01 250);          /* Dunkle Tinte auf Papier */
-  --c-schwach-night: oklch(0.40 0.01 250);        /* Hilfslinien und Platzhalter */
+  /* --- NACHTMODUS (NO-FLIP: dunkle Schrift auf gedimmten Flaechen) ---
+     EINE Stellschraube: --nacht-basis. Alle Tokens leiten sich per calc() ab,
+     damit CSS und JS nie auseinanderlaufen. Der Nutzer-Regler (Debug-Panel)
+     schreibt nur diese eine Variable, gespeichert in din_settings. */
+  --nacht-basis: 0.5;
+  /* Blattbreite in CSS-Pixeln: die EINE Stellschraube fuer die Blattgroesse.
+     `zoom` rechnet daraus den Faktor (breite / 793.7) — kein zweiter Faktor.
+
+     WARUM 900 px? Rechnung Pixel -> Zoll -> Zentimeter:
+
+       Monitordichte        sqrt(2560² + 1440²) / 27 Zoll  = 108,8 ppi
+       900 px / 108,8 ppi                                 =   8,27 Zoll
+       8,27 Zoll * 2,54                                   =  21,0 cm
+
+     Gegenprobe mit dem CSS-Mass (feste 96 px/Zoll):
+       793,7 px / 108,8 ppi = 7,29 Zoll = 18,5 cm
+     Ein Blatt in CSS-Massen wirkt auf einem 109-ppi-Monitor deshalb 12 % zu
+     klein; 900 / 793,7 = 1,134 gleicht genau diese Dichte-Differenz aus.
+
+     Anderer Monitor = andere Dichte. Formel:
+       Breite_px = (21 cm / 2,54) * ppi        mit ppi = Diagonale_px / Diagonale_Zoll
+     Deshalb der Regler im Debug-Panel statt einer Zahl fuer alle. */
+  --blatt-breite-px: 900;
+  --blatt-mm-px: 793.7;
+  --c-viewport-night: oklch(calc(var(--nacht-basis) - 0.08) 0.004 250);
+  --c-seitenleiste-night: oklch(calc(var(--nacht-basis) + 0.08) 0.004 250);
+  --c-card-night: oklch(calc(var(--nacht-basis) + 0.14) 0.004 250);
+  --c-border-night: oklch(calc(var(--nacht-basis) - 0.06) 0.005 250);
+  --c-text-night: oklch(0.085 0.006 250);
+  --c-muted-night: oklch(0.31 0.02 250);
+  --c-accent-night: oklch(0.33 0.12 260);
+  --c-danger-night: oklch(0.33 0.18 25);
+  --c-segment-night: oklch(calc(var(--nacht-basis) + 0.03) 0.004 250);
+  --c-blatt-night: oklch(calc(var(--nacht-basis) + 0.26) 0.004 250);
+  --c-tinte-night: oklch(0.09 0.004 250);
+  --c-schwach-night: oklch(0.36 0.004 250);
 
   /* --- DYNAMISCHE TOKEN-AUFLÖSUNG (light-dark) --- */
   --bg-viewport: light-dark(var(--c-viewport-day), var(--c-viewport-night));
@@ -509,6 +534,11 @@ html:active-view-transition::view-transition-new(brief-viewport) {
    Liegen zentral in base.css, weil beide Druck-Stylesheets sie brauchten;
    die print-Dateien behalten nur ihre Geometrie. */
 @media print {
+  /* Der Bildschirm-Zoom darf das Papier nicht skalieren. */
+  din-blatt {
+    zoom: 1;
+  }
+
 :root, body, din-blatt {
   color-scheme: light !important;
   print-color-adjust: exact !important;

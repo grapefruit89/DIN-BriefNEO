@@ -5966,3 +5966,109 @@ Neu in `base.css`:
 Alles Überschriftliche nimmt `--seitenleiste-titel`, alles Untergeordnete
 `--seitenleiste-untertitel`. Nachgemessen nach dem Umbau: **nur noch 12 px
 (14 Elemente) und 11,2 px (5 Elemente)** — zwei Größen statt fünf.
+
+---
+
+## 2026-11-24 — Blatt-Zoom, Nachtpalette und Kalibrierung auf Originalgröße
+
+**Nutzer:** „der zoom soll nur für das DIN-A-Blatt gelten … ich will das Blatt in
+Originalgröße auf dem Monitor … können wir über die Monitor-Pixelgröße auf mm
+schließen?"
+
+### Was gemessen wurde
+
+```
+screen            2560 × 1440 CSS-px
+devicePixelRatio  1,1
+Blattbreite       794 px bei 100 %      (= 210 mm × 96 ÷ 25,4)
+```
+
+**CSS definiert 1 Zoll = 96 px.** Die „mm" im CSS sind also nie echte
+Millimeter, außer der Monitor hat exakt 96 dpi. Die Pixel-Dichte kennt der
+Browser nicht: `devicePixelRatio` ist der OS-Skalierungsfaktor,
+`screen.width` liefert CSS-px, `getScreenDetails()` ebenfalls — **keine API
+liefert physikalische Zoll**. Deshalb Kalibrierung.
+
+### Neu: `website/js/ansicht.js`
+
+Drei Aufgaben, eine Stelle:
+
+| Funktion | Wirkung |
+|---|---|
+| `wendeZoom(f)` | setzt `--ansicht-zoom`, `din-blatt { zoom: var(--ansicht-zoom, 1) }` |
+| `wendeNachtpalette(basis)` | schreibt die sechs Nacht-Tokens inline auf `:root` |
+| `kalibriereAufOriginal(mm)` | `zoom = 210 / gemessen × bisheriger Zoom` |
+
+Beides wird in `settings.js` beim Start angewandt (`wendeGespeicherteAnsicht`)
+und in `din_settings` gespeichert (`ansichtZoom`, `nachtHelligkeit`) — also
+**dauerhaft pro Benutzer**, auch ohne offenes Debug-Panel.
+
+### Regler im Debug-Panel
+
+- **Nacht-Helligkeit** 0,38–0,68, Anzeige des WCAG-Kontrasts, Wert geht in die
+  Zwischenablage. Gewählt: **0,50** → Text/Leiste 4,8 : 1 (AA).
+- **Blatt-Zoom** 80–140 % in **0,5-%-Schritten** (vorher 5 % — zu grob für 1:1).
+- **Originalgröße**: Lineal an das weiße Blatt, gemessene Breite eintragen →
+  Knopf rechnet den Zoom aus. Beispiel: 185 mm gemessen → 114 %.
+
+Der Zoom gilt ausschließlich für `din-blatt` (gemessen: Seitenleiste bleibt bei
+16 px). Im Druck wird er auf 1 zurückgesetzt.
+
+### Regel B7 geändert
+
+`zoom` stand auf der Verbotsliste (B7) als „IE-Hack". Das ist überholt: seit
+CSS Viewport 1 (2021) ist `zoom` standardisiert und skaliert das **Layout** —
+`transform: scale()` skaliert nur die Pixel und lässt Boxen und Trefferflächen
+auseinanderlaufen. B7 prüft jetzt nur noch `float`, `clear`, `expression(`,
+`progid:`.
+
+### Nachtrag: abgeschnittenes Blatt (kleiner Monitor / Zoom)
+
+**Nutzer:** „auf meinem 2t monitor wird das blatt oben und unten abgeschnitten …
+da es dort nicht scrollbar ist."
+
+Zwei Ursachen, beide gemessen (Headless-Helium, Viewport 500 px hoch, Blatt
+1156 px):
+
+1. `#viewport` hatte auf Seite 1 `overflow-y: hidden` (Zero-Scroll-Garantie).
+   A43 erlaubt aber ausdrücklich „internes Scrollen MAY in abgegrenzter UI" —
+   jetzt `auto`: kein Balken, solange alles passt.
+2. `#brief-ansicht` bekam `height: 100% !important` und `align-items: center`.
+   Der Container blieb so hoch wie der Viewport (480 px), das Blatt ragte oben
+   und unten heraus — und ein zentriertes Flex-Kind mit Überlauf macht den
+   oberen Teil **unerreichbar** (scrollHeight war nur 828 statt 1176).
+
+Fix: `min-height: 100%` + `height: auto` + `align/justify: safe center`.
+Damit wächst der Container mit dem Blatt, bleibt aber zentriert, wenn Platz ist.
+
+Nachgemessen: Blatt 1156 · Container 1156 · scrollHeight 1176 · oberer und
+unterer Rand erreichbar · die Seite selbst scrollt weiterhin nicht.
+
+### Nachtrag: warum die Blattbreite 900 px ist (mit Formel)
+
+**Nutzer:** „vielleicht solltest du die 900 px mit einem Kommentar erklären, warum
+das auf dem Monitor 21 cm ergibt — mit passender Formel zum Nachvollziehen."
+
+Gemessen am Referenzmonitor: **900 px Breite = 21 cm Papier.** Daraus die Dichte:
+
+```
+900 px / 21 cm            = 42,86 px/cm
+42,86 px/cm × 2,54        = 108,9 px/Zoll
+sqrt(2560² + 1440²) / 27" = 108,8 ppi     (27-Zoll-2560×1440-Panel)
+```
+
+CSS rechnet dagegen **fest mit 96 px/Zoll**: 21 cm sind dort 8,268 Zoll × 96 =
+**793,7 px**. Auf einem 109-ppi-Monitor erscheint ein 793,7-px-Blatt deshalb nur
+mit 793,7 / 900 = **88 %** der realen Größe — genau der „Blatt wirkt zu klein"-
+Effekt. Der Faktor 900 / 793,7 = 1,134 hebt das auf.
+
+Formel für andere Monitore:
+
+```
+Breite_px = 21 cm × (Bildschirmbreite_px / Bildschirmbreite_cm)
+```
+
+Deshalb ist 900 kein allgemeiner Wert, sondern der des Referenzmonitors — und
+deshalb bleibt der Regler im Debug-Panel (px/%/Einpassen). Kommentar mit dieser
+Herleitung steht an `--blatt-breite-px` (base.css) und an `BREITE_ORIGINAL`
+(ansicht.js).

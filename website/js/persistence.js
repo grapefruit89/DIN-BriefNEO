@@ -30,6 +30,9 @@ import { DOCUMENT_SCHEMA_V5 } from './schema.js';
  * @property {boolean} [pluginTestbrief]
  * @property {boolean} [debugPanel]
  * @property {boolean} [pluginGeschaeftsangaben] Addon „Geschäftsangaben" (§ 35a)
+ * @property {number} [nachtHelligkeit] Grundhelligkeit der Nachtpalette (0.38-0.68)
+ * @property {number} [blattBreitePx] Blattbreite in CSS-Pixeln (210 mm = 793,7 px)
+ * @property {'px' | 'prozent'} [zoomEinheit] Einheit der Blattgroessen-Anzeige
  * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {20 | 30 | number} [randU]
@@ -56,6 +59,12 @@ export const DEFAULT_SETTINGS = {
    * einschaltet. Ein Addon darf den Brief nicht von selbst veraendern. */
   pluginGeschaeftsangaben: false,
   previewFont: 'default',
+  /* Ansicht, keine Briefdaten: Nacht-Grundhelligkeit der Palette.
+     Der Blatt-Zoom wird bewusst NICHT gespeichert (siehe ansicht.js). */
+  nachtHelligkeit: 0.5,
+  /* Blattbreite in CSS-Pixeln (210 mm = 793,7 px) und zuletzt benutzte Einheit. */
+  blattBreitePx: 900,
+  zoomEinheit: 'px',
   formality: 'formal',
   randU: 20
 };

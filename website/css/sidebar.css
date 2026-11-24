@@ -1616,6 +1616,23 @@ aside select {
   box-shadow: var(--shadow-lg);
 }
 
+.debug-zoom-zeile {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
+}
+
+.debug-zoom-zeile .btn {
+  flex: 1 1 auto;
+  min-width: 2.2em;
+  padding: 2px 0;
+}
+
+.debug-zoom-zeile .btn[aria-pressed="true"] {
+  background: var(--accent-color);
+  color: var(--bg-seitenleiste);
+}
+
 .debug-kopf {
   display: flex;
   align-items: center;

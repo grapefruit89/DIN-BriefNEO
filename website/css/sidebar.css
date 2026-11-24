@@ -129,7 +129,7 @@ aside.seitenleiste,
   border-radius: var(--radius-md);
   background: var(--segment-bg);
   color: var(--text-primary);
-  box-shadow: 0 12px 32px rgb(0 0 0 / 18%);
+  box-shadow: 0 12px 32px var(--farbe-schatten-weich);
   font-size: 0.85rem;
   line-height: 1.5;
 }

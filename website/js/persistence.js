@@ -30,6 +30,8 @@ import { DOCUMENT_SCHEMA_V5 } from './schema.js';
  * @property {boolean} [pluginTestbrief]
  * @property {boolean} [debugPanel]
  * @property {boolean} [pluginGeschaeftsangaben] Addon „Geschäftsangaben" (§ 35a)
+ * @property {number} [ansichtZoom] Blatt-Zoom, 1 = 100 %
+ * @property {number} [nachtHelligkeit] Grundhelligkeit der Nachtpalette (0.38-0.68)
  * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {20 | 30 | number} [randU]
@@ -56,6 +58,9 @@ export const DEFAULT_SETTINGS = {
    * einschaltet. Ein Addon darf den Brief nicht von selbst veraendern. */
   pluginGeschaeftsangaben: false,
   previewFont: 'default',
+  /* Ansicht, keine Briefdaten: Blatt-Zoom 1 = 100 %, Nacht-Grundhelligkeit. */
+  ansichtZoom: 1,
+  nachtHelligkeit: 0.5,
   formality: 'formal',
   randU: 20
 };

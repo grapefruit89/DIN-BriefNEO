@@ -9,6 +9,7 @@
  */
 
 import { toggleAddon } from './addons.js';
+import { wendeGespeicherteAnsicht } from './ansicht.js';
 import { Events, eventBus, transitionOn } from './core.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { applyValue } from './state-binding.js';
@@ -63,6 +64,8 @@ export class SettingsManager {
 
   init() {
     this.applySettings();
+    /* Zoom und Nachtpalette gelten sofort — auch ohne offenes Debug-Panel. */
+    wendeGespeicherteAnsicht();
     this.attachListeners();
     this.isReady = true;
   }

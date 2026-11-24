@@ -122,6 +122,7 @@ website/js/field.js             Minimale Feld-Abstraktion (isNative/getValue/set
 website/js/suggestion-list.js   Gemeinsames Gerüst für Vorschlagslisten (Klick, Tasten, Blur)
 website/js/geo-cache.js         Ringspeicher für Geoapify-Treffer (1 MB, localStorage)
 website/js/debug-panel.js       Selbstauskunft (Schalter „Debug-Panel“ in den Einstellungen)
+website/js/ansicht.js           Benutzer-Anzeige: Blatt-Zoom, Nachtpalette (gespeichert in din_settings)
 website/js/geo-cache.js         Ringspeicher (1 MB, LFU) — Review: docs/meta/REVIEW-anrede-dropdown.md
 website/js/api.js             window.dinApi: Brief-Schnittstelle für Agenten (lesen/setzen/anrede/adresse/datum/export)
 website/js/date-picker.js      Kalender-Popover für #datum (Temporal, deutsche Langform, Monatsansicht, Heute)

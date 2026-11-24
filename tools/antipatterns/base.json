@@ -97,8 +97,8 @@
       "severity": "critical",
       "check": "regex",
       "category": "css",
-      "description": "CSS-Layout-Altlasten: float, clear, zoom, IE-Hacks (expression(), progid:). Ersatz: Flex/Grid, margin-inline-start:auto, transform:scale(), @supports.",
-      "pattern": "\\bfloat\\s*:|\\bclear\\s*:|\\bzoom\\s*:|expression\\s*\\(|progid\\s*:",
+      "description": "CSS-Layout-Altlasten: float, clear, IE-Hacks (expression(), progid:). Ersatz: Flex/Grid, margin-inline-start:auto, @supports. `zoom` ist NICHT mehr verboten: seit CSS Viewport 1 (2021) standardisiert und skaliert das Layout — `transform: scale()` tut das nicht.",
+      "pattern": "\\bfloat\\s*:|\\bclear\\s*:|expression\\s*\\(|progid\\s*:",
       "file_patterns": [
         "*.css"
       ],

@@ -185,19 +185,22 @@ body {
   --c-tinte-day: oklch(0% 0 0);
   --c-schwach-day: oklch(50% 0 0);
 
-  /* --- NACHTMODUS (NO-FLIP: Konsistente dunkle Schrift, blendfrei heruntergedimmt) --- */
-  --c-viewport-night: oklch(0.68 0.01 250);       /* Dunklerer Schreibtisch (gibt dem Blatt Tiefe) */
-  --c-seitenleiste-night: oklch(0.74 0.015 250);   /* Mattes, ruhiges Werkzeug-Grau */
-  --c-card-night: oklch(0.79 0.01 250);           /* Input-Karten heben sich dezent ab */
-  --c-border-night: oklch(0.60 0.02 250);         /* Saubere Konturlinien */
-  --c-text-night: oklch(0.15 0.02 250);           /* 🚨 KEIN FLIP! Sattes Anthrazit-Dunkel */
-  --c-muted-night: oklch(0.35 0.02 250);          /* Gedämpftere Beschriftungen */
-  --c-accent-night: oklch(0.35 0.13 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
-  --c-danger-night: oklch(0.35 0.20 25);
-  --c-segment-night: oklch(0.69 0.015 250);       /* Schalter-Vertiefungen */
-  --c-blatt-night: oklch(0.85 0.005 250);         /* Gedimmtes Papier (blendfrei, wie Papier unter Abendlampe) */
-  --c-tinte-night: oklch(0.12 0.01 250);          /* Dunkle Tinte auf Papier */
-  --c-schwach-night: oklch(0.40 0.01 250);        /* Hilfslinien und Platzhalter */
+  /* --- NACHTMODUS (NO-FLIP: dunkle Schrift auf gedimmten Flaechen, KEINE Invertierung) ---
+   Stufen 2026-11-24 auf Nutzerwunsch eine Etage tiefer: Schreibtisch 0.56 statt 0.68,
+   Leiste 0.62, Karte 0.68, Papier 0.78. Papier bleibt hell und die Schrift dunkel —
+   das ist Dimmen, nicht Invertieren. */
+  --c-viewport-night: oklch(0.56 0.012 250);       /* Dunklerer Schreibtisch (gibt dem Blatt Tiefe) */
+  --c-seitenleiste-night: oklch(0.62 0.016 250);   /* Mattes, ruhiges Werkzeug-Grau */
+  --c-card-night: oklch(0.68 0.012 250);           /* Input-Karten heben sich dezent ab */
+  --c-border-night: oklch(0.47 0.02 250);         /* Saubere Konturlinien */
+  --c-text-night: oklch(0.13 0.02 250);           /* 🚨 KEIN FLIP! Sattes Anthrazit-Dunkel */
+  --c-muted-night: oklch(0.31 0.02 250);          /* Gedämpftere Beschriftungen */
+  --c-accent-night: oklch(0.33 0.12 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
+  --c-danger-night: oklch(0.33 0.18 25);
+  --c-segment-night: oklch(0.55 0.016 250);       /* Schalter-Vertiefungen */
+  --c-blatt-night: oklch(0.78 0.006 250);         /* Gedimmtes Papier (blendfrei, wie Papier unter Abendlampe) */
+  --c-tinte-night: oklch(0.10 0.01 250);          /* Dunkle Tinte auf Papier */
+  --c-schwach-night: oklch(0.38 0.01 250);        /* Hilfslinien und Platzhalter */
 
   /* --- DYNAMISCHE TOKEN-AUFLÖSUNG (light-dark) --- */
   --bg-viewport: light-dark(var(--c-viewport-day), var(--c-viewport-night));

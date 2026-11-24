@@ -300,7 +300,95 @@ function verdrahteKnoepfe() {
 }
 
 /** Einmalige Initialisierung: Werte schreiben und sichtbarkeitsabhängig takten. */
-export function initDebugPanel() {
+/* --------------------------------------------------- Nachtpalette-Regler */
+
+/**
+ * Debug-Regler fuer die Nachtpalette: stellt die Grundhelligkeit ein, schreibt
+ * die abgeleiteten Tokens inline auf `:root` und legt den fertigen CSS-Block
+ * in die Zwischenablage. Inline gesetzt heisst: nur diese Sitzung, ein Reload
+ * stellt die Werte aus `base.css` wieder her.
+ */
+/** @type {Array<[string, number, string, number]>} */
+const NACHT_ABSTAND = [
+  ['--c-viewport-night', 0, '0.012', 250],
+  ['--c-seitenleiste-night', 0.06, '0.016', 250],
+  ['--c-card-night', 0.12, '0.012', 250],
+  ['--c-border-night', -0.09, '0.02', 250],
+  ['--c-segment-night', -0.01, '0.016', 250],
+  ['--c-blatt-night', 0.22, '0.006', 250]
+];
+
+/** @param {number} basis @returns {string} */
+function nachtCss(basis) {
+  const zeilen = NACHT_ABSTAND.map(([name, delta, chroma, hue]) => {
+    const l = Math.max(0, Math.min(1, basis + Number(delta))).toFixed(3);
+    return `  ${name}: oklch(${l} ${chroma} ${hue});`;
+  });
+  return `/* Nachtpalette, Grundhelligkeit ${basis.toFixed(2)} */\n:root {\n${zeilen.join('\n')}\n}`;
+}
+
+/** @param {string} farbe @returns {[number, number, number]} */
+function alsRgb(farbe) {
+  const leinwand = document.createElement('canvas');
+  leinwand.width = leinwand.height = 1;
+  const ctx = /** @type {CanvasRenderingContext2D} */ (leinwand.getContext('2d'));
+  ctx.fillStyle = farbe;
+  ctx.fillRect(0, 0, 1, 1);
+  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+  return [r, g, b];
+}
+
+/** @param {[number, number, number]} rgb @returns {number} */
+function lumen([r, g, b]) {
+  /** @param {number} v @returns {number} */
+  const teil = (v) => {
+    const x = v / 255;
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * teil(r) + 0.7152 * teil(g) + 0.0722 * teil(b);
+}
+
+/** @param {string} a @param {string} b @returns {number} */
+function kontrast(a, b) {
+  const l1 = lumen(alsRgb(a));
+  const l2 = lumen(alsRgb(b));
+  return Math.round(((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)) * 10) / 10;
+}
+
+function initNachtRegler() {
+  const regler = /** @type {HTMLInputElement | null} */ (document.getElementById('dbg-nacht'));
+  const ausgabe = document.getElementById('dbg-nacht-wert');
+  const status = document.getElementById('dbg-nacht-status');
+  if (!regler || !ausgabe) return;
+
+  let timerNacht = 0;
+  const anwenden = () => {
+    const basis = Number(regler.value) / 100;
+    const css = nachtCss(basis);
+    const root = document.documentElement;
+    for (const [name, delta, chroma, hue] of NACHT_ABSTAND) {
+      const l = Math.max(0, Math.min(1, basis + Number(delta))).toFixed(3);
+      root.style.setProperty(name, `oklch(${l} ${chroma} ${hue})`);
+    }
+    root.style.colorScheme = 'dark';
+    const tinte = 'oklch(0.13 0.02 250)';
+    const leiste = `oklch(${(basis + 0.06).toFixed(3)} 0.016 250)`;
+    ausgabe.textContent = basis.toFixed(2).replace('.', ',');
+    if (status) status.textContent = `Text/Leiste ${kontrast(tinte, leiste)} : 1 · kopiert`;
+    clearTimeout(timerNacht);
+    timerNacht = setTimeout(() => {
+      navigator.clipboard?.writeText(css).catch(() => {
+        if (status) status.textContent = `Text/Leiste ${kontrast(tinte, leiste)} : 1 · Zwischenablage gesperrt`;
+      });
+    }, 350);
+  };
+
+  regler.addEventListener('input', anwenden);
+  anwenden();
+}
+
+/* ------------------------------------------------------------------- Init */export function initDebugPanel() {
+  initNachtRegler();
   if (timer) return;
   verdrahteKnoepfe();
   aktualisiere();

@@ -35,7 +35,6 @@ try {
     pluginTestbrief: true,
     pluginGeschaeftsangaben: false,
     randU: 20,
-    ansichtZoom: 1,
     nachtHelligkeit: 0.5
   };
 
@@ -77,8 +76,6 @@ try {
    * zwei CSS-Variablen. Setzt sie erst `settings.js`, springt der erste Paint
    * (FOUC, gemeldet 2026-11-24). Hier steht der gespeicherte Wert, bevor das
    * Blatt zum ersten Mal gezeichnet wird. */
-  const zoom = Number(settings.ansichtZoom);
-  root.style.setProperty('--ansicht-zoom', String(Number.isFinite(zoom) && zoom >= 0.9 && zoom <= 1.1 ? zoom : 1));
   const nacht = Number(settings.nachtHelligkeit);
   root.style.setProperty('--nacht-basis', String(Number.isFinite(nacht) && nacht >= 0.38 && nacht <= 0.68 ? nacht : 0.5));
 

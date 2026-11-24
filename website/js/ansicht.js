@@ -10,8 +10,13 @@
  * Einstellung den Reload überlebt, auch ohne offenes Debug-Panel.
  *
  * Gespeichert wird in `din_settings`:
- *   `ansichtZoom`       1 = Grundskala (1,03 = Blattgröße), erlaubt 0.9–1.1 (±10 %)
  *   `nachtHelligkeit`   Grundhelligkeit der Nachtpalette, 0.38–0.68
+ *
+ * Der Blatt-Zoom wird **nicht** gespeichert: die Blattgröße steht fest in
+ * `--blatt-grundskala`, der Regler ist eine Korrektur für die Sitzung. Ein
+ * gespeicherter Faktor multiplizierte sich sonst mit der Grundskala und die
+ * Größe wäre bei jedem Nutzer eine andere (Befund 2026-11-24: 900 px wurden
+ * durch einen alten Wert 1,04 zu 936 px).
  */
 
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
@@ -87,7 +92,6 @@ export function wendeZoom(faktor) {
  */
 export function wendeGespeicherteAnsicht() {
   const gespeichert = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-  wendeZoom(typeof gespeichert.ansichtZoom === 'number' ? gespeichert.ansichtZoom : 1);
   wendeNachtpalette(
     typeof gespeichert.nachtHelligkeit === 'number' ? gespeichert.nachtHelligkeit : 0.5
   );
@@ -95,7 +99,7 @@ export function wendeGespeicherteAnsicht() {
 
 /**
  * Schreibt einen Anzeige-Wert in `din_settings`, ohne andere Felder zu verlieren.
- * @param {'ansichtZoom' | 'nachtHelligkeit'} feld
+ * @param {'nachtHelligkeit'} feld
  * @param {number} wert
  * @returns {void}
  */

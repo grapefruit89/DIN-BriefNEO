@@ -47,10 +47,13 @@ zwei Transporte über derselben Werkzeugliste:
 
 ## 2. Die Werkzeuge
 
-> **In der App:** Einstellungen → *Agenten (MCP)*. Dort steht der WebMCP-Status,
-> ein Knopf kopiert die fertige `mcp.servers`-Konfiguration — ohne Pfad, weil
-> der Server per npx direkt aus dem Repo kommt. Die Adresse für den Kanal ohne
-> Debug-Port steht weiter unten (`#agent=<token>@<port>`).
+> **In der App:** Einstellungen → *Agenten (MCP)* — drei Zeilen: Schalter,
+> Status, Kopierknopf. Der Schalter entscheidet, ob Agenten den Brief schreiben
+> dürfen (Standard: an — ohne angeschlossenen Agenten passiert ohnehin nichts).
+> Ausgeschaltet lehnt jeder Werkzeugaufruf mit einer Begründung ab; die
+> Werkzeugliste selbst verschwindet erst nach dem Neuladen, weil die API kein
+> Abmelden kennt. Der Knopf kopiert die fertige `mcp.servers`-Konfiguration —
+> ohne Pfad, weil der Server per npx direkt aus dem Repo kommt.
 
 `website/js/webmcp.js` definiert zehn Werkzeuge; sie sind gleichzeitig
 `window.dinBriefAgent.werkzeuge()`:

@@ -395,26 +395,49 @@ function agentenKonfiguration() {
  * Füllt den „Agenten"-Abschnitt in den Einstellungen: Status und ein
  * Kopierknopf für die MCP-Konfiguration. Kein Startknopf — eine Webseite kann
  * keinen lokalen Prozess starten; sie kann nur sagen, was zu tun ist.
+ * @param {{ settings: import('./persistence.js').DinSettings, updateSettings?: () => void } | null} [settingsManager]
  * @returns {void}
  */
-export function initAgentenHilfe() {
+export function initAgentenHilfe(settingsManager = null) {
   const status = document.getElementById('agenten-status');
   const knopfKonfig = document.getElementById('btn-agent-konfig');
-  const hinweis = document.getElementById('agenten-hinweis');
-  if (!status || !knopfKonfig) return;
+  const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById('agenten-aktiv'));
+  if (!status || !knopfKonfig || !schalter) return;
 
   const agent = /** @type {any} */ (window).dinBriefAgent;
   const anzahl = typeof agent?.werkzeuge === 'function' ? agent.werkzeuge().length : 0;
   const webmcp = typeof document.modelContext === 'object' && document.modelContext !== null;
   const kanal = liveToken();
-  status.textContent = webmcp
-    ? `WebMCP aktiv · ${anzahl} Werkzeuge`
-    : `WebMCP aus · ${anzahl} Werkzeuge`;
-  if (hinweis) {
-    hinweis.textContent = kanal
-      ? 'Kanal aktiv — Agent kann in diesen Tab schreiben.'
-      : 'Anleitung: docs/js/AGENTEN-WEBMCP.md';
-  }
+
+  /* Eine Zeile statt drei: Schalter-Zustand, Werkzeugzahl und (falls offen)
+     der Live-Kanal in einem Text. Die Anleitung steht im README, nicht hier. */
+  const aktualisiere = () => {
+    const an = schalter.checked;
+    if (!an) {
+      status.textContent = 'aus · Werkzeuge werden abgelehnt';
+      return;
+    }
+    const teile = [`${anzahl} Werkzeuge`, webmcp ? 'WebMCP aktiv' : 'WebMCP nicht verfügbar'];
+    if (kanal) teile.push('Kanal aktiv');
+    status.textContent = teile.join(' · ');
+  };
+
+  const gespeichert = settingsManager?.settings ?? loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+  schalter.checked = gespeichert.agentenAktiv !== false;
+  aktualisiere();
+
+  schalter.addEventListener('change', () => {
+    const an = schalter.checked;
+    if (settingsManager && typeof settingsManager.updateSettings === 'function') {
+      settingsManager.settings.agentenAktiv = an;
+      settingsManager.updateSettings();
+    } else {
+      const werte = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+      werte.agentenAktiv = an;
+      saveJSON(STORAGE_KEYS.settings, werte);
+    }
+    aktualisiere();
+  });
 
   /**
    * @param {string} text

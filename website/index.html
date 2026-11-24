@@ -319,10 +319,12 @@
             <hr class="seitenleiste-divider">
 
             <div class="seitenleiste-subgroup">
-              <h3 class="seitenleiste-label">Agenten (MCP)</h3>
-              <p class="workbench-status" id="agenten-status">WebMCP: wird geprüft …</p>
-              <button type="button" id="btn-agent-konfig" class="btn w-full">📋 MCP-Config kopieren</button>
-              <p class="workbench-status" id="agenten-hinweis">Anleitung: docs/js/AGENTEN-WEBMCP.md</p>
+              <div class="seitenleiste-switch-row">
+                <h3 class="seitenleiste-label" id="agenten-titel">Agenten (MCP)</h3>
+                <input type="checkbox" switch id="agenten-aktiv" aria-labelledby="agenten-titel" checked>
+              </div>
+              <p class="workbench-status" id="agenten-status">wird geprüft …</p>
+              <button type="button" id="btn-agent-konfig" class="btn w-full">📋 MCP-Config</button>
             </div>
           </div>
         </section>

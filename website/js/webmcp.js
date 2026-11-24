@@ -22,7 +22,20 @@
  *    WebMCP und MCP-Server sind nur Hüllen.
  */
 
+import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS } from './persistence.js';
+
 /** @typedef {Record<string, unknown>} WerkzeugArgumente */
+
+/**
+ * Darf ein Agent den Brief schreiben? Standard: ja — ohne angeschlossenen
+ * Agenten passiert ohnehin nichts. Der Schalter in den Einstellungen setzt
+ * `agentenAktiv: false`; dann lehnt `ausfuehren()` jeden Aufruf ab.
+ * @returns {boolean}
+ */
+export function istAgentenAktiv() {
+  const gespeichert = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+  return gespeichert.agentenAktiv !== false;
+}
 
 /**
  * @typedef {{
@@ -959,6 +972,13 @@ export const WERKZEUGE = [
  * @returns {Promise<Record<string, unknown>>}
  */
 export async function ausfuehren(name, argumente = {}) {
+  if (!istAgentenAktiv()) {
+    return {
+      ok: false,
+      fehler: 'Agenten-Zugriff ist in den Einstellungen ausgeschaltet',
+      hinweis: 'Einstellungen → Agenten (MCP) einschalten.'
+    };
+  }
   const werkzeug = WERKZEUGE.find((kandidat) => kandidat.name === name);
   if (!werkzeug) {
     return {
@@ -998,7 +1018,7 @@ export function werkzeugListe() {
  * Stellt `window.dinBriefAgent` bereit und registriert die Werkzeuge bei
  * WebMCP, falls der Browser es anbietet. Ohne `document.modelContext` ist der
  * einzige Effekt das globale Objekt für die CLI-Bridge.
- * @returns {Promise<{ ok: boolean, registriert: number, webmcp: boolean, fehler: string[] }>}
+ * @returns {Promise<{ ok: boolean, registriert: number, webmcp: boolean, aus?: boolean, fehler: string[] }>}
  */
 export async function initWebMCP() {
   /** @type {any} */
@@ -1014,6 +1034,10 @@ export async function initWebMCP() {
   const context = document.modelContext;
   if (!context || typeof context.registerTool !== 'function') {
     return { ok: true, registriert: 0, webmcp: false, fehler: [] };
+  }
+  if (!istAgentenAktiv()) {
+    /* Der Vertrag bleibt fuer die CLI-Bruecke stehen, gemeldet wird nichts. */
+    return { ok: true, registriert: 0, webmcp: true, aus: true, fehler: [] };
   }
 
   let registriert = 0;

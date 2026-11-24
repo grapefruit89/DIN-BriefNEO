@@ -192,7 +192,7 @@ function initApp() {
   /* Nur aktiv, wenn die URL #agent=<token> trägt: dann wählt sich die Seite
      bei tools/mcp-live.mjs ein (ohne Flag, ohne Debug-Port). */
   bootStep('Agenten-Kanal', () => initLiveBridge());
-  bootStep('Agenten-Hilfe', () => initAgentenHilfe());
+  bootStep('Agenten-Hilfe', () => initAgentenHilfe(settingsManager));
   bootStep('Import/Export', () => initImportExport({
     collectDraft: () => toWire(letterState),
     /* D1 Stufe 6: Import ohne Reload. applyState ersetzt RAM + Projektion;

@@ -30,6 +30,7 @@ import { DOCUMENT_SCHEMA_V5 } from './schema.js';
  * @property {boolean} [pluginTestbrief]
  * @property {boolean} [debugPanel]
  * @property {boolean} [pluginGeschaeftsangaben] Addon „Geschäftsangaben" (§ 35a)
+ * @property {boolean} [agentenAktiv] Agenten-Zugriff (WebMCP/MCP) erlaubt
  * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {20 | 30 | number} [randU]
@@ -52,6 +53,9 @@ export const DEFAULT_SETTINGS = {
   pluginTestbrief: true,
   /** Debug-Panel in der Seitenleiste einschalten (Standard: aus). */
   debugPanel: false,
+  /* Agenten-Zugriff (WebMCP/MCP): an, weil ohne angeschlossenen Agenten nichts
+   * passiert. Ausschalten lehnt jeden Werkzeugaufruf ab. */
+  agentenAktiv: true,
   /* Addon „Geschäftsangaben" (§ 35a GmbHG + IBAN/BIC): aus, bis der Nutzer es
    * einschaltet. Ein Addon darf den Brief nicht von selbst veraendern. */
   pluginGeschaeftsangaben: false,

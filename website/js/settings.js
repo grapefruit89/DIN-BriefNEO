@@ -367,8 +367,36 @@ export class SettingsManager {
  * 2. AGENTEN-HILFE (WebMCP / MCP)
  * ========================================================================================= */
 
-/** Das Repo, aus dem der MCP-Server kommt — so braucht niemand einen lokalen Pfad. */
-const MCP_PAKET = 'github:grapefruit89/DIN-BriefNEO#main';
+/** Rückfall, wenn keine Quelle eine Repo-Kennung liefert. */
+const MCP_PAKET_PLATZHALTER = 'github:<eigentuemer>/<repo>';
+
+/**
+ * Die Repo-Kennung, aus der `npx` den Server holt.
+ *
+ * Kein hartkodierter Name: GitHub Pages liefert die Adresse
+ * `https://<eigentuemer>.github.io/<repo>/` — daraus wird
+ * `github:<eigentuemer>/<repo>`. Ein Fork bekommt damit automatisch seine
+ * eigene Adresse, ohne dass jemand Quelltext ändert. Zweite Quelle ist der
+ * `canonical`-Link (gleiche Form, greift auch beim lokalen Server, dessen
+ * Adresse 127.0.0.1 ist). Findet sich nichts, bleibt ein sichtbarer
+ * Platzhalter — besser als eine fremde Adresse zu behaupten.
+ * @returns {string} z. B. `github:grapefruit89/DIN-BriefNEO`
+ */
+function agentenPaket() {
+  const kanonisch = document.querySelector('link[rel="canonical"]')?.getAttribute('href');
+  const quellen = kanonisch ? [location.href, kanonisch] : [location.href];
+  for (const quelle of quellen) {
+    try {
+      const adresse = new URL(quelle, location.href);
+      const eigentuemer = /^([a-z0-9-]+)\.github\.io$/i.exec(adresse.hostname);
+      const repo = adresse.pathname.split('/').filter(Boolean)[0];
+      if (eigentuemer && repo) return `github:${eigentuemer[1]}/${repo}`;
+    } catch {
+      /* unbrauchbare Quelle — naechste probieren */
+    }
+  }
+  return MCP_PAKET_PLATZHALTER;
+}
 
 /**
  * Die Seite, auf der der Knopf gedrückt wurde — ohne Fragment und ohne Suche.
@@ -394,7 +422,9 @@ function agentenSeite() {
  * @returns {string}
  */
 function agentenKonfiguration() {
-  const befehl = ['npx', '-y', MCP_PAKET];
+  /* Ohne `#main`: npx nimmt den Default-Branch des jeweiligen Repos. Ein Fork
+     mit `master` funktioniert damit genauso. */
+  const befehl = ['npx', '-y', agentenPaket()];
   const seite = agentenSeite();
   if (seite) befehl.push(`--url=${seite}`);
   return JSON.stringify(
@@ -437,7 +467,10 @@ export function initAgentenHilfe() {
     } catch {
       kopiert = false;
     }
-    knopf.textContent = kopiert ? '✓ Kopiert' : '✗ gesperrt';
+    /* Ohne erkennbares Repo bleibt ein Platzhalter im Befehl — das muss man
+       sehen, bevor man ihn in eine Config klebt. */
+    const platzhalter = agentenPaket() === MCP_PAKET_PLATZHALTER;
+    knopf.textContent = !kopiert ? '✗ gesperrt' : platzhalter ? '⚠ Repo eintragen' : '✓ Kopiert';
     setTimeout(() => {
       knopf.textContent = beschriftung;
     }, 1500);

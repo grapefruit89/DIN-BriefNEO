@@ -76,9 +76,10 @@ zwei Transporte über derselben Werkzeugliste:
 | `brief_schreiben` | kompletter Brief in einem Aufruf | nein |
 | `brief_exportieren` | DIN-Letter-JSON | ja |
 
-Die CDP-Brücke ergänzt zwei Werkzeuge, die nur mit Browser gehen:
-`brief_als_pdf` (Druck über `Page.printToPDF`, DIN-A4-Druckvorlage der Seite)
-und `brief_seite_oeffnen`.
+Beide Transporte bieten **dieselbe** Liste. Zwei frühere Zusatzwerkzeuge der
+CDP-Brücke (`brief_als_pdf` über `Page.printToPDF`, `brief_seite_oeffnen`) sind
+am 2026-11-24 entfernt: sie waren Transport-Funktionen des Browsers, keine
+Brief-Funktionen, und im Live-Kanal nicht verfügbar.
 
 ### Was der Agent vom Blatt „sieht"
 
@@ -96,7 +97,7 @@ Warnungen: Seite 2 hat nur 2 Zeile(n) — Umbruch prüfen.
 
 Das ist der **Bildschirm**, nicht das PDF: der Druck bricht nach eigenem
 Satzalgorithmus um (Randboxen, `@page`). Ein Screenshot oder der echte
-PDF-Umbruch braucht die CDP-Brücke (`brief_als_pdf`).
+PDF-Umbruch braucht den Druckdialog des Menschen (`window.print()`).
 
 ## 3. Im Browser (WebMCP)
 
@@ -193,8 +194,8 @@ Tab — ohne Erweiterung, ohne DevTools-Protokoll.
   übersprungen und steht dann im Fragment (`#agent=<token>@8766`).
 - Die Werkzeugliste kommt aus `website/js/webmcp.js` — dieselbe Datei, die
   WebMCP bedient. Keine Kopie.
-- `brief_als_pdf` fehlt hier: Drucken braucht die DevTools-Domäne. Dafür ist
-  die CDP-Brücke da.
+- Dieselbe Werkzeugliste wie die CDP-Brücke; es gibt keine Zusatzwerkzeuge
+  mehr (2026-11-24).
 - CSP: `connect-src` erlaubt `http://127.0.0.1:*` — nur Loopback, und nur die
   Seite selbst spricht dort.
 
@@ -202,9 +203,9 @@ Tab — ohne Erweiterung, ohne DevTools-Protokoll.
 
 - **Kein Netz, kein Backend.** Jede Ausführung passiert im Browser des Nutzers;
   der MCP-Server schickt nur JSON an `window.dinBriefAgent`.
-- **Datei-Dialoge und Druckdialog bleiben beim Menschen.** `brief_als_pdf`
-  druckt ohne Dialog über CDP; Unterschrift- und Schrift-Upload brauchen eine
-  echte Nutzergeste und sind nicht Teil der Werkzeuge.
+- **Datei-Dialoge und Druckdialog bleiben beim Menschen.** Drucken geht über
+  `window.print()` und damit nur per Klick; Unterschrift- und Schrift-Upload
+  brauchen eine echte Nutzergeste und sind nicht Teil der Werkzeuge.
 - **Ein Browserprofil ist der Speicher.** Entwürfe landen im `localStorage` des
   gesteuerten Profils, nicht in der Datei, die der Agent liest.
 - **Die Spezifikation wandert.** `navigator.modelContext` wurde zu

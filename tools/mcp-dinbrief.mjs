@@ -17,7 +17,6 @@
 //   node tools/mcp-dinbrief.mjs --no-launch     # eigenes Chrome auf :9222 nutzen
 
 import { spawn } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -353,63 +352,6 @@ async function auswerten(cdp, sessionId, ausdruck) {
   return antwort.result?.value;
 }
 
-/* --------------------------------------------------------------- Brücken-Werkzeuge */
-
-/**
- * Werkzeuge, die nur die Brücke kann (Seite/PDF statt Briefdaten).
- * @param {{ cdp: Cdp, sessionId: string }} sitzung
- * @returns {{ name: string, description: string, inputSchema: Record<string, unknown>, annotations: Record<string, boolean>, ausfuehren: (a: Record<string, unknown>) => Promise<Record<string, unknown>> }[]}
- */
-function brueckenWerkzeuge(sitzung) {
-  return [
-    {
-      name: 'brief_als_pdf',
-      description:
-        'Druckt den aktuellen Brief über Chrome als PDF auf die Festplatte. Nutzt die Druckvorlage der Seite (DIN 5008, A4).',
-      annotations: { readOnlyHint: true, openWorldHint: false },
-      inputSchema: {
-        type: 'object',
-        properties: {
-          pfad: {
-            type: 'string',
-            description: 'Zielpfad der PDF-Datei; relativ zum Arbeitsverzeichnis oder absolut'
-          }
-        },
-        additionalProperties: false
-      },
-      ausfuehren: async (eingabe) => {
-        const ziel = path.resolve(
-          typeof eingabe.pfad === 'string' && eingabe.pfad.trim() ? eingabe.pfad.trim() : 'din-brief.pdf'
-        );
-        const { data } = await sitzung.cdp.send(
-          'Page.printToPDF',
-          { printBackground: true, preferCSSPageSize: true },
-          sitzung.sessionId,
-          90000
-        );
-        writeFileSync(ziel, Buffer.from(String(data), 'base64'));
-        return { ok: true, pfad: ziel, bytes: Buffer.from(String(data), 'base64').byteLength };
-      }
-    },
-    {
-      name: 'brief_seite_oeffnen',
-      description:
-        'Öffnet die Briefseite (neu) im gesteuerten Browser. Nützlich, wenn der Tab geschlossen wurde oder gegen die lokale Entwicklungsversion getestet werden soll.',
-      annotations: { readOnlyHint: false, openWorldHint: true },
-      inputSchema: {
-        type: 'object',
-        properties: { url: { type: 'string', description: 'Vollständige URL, Vorgabe ist die App-URL' } },
-        additionalProperties: false
-      },
-      ausfuehren: async (eingabe) => {
-        const ziel = typeof eingabe.url === 'string' && eingabe.url.trim() ? eingabe.url.trim() : optionen.url;
-        await sitzung.cdp.send('Page.navigate', { url: ziel }, sitzung.sessionId);
-        return { ok: true, url: ziel };
-      }
-    }
-  ];
-}
-
 /* ------------------------------------------------------------------ MCP-Protokoll */
 
 /**
@@ -434,8 +376,9 @@ async function main() {
   if (!Array.isArray(seitenWerkzeuge) || seitenWerkzeuge.length === 0) {
     throw new Error('window.dinBriefAgent liefert keine Werkzeuge.');
   }
-  const bruecke = brueckenWerkzeuge({ cdp, sessionId: sitzung.sessionId });
-  const alle = [...seitenWerkzeuge, ...bruecke.map(({ ausfuehren, ...rest }) => rest)];
+  /* Eine Werkzeugliste fuer beide Transporte: was die Seite kann, kann der
+     Agent — nichts kommt aus der Bruecke dazu. */
+  const alle = seitenWerkzeuge;
   log(`${alle.length} Werkzeuge bereit: ${alle.map((w) => w.name).join(', ')}`);
 
   if (optionen.pruefen) {
@@ -463,8 +406,6 @@ async function main() {
    * @returns {Promise<Record<string, unknown>>}
    */
   async function aufrufen(name, eingabe) {
-    const eigenes = bruecke.find((werkzeug) => werkzeug.name === name);
-    if (eigenes) return eigenes.ausfuehren(eingabe);
     if (!seitenWerkzeuge.some((werkzeug) => werkzeug.name === name)) {
       return { ok: false, fehler: `unbekanntes Werkzeug "${name}"` };
     }
@@ -494,7 +435,7 @@ async function main() {
             capabilities: { tools: { listChanged: false } },
             serverInfo: { name: NAME, version: VERSION },
             instructions:
-              'DIN-BriefNEO schreibt DIN-5008-Briefe im Browser. brief_schreiben füllt den ganzen Brief, brief_als_pdf druckt ihn. Feld-IDs liefert brief_hilfe.'
+              'DIN-BriefNEO schreibt DIN-5008-Briefe im Browser. brief_schreiben füllt den ganzen Brief, brief_pruefen findet Fehler, brief_lesen liest ihn zurück. Feld-IDs liefert brief_hilfe.'
           }
         };
       }

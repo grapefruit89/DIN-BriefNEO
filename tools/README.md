@@ -95,7 +95,7 @@ Prüfen Funktionalität und Browser-Kompatibilität.
   * **Status: überholt.** Lokaler WebSocket-Server (Port 8333) als früher Versuch einer Agenten-Anbindung; die CSP blockiert `ws://` ohnehin. Ersetzt durch `mcp-dinbrief.mjs`.
 
 * **`mcp-dinbrief.mjs`**
-  * **Was es tut:** MCP-Server über stdio (zero-dependency). Startet oder findet Chrome mit DevTools-Protokoll, öffnet die App und reicht die Werkzeuge aus `website/js/webmcp.js` durch; zusätzlich `brief_als_pdf` und `brief_seite_oeffnen`.
+  * **Was es tut:** MCP-Server über stdio (zero-dependency). Startet oder findet Chrome mit DevTools-Protokoll, öffnet die App und reicht die Werkzeuge aus `website/js/webmcp.js` durch — dieselbe Liste, keine eigenen dazu.
   * **Aufruf:** `node tools/mcp-dinbrief.mjs --check` (Prüflauf) bzw. als MCP-Server im Agenten eintragen — siehe `docs/js/AGENTEN-WEBMCP.md`.
 
 * **`mcp-live.mjs`**

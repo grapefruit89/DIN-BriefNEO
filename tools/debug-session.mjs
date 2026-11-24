@@ -96,6 +96,9 @@ if (!(await portFrei(cdpPort))) {
 const profil = mkdtempSync(path.join(os.tmpdir(), 'din-virgin-'));
 const profilDateien = readdirSync(profil).length; // frisch angelegt => 0
 const browserArgs = [
+  /* WebMCP exponiert `document.modelContext`; ohne das Flag ist die API in
+     Chromium 156 nicht vorhanden (gemessen 2026-11-24 mit Helium 156). */
+  '--enable-features=WebMCP',
   `--remote-debugging-port=${cdpPort}`,
   `--user-data-dir=${profil}`,
   '--no-first-run',

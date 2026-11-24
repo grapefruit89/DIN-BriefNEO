@@ -11,9 +11,8 @@
     "docs:index": "node tools/build_db.js -q",
     "build:data": "node tools/build_plz_data.mjs",
     "docs:backlog": "node tools/backlog-sync.mjs",
-    "docs:facts": "node tools/batch-facts.mjs && node tools/batch-facts.mjs --scheibe 01 && node tools/batch-facts.mjs --scheibe 03 && node tools/batch-facts.mjs --scheibe 04 && node tools/batch-facts.mjs --scheibe 05 && node tools/batch-facts.mjs --scheibe 06 && node tools/batch-facts.mjs --scheibe 07",
     "docs:tests": "node tools/test-dossier.mjs",
-    "docs:all": "npm run docs:backlog && npm run docs:facts && npm run docs:tests"
+    "docs:all": "npm run docs:backlog && npm run docs:tests"
   },
   "keywords": [
     "din-5008",

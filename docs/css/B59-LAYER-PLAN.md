@@ -16,7 +16,6 @@ doc_links:
 code_links:
 - 'website/css/base.css'
 - 'website/css/sheet-multipage.css'
-- 'tools/geometrie-zustaende.mjs'
 depends_on: []
 supersedes: []
 ---

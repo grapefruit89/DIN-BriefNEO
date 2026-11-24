@@ -245,7 +245,7 @@ fieldset.seitenleiste-field-group > legend {
   justify-content: center;
   gap: var(--space-md);
   transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              translate 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -253,7 +253,7 @@ fieldset.seitenleiste-field-group > legend {
 
 .btn:hover {
   border-color: var(--accent-color);
-  transform: translateY(-1px);
+  translate: 0 -1px;
 }
 
 .btn-ghost {
@@ -395,6 +395,8 @@ fieldset.seitenleiste-field-group > legend {
   .btn-ghost,
   .input-field {
     transition: none !important;
+    translate: none !important;
+    scale: none !important;
     transform: none !important;
   }
 }
@@ -942,10 +944,10 @@ input[type="checkbox"][switch] {
   align-items: center;
   gap: var(--space-xl);
   opacity: 0;
-  transform: translateY(calc(-1 * var(--space-3xl)));
+  translate: 0 calc(-1 * var(--space-3xl));
   transition: 
     opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    translate 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     display 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete,
     overlay 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
 }
@@ -954,7 +956,7 @@ input[type="checkbox"][switch] {
   display: flex;
   pointer-events: auto;
   opacity: 1;
-  transform: translateY(0);
+  translate: 0 0;
   /* Lebensdauer des Hinweises: die Animation ist Timer UND Schluss. Ihr
      Endzustand (siehe @keyframes unten) bleibt per `forwards` stehen, damit
      der Hinweis verschwindet, ohne dass JS etwas schliessen muss. Die Dauer
@@ -983,7 +985,7 @@ input[type="checkbox"][switch] {
 @starting-style {
   #hinweis-v4:popover-open {
     opacity: 0;
-    transform: translateY(calc(-1 * var(--space-3xl)));
+    translate: 0 calc(-1 * var(--space-3xl));
   }
 }
 
@@ -1420,18 +1422,18 @@ aside select {
   max-width: min(90vw, 420px);
   margin: auto;
   opacity: 0;
-  transform: scale(0.96);
+  scale: 0.96;
   transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              scale 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               display 0.2s allow-discrete,
               overlay 0.2s allow-discrete;
 }
 .glass-dialog[open] {
   opacity: 1;
-  transform: scale(1);
+  scale: 1;
   @starting-style {
     opacity: 0;
-    transform: scale(0.96);
+    scale: 0.96;
   }
 }
 .glass-dialog::backdrop {
@@ -1825,8 +1827,10 @@ body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover
 .btn[data-kopiert="true"] {
   border-color: var(--accent-color);
   background: color-mix(in oklch, var(--accent-color) 14%, var(--bg-card));
-  transform: translateY(0) scale(0.985);
+  translate: 0 0;
+  scale: 0.985;
 }
 .btn[data-kopiert="false"]:active {
-  transform: translateY(0) scale(0.985);
+  translate: 0 0;
+  scale: 0.985;
 }

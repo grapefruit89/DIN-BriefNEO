@@ -740,6 +740,23 @@
       ],
       "replacement": "Native Popover API (popover=\"auto\", showPopoverSafe()/hidePopoverSafe(), popovertarget), natives <select> (appearance: base-select) oder Invoker Commands (commandfor/command)",
       "exemptions": []
+    },
+    {
+      "id": "P44",
+      "catalog_ref": [],
+      "no_catalog_ref_reason": "CSS-Plattform-Modernisierung (Chromium 150+ Baseline): Klassische transform-Funktionen (translate, scale, rotate) durch moderne CSS Individual Transform Properties (translate, scale, rotate) ersetzen.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "Klassisches transform: translate/scale/rotate im CSS gefunden. Ersatz: CSS Individual Transform Properties (translate, scale, rotate).",
+      "pattern": "(?<![\\w-])transform\\s*:\\s*(?:translate|scale|rotate)",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*)",
+      "file_patterns": [
+        "*.css"
+      ],
+      "replacement": "CSS Individual Properties nutzen: translate: x y;, scale: s;, rotate: r deg;",
+      "exemptions": []
     }
   ]
 }

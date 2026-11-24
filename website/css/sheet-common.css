@@ -27,7 +27,7 @@
 /* --- DIN-GEOMETRIE (SSoT: die Tokens stehen in base.css "2a. DIN-5008-GEOMETRIE") --- */
 din-blatt {
   /* Ansichts-Zoom (Debug-Regler, gespeichert in din_settings). `zoom` skaliert
-     das Layout, nicht nur die Pixel — transform: scale() wuerde Boxen und
+     das Layout, nicht nur die Pixel — ein Skalieren per transform wuerde Boxen und
      Trefferflaechen auseinanderlaufen lassen. Im Druck unten zurueck auf 1. */
   zoom: calc(var(--blatt-breite-px, 900) / var(--blatt-mm-px, 793.7));
   font-family: var(--active-font-family, var(--font-system-stack));
@@ -555,7 +555,7 @@ din-anlagen-angabe {
 .unterschriftsbild-drehgriff {
   top: -44px;
   left: 50%;
-  transform: translateX(-50%);
+  translate: -50%;
   cursor: grab;
 }
 
@@ -567,7 +567,7 @@ din-anlagen-angabe {
   width: 2px;
   height: 21px;
   background-color: var(--accent-color);
-  transform: translateX(-50%);
+  translate: -50%;
   z-index: -1;
 }
 

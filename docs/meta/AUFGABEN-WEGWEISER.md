@@ -52,6 +52,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/testbrief-messung.mjs` | Messgate |
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
 | Addons, Plugins, Erweiterungen | `website/js/addons.js`, `website/addons/` | `--filter="Addon"` | test-runner |
+| Agenten, WebMCP, MCP-Bridge | `website/js/webmcp.js`, `website/js/api.js`, `tools/mcp-dinbrief.mjs`, `docs/js/AGENTEN-WEBMCP.md` | `--filter="dinBriefAgent\|WebMCP"`, `node tools/mcp-dinbrief.mjs --check` | beide |
 | Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/boot-state.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
 | Dev-Server + Debug-Browser | `tools/dev.sh` (= `din-dev`) | `din-dev --status`, Tabs via CDP `:9222` | — |
 | Messen am Bildschirm (ohne Bild) | `tools/mess.js` | MCP `evaluate_script` mit `sourcePath`, `format:"function"` | — |
@@ -125,6 +126,8 @@ website/js/debug-panel.js       Selbstauskunft (Schalter „Debug-Panel“ in de
 website/js/ansicht.js           Benutzer-Anzeige: Blatt-Zoom, Nachtpalette (gespeichert in din_settings)
 website/js/geo-cache.js         Ringspeicher (1 MB, LFU) — Review: docs/meta/REVIEW-anrede-dropdown.md
 website/js/api.js             window.dinApi: Brief-Schnittstelle für Agenten (lesen/setzen/anrede/adresse/datum/export)
+website/js/webmcp.js          Agenten-Werkzeuge: WebMCP-Registrierung + window.dinBriefAgent (Vertrag für tools/mcp-dinbrief.mjs)
+website/js/live-bridge.js     Agenten-Kanal ohne Debug-Port: Seite wählt sich per #agent=<token> bei tools/mcp-live.mjs ein (SSE)
 website/js/date-picker.js      Kalender-Popover für #datum (Temporal, deutsche Langform, Monatsansicht, Heute)
 website/js/log.js               Ringpuffer der letzten 50 Fehler/Warnungen (Debug-Panel)
 website/js/format.js             Reine DIN-5008-Formatter + Mikro-Typografie

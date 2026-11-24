@@ -116,7 +116,19 @@
       "file": "js/webapi.d.ts",
       "adr": "",
       "guide": "",
-      "desc": "TypeScript-Ambient-Types (ariaNotify, CloseWatcher)"
+      "desc": "TypeScript-Ambient-Types (ariaNotify, CloseWatcher, WebMCP)"
+    },
+    {
+      "file": "js/webmcp.js",
+      "adr": "ADR-JS",
+      "guide": "",
+      "desc": "Agenten-Werkzeuge: WebMCP-Registrierung + window.dinBriefAgent (Vertrag für die MCP-Brücke)"
+    },
+    {
+      "file": "js/live-bridge.js",
+      "adr": "ADR-JS",
+      "guide": "",
+      "desc": "Agenten-Kanal ohne Debug-Port: Seite wählt sich per #agent=<token> bei tools/mcp-live.mjs ein (SSE)"
     }
   ],
   "addons": [
@@ -130,7 +142,7 @@
       "file": "addons/webmcp-bridge.js",
       "adr": "ADR-JS",
       "guide": "",
-      "desc": "WebMCP Bridge & Polyfill — derzeit nicht eingebunden"
+      "desc": "Überholt: geparkter WebSocket-Polyfill, ersetzt durch js/webmcp.js"
     }
   ],
   "data": [

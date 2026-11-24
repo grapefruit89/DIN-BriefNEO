@@ -92,7 +92,15 @@ Prüfen Funktionalität und Browser-Kompatibilität.
   * **Was es tut:** Prüft lokale BCD- und Baseline-Kompatibilität gegen Chrome 150+.
 
 * **`agent_gateway.py`**
-  * **Was es tut:** Lokaler WebSocket-Server (Port 8333), um KI-Agenten direkt an offene Tabs in Helium anzudocken.
+  * **Status: überholt.** Lokaler WebSocket-Server (Port 8333) als früher Versuch einer Agenten-Anbindung; die CSP blockiert `ws://` ohnehin. Ersetzt durch `mcp-dinbrief.mjs`.
+
+* **`mcp-dinbrief.mjs`**
+  * **Was es tut:** MCP-Server über stdio (zero-dependency). Startet oder findet Chrome mit DevTools-Protokoll, öffnet die App und reicht die Werkzeuge aus `website/js/webmcp.js` durch; zusätzlich `brief_als_pdf` und `brief_seite_oeffnen`.
+  * **Aufruf:** `node tools/mcp-dinbrief.mjs --check` (Prüflauf) bzw. als MCP-Server im Agenten eintragen — siehe `docs/js/AGENTEN-WEBMCP.md`.
+
+* **`mcp-live.mjs`**
+  * **Was es tut:** MCP-Server für einen **normalen** Browser-Tab, ohne Debug-Port und ohne Flag. Ein Tab mit `#agent=<token>` hängt an einem Server-Sent-Events-Kanal; der Server schiebt die Aufrufe durch. Werkzeugliste kommt direkt aus `website/js/webmcp.js`.
+  * **Aufruf:** `node tools/mcp-live.mjs` — die Öffnungs-URL steht in der Ausgabe.
 
 ---
 

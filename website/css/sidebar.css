@@ -92,6 +92,85 @@ aside.seitenleiste,
   margin: 0;
 }
 
+/* Agenten-Block: enger als die Standard-Untergruppe (8px), zwei Zeilen. */
+.agenten-block {
+  gap: var(--space-sm);
+}
+
+.agenten-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+/* „info" als Link erkennbar, aber ein <button>: nur der darf popovertarget. */
+.agenten-info {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-color);
+  font: inherit;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.agenten-info:hover,
+.agenten-info:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+.agenten-popover {
+  max-inline-size: min(34rem, 90%);
+  padding: var(--space-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--segment-bg);
+  color: var(--text-primary);
+  box-shadow: 0 12px 32px var(--farbe-schatten-weich);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.agenten-popover h4 {
+  margin: 0 0 var(--space-xs);
+  font-size: 0.95rem;
+}
+
+.agenten-popover p {
+  margin: 0 0 var(--space-xs);
+}
+
+.agenten-popover code {
+  font-size: 0.8em;
+  word-break: break-word;
+}
+
+.agenten-liste {
+  margin: var(--space-xs) 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px var(--space-sm);
+}
+
+.agenten-liste dt {
+  font-weight: 700;
+}
+
+.agenten-liste dd {
+  margin: 0;
+}
+
+.agenten-stand {
+  font-weight: 700;
+}
+
+.agenten-fuss {
+  color: var(--text-muted);
+}
+
 .seitenleiste-field-group {
   display: flex;
   flex-direction: column;
@@ -1804,4 +1883,16 @@ body:has(#toggle-fuss:is(:hover, :focus-visible), label[for="toggle-fuss"]:hover
 .kalender-heute {
   padding: 2px var(--space-sm);
   border-color: var(--border-color);
+}
+
+
+/* Rückmeldung für den Kopier-Knopf: gedrückt = kurz eingedrückt und getönt,
+   nach dem Kopieren 1,5 s bestätigt. Kein Toast, nur der Knopf selbst. */
+.btn[data-kopiert="true"] {
+  border-color: var(--accent-color);
+  background: color-mix(in oklch, var(--accent-color) 14%, var(--bg-card));
+  transform: translateY(0) scale(0.985);
+}
+.btn[data-kopiert="false"]:active {
+  transform: translateY(0) scale(0.985);
 }

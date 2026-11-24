@@ -87,6 +87,26 @@ Der Brief braucht keine Systemschrift, um richtig auszusehen — er bringt seine
 
 ---
 
+## 🤖 Agenten
+
+Der Brief lässt sich von einem Agenten schreiben — im Browser und in der
+Kommandozeile. Eine Fähigkeitsschicht (`window.dinApi`), zwei Transporte:
+
+- **WebMCP** ([Entwurf](https://developer.chrome.com/docs/ai/webmcp)): Chrome
+  149+ hinter `chrome://flags/#enable-webmcp-testing` oder per Origin Trial. Die
+  Seite registriert zehn Werkzeuge (`brief_schreiben`, `brief_lesen`, …), sobald
+  `document.modelContext` vorhanden ist. Fehlt die API, passiert nichts.
+- **MCP** (stdio, zero-dependency): `node tools/mcp-dinbrief.mjs --check` startet
+  bei Bedarf ein eigenes Chrome, öffnet die App und reicht dieselben Werkzeuge an
+  Agenten in der Kommandozeile durch — zusätzlich `brief_als_pdf`.
+- **Konsole/CDP**: `window.dinApi` und `window.dinBriefAgent` stehen nach dem
+  Boot bereit, ohne Flag.
+
+Details, MCP-Konfiguration und Grenzen:
+[`docs/js/AGENTEN-WEBMCP.md`](docs/js/AGENTEN-WEBMCP.md).
+
+---
+
 ## 💻 Entwickler-Workflow
 
 ### 1. Lokaler Start

@@ -35,6 +35,7 @@ export const API_FELDER = [
   'absender-tel',
   'absender-mail',
   'datum',
+  'vermerke',
   'betreff',
   'anrede',
   'text',

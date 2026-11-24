@@ -7,12 +7,12 @@
  * Bash-Agenten über ws://127.0.0.1:8333.
  * Stellt window.modelContext bereit (W3C WebMCP Standard).
  *
- * ⚠️ STATUS: GEPARKT — ABSICHTLICH NICHT GELADEN (Stand 2026-11-14).
- * Es gibt weder ein <script> in index.html noch einen import in js/main.js.
- * Das ist kein toter Code und kein Versehen: die Nutzung ist noch nicht
- * entschieden, und ohne Plugin-Punkt ([[B52]]) würde ein Import den Addon-Code
- * fest in den Boot-Pfad ziehen. Kosten im Betrieb heute: 0 Byte.
- * Wer das hier als "ungenutzt" meldet: bitte zuerst B52 im Backlog lesen.
+ * ⚠️ STATUS: ÜBERHOLT, GEPARKT (Stand 2026-11-23).
+ * Ersetzt durch js/webmcp.js: dort liegen die Werkzeuge, die WebMCP nativ
+ * registriert und die tools/mcp-dinbrief.mjs über CDP aufruft. Dieser Polyfill
+ * tat so, als gäbe es modelContext, und brauchte dafür einen WebSocket auf
+ * 127.0.0.1 — den die CSP (connect-src 'self') ohnehin blockiert.
+ * Bleibt als Zeitdokument liegen; wird nicht geladen, nicht importiert.
  */
 
 import { Events, eventBus } from '../js/core.js';

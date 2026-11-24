@@ -5754,6 +5754,185 @@ veröffentlichte Seite nie.
 
 ---
 
+## 2026-11-23 — WebMCP eingebaut, mit CLI-Brücke statt Polyfill
+
+**Anlass:** Der Wunsch, „dass jeglicher Agent den Brief komplett benutzen kann"
+— im Browser und in der Kommandozeile, veröffentlicht auf GitHub Pages.
+
+**Gemessen (Chrome 152, Live-Seite):** `navigator.modelContext`,
+`document.modelContext` und `modelContextTesting` sind `undefined`. Die API gibt
+es ab Chrome 149 nur hinter `chrome://flags/#enable-webmcp-testing` oder per
+Origin-Trial-Token. `window.dinApi` stand dagegen sofort bereit.
+
+**Entscheidung: keine zweite Wahrheit, sondern zwei Transporte über einer
+Fähigkeitsschicht.**
+
+1. `website/js/webmcp.js` (neu) definiert acht Werkzeuge als Daten (Name,
+   Beschreibung, JSON-Schema, `readOnlyHint`) und führt sie über
+   `window.dinApi` aus. Es registriert sie bei `document.modelContext`, wenn
+   vorhanden — und stellt immer `window.dinBriefAgent` bereit.
+2. `tools/mcp-dinbrief.mjs` (neu, zero-dependency) ist ein MCP-Server über
+   stdio: er startet oder findet Chrome mit DevTools-Protokoll, öffnet die
+   Seite und ruft `window.dinBriefAgent.run(name, args)` auf. Damit funktioniert
+   derselbe Vertrag auch dort, wo WebMCP fehlt (Helium, Firefox, CLI-Agenten).
+   Zusatzwerkzeuge der Brücke: `brief_als_pdf` (`Page.printToPDF`, A4 über
+   `preferCSSPageSize`) und `brief_seite_oeffnen`.
+3. `website/addons/webmcp-bridge.js` bleibt liegen, ist aber als **überholt**
+   markiert: er simulierte `modelContext` und brauchte dafür
+   `ws://127.0.0.1:8333`, was die CSP (`connect-src 'self'`) ohnehin blockiert.
+
+**Bewusst nicht gebaut:** kein „Verbinden"-Schalter in den Einstellungen (bei
+WebMCP gibt es nichts zu verbinden — der Agent besucht die Seite), keine
+Polyfill-Schicht, keine Ausweitung auf Datei-Dialoge, Druckdialoge oder
+Unterschrift-Upload (Nutzergeste).
+
+**Verifiziert:** `brief_schreiben` über MCP füllte Empfänger, Absender, Datum,
+Anrede, Betreff, Text, Unterschrift und Anlagen; `brief_als_pdf` erzeugte ein
+PDF mit MediaBox 594,96 × 841,92 pt (A4, eine Seite). `npm test`: 424 Fälle
+grün. Port 9222 war auf dem Testrechner von einem fremden Chrome belegt und
+lieferte HTTP 404 — die Brücke probiert deshalb 9222/9333/9444/9555 und
+überspringt belegte Ports ohne DevTools.
+
+**Doku:** `docs/js/AGENTEN-WEBMCP.md`, `website/llms.txt`, README.
+
+---
+
+## 2026-11-23 (Nachtrag) — Agenten-Kanal ohne Debug-Port, Seiten-Inspektion
+
+**Anlass:** „Ein CLI-Agent soll ohne Debug-Port in den live offenen Tab
+schreiben." Das geht mit der CDP-Brücke bewusst nicht — also dreht
+`tools/mcp-live.mjs` die Richtung um: Der Tab ruft an (Server-Sent-Events auf
+`127.0.0.1`), der Agent spricht MCP mit dem lokalen Dienst.
+
+- `website/js/live-bridge.js`: liest `#agent=<token>[@port]`, verbindet per
+  `EventSource`, führt Aufrufe über `ausfuehren()` aus. Ohne Token im Fragment
+  passiert nichts — kein Timer, kein Netz.
+- `tools/mcp-live.mjs`: MCP über stdio + HTTP-Kanal, Werkzeugliste direkt aus
+  `website/js/webmcp.js` (keine Kopie). Ports 8765…8795, belegte werden
+  übersprungen; der Port steht dann im Fragment.
+- CSP: `connect-src` erlaubt zusätzlich `http://127.0.0.1:*` (nur Loopback).
+- Verifiziert: normaler Tab (kein Flag, kein DevTools-Port), `brief_schreiben`
+  über den Kanal füllte den Brief, Toast „Agent verbunden".
+
+**Zwei Werkzeuge ergänzt** (jetzt zehn): `brief_seiten` und
+`brief_layout_setzen`. `brief_seiten` rechnet die Seitengeometrie selbst
+(`#kern`, `--seite` + `--luecke`) statt `body.dataset.seiten` zu lesen — der
+Wert hängt einen ResizeObserver-Frame nach und war nach `brief_schreiben`
+falsch. Zeilen werden über `Range.getClientRects()` gezählt, der Zeilentext
+über eine Binärsuche auf Zeichen-Rechtecken (ein Textknoten läuft über
+Seitengrenzen). Gemessen an einem 34-Zeilen-Brief: Seite 1 = 32 Zeilen,
+Seite 2 = 2 Zeilen, Warnung „Seite 2 hat nur 2 Zeile(n)"; Form A hält 34
+Zeilen, Form B 32. Das ist der Bildschirm, nicht das PDF — der Druckumbruch
+bleibt der CDP-Brücke vorbehalten.
+
+---
+
+## 2026-11-23 — Altbestand „roadmap" (09/2026) ausgewertet: drei Entscheidungen
+
+Der Ordner `Documents\dinbrief-temp\roadmap` (39 Dateien, 04.09.2026) stammt aus der
+Zeit vor der Modul-Konsolidierung. Er wurde vollständig gegen den aktuellen Code
+geprüft; danach gelöscht. Die Entscheidungen stehen ab jetzt hier, nicht in einer
+Dateiablage außerhalb des Repos.
+
+**1) Zero-Click-Autofill bei genau einem Treffer — verworfen.**
+War implementiert und wurde bewusst entfernt: Wer einen Vorschlag löscht, bekam ihn
+sofort wieder eingesetzt. Das ist keine Hilfe, sondern eine Blockade. Automatisch
+gefüllt wird weiterhin nur **PLZ → Ort** (fünf Ziffern, `address.js`), weil dort der
+Zusammenhang eindeutig ist. `docs/meta/ROADMAP.md` behauptete „erledigt" — korrigiert.
+
+**2) On-Device-KI (Gemini Nano) — verworfen.**
+Das lokale Modell braucht rund **4 GB RAM**; das ist nicht „für jeden". Der Bedarf ist
+inzwischen durch den Agenten-Zugang (WebMCP/MCP, 15 Werkzeuge) gedeckt — ohne Modell,
+ohne Download, ohne RAM-Last. `docs/meta/Feature-Matrix.md` führte das Addon als
+„aktiv · optional" — korrigiert auf **verworfen**.
+
+**3) Brotli — bleibt gzip.**
+`DecompressionStream('brotli')` ist in Chrome nicht verfügbar (nur Firefox), und
+GitHub Pages liefert keine `Content-Encoding: br`-Header. Der Datensatz bleibt bei
+gzip (81.745 B, unter 1 ms) — kein Bedarf.
+
+**Nicht verworfen, sondern geparkt: Adressbuch und Brief-Verlauf.**
+Die Datenschicht liegt fertig in `website/addons/verlauf/` (Absender-/Empfängerbuch,
+Verlauf, 15 Exporte), ist aber bewusst nicht geladen. Offen sind UI und
+Speicherzeitpunkt — B32 im [[BACKLOG]].
+
+**Doku-Folgen:** `docs/meta/Feature-Matrix.md` (Stand 2026-10-02) verwies auf
+gelöschte Module (`43-geoapify.js`, `52-import-export.js`, `46-clipboard-address-parser.js`)
+und behauptete drei Features, die es nicht mehr gibt. Nachgezogen; der
+Clipboard-Parser steht dort jetzt korrekt als **verworfen** (Commit `164568b`,
+„wir suchen nicht in einer potentiellen Zwischenablage").
+
+### Nachtrag: Altbestand `research_results` — was bleibt, was fliegt
+
+Der Ordner `Documents\dinbrief-temp\research_results` (33 Dateien, 16 MB) wurde
+gegen den aktuellen Stand geprüft. Die Chrome-Feature-Rohdaten bleiben (14 MB,
+außerhalb des Repos), der Rest ist in den Papierkorb gewandert.
+
+**1) Geoapify bleibt der einzige Adressanbieter — Photon/OpenPLZ/HERE verworfen.**
+Die Recherche (Multi-Provider-Vergleich, Latenz-Benchmarks) ist entschieden: die
+Alternativen waren messbar langsamer, und „key-frei" ist kein Vorteil, weil der
+Geoapify-Key optional ist und die Offline-PLZ ohne Netz arbeitet. Damit ist auch
+`brief_strasse_suchen` (Werkzeug) korrekt auf Geoapify festgelegt.
+
+**2) Vornamen-Tabelle (951 Namen) — verworfen.** Widerspricht der KISS-Anrede:
+kein Raten aus Namenslisten, der Nutzer überschreibt im Feld.
+
+**3) Impressum-/Zwischenablage-Parser — verworfen** (bleibt bei Commit `164568b`).
+
+**4) PLZ-/Großkunden-Altbestand (09/2026) — verworfen.** Die Pipeline im Repo ist
+SSoT; Daten werden beim Build frisch aus den Quellen geholt und geparst, nicht
+aus Altbeständen übernommen. Brotli bleibt trotz 18 % Ersparnis draußen (kein
+`Content-Encoding: br` auf Pages, `DecompressionStream` kann es in Chrome nicht).
+
+**5) Chrome-Radar bleibt — als Doku.** Die beiden Chromestatus-Dumps (2025/2026,
+433 Features 2026) bleiben außerhalb des Repos; das Auswertbare steht jetzt in
+`docs/css/CHROME-CSS-RADAR.md`: was wir schon nutzen (Multicol L2, `text-box-trim`,
+`field-sizing`, `light-dark`), welche Kandidaten zu DIN-5008 passen (unbedruckbare
+Ränder, `margin-trim`, hängender Einzug, `shrink-to-fit`) und was nur beobachtet wird.
+
+**6) Mobile - Zwischenlösung statt Sackgasse.** Es gibt keine `mobile.css`; bis
+dahin kommt ein Hinweis "der Editor ist für Desktop gebaut" (Issue #30), rein per
+Media Query, ohne Overlay-Falle und ohne Druckwirkung.
+
+## 2026-11-23 - Altbestand `alterarbeitsordner` geprüft, archiviert und gelöscht
+
+**Kontext:** `Documents\Other_Projects\DIN-Brief Neo\alterarbeitsordner` (2.448
+sichtbare Dateien, 168 MB) war der Sammelordner aller Vorstufen. Vor dem Löschen
+wurde er vollständig geprüft und gesichert.
+
+**Sicherung:** `alterarbeitsordner_2026-11-23.zip` (150,2 MB, 8.050 Dateien,
+217,9 MB entpackt) liegt neben `neuerarbeitsordner`. Die erste Tar-Variante war
+unvollständig, weil `tar.exe` dem Junction `DIN-BriefNEO\node_modules` folgte und
+danach abbrach (u. a. fehlten `Alte schinken`, `DIN Brief`, `Chhatlogs`). Neu
+gebaut mit `robocopy /XJ` (Junctions ausgeschlossen) und anschließend per
+Voll-Extraktion gegengeprüft: 8.050 Dateien, gleiche Byte-Summe.
+
+**Befund `Alte schinken\Platinum_DIN_2026` (37 Dateien, 0,1 MB, 17.03.2026):**
+reine Ghost-Spezifikation (`.brain/` mit Projektgedächtnis, 19 ADRs, 6
+JS-Modul-Steckbriefen, `index.html.md`). Nichts davon muss gerettet werden:
+
+- **Überholt:** ADR-020 "100 % ContentEditable" (heute dedizierte Inputs,
+  `contenteditable` nur im Briefkörper), ADR-016 PWA/Offline-First, ADR-011
+  Photon/GPS-Kaskade, Profil-Dialog, IBAN-Ghost-Overlay, Expert-Mode-Sidebar.
+- **Deckt sich mit heute:** DIN-Geometrie (25 mm links, 20 mm rechts, Form A
+  27 mm / Form B 45 mm, Falzmarken 105/210 mm, Lochmarke 148,5 mm), Validierung
+  für IBAN/PLZ/E-Mail, "No Ghost Data", "Assistiert, nicht bevormundet".
+- **Bereits entschieden:** Adressbuch (Issue #28), Geoapify als einziger
+  Adressanbieter, LLM-Protokoll (`docs/js/AGENTEN-WEBMCP.md`).
+
+**Ergebnis:** Der Ordner ist gelöscht. Im Elternverzeichnis liegen nur noch
+`neuerarbeitsordner` und das Archiv. Einziger Halt beim Löschen war eine offene
+Typora-Datei (`00_project_memory.md`); nach deren Schließen war der Rest weg.
+
+**Nachtrag (gleicher Tag, nach Durchsicht):** Die daraufhin angelegte Sammlung
+`Briefalt` (291 MB, 2.374 Dateien) — dieses Archiv, der alte Checkout
+`DIN-Brief-Neo_2026-09-04`, `neuerarbeitsordner`, die RAR-Stände v1.0/v18,
+`dinbrief-temp` sowie Chat- und Kontext-Exporte — wurde nach Prüfung vollständig
+gelöscht. Grund: Der Code war entweder bereits migriert (Skills, Tool-Result-
+Vokabular) oder bewusst entfernt (`3d40782`, Repo-MCP) und in der Git-Historie
+abrufbar. Das Archiv ist damit **nicht mehr vorhanden**; die kopierten
+Einzeldateien in `Text_Archive`, `meta exports`, `4. Markdown` und auf dem
+Desktop liegen weiterhin an ihren Originalorten.
 ## 2026-11-24 — Seitenleiste: genau zwei Schriftgrößen
 
 **Nutzer:** „die ganzen Überschriften haben ja 10 verschiedene Schriftgrößen

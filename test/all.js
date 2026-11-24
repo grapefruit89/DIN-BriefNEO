@@ -9,6 +9,8 @@ import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js'
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
 import { heute, leseDatum, monatsName, monatsTage, startOffset, titelText, WOCHENTAGE } from '../website/js/date-picker.js';
 import { initApi } from '../website/js/api.js';
+import { ausfuehren, initWebMCP, WERKZEUGE, werkzeugListe } from '../website/js/webmcp.js';
+import { initLiveBridge, liveAdresse, livePort, liveToken } from '../website/js/live-bridge.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
 import { applyDraftValues, clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
 import { Field } from '../website/js/field.js';
@@ -3006,6 +3008,161 @@ describe('window.dinApi: Brief-Schnittstelle für Agenten (2026-11-22)', () => {
   });
 });
 
+describe('window.dinBriefAgent + WebMCP: Werkzeuge für Agenten (2026-11-23)', () => {
+  /**
+   * Setzt `document.modelContext` für einen Test und gibt den vorherigen
+   * Deskriptor zurück, damit der nächste Test wieder ohne WebMCP startet.
+   * @param {any} wert
+   * @returns {PropertyDescriptor | undefined}
+   */
+  const setzeModelContext = (wert) => {
+    const vorher = Object.getOwnPropertyDescriptor(document, 'modelContext');
+    Object.defineProperty(document, 'modelContext', { value: wert, configurable: true, writable: true });
+    return vorher;
+  };
+  /** @param {PropertyDescriptor | undefined} vorher */
+  const stelleWiederHer = (vorher) => {
+    if (vorher) Object.defineProperty(document, 'modelContext', vorher);
+    else delete (/** @type {any} */ (document).modelContext);
+  };
+
+  it('ohne modelContext: nichts registriert, Vertrag trotzdem nutzbar', async () => {
+    const vorher = setzeModelContext(undefined);
+    try {
+      const ergebnis = await initWebMCP();
+      assertEqual(ergebnis.webmcp, false, 'WebMCP nicht aktiv');
+      assertEqual(ergebnis.registriert, 0, 'nichts registriert');
+      assertEqual(ergebnis.fehler.length, 0);
+
+      const vertrag = /** @type {any} */ (window).dinBriefAgent;
+      assert(vertrag, 'window.dinBriefAgent gesetzt');
+      assertEqual(vertrag.version, '1.0');
+      assertEqual(vertrag.werkzeuge().length, 15, 'fünfzehn Werkzeuge im Vertrag');
+    } finally {
+      stelleWiederHer(vorher);
+    }
+  });
+
+  it('registriert alle Werkzeuge mit Schema und Sicherheitshinweisen', async () => {
+    /** @type {any[]} */
+    const gesammelt = [];
+    const vorher = setzeModelContext({
+      registerTool: (/** @type {any} */ werkzeug) => {
+        gesammelt.push(werkzeug);
+        return Promise.resolve();
+      }
+    });
+    try {
+      const ergebnis = await initWebMCP();
+      assertEqual(ergebnis.webmcp, true);
+      assertEqual(ergebnis.registriert, WERKZEUGE.length);
+      assertEqual(gesammelt.length, WERKZEUGE.length);
+
+      for (const werkzeug of gesammelt) {
+        assertEqual(werkzeug.inputSchema.type, 'object', `${werkzeug.name}: Objekt-Schema`);
+        assert(werkzeug.description.length > 20, `${werkzeug.name}: Beschreibung`);
+        assertEqual(typeof werkzeug.execute, 'function', `${werkzeug.name}: execute`);
+      }
+
+      const lesen = gesammelt.find((werkzeug) => werkzeug.name === 'brief_lesen');
+      assertEqual(lesen.annotations.readOnlyHint, true, 'Lesen ist readOnly');
+      const schreiben = gesammelt.find((werkzeug) => werkzeug.name === 'brief_schreiben');
+      assertEqual(schreiben.annotations.readOnlyHint, false, 'Schreiben ist nicht readOnly');
+      assertEqual(schreiben.annotations.consequentialHint, false, 'lokal, nichts Unwiderrufliches');
+    } finally {
+      stelleWiederHer(vorher);
+    }
+  });
+
+  it('brief_schreiben füllt Empfänger, Anrede, Betreff und Anlagen', async () => {
+    const vorher = setzeModelContext(undefined);
+    try {
+      initApi();
+      await initWebMCP();
+      const vertrag = /** @type {any} */ (window).dinBriefAgent;
+      const ergebnis = await vertrag.run('brief_schreiben', {
+        empfaenger: { name: 'Frau Test', ort: '53840 Troisdorf' },
+        anrede: 'Sehr geehrte Frau Test,',
+        betreff: 'Kündigung des Vertrags',
+        anlagen: 'Anlage 1'
+      });
+      assertEqual(ergebnis.ok, true, `Fehler: ${JSON.stringify(ergebnis.fehler)}`);
+
+      const felder = /** @type {any} */ (window).dinApi.lesen().felder;
+      assertEqual(felder.betreff, 'Kündigung des Vertrags');
+      assertEqual(felder['empfaenger-name'], 'Frau Test');
+      assertEqual(felder.anrede, 'Sehr geehrte Frau Test,');
+      assertEqual(felder['anlagen-angabe'], 'Anlage 1');
+    } finally {
+      stelleWiederHer(vorher);
+    }
+  });
+
+  it('brief_hilfe liefert einen Feldkatalog mit Bedeutung', async () => {
+    initApi();
+    await initWebMCP();
+    const hilfe = await ausfuehren('brief_hilfe');
+    const katalog = /** @type {any[]} */ (/** @type {any} */ (hilfe).katalog);
+    assert(Array.isArray(katalog), 'katalog ist eine Liste');
+    assertEqual(katalog.length, /** @type {string[]} */ (hilfe.felder).length, 'ein Eintrag je Feld');
+    const ort = katalog.find((eintrag) => eintrag.id === 'empfaenger-ort');
+    assert(ort, 'empfaenger-ort im Katalog');
+    assert(String(ort.zweck).includes('PLZ'), 'PLZ/Ort ist erklärt');
+    assertEqual(ort.pflicht, 'ja');
+    assert(katalog.some((eintrag) => eintrag.id === 'vermerke'), 'vermerke ist dabei');
+  });
+
+  it('unbekanntes Werkzeug ist ein Ergebnis, kein Wurf', async () => {
+    const ergebnis = await ausfuehren('gibt-es-nicht');
+    assertEqual(ergebnis.ok, false);
+    assert(String(ergebnis.fehler).includes('unbekanntes Werkzeug'));
+    assertEqual(/** @type {string[]} */ (ergebnis.werkzeuge).length, werkzeugListe().length);
+  });
+
+  it('brief_seiten nennt ohne Briefkern den Grund statt zu werfen', async () => {
+    const ergebnis = await ausfuehren('brief_seiten');
+    assertEqual(ergebnis.ok, false, 'ohne #kern kein Seitenbericht');
+    assert(String(ergebnis.fehler).includes('#kern'));
+  });
+
+  it('brief_layout_setzen lehnt fremde Formulare ab', async () => {
+    const falsch = await ausfuehren('brief_layout_setzen', { form: 'form-c' });
+    assertEqual(falsch.ok, false);
+    assert(String(falsch.fehler).includes('form-a'));
+  });
+});
+
+describe('Agenten-Kanal ohne Debug-Port (live-bridge.js, 2026-11-23)', () => {
+  it('liest das Token nur aus #agent=…', () => {
+    assertEqual(liveToken('#agent=abc123'), 'abc123');
+    assertEqual(liveToken('#agent=ab'), '', 'zu kurzes Token wird abgelehnt');
+    assertEqual(liveToken(''), '');
+    assertEqual(liveToken('#foo&agent=deadbeef'), 'deadbeef', 'Token auch hinter anderen Fragmenten');
+    assertEqual(
+      liveAdresse('tok', 'https://example.org/index.html'),
+      'https://example.org/index.html#agent=tok',
+      'Öffnungsadresse'
+    );
+    assertEqual(
+      liveAdresse('tok', 'https://example.org/index.html', 8766),
+      'https://example.org/index.html#agent=tok@8766',
+      'abweichender Port steht im Fragment'
+    );
+  });
+
+  it('liest den Port nur aus dem Fragment, sonst Vorgabe', () => {
+    assertEqual(livePort('#agent=abc123'), 8765, 'ohne Port gilt die Vorgabe');
+    assertEqual(livePort('#agent=abc123@8766'), 8766);
+    assertEqual(livePort(''), 8765);
+  });
+
+  it('verbindet nichts, wenn die URL kein Token trägt', () => {
+    const ergebnis = initLiveBridge();
+    assertEqual(ergebnis.aktiv, false, 'ohne Token kein Kanal');
+    assert(String(ergebnis.grund).includes('#agent'), 'Grund nennt das fehlende Token');
+  });
+});
+
 describe('Init degradiert statt abzubrechen (Invariante 2026-11-22)', () => {
   it('initSenderSync: ohne #unterschrift spiegelt der Name weiter', () => {
     /* Der fruehere Guard verlangte ALLE fuenf Felder. Fehlte eines, fiel die
@@ -5658,7 +5815,9 @@ describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {
     );
 
     const h3 = [...aside.querySelectorAll('h3')];
-    assertEqual(h3.length, 2, 'h3 fuer die Gruppentitel, die keine Labels sind');
+    /* Drei Gruppentitel: „Erweiterungen (Plugins)", „Agenten (MCP)" und der
+       Mehrseiten-Workbench-Titel. Kein Label-Ersatz, echte Ueberschriften. */
+    assertEqual(h3.length, 3, 'h3 fuer die Gruppentitel, die keine Labels sind');
     assert(h3.every((h) => !h.hasAttribute('for')), 'h3 ist kein Label-Ersatz');
     assertEqual([...aside.querySelectorAll('h2, h3')][0]?.tagName, 'H2', 'beginnt mit h2');
   });

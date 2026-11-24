@@ -268,6 +268,7 @@ Klick geladen, **nie** im Boot-Pfad. Ein Addon darf den Kern nicht voraussetzen
 und muss ohne es laufen (0 Byte, wenn niemand es öffnet).
 
 ### B32 · Brief-Verlauf und zwei Adressbücher (Addon `verlauf`) · **S** · ⭐⭐⭐⭐
+**GitHub-Issue:** [#28](https://github.com/grapefruit89/DIN-BriefNEO/issues/28)
 **Kontext:** Re-integriert aus archivierten Entwurfsmustern. Verhindert Datenverlust bei versehentlichem Leeren oder Überschreiben des Entwurfs.
 **Ziel:** Automatisches oder semi-automatisches Archivieren von Briefständen:
 - **Datenhaltung:** Eigener LocalStorage-Key `din_history` mit maximal 10 Einträgen (FIFO-Ringspeicher).

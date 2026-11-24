@@ -38,5 +38,23 @@ Nach dem Boot steht `window.dinApi` bereit (kein Flag, kein Zusatzmodul):
 - `dinApi.datum('2026-11-22')` — schreibt die deutsche Langform
 - `dinApi.exportieren()` — der Brief als DIN-Letter-JSON
 
+Dieselben Fähigkeiten liegen als Werkzeuge vor (Name, Beschreibung,
+JSON-Schema): `brief_hilfe`, `brief_lesen`, `brief_setzen`,
+`brief_adresse_setzen`, `brief_anrede_setzen`, `brief_datum_setzen`,
+`brief_tonalitaet_setzen` (Tonalität + Stilvertrag), `brief_fuss_setzen`
+(§ 35a in einem Aufruf), `brief_seiten` (Seitenzahl, Zeilen pro Seite, Warnung
+bei fast leeren Seiten), `brief_layout_setzen` (Form A/B), `brief_ort_pruefen`,
+`brief_strasse_suchen` (nur mit Key), `brief_pruefen` (Befunde statt Daumen
+hoch), `brief_schreiben` (kompletter Brief in einem Aufruf), `brief_exportieren`.
+Aufruf über `window.dinBriefAgent.run(name, argumente)` oder
+`window.dinBriefAgent.werkzeuge()`.
+
+- WebMCP: Bietet der Browser `document.modelContext` an (Chrome 149+ mit
+  Origin Trial oder Flag `#enable-webmcp-testing`), sind genau diese Werkzeuge
+  dort registriert.
+- MCP für Agenten in der Kommandozeile: `node tools/mcp-dinbrief.mjs` im Repo
+  (stdio, zero-dependency) steuert Chrome über CDP und bietet zusätzlich
+  `brief_als_pdf` und `brief_seite_oeffnen`.
+
 Drucken, Datei-Uploads (Unterschrift, Schrift) und Dialoge sind bewusst nicht
 Teil der API — sie brauchen eine Nutzergeste.

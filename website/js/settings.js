@@ -362,3 +362,20 @@ export class SettingsManager {
 
   }
 }
+
+/* =========================================================================================
+ * 2. AGENTEN-HILFE (WebMCP / MCP)
+ * ========================================================================================= */
+
+export function initAgentenHilfe() {
+  const status = document.getElementById('agenten-info-status');
+  if (!status) return;
+  const agent = /** @type {any} */ (window).dinBriefAgent;
+  const anzahl = typeof agent?.werkzeuge === 'function' ? agent.werkzeuge().length : 0;
+  const webmcp = typeof document.modelContext === 'object' && document.modelContext !== null;
+  status.textContent = [
+    `${anzahl} Werkzeuge`,
+    webmcp ? 'WebMCP aktiv' : 'kein WebMCP in diesem Browser'
+  ].join(' · ');
+}
+

@@ -19,7 +19,7 @@
 
 import { ortsVorschlaege, strassenSuchPfad } from './address.js';
 import { AddressIntelligence } from './address-data.js';
-import { BREITE_ORIGINAL, nachtCss, passendeBreite, speichereAnsicht, wendeBlattBreite, wendeNachtpalette } from './ansicht.js';
+import { nachtCss, speichereAnsicht, wendeNachtpalette } from './ansicht.js';
 import { collectDraft } from './document.js';
 import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
@@ -301,142 +301,41 @@ function verdrahteKnoepfe() {
 }
 
 /** Einmalige Initialisierung: Werte schreiben und sichtbarkeitsabhängig takten. */
-/* ------------------------------------------------- Ansicht: Nacht + Größe */
+/* ------------------------------------------------- Ansicht: Nachtpalette */
 
 /**
- * Zwei Debug-Regler: Nacht-Grundhelligkeit und Blattgröße.
- *
- * Die Blattgröße läuft über **Pixel**, nicht über Prozent oder einen Faktor:
- * 210 mm sind bei 96 dpi 793,7 px, also ist 900 px = 113,4 %. Ein gespeicherter
- * Faktor multiplizierte sich mit jeder Änderung der Grundgröße (Befund
- * 2026-11-24: 900 px wurden durch einen alten Faktor zu 936 px). Prozent ist
- * nur eine Anzeige- und Schrittweite.
+ * Ein Regler: Nacht-Grundhelligkeit. Die Blattgroesse steht fest in
+ * `base.css` (`--blatt-breite-px: 900`, hergeleitet im Kommentar dort) —
+ * ein Regler dafuer war 200 Zeilen fuer eine Konstante (Entscheidung
+ * 2026-11-24).
  */
 function initAnsichtRegler() {
   const nacht = /** @type {HTMLInputElement | null} */ (document.getElementById('dbg-nacht'));
   const nachtWert = document.getElementById('dbg-nacht-wert');
   const nachtStatus = document.getElementById('dbg-nacht-status');
+  if (!nacht || !nachtWert) return;
 
   let timerNacht = 0;
-  if (nacht && nachtWert) {
-    const anwenden = () => {
-      const basis = Number(nacht.value) / 100;
-      wendeNachtpalette(basis);
-      speichereAnsicht('nachtHelligkeit', basis);
-      nachtWert.textContent = basis.toFixed(2).replace('.', ',');
-      if (nachtStatus) nachtStatus.textContent = 'gespeichert und kopiert';
-      clearTimeout(timerNacht);
-      const css = nachtCss(basis);
-      timerNacht = setTimeout(() => {
-        navigator.clipboard?.writeText(css).catch(() => {
-          if (nachtStatus) nachtStatus.textContent = 'gespeichert · Zwischenablage gesperrt';
-        });
-      }, 350);
-    };
-    nacht.addEventListener('input', anwenden);
-    nacht.value = String(Math.round((loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS).nachtHelligkeit ?? 0.5) * 100));
-    anwenden();
-  }
-
-  const minus = document.getElementById('dbg-breite-minus');
-  const plus = document.getElementById('dbg-breite-plus');
-  const knopfPx = document.getElementById('dbg-einheit-px');
-  const knopfProzent = document.getElementById('dbg-einheit-prozent');
-  const wert = document.getElementById('dbg-breite-wert');
-  if (!minus || !plus || !wert) return;
-
-  const gelesen = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-  let breite = typeof gelesen.blattBreitePx === 'number' ? gelesen.blattBreitePx : 900;
-  /** @type {'px' | 'prozent'} */
-  let einheit = gelesen.zoomEinheit === 'prozent' ? 'prozent' : 'px';
-
-  const zeige = () => {
-    const px = wendeBlattBreite(breite);
-    breite = px;
-    speichereAnsicht('blattBreitePx', px);
-    wert.textContent =
-      einheit === 'px'
-        ? `${px} px`
-        : `${Math.round((px / BREITE_ORIGINAL) * 100)} %`;
-    if (knopfPx) knopfPx.setAttribute('aria-pressed', String(einheit === 'px'));
-    if (knopfProzent) knopfProzent.setAttribute('aria-pressed', String(einheit === 'prozent'));
+  const anwenden = () => {
+    const basis = Number(nacht.value) / 100;
+    wendeNachtpalette(basis);
+    speichereAnsicht('nachtHelligkeit', basis);
+    nachtWert.textContent = basis.toFixed(2).replace('.', ',');
+    if (nachtStatus) nachtStatus.textContent = 'gespeichert und kopiert';
+    clearTimeout(timerNacht);
+    const css = nachtCss(basis);
+    timerNacht = setTimeout(() => {
+      navigator.clipboard?.writeText(css).catch(() => {
+        if (nachtStatus) nachtStatus.textContent = 'gespeichert · Zwischenablage gesperrt';
+      });
+    }, 350);
   };
-
-  /* Schritt: in px genau 1 px, in Prozent 1 % von 793,7 = 7,937 px. */
-  /* 1 % = ein Hundertstel der Blattgroesse (900 px), also 9 px. */
-  const schritt = () => (einheit === 'px' ? 1 : Math.round(BREITE_ORIGINAL / 100));
-  /* Halten wiederholt: 350 ms warten, dann alle 50 ms ein Schritt.
-     Ein einfacher Klick bleibt ein Schritt — der Klick nach pointerdown wird
-     deshalb unterdrueckt, Tastatur (Enter/Leertaste) loest weiterhin click aus. */
-  /**
-   * @param {HTMLElement} knopf
-   * @param {number} richtung -1 oder 1
-   */
-  const wiederholen = (knopf, richtung) => {
-    let anlauf = 0;
-    let takt = 0;
-    let perZeiger = false;
-    const schrittWeiter = () => {
-      breite += richtung * schritt();
-      zeige();
-    };
-    const stoppen = () => {
-      clearTimeout(anlauf);
-      clearInterval(takt);
-      anlauf = 0;
-      takt = 0;
-    };
-    knopf.addEventListener('pointerdown', (ereignis) => {
-      ereignis.preventDefault();
-      perZeiger = true;
-      schrittWeiter();
-      stoppen();
-      anlauf = setTimeout(() => {
-        takt = setInterval(schrittWeiter, 50);
-      }, 350);
-    });
-    for (const art of ['pointerup', 'pointerleave', 'pointercancel']) {
-      knopf.addEventListener(art, stoppen);
-    }
-    knopf.addEventListener('click', (ereignis) => {
-      if (perZeiger) {
-        perZeiger = false;
-        ereignis.preventDefault();
-        return;
-      }
-      schrittWeiter();
-    });
-  };
-  wiederholen(/** @type {HTMLElement} */ (minus), -1);
-  wiederholen(/** @type {HTMLElement} */ (plus), 1);
-  knopfPx?.addEventListener('click', () => {
-    einheit = 'px';
-    speichereAnsicht('zoomEinheit', 'px');
-    zeige();
-  });
-  knopfProzent?.addEventListener('click', () => {
-    einheit = 'prozent';
-    speichereAnsicht('zoomEinheit', 'prozent');
-    zeige();
-  });
-  /* Einpassen: Breite so weit reduzieren, dass Breite UND Hoehe hineinpassen.
-     "1:1" stellt die gemerkte Wunschbreite wieder her (Standard 900 px). */
-  /* „Einpassen“ ist eine Sitzungs-Hilfe und wird NICHT gespeichert — sonst
-     ueberschreibt ein Blick auf den kleinen Monitor die 1:1-Groesse. */
-  document.getElementById('dbg-breite-einpassen')?.addEventListener('click', () => {
-    const passend = Math.min(breite, passendeBreite());
-    wendeBlattBreite(passend);
-    breite = passend;
-    wert.textContent = einheit === 'px' ? `${passend} px` : `${Math.round((passend / BREITE_ORIGINAL) * 100)} %`;
-  });
-  document.getElementById('dbg-breite-original')?.addEventListener('click', () => {
-    breite = BREITE_ORIGINAL;
-    zeige();
-  });
-  zeige();
+  nacht.addEventListener('input', anwenden);
+  nacht.value = String(Math.round((loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS).nachtHelligkeit ?? 0.5) * 100));
+  anwenden();
 }
 
-/* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init */export function initDebugPanel() {
+/* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init */export function initDebugPanel() {
   initAnsichtRegler();
   if (timer) return;
   verdrahteKnoepfe();

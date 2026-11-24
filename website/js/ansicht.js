@@ -12,10 +12,9 @@
  * Gespeichert wird in `din_settings`:
  *   `nachtHelligkeit`   Grundhelligkeit der Nachtpalette, 0.38–0.68
  *
- * Gespeichert wird die **Blattbreite in Pixeln** (`blattBreitePx`) und die
- * zuletzt benutzte Einheit (`zoomEinheit`). Ein Faktor wäre falsch: er
- * multipliziert sich mit jeder Änderung der Grundgröße (Befund 2026-11-24:
- * 900 px wurden durch einen alten Faktor 1,04 zu 936 px).
+ * Gespeichert wird nur die **Nacht-Helligkeit**. Die Blattgröße steht fest in
+ * `base.css` (`--blatt-breite-px: 900`, Herleitung im Kommentar dort) — ein
+ * Regler dafür war über 200 Zeilen für eine Konstante (2026-11-24).
  */
 
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
@@ -67,60 +66,6 @@ export function wendeNachtpalette(basis) {
   document.documentElement.style.setProperty('--nacht-basis', String(wert));
 }
 
-/** Erlaubte Blattbreite in CSS-Pixeln. */
-export const BREITE_MIN = 400;
-/**
- * Blattbreite in CSS-Pixeln, die am Referenzmonitor 1:1 ist.
- *
- * Herleitung Pixel -> Zoll -> Zentimeter:
- *   108,8 ppi = sqrt(2560² + 1440²) / 27 Zoll   (Referenzmonitor)
- *   900 px / 108,8 ppi = 8,27 Zoll
- *   8,27 Zoll * 2,54   = 21,0 cm Papier
- * CSS nimmt fest 96 px/Zoll an; 21 cm waeren dort 793,7 px. Auf 109 ppi wirkt
- * das Blatt deshalb 12 % zu klein — 900 / 793,7 = 1,134 gleicht das aus.
- * Anderer Monitor = andere Dichte, siehe Debug-Panel.
- */
-export const BREITE_ORIGINAL = 900;
-export const BREITE_MAX = 1200;
-/** 210 mm bei 96 dpi — nur fuer die Rechnung im Kommentar, nicht fuer die Anzeige. */
-export const MM_PX = 793.7;
-
-/**
- * Setzt die Blattbreite. Das CSS rechnet `zoom = breite / 793.7`; hier wird nur
- * die Breite geschrieben, damit es keinen zweiten Faktor gibt, der sich mit
- * etwas anderem multipliziert (Befund 2026-11-24: 900 px wurden durch einen
- * gespeicherten Zoom zu 936 px).
- * @param {number} px
- * @returns {number} die angewandte Breite
- */
-export function wendeBlattBreite(px) {
-  const wert = Math.round(Math.max(BREITE_MIN, Math.min(BREITE_MAX, Number(px) || 900)));
-  document.documentElement.style.setProperty('--blatt-breite-px', String(wert));
-  return wert;
-}
-
-/** Seitenverhaeltnis DIN A4 (297 / 210) — fuer die Hoehenrechnung. */
-const A4_HOEHE_FAKTOR = 297 / 210;
-
-/**
- * Groesste Blattbreite, die **komplett** in den Viewport passt.
- *
- * Das Blatt ist A4, die Hoehe waechst also mit der Breite: bei 900 px Breite
- * sind es 1272 px Hoehe. Auf einem Full-HD-Monitor (1080 px hoch) passt das
- * nie — hier wird die Breite so weit reduziert, dass Breite *und* Hoehe
- * hineinpassen. Nur eine Anzeige-Hilfe, keine Aenderung am Brief.
- * @param {number} [rand] Abstand zum Rand in px
- * @returns {number} passende Breite in px
- */
-export function passendeBreite(rand = 40) {
-  const vp = document.getElementById('viewport');
-  if (!vp) return 900;
-  const platzBreite = vp.clientWidth - rand;
-  const platzHoehe = vp.clientHeight - rand;
-  const nachBreite = platzBreite;
-  const nachHoehe = platzHoehe / A4_HOEHE_FAKTOR;
-  return Math.max(BREITE_MIN, Math.round(Math.min(nachBreite, nachHoehe)));
-}
 
 /**
  * Liest die gespeicherten Anzeige-Werte und wendet sie an. Wird beim Start
@@ -129,7 +74,6 @@ export function passendeBreite(rand = 40) {
  */
 export function wendeGespeicherteAnsicht() {
   const gespeichert = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-  wendeBlattBreite(typeof gespeichert.blattBreitePx === 'number' ? gespeichert.blattBreitePx : 900);
   wendeNachtpalette(
     typeof gespeichert.nachtHelligkeit === 'number' ? gespeichert.nachtHelligkeit : 0.5
   );
@@ -137,8 +81,8 @@ export function wendeGespeicherteAnsicht() {
 
 /**
  * Schreibt einen Anzeige-Wert in `din_settings`, ohne andere Felder zu verlieren.
- * @param {'nachtHelligkeit' | 'blattBreitePx' | 'zoomEinheit'} feld
- * @param {number | string} wert
+ * @param {'nachtHelligkeit'} feld
+ * @param {number} wert
  * @returns {void}
  */
 export function speichereAnsicht(feld, wert) {

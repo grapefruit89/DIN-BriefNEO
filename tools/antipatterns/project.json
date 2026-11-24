@@ -686,6 +686,60 @@
         "*.js"
       ],
       "exemptions": []
+    },
+    {
+      "id": "P41",
+      "catalog_ref": [],
+      "no_catalog_ref_reason": "CSS-Plattform-Modernisierung (Chrome 150+): Das veraltete clip: rect(...) verlangt position: absolute/fixed und ist deprecated. Ersatz: clip-path: inset(50%).",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "Veraltetes clip: rect(...) im CSS verhindert modernen Masking-Standard. Ersatz: clip-path: inset(50%).",
+      "pattern": "(?<![\\w-])clip\\s*:\\s*rect\\s*\\(",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*)",
+      "file_patterns": [
+        "*.css"
+      ],
+      "replacement": "clip-path: inset(50%); (fuer .sr-only / visuell versteckte Elemente)",
+      "exemptions": []
+    },
+    {
+      "id": "P42",
+      "catalog_ref": [],
+      "no_catalog_ref_reason": "CSS-Plattform-Modernisierung (CSS Fragmentation Level 3): Veraltete CSS-2.1-Syntax page-break-(before|after|inside) durch break-before/break-after/break-inside ersetzen. Das Wurzel-Umbruchverbot A46 bleibt separat durch P18 abgesichert.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "Veraltete CSS-2.1-Syntax page-break-(before|after|inside) statt CSS Fragmentation Level 3. Hinweis: break-before: always auf Layout-Wurzeln bleibt zusaetzlich durch P18 (A46) verboten.",
+      "pattern": "(?<![\\w-])page-break-(?:before|after|inside)\\s*:",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*)",
+      "file_patterns": [
+        "*.css"
+      ],
+      "replacement": "break-before / break-after / break-inside (CSS Fragmentation Level 3)",
+      "exemptions": []
+    },
+    {
+      "id": "P43",
+      "catalog_ref": [
+        "A60",
+        "H2",
+        "H5"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Veraltete JS-Dropdown-/Overlay-Zustandssteuerung ueber CSS-Klassen (classList.toggle/add/remove fuer open, show, visible, hidden, expanded, etc.).",
+      "pattern": "classList\\s*\\.\\s*(?:toggle|add|remove)\\s*\\(\\s*['\"`](?:(?:is|ist|dropdown|menu|popover|select)-)?(?:open(?:ed)?|show(?:n)?|visible|hidden|expanded|collapsed|offen|geoeffnet|sichtbar|aufgeklappt)(?:-(?:open|opened|show|shown|dropdown|menu|popover|select))?['\"`]",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*)",
+      "file_patterns": [
+        "*.js"
+      ],
+      "replacement": "Native Popover API (popover=\"auto\", showPopoverSafe()/hidePopoverSafe(), popovertarget), natives <select> (appearance: base-select) oder Invoker Commands (commandfor/command)",
+      "exemptions": []
     }
   ]
 }

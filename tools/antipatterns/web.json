@@ -2,7 +2,7 @@
   "version": "1.2.0",
   "layer": "web",
   "id_space": "JSON-IDs (W*) bleiben. Normative IDs nur in catalog_ref.",
-  "description": "Web-Mechanik-Sonden. Farbe ist Policy-Warnung, kein Hex-Verbot. Norm: Immutable-Law-Catalog.",
+  "description": "Web-Mechanik-Sonden. In website/css/*.css gilt 100 % OKLCH / light-dark() / color-mix() (W4-W6 als HARD BAN). Norm: Immutable-Law-Catalog.",
   "rules": [
     {
       "id": "W2",
@@ -40,15 +40,17 @@
       "catalog_ref": [
         "C1"
       ],
-      "class": "fallback-policy",
-      "severity": "warning",
+      "class": "hard_ban",
+      "severity": "critical",
       "check": "regex",
       "category": "css",
-      "description": "HEX found. Catalog chain OKLCH → Lab/LCH → HSL → RGB → HEX → Named. Warn only.",
-      "pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b",
+      "description": "HEX-Farbwert im CSS gefunden. In website/css/*.css ist 100 % OKLCH / light-dark() / color-mix() Pflicht (C1/A16-A20 verschaerft fuer CSS).",
+      "pattern": "(?<=[: ,\\t(/])#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*)",
       "file_patterns": [
         "*.css"
       ],
+      "replacement": "Ausschliesslich OKLCH (z. B. oklch(...)), light-dark() oder color-mix() verwenden",
       "exemptions": []
     },
     {
@@ -56,15 +58,17 @@
       "catalog_ref": [
         "C1"
       ],
-      "class": "fallback-policy",
-      "severity": "warning",
+      "class": "hard_ban",
+      "severity": "critical",
       "check": "regex",
       "category": "css",
-      "description": "rgb/rgba found. Catalog color chain: fallback-policy warning, not a ban.",
+      "description": "rgb()/rgba()-Farbwert im CSS gefunden. In website/css/*.css ist 100 % OKLCH / light-dark() / color-mix() Pflicht (C1/A16-A20 verschaerft fuer CSS).",
       "pattern": "\\brgba?\\(.*?\\)",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*)",
       "file_patterns": [
         "*.css"
       ],
+      "replacement": "Ausschliesslich OKLCH (z. B. oklch(...)), light-dark() oder color-mix() verwenden",
       "exemptions": []
     },
     {
@@ -72,15 +76,17 @@
       "catalog_ref": [
         "C1"
       ],
-      "class": "fallback-policy",
-      "severity": "warning",
+      "class": "hard_ban",
+      "severity": "critical",
       "check": "regex",
       "category": "css",
-      "description": "hsl/hsla found. Catalog color chain: fallback-policy warning, not a ban.",
+      "description": "hsl()/hsla()-Farbwert im CSS gefunden. In website/css/*.css ist 100 % OKLCH / light-dark() / color-mix() Pflicht (C1/A16-A20 verschaerft fuer CSS).",
       "pattern": "\\bhsla?\\(.*?\\)",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*)",
       "file_patterns": [
         "*.css"
       ],
+      "replacement": "Ausschliesslich OKLCH (z. B. oklch(...)), light-dark() oder color-mix() verwenden",
       "exemptions": []
     },
     {

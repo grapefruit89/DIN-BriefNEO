@@ -111,7 +111,7 @@ const ANTIPATTERN_RULES = Array.from(ruleMap.values());
 
 /* Severities, die melden, aber nicht blockieren. Sie zaehlen auch nicht in den
  * Fitness-Nenner: sonst faellt der Score unter 100 %, obwohl die Regel bewusst
- * kein Gate ist (so sind W4/W5/W6 und P2 schon deklariert). */
+ * kein Gate ist (so sind P2 und P38 deklariert). */
 const NEUTRAL_SEVERITIES = new Set(['warning', 'info']);
 
 const CUSTOM_CHECKS = {

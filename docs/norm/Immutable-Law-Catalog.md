@@ -112,6 +112,8 @@ Es gibt keine Pflicht, ein `<meta name="chrome-minimum-version">` als Gesetz zu 
 | :--- | :--- | :--- | :--- |
 | C1 | PREFERRED / FALLBACK | Farbkette **OKLCH → Lab/LCH → HSL → RGB → HEX → Named**. OKLCH ist Stufe 1. Eine niedrigere Stufe nur, wenn die höhere für den Fall keinen sinnvollen Vorteil bietet oder ungeeignet ist. | moderne Farbe ohne Verbot sinnvoller Tokens wie `#fff` |
 
+> **Verschärfung für `website/css/*.css` (2026-11-25):** In CSS-Dateien sind HEX, `rgb()`/`rgba()` und `hsl()`/`hsla()` jetzt per **HARD BAN** (`critical`) ausgeschlossen — Web-Regeln `W4`, `W5`, `W6` in `tools/antipatterns/web.json`. Zulässig sind ausschließlich `oklch()`, `light-dark()`, `color-mix()`, `transparent` und `currentColor`. Außerhalb von `*.css` bleiben `<meta name="theme-color">` in HTML und der Boot-Notfallkasten in `main.js` unberührt.
+
 ### Documentation
 
 | # | Stufe | MUST-USE | Zweck |
@@ -151,6 +153,8 @@ Soweit nicht anders markiert: HARD BAN.
 | A46 | HARD BAN | `page-break-before: always` auf Layout-Wurzeln | kontrolliertes Print | leere erste PDF-Seite. **Gegenpflicht:** Sperrt der Viewport per `overflow: hidden` + `height: 100vh` (A43), MUSS `@media print` ihn mit `html, body { overflow: visible; height: auto; }` wieder freigeben — sonst schneidet der Druck ab oder bleibt leer. |
 | A47 | HARD BAN | komplexe UI in `contenteditable="true"` | Geschwister außerhalb des Edit-Roots | Browser löscht Innenstruktur |
 | A49 | HARD BAN | JS-basiertes Text-Fitting & DOM-Layout-Polling (`scrollWidth > clientWidth`, MutationObserver für Textanpassung, `48-text-fit.js`) | CSS `field-sizing: content`, `overflow: clip`, `text-wrap: balance/pretty`; **Feldbreite begrenzt die Eingabe** (Sperre in `document.js`, DECISION-LOG 2026-11-12). `text-fit` ist Projekt-HARD-BAN (P39). | Verursacht Layout Thrashing, Ruckeln und JS-Overhead. Natives CSS löst die dynamische Feld- und Textanpassung performant und 100% deklarativ. `text-fit` scheidet aus: es verkleinert die Schrift und erzeugt mehrere Schriftgroessen im Brief. |
+
+> **Verschärfung für `website/css/*.css` (2026-11-25):** Die Fallback-Politik (A16–A20) ist in CSS-Dateien ein **HARD BAN** (`critical`): HEX, `rgb()`/`rgba()` und `hsl()`/`hsla()` sind unzulässig (`W4`–`W6` in `tools/antipatterns/web.json`). Nur `oklch()`, `light-dark()`, `color-mix()`, `transparent` und `currentColor` sind erlaubt. HTML-`<meta name="theme-color">` und der Boot-Notfallkasten in `main.js` stehen außerhalb von `*.css` und bleiben von dieser Verschärfung unberührt.
 
 ### Storage & Netz
 

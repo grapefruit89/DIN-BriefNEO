@@ -227,7 +227,6 @@ din-blatt {
     margin-top: --mm-rel-y(attr(data-margin-top type(<number>)));
     margin-bottom: --mm-rel-y(attr(data-margin-bottom type(<number>))); /* 3 Leerzeilen für Unterschrift */
     break-after: avoid;
-    page-break-after: avoid;
     flex-shrink: 0;
   }
 
@@ -334,7 +333,7 @@ din-blatt[data-ueberlauf="true"]::after {
       transform: none !important; 
       box-shadow: none !important; 
       margin: 0 !important; 
-      page-break-after: avoid; 
+      break-after: avoid;
       width: calc(var(--blatt-breite) * 1mm) !important;
       height: calc(var(--blatt-hoehe) * 1mm) !important; 
   }
@@ -346,13 +345,11 @@ din-blatt[data-ueberlauf="true"]::after {
 
   #grussformel {
     break-after: avoid !important;
-    page-break-after: avoid !important;
   }
 
   .unterschrift-zeile,
   #unterschriftsbild-container {
     break-inside: avoid !important;
-    page-break-inside: avoid !important;
   }
 
 }

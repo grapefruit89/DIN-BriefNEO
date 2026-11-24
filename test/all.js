@@ -10,7 +10,7 @@ import { Constants, createEventBus, Events, eventBus, initToastSystem } from '..
 import { heute, leseDatum, monatsName, monatsTage, startOffset, titelText, WOCHENTAGE } from '../website/js/date-picker.js';
 import { initApi } from '../website/js/api.js';
 import { ausfuehren, initWebMCP, WERKZEUGE, werkzeugListe } from '../website/js/webmcp.js';
-import { initLiveBridge, liveAdresse, livePort, liveToken } from '../website/js/live-bridge.js';
+import { initLiveBridge, liveAdresse, livePort, liveToken, neuerToken } from '../website/js/live-bridge.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
 import { applyDraftValues, clearBootFingerprint, publishBootFingerprint, readBootFingerprint } from '../website/js/draft-model.js';
 import { Field } from '../website/js/field.js';
@@ -3133,6 +3133,14 @@ describe('window.dinBriefAgent + WebMCP: Werkzeuge für Agenten (2026-11-23)', (
 });
 
 describe('Agenten-Kanal ohne Debug-Port (live-bridge.js, 2026-11-23)', () => {
+  it('neuerToken liefert 32 Hex-Zeichen und jedes Mal einen anderen', () => {
+    const a = neuerToken();
+    const b = neuerToken();
+    assertEqual(a.length, 32, 'Laenge passt zur Config-Pruefung');
+    assert(/^[a-f0-9]{32}$/.test(a), 'nur Hex, klein geschrieben');
+    assert(a !== b, 'zwei Aufrufe ergeben verschiedene Tokens');
+  });
+
   it('liest das Token nur aus #agent=…', () => {
     assertEqual(liveToken('#agent=abc123'), 'abc123');
     assertEqual(liveToken('#agent=ab'), '', 'zu kurzes Token wird abgelehnt');

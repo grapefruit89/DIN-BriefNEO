@@ -22,6 +22,7 @@
  */
 
 import { showToast } from './core.js';
+import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS } from './persistence.js';
 import { ausfuehren } from './webmcp.js';
 
 /** Vorgabe-Port; die CSP erlaubt jeden Port auf 127.0.0.1. */
@@ -73,20 +74,67 @@ export function liveAdresse(
  * @returns {{ ok: boolean, aktiv: boolean, grund?: string, token?: string, port?: number }}
  */
 export function initLiveBridge() {
-  const token = liveToken();
-  if (!token) return { ok: true, aktiv: false, grund: 'kein #agent=<token> in der URL' };
+  const gespeichert = /** @type {{ agentKanal?: boolean, agentToken?: string }} */ (
+    loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS)
+  );
+  const token = liveToken() || (gespeichert.agentKanal ? String(gespeichert.agentToken || '') : '');
+  if (!token) return { ok: true, aktiv: false, grund: 'kein #agent=<token> in der URL und Kanal aus' };
+  kanalStarten(token, livePort());
+  return { ok: true, aktiv: true, token, port: livePort() };
+}
 
-  const port = livePort();
+/* --------------------------------------------------------------- Kanalsteuerung */
+
+/**
+ * Erzeugt einen Token in der Seite: 16 Zufallsbytes als 32 Hex-Zeichen.
+ *
+ * Warum in der Seite und nicht im Programm: der Nutzer soll nur einen Knopf
+ * drücken und den Eintrag einfügen. `crypto.getRandomValues` ist überall da;
+ * ein Fallback auf Math.random wäre schlechter als kein Token.
+ * @returns {string}
+ */
+export function neuerToken() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** @type {{ token: string, port: number, beenden: () => void } | null} */
+let aktuelle = null;
+
+/** @type {(stand: { verbunden: boolean, token?: string, port?: number }) => void} */
+let statusMelder = () => {};
+
+/**
+ * Meldet jeden Verbindungswechsel (verbunden/getrennt) an eine Stelle.
+ * @param {(stand: { verbunden: boolean, token?: string, port?: number }) => void} melder
+ * @returns {void}
+ */
+export function aufKanalStatus(melder) {
+  statusMelder = melder;
+}
+
+/**
+ * Öffnet den Kanal zum lokalen Server. Ein bereits offener Kanal wird ersetzt.
+ * @param {string} token
+ * @param {number} [port]
+ * @returns {{ token: string, port: number }}
+ */
+export function kanalStarten(token, port = BRIDGE_PORT) {
+  kanalStoppen();
   const basis = `http://127.0.0.1:${port}`;
-  let gemeldet = false;
 
   /** @type {EventSource} */
   const quelle = new EventSource(`${basis}/events?token=${encodeURIComponent(token)}`);
 
   quelle.addEventListener('open', () => {
-    if (gemeldet) return;
-    gemeldet = true;
     showToast('Agent verbunden — schreibbereit', 'info');
+    statusMelder({ verbunden: true, token, port });
+  });
+
+  /* EventSource versucht es selbst weiter; jeder Fehlversuch ist nur ein Status. */
+  quelle.addEventListener('error', () => {
+    statusMelder({ verbunden: false, token, port });
   });
 
   quelle.addEventListener('call', async (ereignis) => {
@@ -109,5 +157,25 @@ export function initLiveBridge() {
     });
   });
 
-  return { ok: true, aktiv: true, token, port };
+  aktuelle = { token, port, beenden: () => quelle.close() };
+  return { token, port };
+}
+
+/**
+ * Schließt den Kanal. Ohne Kanal passiert nichts.
+ * @returns {void}
+ */
+export function kanalStoppen() {
+  if (!aktuelle) return;
+  aktuelle.beenden();
+  aktuelle = null;
+  statusMelder({ verbunden: false });
+}
+
+/**
+ * Steht der Kanal gerade? (Für die Anzeige, nicht für die Verbindung.)
+ * @returns {boolean}
+ */
+export function kanalOffen() {
+  return aktuelle !== null;
 }

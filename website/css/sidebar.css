@@ -110,6 +110,13 @@ aside.seitenleiste,
   margin-block-start: var(--space-sm);
 }
 
+.agenten-kanal-status {
+  display: block;
+  margin-block: 2px var(--space-sm);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
 /* „info" als Link erkennbar, aber ein <button>: nur der darf popovertarget. */
 .agenten-info {
   padding: 0;

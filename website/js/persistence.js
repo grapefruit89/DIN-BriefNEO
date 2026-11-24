@@ -31,6 +31,8 @@ import { DOCUMENT_SCHEMA_V5 } from './schema.js';
  * @property {boolean} [debugPanel]
  * @property {boolean} [pluginGeschaeftsangaben] Addon „Geschäftsangaben" (§ 35a)
  * @property {number} [nachtHelligkeit] Grundhelligkeit der Nachtpalette (0.38-0.68)
+ * @property {boolean} [agentKanal] Live-Kanal eingeschaltet
+ * @property {string} [agentToken] Token fuer den Live-Kanal (32 Hex-Zeichen)
  * @property {number} [blattBreitePx] Blattbreite in CSS-Pixeln (210 mm = 793,7 px)
  * @property {'px' | 'prozent'} [zoomEinheit] Einheit der Blattgroessen-Anzeige
  * @property {string} [previewFont]
@@ -62,6 +64,10 @@ export const DEFAULT_SETTINGS = {
   /* Ansicht, keine Briefdaten: Nacht-Grundhelligkeit der Palette.
      Der Blatt-Zoom wird bewusst NICHT gespeichert (siehe ansicht.js). */
   nachtHelligkeit: 0.5,
+  /* Live-Kanal (tools/mcp-live.mjs): aus, bis der Nutzer ihn einschaltet.
+     Der Token entsteht beim Einschalten in der Seite, nicht im Agenten. */
+  agentKanal: false,
+  agentToken: '',
   /* Blattbreite in CSS-Pixeln (210 mm = 793,7 px) und zuletzt benutzte Einheit. */
   blattBreitePx: 900,
   zoomEinheit: 'px',

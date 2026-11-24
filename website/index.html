@@ -320,37 +320,42 @@
 
             <div class="seitenleiste-subgroup agenten-block">
               <div class="agenten-kopf">
-                <h3 class="seitenleiste-label" id="agenten-titel">Web-MCP Server</h3>
+                <h3 class="seitenleiste-label" id="agenten-titel">MCP-Brücke</h3>
                 <button type="button" class="agenten-info" popovertarget="agenten-info"
-                        aria-label="Was ist der Web-MCP-Server?">info</button>
+                        aria-label="Wie ein Agent die Seite bedient?">info</button>
+              </div>
+              <div class="seitenleiste-switch-row">
+                <label for="toggle-agent-kanal" class="seitenleiste-label">Kanal aktiv</label>
+                <input type="checkbox" switch id="toggle-agent-kanal">
               </div>
               <button type="button" id="btn-agent-konfig" class="btn w-full agenten-kopieren"
-                      title="MCP-Konfiguration für den Coding-Agenten kopieren">📋 Config kopieren</button>
+                      title="MCP-Konfiguration für den Coding-Agenten kopieren (ohne Debug-Port)">📋 Config kopieren</button>
+              <small id="agenten-kanal-status" class="agenten-kanal-status">aus</small>
+              <button type="button" id="btn-agent-konfig-cdp" class="btn w-full agenten-kopieren"
+                      title="Zweite Wahl: braucht ein Chrome mit Debug-Port">📋 mit Debug-Port</button>
             </div>
 
             <!-- Overlay: natives Popover (Top-Layer, Escape/Klick daneben schliesst) -->
             <div id="agenten-info" popover class="agenten-popover" aria-labelledby="agenten-info-titel">
-              <h4 id="agenten-info-titel">Web-MCP Server</h4>
-              <p>Diese Seite beschreibt ihre Fähigkeiten als <strong>15 Werkzeuge</strong> —
-                 Brief lesen und schreiben, Anrede, Datum, Fuß, Prüfung, Seiten, Export.
-                 Ein Agent im Browser ruft sie direkt auf, statt Felder zu raten.</p>
+              <h4 id="agenten-info-titel">MCP-Brücke</h4>
+              <p>Die Seite beschreibt ihre Fähigkeiten als <strong>15 Werkzeuge</strong> —
+                 Brief lesen und schreiben, Anrede, Datum, Fuß, Prüfung, Seiten, Export.</p>
               <dl class="agenten-liste">
-                <dt>Schnittstelle</dt>
-                <dd><code>document.modelContext</code> — nativ im Browser, kein Server,
-                    kein Port, keine Verbindung.</dd>
-                <dt>Werkzeuge</dt>
-                <dd><code>getTools()</code> liefert Name, Beschreibung und JSON-Schema;
-                    <code>executeTool()</code> führt aus und antwortet mit JSON.</dd>
-                <dt>Ohne Agent</dt>
-                <dd>Passiert nichts. Die Werkzeuge sind ein Angebot an den Browser-Agenten,
-                    den du installiert hast.</dd>
-                <dt>Coding-Agent</dt>
-                <dd>Ein Agent im Terminal sieht die Seite nicht. „📋 Config kopieren“
-                    gibt einen <code>mcp.servers</code>-Eintrag aus, der im Repo-Ordner
-                    läuft (<code>node tools/mcp-dinbrief.mjs</code>) und mit
-                    <code>--url=</code> auf <em>diese</em> Seite zeigt. Nichts davon ist
-                    fest verdrahtet: anderer Klonpfad, anderer Fork, andere Adresse —
-                    es passt trotzdem.</dd>
+                <dt>Im Browser</dt>
+                <dd>WebMCP: ein Browser-Agent im selben Tab ruft die Werkzeuge über
+                    <code>document.modelContext</code> auf. Nichts einzurichten.</dd>
+                <dt>Coding-Agent (Standard)</dt>
+                <dd>„Kanal aktiv“ einschalten, „📋 Config kopieren“, Eintrag in den Agenten
+                    einfügen. Die Seite meldet sich dann selbst bei
+                    <code>127.0.0.1:8765</code> — <strong>kein Debug-Port, kein Flag</strong>.
+                    „verbunden“ erscheint, sobald der Agent den Server startet.</dd>
+                <dt>Tokenschutz</dt>
+                <dd>Der Token entsteht hier in der Seite und steht in der kopierten Config.
+                    Ohne passenden Token antwortet der Kanal mit <code>403</code>.</dd>
+                <dt>Zweite Wahl</dt>
+                <dd>„📋 mit Debug-Port“ steuert den Tab über die DevTools-Schnittstelle
+                    (<code>tools/mcp-dinbrief.mjs</code>). Nötig nur, wenn der Browser mit
+                    <code>--remote-debugging-port</code> läuft.</dd>
               </dl>
               <p class="agenten-stand" id="agenten-info-status">wird geprüft …</p>
             </div>

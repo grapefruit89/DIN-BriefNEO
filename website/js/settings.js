@@ -11,6 +11,7 @@
 import { toggleAddon } from './addons.js';
 import { wendeGespeicherteAnsicht } from './ansicht.js';
 import { Events, eventBus, transitionOn } from './core.js';
+import { aufKanalStatus, kanalOffen, kanalStarten, kanalStoppen, neuerToken } from './live-bridge.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { applyValue } from './state-binding.js';
 
@@ -382,20 +383,13 @@ function agentenSeite() {
 }
 
 /**
- * Die Konfiguration, die ein Coding-Agent erwartet.
+ * Die Konfiguration mit Debug-Port (CDP-Brücke).
  *
- * Form belegt am 2026-11-24: `opencode mcp add briefneo -- <befehl>`
- * (opencode 2.4.1) schreibt genau dieses Objekt `mcp.servers.<name>` mit
- * `type: "local"` und `command` als Feld. Andere Clients (Claude Desktop,
- * Cursor) nehmen `mcpServers` mit `command`/`args` — derselbe Server.
- *
- * Der Befehl ist bewusst **relativ** (`tools/mcp-dinbrief.mjs`): opencode löst
- * relative Pfade gegen den Workspace auf, der Agent läuft also im Repo-Ordner.
- * Damit steht weder ein Repo-Name noch ein lokaler Pfad in der Config — ein
- * Fork, ein anderer Klonpfad, ein anderer Benutzername ändern nichts.
+ * Nimmt den Tab, dessen Adresse der aktuellen Seite entspricht. Nur als
+ * zweite Wahl gedacht: verlangt ein Chrome mit `--remote-debugging-port`.
  * @returns {string}
  */
-function agentenKonfiguration() {
+function agentenKonfigurationCdp() {
   const befehl = ['node', 'tools/mcp-dinbrief.mjs'];
   const seite = agentenSeite();
   if (seite) befehl.push(`--url=${seite}`);
@@ -415,34 +409,135 @@ function agentenKonfiguration() {
   );
 }
 
+/**
+ * Die Konfiguration für den Live-Kanal: die Seite meldet sich beim Programm.
+ * Kein Debug-Port, kein Flag — der Standardweg.
+ * @param {string} token
+ * @returns {string}
+ */
+function agentenKonfigurationLive(token) {
+  return JSON.stringify(
+    {
+      mcp: {
+        servers: {
+          briefneo: {
+            type: 'local',
+            command: ['node', 'tools/mcp-live.mjs', `--token=${token}`]
+          }
+        }
+      }
+    },
+    null,
+    2
+  );
+}
+
+/**
+ * Liest die Einstellungen so, wie sie gerade gespeichert sind.
+ * @returns {import('./persistence.js').DinSettings}
+ */
+function agentenEinstellungen() {
+  return /** @type {import('./persistence.js').DinSettings} */ (
+    loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS)
+  );
+}
+
+/**
+ * Sorgt dafür, dass ein Kanal-Token existiert und der Kanal läuft.
+ * Wird beim Kopieren aufgerufen: wer die Config kopiert, will verbinden.
+ * @returns {string} der Token
+ */
+function agentenKanalSichern() {
+  const einstellungen = agentenEinstellungen();
+  const gespeichert = String(einstellungen.agentToken || '');
+  const token = /^[a-f0-9]{32}$/.test(gespeichert) ? gespeichert : neuerToken();
+  if (token !== gespeichert) {
+    saveJSON(STORAGE_KEYS.settings, { ...einstellungen, agentKanal: true, agentToken: token });
+  } else if (einstellungen.agentKanal !== true) {
+    saveJSON(STORAGE_KEYS.settings, { ...einstellungen, agentKanal: true });
+  }
+  if (!kanalOffen()) kanalStarten(token);
+  return token;
+}
+
+/**
+ * Füllt den Agenten-Abschnitt: Status, Kanal-Schalter und die beiden
+ * Kopierknöpfe (Live-Kanal als Standard, Debug-Port als zweite Wahl).
+ * @returns {void}
+ */
 export function initAgentenHilfe() {
   const status = document.getElementById('agenten-info-status');
-  const knopf = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-agent-konfig'));
+  const kanalStatus = document.getElementById('agenten-kanal-status');
+  const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-agent-kanal'));
+  const knopfLive = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-agent-konfig'));
+  const knopfCdp = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-agent-konfig-cdp'));
   if (!status) return;
+
   const agent = /** @type {any} */ (window).dinBriefAgent;
   const anzahl = typeof agent?.werkzeuge === 'function' ? agent.werkzeuge().length : 0;
   const webmcp = typeof document.modelContext === 'object' && document.modelContext !== null;
-  status.textContent = [
-    `${anzahl} Werkzeuge`,
-    webmcp ? 'WebMCP aktiv' : 'kein WebMCP in diesem Browser'
-  ].join(' · ');
 
-  /* Knopf: Config kopieren, kurz quittieren. Eine Seite kann keinen Prozess
-     starten — sie kann nur sagen, was in die Agenten-Config gehoert. */
-  if (!knopf) return;
-  const beschriftung = knopf.textContent;
-  knopf.addEventListener('click', async () => {
-    let kopiert = false;
-    try {
-      await navigator.clipboard.writeText(agentenKonfiguration());
-      kopiert = true;
-    } catch {
-      kopiert = false;
+  /** @type {(stand: { verbunden: boolean }) => void} */
+  const zeigeKanal = (stand) => {
+    if (schalter) schalter.checked = kanalOffen();
+    if (kanalStatus) {
+      kanalStatus.textContent = stand.verbunden
+        ? 'verbunden'
+        : kanalOffen()
+          ? 'wartet auf Agent'
+          : 'aus';
     }
-    knopf.textContent = kopiert ? '✓ Kopiert' : '✗ gesperrt';
+    status.textContent = [
+      `${anzahl} Werkzeuge`,
+      webmcp ? 'WebMCP aktiv' : 'kein WebMCP',
+      kanalOffen() ? 'Kanal an' : 'Kanal aus'
+    ].join(' · ');
+  };
+
+  aufKanalStatus(zeigeKanal);
+  zeigeKanal({ verbunden: false });
+
+  schalter?.addEventListener('change', () => {
+    const einstellungen = agentenEinstellungen();
+    if (schalter.checked) {
+      const token = agentenKanalSichern();
+      zeigeKanal({ verbunden: false });
+      void token;
+    } else {
+      saveJSON(STORAGE_KEYS.settings, { ...einstellungen, agentKanal: false });
+      kanalStoppen();
+    }
+  });
+
+  /**
+   * Kopiert einen Text und quittiert kurz am Knopf.
+   * @param {HTMLButtonElement | null} knopf
+   * @param {() => string} text
+   * @returns {Promise<void>}
+   */
+  const kopiere = async (knopf, text) => {
+    if (!knopf) return;
+    const beschriftung = knopf.dataset.beschriftung || knopf.textContent || '';
+    knopf.dataset.beschriftung = beschriftung;
+    let geklappt = false;
+    try {
+      await navigator.clipboard.writeText(text());
+      geklappt = true;
+    } catch {
+      geklappt = false;
+    }
+    knopf.textContent = geklappt ? '✓ Kopiert' : '✗ gesperrt';
     setTimeout(() => {
       knopf.textContent = beschriftung;
     }, 1500);
+  };
+
+  knopfLive?.addEventListener('click', async () => {
+    const token = agentenKanalSichern();
+    zeigeKanal({ verbunden: false });
+    await kopiere(knopfLive, () => agentenKonfigurationLive(token));
   });
+
+  knopfCdp?.addEventListener('click', () => kopiere(knopfCdp, agentenKonfigurationCdp));
 }
 

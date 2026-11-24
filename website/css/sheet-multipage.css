@@ -76,15 +76,24 @@ din-blatt {
   }
 }
 
-/* Seite 1: Zentriert und ohne unnoetiges Scrollen (Zero-Scroll-Garantie) */
+/* Seite 1: zentriert; Scrollen nur, wenn das Blatt nicht passt.
+   Vorher stand hier `overflow-y: hidden` — damit war ein gezoomtes Blatt
+   (Zoom > 100 %) oder ein kleiner Monitor oben und unten abgeschnitten und
+   nicht erreichbar (gemeldet 2026-11-24). `auto` zeigt keinen Balken, solange
+   alles passt, und erlaubt Scrollen, sobald es nicht passt. A43 erlaubt das
+   ausdruecklich: „internes Scrollen MAY in abgegrenzter UI". */
 body:not([data-seiten]) #viewport,
 body[data-seiten="1"] #viewport,
 #viewport:not([data-seiten]),
 #viewport[data-seiten="1"] {
-  overflow-y: hidden !important;
+  overflow-y: auto !important;
   display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
+  /* `safe center`: solange das Blatt passt, bleibt es zentriert; passt es
+     nicht, faellt die Ausrichtung auf `start` zurueck — sonst schneidet ein
+     zentriertes Flex-Kind oben ab und der obere Rand ist nicht erreichbar
+     (klassische Flexbox-Falle, gemessen 2026-11-24). */
+  justify-content: safe center !important;
+  align-items: safe center !important;
   padding: 10px 20px !important;
 }
 
@@ -101,9 +110,15 @@ body[data-seiten="1"] #brief-ansicht,
 #viewport:not([data-seiten]) #brief-ansicht,
 #viewport[data-seiten="1"] #brief-ansicht {
   display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  height: 100% !important;
+  justify-content: safe center !important;
+  align-items: safe center !important;
+  /* NICHT `height: 100%`: dann bleibt der Container so hoch wie der Viewport,
+     das Blatt ragt oben und unten heraus und der obere Rand ist nicht
+     erreichbar (gemessen 2026-11-24: Blatt 1156 px, Container 480 px,
+     scrollHeight 828 px). `min-height: 100%` zentriert weiterhin, wenn alles
+     passt, und laesst den Container mitwachsen, wenn nicht. */
+  min-height: 100% !important;
+  height: auto !important;
   width: 100% !important;
   container-type: normal !important;
 }

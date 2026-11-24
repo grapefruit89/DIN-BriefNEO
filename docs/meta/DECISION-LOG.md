@@ -5842,3 +5842,25 @@ CSS Viewport 1 (2021) ist `zoom` standardisiert und skaliert das **Layout** —
 `transform: scale()` skaliert nur die Pixel und lässt Boxen und Trefferflächen
 auseinanderlaufen. B7 prüft jetzt nur noch `float`, `clear`, `expression(`,
 `progid:`.
+
+### Nachtrag: abgeschnittenes Blatt (kleiner Monitor / Zoom)
+
+**Nutzer:** „auf meinem 2t monitor wird das blatt oben und unten abgeschnitten …
+da es dort nicht scrollbar ist."
+
+Zwei Ursachen, beide gemessen (Headless-Helium, Viewport 500 px hoch, Blatt
+1156 px):
+
+1. `#viewport` hatte auf Seite 1 `overflow-y: hidden` (Zero-Scroll-Garantie).
+   A43 erlaubt aber ausdrücklich „internes Scrollen MAY in abgegrenzter UI" —
+   jetzt `auto`: kein Balken, solange alles passt.
+2. `#brief-ansicht` bekam `height: 100% !important` und `align-items: center`.
+   Der Container blieb so hoch wie der Viewport (480 px), das Blatt ragte oben
+   und unten heraus — und ein zentriertes Flex-Kind mit Überlauf macht den
+   oberen Teil **unerreichbar** (scrollHeight war nur 828 statt 1176).
+
+Fix: `min-height: 100%` + `height: auto` + `align/justify: safe center`.
+Damit wächst der Container mit dem Blatt, bleibt aber zentriert, wenn Platz ist.
+
+Nachgemessen: Blatt 1156 · Container 1156 · scrollHeight 1176 · oberer und
+unterer Rand erreichbar · die Seite selbst scrollt weiterhin nicht.

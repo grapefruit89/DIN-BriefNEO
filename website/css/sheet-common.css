@@ -13,8 +13,15 @@
 
 /* --- VIEWPORT & SUBPIXEL-SCHUTZ --- */
 #viewport {
-  overflow-x: hidden;
-  overscroll-behavior: none;
+  /* A43: die Seite selbst scrollt nicht, der Viewport DARF intern scrollen.
+     `auto` heisst: kein Scrollbalken, solange das Blatt passt — und ein
+     erreichbarer Rand, sobald es nicht passt (Zoom > 100 % oder kleinerer
+     Monitor, gemeldet 2026-11-24: Blatt oben/unten abgeschnitten). */
+  overflow: auto;
+  overscroll-behavior: contain;
+  /* Flex-Kinder duerfen schrumpfen, sonst kann der Container nicht scrollen. */
+  min-height: 0;
+  min-width: 0;
 }
 
 /* --- DIN-GEOMETRIE (SSoT: die Tokens stehen in base.css "2a. DIN-5008-GEOMETRIE") --- */

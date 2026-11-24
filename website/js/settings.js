@@ -10,7 +10,6 @@
 
 import { toggleAddon } from './addons.js';
 import { Events, eventBus, transitionOn } from './core.js';
-import { liveToken } from './live-bridge.js';
 import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 import { applyValue } from './state-binding.js';
 
@@ -365,78 +364,15 @@ export class SettingsManager {
  * 2. AGENTEN-HILFE (WebMCP / MCP)
  * ========================================================================================= */
 
-/** Das Repo, aus dem der MCP-Server kommt — so braucht niemand einen Pfad. */
-const MCP_PAKET = 'github:grapefruit89/DIN-BriefNEO#main';
-
-/**
- * Der Text, den „MCP-Config kopieren" in die Zwischenablage legt.
- * Kein lokaler Pfad: npx holt den Server direkt aus dem Repo (package.json
- * hat einen `bin`-Eintrag). Einzige Voraussetzung: Node auf dem Rechner.
- * @returns {string}
- */
-function agentenKonfiguration() {
-  return JSON.stringify(
-    {
-      mcp: {
-        servers: {
-          briefneo: {
-            type: 'local',
-            command: ['npx', '-y', MCP_PAKET]
-          }
-        }
-      }
-    },
-    null,
-    2
-  );
-}
-
-/**
- * Füllt den „Agenten"-Abschnitt in den Einstellungen: Status und ein
- * Kopierknopf für die MCP-Konfiguration. Kein Startknopf — eine Webseite kann
- * keinen lokalen Prozess starten; sie kann nur sagen, was zu tun ist.
- * @returns {void}
- */
 export function initAgentenHilfe() {
   const status = document.getElementById('agenten-info-status');
-  const knopfKonfig = document.getElementById('btn-agent-konfig');
-  if (!status || !knopfKonfig) return;
-
+  if (!status) return;
   const agent = /** @type {any} */ (window).dinBriefAgent;
   const anzahl = typeof agent?.werkzeuge === 'function' ? agent.werkzeuge().length : 0;
   const webmcp = typeof document.modelContext === 'object' && document.modelContext !== null;
-  /* Der Stand steht IM Overlay, nicht in der Seitenleiste: dort soll nur der
-     Name, der Info-Link und der Kopierknopf stehen. */
   status.textContent = [
     `${anzahl} Werkzeuge`,
-    webmcp ? 'WebMCP aktiv' : 'WebMCP nicht verfügbar',
-    liveToken() ? 'Live-Kanal aktiv' : ''
-  ]
-    .filter(Boolean)
-    .join(' · ');
-
-  /**
-   * @param {string} text
-   * @returns {Promise<boolean>} true = in der Zwischenablage
-   */
-  async function kopiere(text) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  const beschriftung = knopfKonfig.textContent || '📋 MCP-Config kopieren';
-  knopfKonfig.dataset.kopiert = 'false';
-  knopfKonfig.addEventListener('click', async () => {
-    const kopiert = await kopiere(agentenKonfiguration());
-    knopfKonfig.dataset.kopiert = kopiert ? 'true' : 'false';
-    knopfKonfig.textContent = kopiert ? '✓ Kopiert' : '✗ Zwischenablage gesperrt';
-    setTimeout(() => {
-      knopfKonfig.dataset.kopiert = 'false';
-      knopfKonfig.textContent = beschriftung;
-    }, 1500);
-  });
+    webmcp ? 'WebMCP aktiv' : 'kein WebMCP in diesem Browser'
+  ].join(' · ');
 }
+

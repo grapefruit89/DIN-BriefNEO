@@ -91,9 +91,6 @@ Prüfen Funktionalität und Browser-Kompatibilität.
 * **`check-feature.js`**
   * **Was es tut:** Prüft lokale BCD- und Baseline-Kompatibilität gegen Chrome 150+.
 
-* **`agent_gateway.py`**
-  * **Status: überholt.** Lokaler WebSocket-Server (Port 8333) als früher Versuch einer Agenten-Anbindung; die CSP blockiert `ws://` ohnehin. Ersetzt durch `mcp-live.mjs`.
-
 * **`mcp-live.mjs`**
   * **Was es tut:** MCP-Server für einen **normalen** Browser-Tab, ohne Debug-Port und ohne Flag. Ein Tab mit `#agent=<token>` hängt an einem Server-Sent-Events-Kanal; der Server schiebt die Aufrufe durch. Werkzeugliste kommt direkt aus `website/js/webmcp.js`.
   * **Aufruf:** `node tools/mcp-live.mjs` — die Öffnungs-URL steht in der Ausgabe.
@@ -116,14 +113,12 @@ Prüfen Funktionalität und Browser-Kompatibilität.
 
 ### 🚀 Lokale Starter & Umgebungs-Setup
 
-* **`start.sh`** & **`start.bat`**
-  * **Was sie tun:** 1-Klick-Starter für Linux (Python HTTP + Helium CDP) bzw. Windows (`dev_server.ps1` + Chrome).
+* **`dev.sh`**
+  * **Was es tut:** 1-Klick-Starter (Linux, einziger Standard): No-Cache-Server 8088 + Debug-Browser CDP 9222, beendet vorher deterministisch alte Instanzen.
+  * **Unterbefehle:** `status`, `stop`, `--vanilla`, `live` (MCP-Live-Kanal), `mess`, `key`.
 
-* **`dev_server.ps1`**
-  * **Was es tut:** Windows Live-Reload-Webserver auf Port 8088 (reines PowerShell/.NET).
-
-* **`setup-din-home.sh`** & **`setup-din-home.ps1`**
-  * **Was sie tun:** Initialisieren das Benutzerverzeichnis `~/.din-briefneo` für Caches und Tools.
+* **`setup-din-home.sh`**
+  * **Was es tut:** Initialisiert das Benutzerverzeichnis `~/.din-briefneo` für Caches und Tools.
 
 ---
 

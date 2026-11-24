@@ -28,7 +28,7 @@ summary: "Verbindliche Agenten-Leitplanken, Verfassungs-Invarianten und Kern-Wor
 
 | Aufgabe | Kanonischer Befehl | Funktion |
 | :--- | :--- | :--- |
-| **Lokale Vorschau** | `./tools/start.sh` (oder `din-dev`) | Startet Webserver auf Port 8088 & Helium (CDP :9222) |
+| **Lokale Vorschau** | `./tools/dev.sh` (`din-dev`) | Server Port 8088 (no-cache) + Debug-Browser (CDP `:9222`); beendet alte Instanzen deterministisch |
 | **Unit- & Korpus-Tests** | `npm test` | Führt Chromium Unit-Tests & Korpus-Gate (76/80) aus |
 | **Fitness-Gate & SSoT** | `node tools/build_db.js` | Reality Reconciliation, Fitness-Score muss 100% sein |
 | **Wegweiser-Gate** | `node tools/repo-map-check.mjs` | Prüft Pfad-Existenz und Vollständigkeit der JS-Module |

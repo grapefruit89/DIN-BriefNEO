@@ -29,7 +29,7 @@ depends_on: []
 code_links:
   - 'website/index.html'
   - 'website/js/address.js'
-  - 'tools/start.bat'
+  - 'tools/dev.sh'
 ---
 
 # ADR-RUNTIME-CONTEXT: Lokaler Webserver als einziger Laufzeitkontext
@@ -54,7 +54,7 @@ gekippt werden können.
 ## 2. Considered Options
 
 **Option A — `file://` als Laufzeitziel streichen.**
-Der lokale Webserver (`start.bat` → `tools/dev_server.ps1`, Port 8088) wird zum einzigen
+Der lokale Webserver (`tools/dev.sh`, Port 8088) wird zum einzigen
 unterstützten Kontext. Tote Fallback-Pfade und das 164 KB grosse Base64-Embed entfallen.
 Verbote bleiben, bekommen aber tragfähige Begründungen.
 
@@ -102,8 +102,8 @@ Doku und Normen weiter widersprüchlich lassen.
 
 ### Risiken & Negative Auswirkungen
 
-- **Der Nutzer braucht zwingend `start.bat`** (oder einen beliebigen statischen Server).
-  Mitigation: `start.bat` existiert, startet den Server und öffnet den Browser automatisch;
+- **Der Nutzer braucht zwingend einen Server** (oder einen beliebigen statischen Server).
+  Mitigation: `tools/dev.sh` existiert, startet den Server und öffnet den Browser automatisch;
   README beschreibt den Weg bereits als Standard.
 - Die Hürde „kein Doppelklick auf die HTML" bleibt bestehen. Das ist der bewusst gezahlte Preis.
 

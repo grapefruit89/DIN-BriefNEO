@@ -15,8 +15,7 @@ doc_links:
   - repository.yaml
   - tooling-overview
 code_links:
-  - tools/start.bat
-  - tools/start.sh
+  - tools/dev.sh
 error_patterns:
   - browser agent
   - devtools mcp
@@ -41,7 +40,7 @@ Quellen:
 
 ## 1. App laeuft lokal oder auf Pages
 
-Nutzer: `tools/start.bat` (Windows) oder `tools/start.sh` (Linux) (Port 8088).  
+Nutzer: `tools/dev.sh` (Port 8088).  
 Agenten-Check: `node tools/build_db.js` (Fitness Gate).  
 Live: https://grapefruit89.github.io/DIN-BriefNEO/
 

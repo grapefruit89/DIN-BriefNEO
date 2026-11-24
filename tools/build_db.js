@@ -152,7 +152,6 @@ ${produktionscodeTabelle()}
 | Datei | Zweck |
 |---|---|
 | build_db.js | Fitness Gate + SSoT-Sync |
-| agent_gateway.py | Überholt: WebSocket-Gateway, ersetzt durch mcp-live.mjs |
 | mcp-live.mjs | MCP-Server für einen normalen Tab ohne Debug-Port (Seite wählt sich per SSE ein) |
 | adr-check.js | Präventiver ADR-Drift-Wächter (Bijektion & Verwaiste Assets) |
 | reconciliation.js | Reality Reconciliation Engine (Evolutionary Fitness Score) |
@@ -166,9 +165,7 @@ ${produktionscodeTabelle()}
 | structural-laws.js | AST-/DOM-Prüfung struktureller Gesetze (A42, A57, A58 etc.) |
 | terminology.js | Kanonische Terminologie-Prüfung nach Glossar |
 | filematch.js | Pfad- und Glob-Matching-Hilfsmodul |
-| dev_server.ps1 | Live-Reload-Webserver auf Port 8088 (PowerShell/.NET) |
 | setup-din-home.sh | Arbeitsverzeichnis ~/.din-briefneo initialisieren (Linux) |
-| setup-din-home.ps1 | Arbeitsverzeichnis ~/.din-briefneo initialisieren (Windows) |
 
 ## Dokumentation (\`docs/\`)
 | Ordner | Zweck |

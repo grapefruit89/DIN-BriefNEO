@@ -30,8 +30,7 @@ Vanilla HTML/CSS/JS, keine Abhängigkeiten, kein Build-Schritt.
 ## Start & Verifikation
 
 ```bash
-tools/start.bat           # lokaler Webserver auf Port 8088 (Windows)
-./tools/start.sh          # lokaler Webserver auf Port 8088 (Linux)
+./tools/dev.sh            # Linux: Server 8088 + Debug-Browser CDP 9222 (alte Instanzen weg)
 npm test                  # Headless Chrome Unit-Tests & Korpus-Gate
 node tools/build_db.js    # SSoT-Build & Fitness Gate (muss 100.0% clean melden)
 ```

@@ -441,7 +441,7 @@ function runReconciliation() {
       file_path: 'jsconfig.json',
       check_type: 'type-safety',
       severity: 'critical',
-      message: 'TypeScript-Compiler nicht gefunden. Bitte tools/setup-din-home.ps1 ausführen oder DIN_BRIEFNEO_HOME setzen.'
+      message: 'TypeScript-Compiler nicht gefunden. Bitte tools/setup-din-home.sh ausführen oder DIN_BRIEFNEO_HOME setzen.'
     });
     conformanceChecked += 1;
   } else {

@@ -61,7 +61,7 @@ Keine npm-Pakete und keine CDN-Skripte im Produkt. DOM nativ, Datum über `Tempo
 
 Alle Kernfunktionen müssen **ohne Internetverbindung** laufen: keine CDNs, keine Fremd-Fonts, kein Tracking, kein Backend. Optionale Fach-APIs (Geoapify) sind ohne Key tot und nie Voraussetzung.
 
-Der Betrieb erfolgt über einen **lokalen Webserver** (`start.bat`). „Offline“ heisst *netzunabhängig*, nicht *serverlos* — `file://` ist seit ESM + CSP kein Ziel mehr, siehe [[ADR-RUNTIME-CONTEXT]].
+Der Betrieb erfolgt über einen **lokalen Webserver** (`tools/dev.sh`). „Offline“ heisst *netzunabhängig*, nicht *serverlos* — `file://` ist seit ESM + CSP kein Ziel mehr, siehe [[ADR-RUNTIME-CONTEXT]].
 
 ### Säule 3: Native Standards vor Experimenten
 

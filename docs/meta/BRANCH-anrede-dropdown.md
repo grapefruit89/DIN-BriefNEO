@@ -41,7 +41,7 @@ depends_on: []
 | Basis | `main` = **`052ac5b`** (`fix(adresse): Dropdown schliesst bei Tab/Blur`) — **main ist unberührt** |
 | Umfang | 20 Commits, 14 Dateien, +1453/−298 Zeilen |
 | Letzter Commit | `14d26b4` (leere Geoapify-Trefferliste wird gemerkt) |
-| Dev-Server / CDP | `:8088` (`./tools/start.sh`) · DevTools `:9222` |
+| Dev-Server / CDP | `:8088` (`./tools/dev.sh`) · DevTools `:9222` |
 | Arbeitsbaum | nur `DeepSeek_DIN-BriefNEO-Review_20261111-2213.md` unversioniert (bewusst) |
 
 ```bash

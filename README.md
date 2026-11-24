@@ -114,16 +114,16 @@ Details, MCP-Konfiguration und Grenzen:
 Wegen nativer ES-Module und CORS-Regeln muss die App über einen statischen HTTP-Server serviert werden (`file://` genügt nicht):
 
 ```bash
-# Linux: Webserver auf 8088 + Debug-Browser mit CDP auf 9222
-./tools/start.sh
-
-# Windows
-tools\start.bat
+# Linux (einziger Standard): alter Kram weg, No-Cache-Server auf 8088, Debug-Browser mit CDP auf 9222
+./tools/dev.sh
+./tools/dev.sh status     # Ports, Prozesse und Tabs
+./tools/dev.sh --vanilla  # wie oben, aber Logs + Dev-Caches vorher leeren
+./tools/dev.sh stop       # Server, Live-Kanal und Debug-Browser beenden
 ```
 
-Die App ist anschließend unter `http://127.0.0.1:8088/website/index.html` erreichbar.
+Die App ist anschließend unter `http://127.0.0.1:8088/index.html` erreichbar.
 
-**Wichtig:** `tools/start.sh` liefert das **Repo-Wurzelverzeichnis** aus. Nur dann funktionieren die Dev-Extras `/__fonts` (lokale Schriften) und `/__geokey` (Geoapify-Key aus `~/.secrets/`). Ein `python3 -m http.server --directory website/` zeigt die App ebenfalls, aber ohne diese zwei Extras.
+**Wichtig:** `tools/dev.sh` liefert `website/` als Wurzel aus und beendet vorher deterministisch alte Dev-Server (`serve.mjs`, `static-server.mjs`, `mcp-live.mjs`, `python http.server` auf 8088) sowie Debug-Browser der eigenen Profile. Die Dev-Extras `/__fonts` (lokale Schriften) und `/__geokey` (Geoapify-Key aus `~/.secrets/`) bleiben verfügbar, weil `tools/static-server.mjs` das Repo-Wurzelverzeichnis selbst kennt. Der Arbeits-Browser (`~/.config/net.imput.helium`, CDP 9223) wird nie angefasst.
 
 ### 2. Lokale Quality Gates
 

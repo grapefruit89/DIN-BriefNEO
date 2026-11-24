@@ -365,14 +365,50 @@ function initAnsichtRegler() {
   /* Schritt: in px genau 1 px, in Prozent 1 % von 793,7 = 7,937 px. */
   /* 1 % = ein Hundertstel der Blattgroesse (900 px), also 9 px. */
   const schritt = () => (einheit === 'px' ? 1 : Math.round(BREITE_ORIGINAL / 100));
-  minus.addEventListener('click', () => {
-    breite -= schritt();
-    zeige();
-  });
-  plus.addEventListener('click', () => {
-    breite += schritt();
-    zeige();
-  });
+  /* Halten wiederholt: 350 ms warten, dann alle 50 ms ein Schritt.
+     Ein einfacher Klick bleibt ein Schritt — der Klick nach pointerdown wird
+     deshalb unterdrueckt, Tastatur (Enter/Leertaste) loest weiterhin click aus. */
+  /**
+   * @param {HTMLElement} knopf
+   * @param {number} richtung -1 oder 1
+   */
+  const wiederholen = (knopf, richtung) => {
+    let anlauf = 0;
+    let takt = 0;
+    let perZeiger = false;
+    const schrittWeiter = () => {
+      breite += richtung * schritt();
+      zeige();
+    };
+    const stoppen = () => {
+      clearTimeout(anlauf);
+      clearInterval(takt);
+      anlauf = 0;
+      takt = 0;
+    };
+    knopf.addEventListener('pointerdown', (ereignis) => {
+      ereignis.preventDefault();
+      perZeiger = true;
+      schrittWeiter();
+      stoppen();
+      anlauf = setTimeout(() => {
+        takt = setInterval(schrittWeiter, 50);
+      }, 350);
+    });
+    for (const art of ['pointerup', 'pointerleave', 'pointercancel']) {
+      knopf.addEventListener(art, stoppen);
+    }
+    knopf.addEventListener('click', (ereignis) => {
+      if (perZeiger) {
+        perZeiger = false;
+        ereignis.preventDefault();
+        return;
+      }
+      schrittWeiter();
+    });
+  };
+  wiederholen(/** @type {HTMLElement} */ (minus), -1);
+  wiederholen(/** @type {HTMLElement} */ (plus), 1);
   knopfPx?.addEventListener('click', () => {
     einheit = 'px';
     speichereAnsicht('zoomEinheit', 'px');

@@ -5864,3 +5864,32 @@ Damit wächst der Container mit dem Blatt, bleibt aber zentriert, wenn Platz ist
 
 Nachgemessen: Blatt 1156 · Container 1156 · scrollHeight 1176 · oberer und
 unterer Rand erreichbar · die Seite selbst scrollt weiterhin nicht.
+
+### Nachtrag: warum die Blattbreite 900 px ist (mit Formel)
+
+**Nutzer:** „vielleicht solltest du die 900 px mit einem Kommentar erklären, warum
+das auf dem Monitor 21 cm ergibt — mit passender Formel zum Nachvollziehen."
+
+Gemessen am Referenzmonitor: **900 px Breite = 21 cm Papier.** Daraus die Dichte:
+
+```
+900 px / 21 cm            = 42,86 px/cm
+42,86 px/cm × 2,54        = 108,9 px/Zoll
+sqrt(2560² + 1440²) / 27" = 108,8 ppi     (27-Zoll-2560×1440-Panel)
+```
+
+CSS rechnet dagegen **fest mit 96 px/Zoll**: 21 cm sind dort 8,268 Zoll × 96 =
+**793,7 px**. Auf einem 109-ppi-Monitor erscheint ein 793,7-px-Blatt deshalb nur
+mit 793,7 / 900 = **88 %** der realen Größe — genau der „Blatt wirkt zu klein"-
+Effekt. Der Faktor 900 / 793,7 = 1,134 hebt das auf.
+
+Formel für andere Monitore:
+
+```
+Breite_px = 21 cm × (Bildschirmbreite_px / Bildschirmbreite_cm)
+```
+
+Deshalb ist 900 kein allgemeiner Wert, sondern der des Referenzmonitors — und
+deshalb bleibt der Regler im Debug-Panel (px/%/Einpassen). Kommentar mit dieser
+Herleitung steht an `--blatt-breite-px` (base.css) und an `BREITE_ORIGINAL`
+(ansicht.js).

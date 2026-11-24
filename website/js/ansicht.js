@@ -69,7 +69,15 @@ export function wendeNachtpalette(basis) {
 
 /** Erlaubte Blattbreite in CSS-Pixeln. */
 export const BREITE_MIN = 400;
-/** Blattbreite in CSS-Pixeln, die am Referenzmonitor 1:1 ist (Nutzer-Messung). */
+/**
+ * Blattbreite in CSS-Pixeln, die am Referenzmonitor 1:1 ist.
+ *
+ * Herleitung (Nutzer-Messung 2026-11-24): 900 px sind 21 cm Papier, also
+ * 42,86 px/cm = 108,9 px/Zoll — das ist ein 27"-2560x1440-Panel (108,8 ppi).
+ * CSS nimmt fest 96 px/Zoll an, dort waeren 21 cm nur 793,7 px; auf einem
+ * 109-ppi-Schirm wirkt das Blatt deshalb 12 % zu klein.
+ * Anderer Monitor = anderer Wert; siehe Debug-Panel.
+ */
 export const BREITE_ORIGINAL = 900;
 export const BREITE_MAX = 1200;
 /** 210 mm bei 96 dpi — Bezugspunkt fuer die Prozent-Anzeige. */

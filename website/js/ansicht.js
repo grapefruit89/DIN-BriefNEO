@@ -69,6 +69,8 @@ export function wendeNachtpalette(basis) {
 
 /** Erlaubte Blattbreite in CSS-Pixeln. */
 export const BREITE_MIN = 400;
+/** Blattbreite in CSS-Pixeln, die am Referenzmonitor 1:1 ist (Nutzer-Messung). */
+export const BREITE_ORIGINAL = 900;
 export const BREITE_MAX = 1200;
 /** 210 mm bei 96 dpi — Bezugspunkt fuer die Prozent-Anzeige. */
 export const MM_PX = 793.7;

@@ -19,7 +19,7 @@
 
 import { ortsVorschlaege, strassenSuchPfad } from './address.js';
 import { AddressIntelligence } from './address-data.js';
-import { MM_PX, nachtCss, passendeBreite, speichereAnsicht, wendeBlattBreite, wendeNachtpalette } from './ansicht.js';
+import { BREITE_ORIGINAL, MM_PX, nachtCss, passendeBreite, speichereAnsicht, wendeBlattBreite, wendeNachtpalette } from './ansicht.js';
 import { collectDraft } from './document.js';
 import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
@@ -384,15 +384,16 @@ function initAnsichtRegler() {
   });
   /* Einpassen: Breite so weit reduzieren, dass Breite UND Hoehe hineinpassen.
      "1:1" stellt die gemerkte Wunschbreite wieder her (Standard 900 px). */
-  let wunsch = breite;
+  /* „Einpassen“ ist eine Sitzungs-Hilfe und wird NICHT gespeichert — sonst
+     ueberschreibt ein Blick auf den kleinen Monitor die 1:1-Groesse. */
   document.getElementById('dbg-breite-einpassen')?.addEventListener('click', () => {
-    wunsch = breite;
-    /* Nie vergroessern: „Einpassen“ heisst sichtbar machen, nicht ausfuellen. */
-    breite = Math.min(wunsch, passendeBreite());
-    zeige();
+    const passend = Math.min(breite, passendeBreite());
+    wendeBlattBreite(passend);
+    breite = passend;
+    wert.textContent = einheit === 'px' ? `${passend} px` : `${(Math.round((passend / MM_PX) * 1000) / 10).toFixed(1).replace('.', ',')} %`;
   });
   document.getElementById('dbg-breite-original')?.addEventListener('click', () => {
-    breite = wunsch || 900;
+    breite = BREITE_ORIGINAL;
     zeige();
   });
   zeige();

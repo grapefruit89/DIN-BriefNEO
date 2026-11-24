@@ -14,8 +14,8 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Legacy Date API in website/ (auch die Methoden getFullYear/getMonth/getDate/getHours/getMinutes/getSeconds/toISOString/toLocaleDateString). Catalog TM1/A48. Tooling exempt.",
-      "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.parse\\(|\\.getFullYear\\(|\\.getMonth\\(|\\.getDate\\(|\\.getHours\\(|\\.getMinutes\\(|\\.getSeconds\\(|\\.toISOString\\(|\\.toLocaleDateString\\(|\\.getTime\\(|\\bmoment\\(|\\bdate-fns\\b|\\bluxon\\b|from ['\"]moment['\"]|from ['\"]date-fns['\"]|from ['\"]luxon['\"]",
+      "description": "Legacy Date API in website/ (auch Konstruktor, Date.now/UTC/parse, window.Date/globalThis.Date, getFullYear/getMonth/getDate/getHours/getMinutes/getSeconds, getUTC*, set*Year, toISOString/toLocaleDateString/toDateString/toTimeString, getTime). Catalog TM1/A48. Tooling exempt.",
+      "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.UTC\\s*\\(|\\bDate\\.parse\\(|\\bwindow\\s*\\.\\s*Date\\b|\\bglobalThis\\s*\\.\\s*Date\\b|\\.getFullYear\\(|\\.getMonth\\(|\\.getDate\\(|\\.getHours\\(|\\.getMinutes\\(|\\.getSeconds\\(|\\.getUTC[A-Za-z]+\\s*\\(|\\.set[A-Za-z]*Year\\s*\\(|\\.toISOString\\(|\\.toLocaleDateString\\(|\\.toDateString\\s*\\(|\\.toTimeString\\s*\\(|\\.getTime\\(|\\bmoment\\(|\\bdate-fns\\b|\\bluxon\\b|from ['\"]moment['\"]|from ['\"]date-fns['\"]|from ['\"]luxon['\"]",
       "file_patterns": [
         "*.js"
       ],

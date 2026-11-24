@@ -67,6 +67,10 @@ function loadRulesFile(filePath, isOptional = false) {
         process.exit(1);
       }
     }
+    if (rule.multiline !== undefined && typeof rule.multiline !== 'boolean') {
+      console.error(`FATAL: Rule ${rule.id} has invalid multiline flag (boolean expected).`);
+      process.exit(1);
+    }
     for (const ex of rule.exemptions || []) {
       if (!ex || typeof ex.file !== 'string' || !ex.file) {
         console.error(`FATAL: Rule ${rule.id} has an exemption without "file".`);
@@ -152,7 +156,7 @@ const CUSTOM_CHECKS = {
 const FEATURE_CHECKS = {
   'Temporal API': {
     regex: /Temporal/g,
-    file: 'website/js/persistence.js'
+    file: 'website/js/format.js'
   },
   'CSS Anchor Positioning': {
     regex: /anchor-name|position-anchor|position-area/g,
@@ -160,7 +164,7 @@ const FEATURE_CHECKS = {
   },
   'CSS @scope': {
     regex: /@scope/g,
-    file: 'website/css/sheet.css'
+    file: 'website/css/sheet-common.css'
   },
   'CSS light-dark()': {
     regex: /light-dark\(/g,
@@ -168,7 +172,7 @@ const FEATURE_CHECKS = {
   },
   'CSS Relative Color Syntax': {
     regex: /oklch\(from/g,
-    file: 'website/css/sheet.css'
+    file: 'website/css/sheet-common.css'
   },
   'View Transitions': {
     /* Stand 2026-11-16: die Implementierung liegt in core.js (transitionOn).
@@ -319,6 +323,25 @@ function evaluateAntipatterns(codeFiles) {
        * Bewusst konservativ: nur Zeilen, die mit //, * oder /* beginnen —
        * Inline-Kommentare bleiben ein (selteneres) False Negative. */
       const ignoreRe = rule.ignore_line_pattern ? new RegExp(rule.ignore_line_pattern) : null;
+
+      /* Multi-Line-Regeln (multiline: true) werden gegen den ganzen Datei-Inhalt
+       * geprüft, damit Muster wie P26 auch über Zeilenumbrüche greifen. Die
+       * Zeilennummer stammt aus dem Match-Index, nicht aus einer Zeilenschleife. */
+      if (rule.multiline) {
+        if (CUSTOM_CHECKS[rule.id]) return; // Multiline ist nur für Regex-Sonden definiert.
+        const regex = new RegExp(rule.pattern, 'g');
+        const seenLines = new Set();
+        for (const m of content.matchAll(regex)) {
+          const line = content.slice(0, m.index).split(/\r?\n/).length;
+          if (seenLines.has(line)) continue;
+          const lineContent = lines[line - 1] ?? '';
+          if (ignoreRe && ignoreRe.test(lineContent)) continue;
+          if (isExempt(rule, relPath, line, lineContent)) continue;
+          seenLines.add(line);
+          stat.hits.push({ file_path: relPath, line });
+        }
+        return;
+      }
 
       lines.forEach((line, index) => {
         if (ignoreRe && ignoreRe.test(line)) return;
@@ -539,13 +562,8 @@ function runReconciliation() {
     try {
       imrViolations = require('./imr.js').checkImr(targetDir).violations;
     } catch (err) {
-      logs.push({
-        file_path: 'docs/norm/IMR-Registry.md',
-        check_type: 'imr',
-        severity: 'low',
-        message: `IMR-Check uebersprungen: ${err.message}`
-      });
-      imrViolations = [];
+      // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
+      imrViolations = [{ file: 'tools/imr.js', message: `IMR-Check fehlgeschlagen (fail-closed): ${err.message}` }];
     }
     if (imrViolations.length === 0) {
       conformancePassed += 1;
@@ -572,13 +590,8 @@ function runReconciliation() {
     try {
       linkViolations = require('./links.js').checkLinks(targetDir).violations;
     } catch (err) {
-      logs.push({
-        file_path: 'tools/links.js',
-        check_type: 'links',
-        severity: 'low',
-        message: `Link-Check uebersprungen: ${err.message}`
-      });
-      linkViolations = [];
+      // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
+      linkViolations = [{ file: 'tools/links.js', message: `Link-Check fehlgeschlagen (fail-closed): ${err.message}` }];
     }
     if (linkViolations.length === 0) {
       conformancePassed += 1;
@@ -605,13 +618,8 @@ function runReconciliation() {
     try {
       isoViolations = require('./isolation.js').checkIsolation(targetDir).violations;
     } catch (err) {
-      logs.push({
-        file_path: 'tools/isolation.js',
-        check_type: 'isolation',
-        severity: 'low',
-        message: `Hermetik-Check uebersprungen: ${err.message}`
-      });
-      isoViolations = [];
+      // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
+      isoViolations = [{ file: 'tools/isolation.js', line: 1, message: `Hermetik-Check fehlgeschlagen (fail-closed): ${err.message}` }];
     }
     if (isoViolations.length === 0) {
       conformancePassed += 1;
@@ -634,12 +642,8 @@ function runReconciliation() {
     try {
       structuralViolations = require('./structural-laws.js').checkStructuralLaws(targetDir);
     } catch (err) {
-      logs.push({
-        file_path: 'tools/structural-laws.js',
-        check_type: 'structural_laws',
-        severity: 'critical',
-        message: `Struktur-Gate konnte nicht geladen werden: ${err.message}`
-      });
+      // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
+      structuralViolations = [{ file: 'tools/structural-laws.js', line: 1, message: `Struktur-Gate fehlgeschlagen (fail-closed): ${err.message}` }];
     }
     if (structuralViolations.length === 0) {
       conformancePassed += 1;
@@ -670,13 +674,8 @@ function runReconciliation() {
       covViolations = res.violations;
       coverage = res.coverage;
     } catch (err) {
-      logs.push({
-        file_path: 'tools/lawcoverage.js',
-        check_type: 'law_coverage',
-        severity: 'low',
-        message: `Meta-Gate uebersprungen: ${err.message}`
-      });
-      covViolations = [];
+      // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
+      covViolations = [{ file: 'tools/lawcoverage.js', line: 1, message: `Meta-Gate fehlgeschlagen (fail-closed): ${err.message}` }];
     }
     if (covViolations.length === 0) {
       conformancePassed += 1;
@@ -711,13 +710,8 @@ function runReconciliation() {
     try {
       termViolations = require('./terminology.js').checkTerminology(targetDir).violations;
     } catch (err) {
-      logs.push({
-        file_path: 'tools/terminology.js',
-        check_type: 'terminology',
-        severity: 'low',
-        message: `Terminologie-Check uebersprungen: ${err.message}`
-      });
-      termViolations = [];
+      // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
+      termViolations = [{ file: 'tools/terminology.js', line: 1, found: err.message, canonical: 'tool muss laden' }];
     }
     if (termViolations.length === 0) {
       conformancePassed += 1;
@@ -744,13 +738,8 @@ function runReconciliation() {
     try {
       idViolations = require('./id-register.js').checkIds(targetDir).violations;
     } catch (err) {
-      logs.push({
-        file_path: 'tools/id-register.js',
-        check_type: 'ids',
-        severity: 'low',
-        message: `ID-Check uebersprungen: ${err.message}`
-      });
-      idViolations = [];
+      // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
+      idViolations = [{ file: 'tools/id-register.js', line: 1, rule: 'FAIL-CLOSED', message: `ID-Check fehlgeschlagen (fail-closed): ${err.message}` }];
     }
     if (idViolations.length === 0) {
       conformancePassed += 1;

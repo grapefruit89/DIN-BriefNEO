@@ -28,7 +28,7 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Schreibender innerHTML-Zugriff (auch '+=' und ['innerHTML']) sowie setHTMLUnsafe() sind Catalog HARD BAN A61 (XSS-Pfad). Lesender Zugriff bleibt erlaubt. Ersatz: textContent, setHTML(), oder DOMParser + replaceChildren().",
+      "description": "Schreibender innerHTML-Zugriff (auch '+=' und ['innerHTML']) sowie setHTMLUnsafe() sind Catalog HARD BAN A61 (XSS-Pfad). Lesender Zugriff bleibt erlaubt. Ersatz: textContent, sanitizeRichText(), oder DOMParser + replaceChildren().",
       "pattern": "\\.\\s*innerHTML\\s*\\+?=(?!=)|\\[\\s*['\\\"]innerHTML['\\\"]\\s*\\]\\s*\\+?=(?!=)|\\bsetHTMLUnsafe\\s*\\(",
       "file_patterns": [
         "*.js"
@@ -124,7 +124,7 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Dynamische Codeausfuehrung und HTML-Injektion (eval, new Function, String-Timer, insertAdjacentHTML, document.write) ist Catalog HARD BAN A65 (XSS/CSP-Pfad, im Debugger nicht schrittweise verfolgbar). Ersatz: createElement/textContent/setHTML(), Timer mit Funktionsreferenz.",
+      "description": "Dynamische Codeausfuehrung und HTML-Injektion (eval, new Function, String-Timer, insertAdjacentHTML, document.write) ist Catalog HARD BAN A65 (XSS/CSP-Pfad, im Debugger nicht schrittweise verfolgbar). Ersatz: createElement/textContent, Timer mit Funktionsreferenz; HTML-Strings ueber sanitizeRichText()/DOMParser + replaceChildren().",
       "pattern": "\\beval\\s*\\(|\\bnew\\s+Function\\s*\\(|\\binsertAdjacentHTML\\s*\\(|\\bdocument\\.write\\s*\\(|\\b(?:setTimeout|setInterval)\\s*\\(\\s*['\\\"`]",
       "file_patterns": [
         "*.js"

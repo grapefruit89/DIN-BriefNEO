@@ -14,7 +14,7 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "setHTMLUnsafe() ist Catalog HARD BAN A61 (XSS-Pfad), nicht blosse Praeferenz. Ersatz: setHTML() oder textContent. H11 bleibt als Stilbezug.",
+      "description": "setHTMLUnsafe() ist Catalog HARD BAN A61 (XSS-Pfad), nicht blosse Praeferenz. Ersatz: sanitizeRichText() oder textContent. H11 bleibt als Stilbezug.",
       "pattern": "setHTMLUnsafe",
       "file_patterns": [
         "*.js"
@@ -442,6 +442,7 @@
       "category": "css",
       "description": "Druckhilfen, Falt- und Lochmarken dürfen nicht mit display: none ausgeblendet werden (vermeidet Reflow und Box-Tree-Neubau). Stattdessen visibility: hidden verwenden.",
       "pattern": "din-(falzmarke|lochmarke)[^{]*\\{[^}]*display\\s*:\\s*none",
+      "multiline": true,
       "file_patterns": [
         "website/css/*.css"
       ],

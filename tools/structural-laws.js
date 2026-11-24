@@ -6,11 +6,51 @@
  *   - A57: keine binären Radio-Gruppen als Schalter (Ausnahme: Form A/B ist Dokumentenmodus)
  *   - A58: keine Radio-Segmented-Controls für Theme-Wahl (zyklischer Toggle Pflicht)
  *   - A24: keine CSS-Token ohne Definition in :root oder ohne Fallback
- *   - A59: keine Theme-Variablen (--text-primary, --bg-surface etc.) auf dem DIN-A4-Blatt (sheet.css)
+ *   - A59: keine Theme-Variablen (--text-primary, --bg-surface etc.) auf dem DIN-A4-Blatt
+ *          (sheet.css, sheet-common.css, sheet-multipage.css; #viewport ausgenommen,
+ *          weil das der Schreibtisch ist und kein A4-Blatt)
  */
 
 const fs = require('fs');
 const path = require('path');
+
+/** Maskiert CSS-Kommentare, ohne Zeilennummern zu verschieben. */
+function maskCssComments(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
+}
+
+/**
+ * Maskiert alle Bloecke, deren Selektor `#viewport` enthaelt, samt Kindbloecken.
+ * A59 gilt nur fuer das A4-Blatt; `#viewport` ist der Schreibtisch (dort sind
+ * etwa Scrollbalken-Farben aus dem UI-Theme legitim).
+ */
+function maskViewportBlocks(src) {
+  const out = src.split('');
+  const stack = [];
+  let selectStart = 0;
+  let insideMasked = false;
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (ch === '{') {
+      const selector = src.slice(selectStart, i);
+      const masked = insideMasked || /#viewport\b/.test(selector);
+      stack.push(masked);
+      insideMasked = masked;
+      if (masked) out[i] = ' ';
+      selectStart = i + 1;
+    } else if (ch === '}') {
+      stack.pop();
+      insideMasked = stack.length > 0 ? stack[stack.length - 1] : false;
+      if (insideMasked) out[i] = ' ';
+      selectStart = i + 1;
+    } else if (ch === ';') {
+      selectStart = i + 1;
+    } else if (insideMasked && ch !== '\n') {
+      out[i] = ' ';
+    }
+  }
+  return out.join('');
+}
 
 function checkStructuralLaws(repoRoot) {
   const violations = [];
@@ -100,14 +140,17 @@ function checkStructuralLaws(repoRoot) {
       });
     }
 
-    // 3. A59: Theme-abhängige UI-Variablen auf dem DIN-A4-Blatt (sheet.css) pruefen
-    const sheetFile = path.join(cssDir, 'sheet.css');
-    if (fs.existsSync(sheetFile)) {
-      const sheetLines = fs.readFileSync(sheetFile, 'utf8').split('\n');
-      const themeVarRe = /var\(\s*--(text-primary|text-muted|text-secondary|bg-surface|bg-viewport|bg-card|bg-seitenleiste|border-color)\b/g;
+    // 3. A59: Theme-abhängige UI-Variablen auf dem DIN-A4-Blatt pruefen.
+    //    Gilt fuer alle Blatt-Stylesheets; #viewport wird maskiert (Schreibtisch,
+    //    kein Papier). Kommentare zaehlen nicht als Verwendung.
+    const themeVarRe = /var\(\s*--(text-primary|text-muted|text-secondary|bg-surface|bg-viewport|bg-card|bg-seitenleiste|border-color)\b/g;
+    for (const name of ['sheet.css', 'sheet-common.css', 'sheet-multipage.css']) {
+      const sheetFile = path.join(cssDir, name);
+      if (!fs.existsSync(sheetFile)) continue;
+      const sheetLines = maskViewportBlocks(maskCssComments(fs.readFileSync(sheetFile, 'utf8'))).split('\n');
       sheetLines.forEach((l, idx) => {
         for (const m of l.matchAll(themeVarRe)) {
-          violations.push({ file: 'website/css/sheet.css', line: idx + 1, message: `A59: Theme-Variable "--${m[1]}" auf dem DIN-A4-Blatt verwendet. Blatt muss papier-eigene Token (--blatt-*) nutzen.` });
+          violations.push({ file: `website/css/${name}`, line: idx + 1, message: `A59: Theme-Variable "--${m[1]}" auf dem DIN-A4-Blatt verwendet. Blatt muss papier-eigene Token (--blatt-*) nutzen.` });
         }
       });
     }

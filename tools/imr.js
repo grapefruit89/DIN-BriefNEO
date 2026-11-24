@@ -48,6 +48,43 @@ function walkCode(dir, out = []) {
 }
 
 function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+/** Maskiert CSS-Kommentare, ohne Zeilennummern zu verschieben. */
+function maskCssComments(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
+}
+
+/**
+ * Maskiert Bloecke, deren Selektor auf `selectorRe` passt, samt Kindbloecken.
+ * Fuer den DIN-5008-Bypass-Schutz: `@page` darf rohe Millimeter tragen.
+ */
+function maskCssBlocks(src, selectorRe) {
+  const out = src.split('');
+  const stack = [];
+  let selectStart = 0;
+  let insideMasked = false;
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (ch === '{') {
+      const selector = src.slice(selectStart, i);
+      const masked = insideMasked || selectorRe.test(selector);
+      stack.push(masked);
+      insideMasked = masked;
+      if (masked) out[i] = ' ';
+      selectStart = i + 1;
+    } else if (ch === '}') {
+      stack.pop();
+      insideMasked = stack.length > 0 ? stack[stack.length - 1] : false;
+      if (insideMasked) out[i] = ' ';
+      selectStart = i + 1;
+    } else if (ch === ';') {
+      selectStart = i + 1;
+    } else if (insideMasked && ch !== '\n') {
+      out[i] = ' ';
+    }
+  }
+  return out.join('');
+}
 function boundaryRe(term) {
   return new RegExp(`(?<![A-Za-z0-9äöüÄÖÜß])${escapeRe(term)}(?![A-Za-z0-9äöüÄÖÜß])`, 'g');
 }
@@ -116,7 +153,7 @@ function checkCase(targetDir, inventory) {
   const html = fs.readFileSync(path.join(targetDir, htmlRel), 'utf-8');
   for (const m of html.matchAll(/\bid="([^"]*)"/g)) if (bad(m[1])) report(htmlRel, 'HTML id', m[1]);
   for (const m of html.matchAll(/\bclass="([^"]*)"/g)) for (const c of m[1].split(/\s+/)) if (c && bad(c)) report(htmlRel, 'HTML class', c);
-  for (const m of html.matchAll(/\b(data-[a-z0-9-]+)\s*=/g)) if (bad(m[1])) report(htmlRel, 'HTML data-Attribut', m[1]);
+  for (const m of html.matchAll(/\b(data-[\w-]+)\s*=/g)) if (bad(m[1])) report(htmlRel, 'HTML data-Attribut', m[1]);
   for (const file of walkCode(path.join(targetDir, 'website'))) {
     if (!file.endsWith('.css')) continue;
     const rel = path.relative(targetDir, file).replace(/\\/g, '/');
@@ -303,6 +340,24 @@ function checkImr(targetDir) {
   for (const f of ['website/css/sheet-common.css', 'website/css/sheet.css', 'website/css/sheet-multipage.css']) {
     const src = fs.readFileSync(path.join(targetDir, f), 'utf-8');
     if (attrGeometrie.test(src)) add(f, 'attr(data-…)-Geometrie verboten — Tokens aus base.css lesen');
+  }
+
+  // 2c) DIN-5008-Bypass-Schutz: Zonen- und Markenkoordinaten duerfen in den
+  //     Blatt-Stylesheets nicht roh in Millimetern stehen. SSoT sind die
+  //     --geometrie-*-Token aus website/css/base.css. Ausgenommen sind @page
+  //     (Papierrand) und die Blattmasse 210mm/297mm (din-blatt).
+  const RAW_GEOMETRIE_MM = ['27', '45', '28.9', '45.8', '87', '105', '148.5', '192'];
+  const rawMmRe = new RegExp(`(?<![\\w.])(?:${RAW_GEOMETRIE_MM.map(escapeRe).join('|')})mm\\b`, 'g');
+  for (const f of ['website/css/sheet-common.css', 'website/css/sheet-multipage.css']) {
+    const p = path.join(targetDir, f);
+    if (!fs.existsSync(p)) continue;
+    const lines = maskCssBlocks(maskCssComments(fs.readFileSync(p, 'utf-8')), /@page\b/).split('\n');
+    lines.forEach((line, idx) => {
+      const hit = line.match(rawMmRe);
+      if (hit) {
+        add(f, `DIN-5008-Bypass: roher Millimeterwert "${hit[0]}" fuer Zone/Marke in Zeile ${idx + 1} — var(--geometrie-…) verwenden (SSoT: website/css/base.css)`);
+      }
+    });
   }
 
   // 3) Kanonisches Vokabular (IMR vocabulary-Block)

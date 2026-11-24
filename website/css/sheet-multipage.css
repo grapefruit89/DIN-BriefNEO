@@ -368,13 +368,11 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     margin-top: 4.23mm;
     margin-bottom: 12.69mm;
     break-after: avoid;
-    page-break-after: avoid;
   }
 
   .unterschrift-zeile {
     display: block;
     break-inside: avoid;
-    page-break-inside: avoid;
   }
 
   #unterschrift {
@@ -385,7 +383,6 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   #anlagenvermerk {
     margin-top: --mm-abs-y(attr(data-margin-top type(<number>)));
     break-inside: avoid;
-    page-break-inside: avoid;
   }
 
   /* Fusszeile: Seite 1, im freigehaltenen Band. `top` ist per Konstruktion
@@ -620,7 +617,6 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
      konnte es nicht sehen, weil im Testbrief kein Signaturbild haengt. */
   #unterschriftsbild-container {
     break-inside: avoid !important;
-    page-break-inside: avoid !important;
   }
 
   :root:not([data-anlagen="true"]) din-anlagenvermerk,

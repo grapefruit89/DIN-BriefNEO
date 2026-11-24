@@ -2959,6 +2959,12 @@ describe('window.dinApi: Brief-Schnittstelle für Agenten (2026-11-22)', () => {
     assertEqual(rein.ok, true);
     assertEqual(api.lesen().felder.betreff, 'Rechtsbehelf', 'Wert lesbar');
 
+    /* Agenten liefern reinen Text: HTML darf nicht in den Brief wandern. */
+    const mitMarkup = api.setzen('betreff', '<b>Nur Text</b>');
+    assertEqual(mitMarkup.ok, true);
+    assertEqual(mitMarkup.wert, 'Nur Text', 'HTML wird auf Text reduziert');
+    assertEqual(api.lesen().felder.betreff, 'Nur Text', 'Feld enthaelt keinen Markup');
+
     const falsch = api.setzen('gibt-es-nicht', 'x');
     assertEqual(falsch.ok, false, 'unbekanntes Feld wird abgelehnt');
     assert(String(falsch.fehler).includes('hilfe'), 'Fehler verweist auf hilfe()');
@@ -6172,12 +6178,18 @@ describe('D2: ein Wert-Schreiber, eine Allowlist (ersetzt B69-Selektor-Ratsche)'
   it('applyDraftValues sanitizt Rich-Text (Allowlist statt CSP-Vertrauen)', () => {
     const text = /** @type {HTMLElement} */ (document.getElementById('brieftext'));
     applyDraftValues({
-      brieftext: '<img src=x onerror="alert(1)"><b>fett</b><script>alert(2)</script>',
+      brieftext:
+        '<img src=x onerror="alert(1)"><b>fett</b><script>alert(2)</script><i>kursiv</i><s>alt</s><blockquote>zitat</blockquote><span class="brief-kommentar">Anm.</span>',
     });
     assertEqual(text.querySelector('img'), null, 'img wird entfernt');
     assertEqual(text.querySelector('script'), null, 'script wird entfernt');
     assert(text.innerHTML.includes('<b>fett</b>'), 'erlaubtes <b> bleibt');
     assert(!text.innerHTML.includes('onerror'), 'kein Event-Handler');
+    /* Handformatierung aus JSON-Import/Draft-Restore muss 1:1 zurueckkommen. */
+    assert(text.innerHTML.includes('<i>kursiv</i>'), 'erlaubtes <i> bleibt');
+    assert(text.innerHTML.includes('<s>alt</s>'), 'erlaubtes <s> bleibt');
+    assert(text.innerHTML.includes('<blockquote>zitat</blockquote>'), 'blockquote bleibt');
+    assert(text.innerHTML.includes('class="brief-kommentar"'), 'span.brief-kommentar bleibt');
     text.replaceChildren();
   });
 

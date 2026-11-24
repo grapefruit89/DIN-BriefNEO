@@ -182,7 +182,12 @@ export function writeField(elem, wert) {
     return;
   }
 
-  // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
+  // HTML-Restore ausschliesslich ueber sanitizeRichText (Allowlist).
+  // Genau dieser Pfad traegt die handformatierte Fassung aus dem JSON-Import
+  // und dem Draft-Restore: b, i, s, blockquote und span.brief-kommentar kommen
+  // 1:1 zurueck. Die Agenten-API (api.js) reduziert ihre Eingaben dagegen
+  // bereits VOR dem Schreiben auf reinen Text — sie darf hier nie HTML
+  // einliefern, sonst gaebe es zwei Wahrheiten.
   if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
     const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
     if (isListe && !text.includes('<li')) {

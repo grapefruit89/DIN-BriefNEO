@@ -18,6 +18,7 @@
 
 import { Events, eventBus } from './core.js';
 import { collectDraft, draftFieldIds } from './document.js';
+import { stripHtmlToPlaintext } from './draft-model.js';
 import { formatDatum } from './format.js';
 import { buildDINLetterJSON } from './persistence.js';
 import { SALUTATION_TONES, SalutationEngine, salutationVarianten } from './salutation.js';
@@ -73,19 +74,44 @@ function element(id) {
 }
 
 /**
+ * Agenten schreiben reinen Text. Fett, Kursiv, Durchgestrichen, Zitate und
+ * `span.brief-kommentar` entstehen ausschliesslich von Hand im Editor; ein
+ * HTML-String von aussen (WebMCP, Live-Bridge, Konsole) wird deshalb vor dem
+ * Schreiben auf Text reduziert. Der JSON-Import und der Draft-Restore laufen
+ * **nicht** hier durch — dort haelt `sanitizeRichText` die Format-Allowlist.
+ * @param {unknown} wert
+ * @returns {string}
+ */
+function alsPlaintext(wert) {
+  const text = String(wert ?? '');
+  /* Nur echter Markup wird angefasst: "Betrag < 100 EUR" bleibt unveraendert. */
+  if (!/<[a-z!/][^>]*>/i.test(text)) return text;
+  /* Absatzgrenzen vor dem Tag-Strip retten: sonst kleben "</p><p>" ohne
+     Trenner zusammen. <br> und <li> behandelt stripHtmlToPlaintext selbst. */
+  const mitUmbruechen = text.replace(/<\/(?:p|div|blockquote|li|h[1-6])\s*>/gi, '\n');
+  return stripHtmlToPlaintext(mitUmbruechen);
+}
+
+/**
  * Schreibt ein Feld und meldet die Aenderung.
  *
  * `applyValue` ist der **Programm**-Schreiber: es schreibt DOM + Zustand,
  * feuert aber bewusst kein `input` (sonst Endlosschleifen). Genau dieses
  * Signal brauchen die Kopplungen — die Ruecksendezeile (`initSenderSync`)
  * haengt an `DOCUMENT_CHANGED`, nicht am DOM-Event.
+ *
+ * Der Wert wird hier auf reinen Text reduziert (siehe `alsPlaintext`); alle
+ * API-Wege (`setzen`, `adresse`, `anrede`, `datum`) laufen durch diese Naht.
  * @param {string} id
- * @param {string} wert
+ * @param {unknown} wert
+ * @returns {string} der tatsaechlich geschriebene Text
  */
 function schreibe(id, wert) {
-  applyValue(id, wert, 'logic');
+  const text = alsPlaintext(wert);
+  applyValue(id, text, 'logic');
   eventBus.publish(Events.DOCUMENT_CHANGED, { origin: 'logic', feld: id });
   eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+  return text;
 }
 
 /**
@@ -126,7 +152,7 @@ export function initApi() {
         schalter: API_SCHALTER,
         funktionen: {
           lesen: 'lesen() → alle Feldwerte',
-          setzen: 'setzen(id, wert) → ein Feld schreiben (String oder boolean bei Schaltern)',
+          setzen: 'setzen(id, wert) → ein Feld schreiben (String oder boolean bei Schaltern); HTML wird auf reinen Text reduziert',
           anrede: 'anrede(name, firma?, tonalitaet?) → Anrede + Grußformel, tonalitaet: formal|polite|casual',
           adresse: 'adresse("empfaenger"|"absender", {firma?, name?, strasse?, ort?})',
           datum: 'datum("2026-11-22" | "22.11.2026" | "22. November 2026") → schreibt die Langform',
@@ -175,8 +201,8 @@ export function initApi() {
       }
       const el = element(id);
       if (!el) return { ok: false, fehler: `Feld "${id}" nicht im Dokument` };
-      schreibe(id, String(wert ?? ''));
-      return { ok: true, id, wert: String(wert ?? '') };
+      const geschrieben = schreibe(id, wert);
+      return { ok: true, id, wert: geschrieben };
     },
 
     /**
@@ -227,8 +253,7 @@ export function initApi() {
         const wert = String(daten[/** @type {keyof typeof daten} */ (schluessel)] ?? '').trim();
         if (!wert) continue;
         if (!element(feldId)) continue;
-        schreibe(feldId, wert);
-        gesetzt[feldId] = wert;
+        gesetzt[feldId] = schreibe(feldId, wert);
       }
       if (Object.keys(gesetzt).length === 0) {
         return { ok: false, fehler: 'keine verwertbaren Angaben (firma, name, strasse, ort)' };

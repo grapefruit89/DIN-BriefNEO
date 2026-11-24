@@ -268,7 +268,7 @@ din-geschaeftsangaben > .single-line {
 din-anlagenvermerk {
   margin-top: --mm-y(attr(data-margin-top type(<number>)));
   font-size: 0.9em;
-  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .anlagen-heading {
@@ -475,7 +475,6 @@ din-anlagen-angabe {
   position: relative;
   margin-top: 10px;
   break-inside: avoid;
-  page-break-inside: avoid;
   flex-shrink: 0;
 }
 
@@ -496,7 +495,6 @@ din-anlagen-angabe {
   pointer-events: auto;
   display: none;
   break-inside: avoid;
-  page-break-inside: avoid;
 }
 
 #unterschriftsbild-container[data-has-image="true"] { display: block; }

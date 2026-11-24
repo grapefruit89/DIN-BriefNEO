@@ -393,8 +393,7 @@ fieldset.seitenleiste-field-group > legend {
   .segmented-control::before,
   .btn,
   .btn-ghost,
-  .input-field,
-  .select-chevron {
+  .input-field {
     transition: none !important;
     transform: none !important;
   }
@@ -441,84 +440,6 @@ fieldset.seitenleiste-field-group > legend {
 .input-field:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-/* Gemeinsames Aussehen der Feld-Popover (PLZ/Ort, Strasse, Anrede, Gruss).
-   Position und Groesse stehen NUR in den ID-Regeln darunter: die Klasse setzte
-   frueher zusaetzlich position-area/width/max-height fuer die Anschrift-Liste,
-   die dieselben Dinge schon per anchor() bekommt (zwei Systeme gleichzeitig,
-   aufgeloest 2026-11-22; die Anschrift-Suche selbst ist am selben Tag
-   entfallen). */
-.autocomplete-dropdown {
-  position: absolute;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) transparent;
-  margin: var(--space-xs) 0 0 0;
-  padding: var(--space-xs);
-  list-style: none;
-  background: var(--bg-seitenleiste-glass);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-}
-
-.autocomplete-dropdown li {
-  padding: var(--space-md) var(--space-xl);
-  font-size: 0.725rem;
-  border-radius: var(--radius-sm);
-  
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background 0.1s ease, color 0.1s ease;
-}
-
-.autocomplete-dropdown li:hover {
-  background: var(--border-color);
-  color: var(--accent-color);
-}
-
-.autocomplete-header {
-  font-weight: bold;
-  cursor: default;
-  color: var(--accent-color);
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: var(--space-xs);
-}
-
-.autocomplete-sub {
-  color: var(--text-muted);
-  font-weight: normal;
-}
-
-.unverified-badge {
-  display: inline-block;
-  margin-left: var(--space-sm);
-  font-size: 0.75em;
-  font-weight: 500;
-  padding: 1px var(--space-sm);
-  border-radius: var(--radius-xs);
-  color: var(--text-muted);
-  background: var(--farbe-hinweis-flaeche);
-  border: 1px solid var(--border-color);
-  opacity: 0.85;
-  vertical-align: middle;
-}
-
-.mismatch-badge {
-  display: inline-block;
-  margin-left: var(--space-sm);
-  font-size: 0.75em;
-  font-weight: 600;
-  padding: 1px var(--space-sm);
-  border-radius: var(--radius-xs);
-  color: var(--farbe-warnung-text);
-  background: var(--farbe-warnung-bg);
-  border: 1px solid var(--farbe-warnung-rand);
-  vertical-align: middle;
 }
 
 /* --- COMMENT FORMAT --- */

@@ -211,7 +211,7 @@ Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die Top-Layer-Overlay
   * Formular-Controls gestaltet mit nativem `appearance: base-select`, `::picker(select)` und `::picker-icon`.
   * Semantische HTML-Switches (`input[type="checkbox"][switch]`) für Hilfslinien und Anlagen.
 * **CSS Anchor Positioning für schwebende UI (W3C Standard):**
-  * `#anschrift-vorschlaege` und `#plz-suggestions-popover`: Verankert per `top/left: anchor()`; die Klasse `.autocomplete-dropdown` traegt nur noch das Aussehen, keine Position (2026-11-22).
+  * `#anschrift-vorschlaege` und `#plz-suggestions-popover`: Verankert per `top/left: anchor()`; die frueher gemeinsame Klasse `.autocomplete-dropdown` ist am 2026-11-25 als toter CSS entfallen — Aussehen und Position liegen ausschliesslich in den ID-Regeln.
   * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
 * **Hoehe der Vorschlagslisten (Regel 2026-11-22, Nutzer-Vorgabe):**
   * Jede Vorschlagsliste geht **so weit nach unten, wie Platz ist** — bis **20 mm vor den Blatt-Unterrand** (`#kern`), mindestens 220 px. Bezug ist **ausschließlich das Blatt** („die DIN-A4-Seite ist der Arbeitsbereich", Vorgabe 2026-11-22); das Fenster ist nur Notbezug, wenn kein Blatt existiert. Lange Listen (Berlin: 284 PLZ) sollen weniger gescrollt werden.

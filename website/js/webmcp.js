@@ -497,7 +497,7 @@ export const WERKZEUGE = [
   {
     name: 'brief_setzen',
     description:
-      'Schreibt genau ein Feld oder einen Schalter. Feld-IDs liefert brief_hilfe; Schalter sind toggle-anlagen, toggle-fuss, toggle-falzmarken und erwarten einen booleschen wert.',
+      'Schreibt genau ein Feld oder einen Schalter. Feld-IDs liefert brief_hilfe; Schalter sind toggle-anlagen, toggle-fuss, toggle-falzmarken und erwarten einen booleschen wert. Text wird als reiner Text geschrieben (HTML-Tags werden entfernt).',
     nurLesen: false,
     ausfuehren: (argumente) => {
       const api = briefApi();
@@ -510,7 +510,7 @@ export const WERKZEUGE = [
         feld: { type: 'string', description: 'Feld-ID, z. B. betreff, text, datum, fuss-iban' },
         wert: {
           type: ['string', 'boolean'],
-          description: 'Neuer Wert; boolean nur für Schalter'
+          description: 'Neuer Wert; boolean nur für Schalter. String-Werte gehen als reiner Text ins Feld (HTML wird entfernt).'
         }
       },
       required: ['feld', 'wert'],
@@ -942,7 +942,7 @@ export const WERKZEUGE = [
         text: {
           type: 'string',
           description:
-            'Nur der Fließtext. Anrede und Grußformel gehören in anrede/grussformel — sonst stehen sie doppelt im Brief.'
+            'Nur der Fließtext (reiner Text, HTML wird entfernt). Anrede und Grußformel gehören in anrede/grussformel — sonst stehen sie doppelt im Brief.'
         },
         grussformel: { type: 'string' },
         unterschrift: { type: 'string', description: 'Name unter der Grußformel' },

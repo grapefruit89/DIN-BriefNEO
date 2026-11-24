@@ -505,12 +505,20 @@
       </div>
       <div class="debug-block debug-zoom">
         <div class="debug-block-kopf">
-          <strong>Blatt-Zoom</strong>
-          <output id="dbg-zoom-wert">100 %</output>
+          <strong>Blattgröße</strong>
         </div>
-        <input type="range" id="dbg-zoom" min="90" max="110" step="1" value="100"
-               aria-label="Zoomstufe des Blattes">
-        <small>100 % = Blattgröße (900 px). Regler gilt nur für diese Sitzung.</small>
+        <div class="debug-zoom-zeile">
+          <button type="button" id="dbg-breite-minus" class="btn" aria-label="Blatt kleiner">−</button>
+          <button type="button" id="dbg-einheit-px" class="btn" aria-pressed="true">px</button>
+          <button type="button" id="dbg-einheit-prozent" class="btn" aria-pressed="false">%</button>
+          <button type="button" id="dbg-breite-plus" class="btn" aria-label="Blatt größer">+</button>
+        </div>
+        <output id="dbg-breite-wert">900 px</output>
+        <div class="debug-zoom-zeile">
+          <button type="button" id="dbg-breite-einpassen" class="btn">Einpassen</button>
+          <button type="button" id="dbg-breite-original" class="btn">1:1</button>
+        </div>
+        <small>−/+ schrittweise (px: 1, %: 1). „Einpassen“ verkleinert, bis das Blatt ganz sichtbar ist.</small>
       </div>
 
       <dl class="debug-tabelle" id="debug-felder"></dl>

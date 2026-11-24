@@ -192,13 +192,12 @@ body {
      damit CSS und JS nie auseinanderlaufen. Der Nutzer-Regler (Debug-Panel)
      schreibt nur diese eine Variable, gespeichert in din_settings. */
   --nacht-basis: 0.5;
-  /* Blatt-Grundskala: das Blatt ist so viel groesser als die CSS-mm.
-     Vom Nutzer am eigenen Monitor bestimmt (2026-11-24): 900 px Breite sind
-     die reale Papiergroesse. 900 px / 794 px (210 mm bei 96 dpi) = 1.1335.
-     Das ist die GROESSE des Blattes, kein Zoom; der Regler im Debug-Panel
-     multipliziert darauf (1 = Grundskala). */
-  --blatt-grundskala: 1.1335;
-  --ansicht-zoom: 1;
+  /* Blattbreite in CSS-Pixeln: die EINE Stellschraube fuer die Blattgroesse.
+     210 mm sind bei 96 dpi 793,7 px — 900 px ist also 113,4 % davon und am
+     Referenzmonitor die reale Papierbreite (gemessen vom Nutzer: 900 px ~ 21 cm).
+     `zoom` rechnet daraus den Faktor; kein zweiter Multiplikator mehr. */
+  --blatt-breite-px: 900;
+  --blatt-mm-px: 793.7;
   --c-viewport-night: oklch(calc(var(--nacht-basis) - 0.08) 0.004 250);
   --c-seitenleiste-night: oklch(calc(var(--nacht-basis) + 0.08) 0.004 250);
   --c-card-night: oklch(calc(var(--nacht-basis) + 0.14) 0.004 250);

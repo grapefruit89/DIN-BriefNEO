@@ -12,11 +12,10 @@
  * Gespeichert wird in `din_settings`:
  *   `nachtHelligkeit`   Grundhelligkeit der Nachtpalette, 0.38–0.68
  *
- * Der Blatt-Zoom wird **nicht** gespeichert: die Blattgröße steht fest in
- * `--blatt-grundskala`, der Regler ist eine Korrektur für die Sitzung. Ein
- * gespeicherter Faktor multiplizierte sich sonst mit der Grundskala und die
- * Größe wäre bei jedem Nutzer eine andere (Befund 2026-11-24: 900 px wurden
- * durch einen alten Wert 1,04 zu 936 px).
+ * Gespeichert wird die **Blattbreite in Pixeln** (`blattBreitePx`) und die
+ * zuletzt benutzte Einheit (`zoomEinheit`). Ein Faktor wäre falsch: er
+ * multipliziert sich mit jeder Änderung der Grundgröße (Befund 2026-11-24:
+ * 900 px wurden durch einen alten Faktor 1,04 zu 936 px).
  */
 
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
@@ -42,10 +41,6 @@ const NACHT_TOKENS = [
 export const NACHT_MIN = 0.38;
 export const NACHT_MAX = 0.68;
 /** Erlaubte Spanne des Zooms (1 = 100 %). */
-export const ZOOM_MIN = 0.9;
-/** Regler-Vorgabe: 1 = die Grundskala des Blattes (1,03 in base.css). */
-export const ZOOM_VORGABE = 1;
-export const ZOOM_MAX = 1.1;
 
 /**
  * @param {number} basis Grundhelligkeit 0.38–0.68
@@ -72,17 +67,47 @@ export function wendeNachtpalette(basis) {
   document.documentElement.style.setProperty('--nacht-basis', String(wert));
 }
 
+/** Erlaubte Blattbreite in CSS-Pixeln. */
+export const BREITE_MIN = 400;
+export const BREITE_MAX = 1200;
+/** 210 mm bei 96 dpi — Bezugspunkt fuer die Prozent-Anzeige. */
+export const MM_PX = 793.7;
+
 /**
- * Skaliert das Blatt. `zoom` skaliert das **Layout** (Boxen, Text, Trefferflächen),
- * `transform: scale()` nur die Pixel — deshalb zoom. Alle Messungen im
- * Mehrseiten-Controller sind Verhältnisse (rect ÷ mm-Probe), skalieren also mit
- * und bleiben korrekt. Im Druck wird der Zoom zurückgesetzt.
- * @param {number} faktor 1 = 100 %
- * @returns {void}
+ * Setzt die Blattbreite. Das CSS rechnet `zoom = breite / 793.7`; hier wird nur
+ * die Breite geschrieben, damit es keinen zweiten Faktor gibt, der sich mit
+ * etwas anderem multipliziert (Befund 2026-11-24: 900 px wurden durch einen
+ * gespeicherten Zoom zu 936 px).
+ * @param {number} px
+ * @returns {number} die angewandte Breite
  */
-export function wendeZoom(faktor) {
-  const wert = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Number(faktor) || ZOOM_VORGABE));
-  document.documentElement.style.setProperty('--ansicht-zoom', String(wert));
+export function wendeBlattBreite(px) {
+  const wert = Math.round(Math.max(BREITE_MIN, Math.min(BREITE_MAX, Number(px) || 900)));
+  document.documentElement.style.setProperty('--blatt-breite-px', String(wert));
+  return wert;
+}
+
+/** Seitenverhaeltnis DIN A4 (297 / 210) — fuer die Hoehenrechnung. */
+const A4_HOEHE_FAKTOR = 297 / 210;
+
+/**
+ * Groesste Blattbreite, die **komplett** in den Viewport passt.
+ *
+ * Das Blatt ist A4, die Hoehe waechst also mit der Breite: bei 900 px Breite
+ * sind es 1272 px Hoehe. Auf einem Full-HD-Monitor (1080 px hoch) passt das
+ * nie — hier wird die Breite so weit reduziert, dass Breite *und* Hoehe
+ * hineinpassen. Nur eine Anzeige-Hilfe, keine Aenderung am Brief.
+ * @param {number} [rand] Abstand zum Rand in px
+ * @returns {number} passende Breite in px
+ */
+export function passendeBreite(rand = 40) {
+  const vp = document.getElementById('viewport');
+  if (!vp) return 900;
+  const platzBreite = vp.clientWidth - rand;
+  const platzHoehe = vp.clientHeight - rand;
+  const nachBreite = platzBreite;
+  const nachHoehe = platzHoehe / A4_HOEHE_FAKTOR;
+  return Math.max(BREITE_MIN, Math.round(Math.min(nachBreite, nachHoehe)));
 }
 
 /**
@@ -92,6 +117,7 @@ export function wendeZoom(faktor) {
  */
 export function wendeGespeicherteAnsicht() {
   const gespeichert = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+  wendeBlattBreite(typeof gespeichert.blattBreitePx === 'number' ? gespeichert.blattBreitePx : 900);
   wendeNachtpalette(
     typeof gespeichert.nachtHelligkeit === 'number' ? gespeichert.nachtHelligkeit : 0.5
   );
@@ -99,12 +125,12 @@ export function wendeGespeicherteAnsicht() {
 
 /**
  * Schreibt einen Anzeige-Wert in `din_settings`, ohne andere Felder zu verlieren.
- * @param {'nachtHelligkeit'} feld
- * @param {number} wert
+ * @param {'nachtHelligkeit' | 'blattBreitePx' | 'zoomEinheit'} feld
+ * @param {number | string} wert
  * @returns {void}
  */
 export function speichereAnsicht(feld, wert) {
   const werte = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-  werte[feld] = wert;
+  /** @type {Record<string, unknown>} */ (werte)[feld] = wert;
   saveJSON(STORAGE_KEYS.settings, werte);
 }

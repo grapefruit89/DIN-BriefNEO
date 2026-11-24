@@ -19,7 +19,7 @@
 
 import { ortsVorschlaege, strassenSuchPfad } from './address.js';
 import { AddressIntelligence } from './address-data.js';
-import { nachtCss, speichereAnsicht, wendeNachtpalette, wendeZoom } from './ansicht.js';
+import { MM_PX, nachtCss, passendeBreite, speichereAnsicht, wendeBlattBreite, wendeNachtpalette } from './ansicht.js';
 import { collectDraft } from './document.js';
 import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
@@ -301,19 +301,21 @@ function verdrahteKnoepfe() {
 }
 
 /** Einmalige Initialisierung: Werte schreiben und sichtbarkeitsabhängig takten. */
-/* ------------------------------------------------- Ansicht: Nacht + Zoom */
+/* ------------------------------------------------- Ansicht: Nacht + Größe */
 
 /**
- * Zwei Regler für die Bildschirm-Anzeige: Nacht-Grundhelligkeit und Blatt-Zoom.
- * Beide schreiben in `din_settings` und überleben damit den Reload; die Logik
- * liegt in `ansicht.js`, damit sie auch ohne offenes Debug-Panel wirkt.
+ * Zwei Debug-Regler: Nacht-Grundhelligkeit und Blattgröße.
+ *
+ * Die Blattgröße läuft über **Pixel**, nicht über Prozent oder einen Faktor:
+ * 210 mm sind bei 96 dpi 793,7 px, also ist 900 px = 113,4 %. Ein gespeicherter
+ * Faktor multiplizierte sich mit jeder Änderung der Grundgröße (Befund
+ * 2026-11-24: 900 px wurden durch einen alten Faktor zu 936 px). Prozent ist
+ * nur eine Anzeige- und Schrittweite.
  */
 function initAnsichtRegler() {
   const nacht = /** @type {HTMLInputElement | null} */ (document.getElementById('dbg-nacht'));
   const nachtWert = document.getElementById('dbg-nacht-wert');
   const nachtStatus = document.getElementById('dbg-nacht-status');
-  const zoom = /** @type {HTMLInputElement | null} */ (document.getElementById('dbg-zoom'));
-  const zoomWert = document.getElementById('dbg-zoom-wert');
 
   let timerNacht = 0;
   if (nacht && nachtWert) {
@@ -336,22 +338,67 @@ function initAnsichtRegler() {
     anwenden();
   }
 
-  if (zoom && zoomWert) {
-    const anwenden = () => {
-      const faktor = Number(zoom.value) / 100;
-      wendeZoom(faktor);
-      const blatt = document.querySelector('din-blatt');
-      const px = blatt ? Math.round(blatt.getBoundingClientRect().width) : 0;
-      zoomWert.textContent = `${Math.round(faktor * 100)} % · ${px} px`;
-    };
-    zoom.addEventListener('input', anwenden);
-    zoom.value = '100';
-    anwenden();
-  }
+  const minus = document.getElementById('dbg-breite-minus');
+  const plus = document.getElementById('dbg-breite-plus');
+  const knopfPx = document.getElementById('dbg-einheit-px');
+  const knopfProzent = document.getElementById('dbg-einheit-prozent');
+  const wert = document.getElementById('dbg-breite-wert');
+  if (!minus || !plus || !wert) return;
 
+  const gelesen = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+  let breite = typeof gelesen.blattBreitePx === 'number' ? gelesen.blattBreitePx : 900;
+  /** @type {'px' | 'prozent'} */
+  let einheit = gelesen.zoomEinheit === 'prozent' ? 'prozent' : 'px';
+
+  const zeige = () => {
+    const px = wendeBlattBreite(breite);
+    breite = px;
+    speichereAnsicht('blattBreitePx', px);
+    wert.textContent =
+      einheit === 'px'
+        ? `${px} px`
+        : `${(Math.round((px / MM_PX) * 1000) / 10).toFixed(1).replace('.', ',')} %`;
+    if (knopfPx) knopfPx.setAttribute('aria-pressed', String(einheit === 'px'));
+    if (knopfProzent) knopfProzent.setAttribute('aria-pressed', String(einheit === 'prozent'));
+  };
+
+  /* Schritt: in px genau 1 px, in Prozent 1 % von 793,7 = 7,937 px. */
+  const schritt = () => (einheit === 'px' ? 1 : Math.round(MM_PX / 100));
+  minus.addEventListener('click', () => {
+    breite -= schritt();
+    zeige();
+  });
+  plus.addEventListener('click', () => {
+    breite += schritt();
+    zeige();
+  });
+  knopfPx?.addEventListener('click', () => {
+    einheit = 'px';
+    speichereAnsicht('zoomEinheit', 'px');
+    zeige();
+  });
+  knopfProzent?.addEventListener('click', () => {
+    einheit = 'prozent';
+    speichereAnsicht('zoomEinheit', 'prozent');
+    zeige();
+  });
+  /* Einpassen: Breite so weit reduzieren, dass Breite UND Hoehe hineinpassen.
+     "1:1" stellt die gemerkte Wunschbreite wieder her (Standard 900 px). */
+  let wunsch = breite;
+  document.getElementById('dbg-breite-einpassen')?.addEventListener('click', () => {
+    wunsch = breite;
+    /* Nie vergroessern: „Einpassen“ heisst sichtbar machen, nicht ausfuellen. */
+    breite = Math.min(wunsch, passendeBreite());
+    zeige();
+  });
+  document.getElementById('dbg-breite-original')?.addEventListener('click', () => {
+    breite = wunsch || 900;
+    zeige();
+  });
+  zeige();
 }
 
-/* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init */export function initDebugPanel() {
+/* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init *//* ------------------------------------------------------------------- Init */export function initDebugPanel() {
   initAnsichtRegler();
   if (timer) return;
   verdrahteKnoepfe();

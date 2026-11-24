@@ -5751,3 +5751,39 @@ Die Anwendung liefert also nur Inter und Liberation Sans aus, beide SIL OFL 1.1.
 
 Die Dateien bleiben lokal in `<repo>/fonts/` (gitignoriert) und erreichen die
 veröffentlichte Seite nie.
+
+---
+
+## 2026-11-24 — Seitenleiste: genau zwei Schriftgrößen
+
+**Nutzer:** „die ganzen Überschriften haben ja 10 verschiedene Schriftgrößen
+gefühlt das nervt und sieht unsauber aus! bitte pro Hauptpunkt eine feste
+Größe!"
+
+Gemessen (`getComputedStyle`, Bildschirm, 1280 px):
+
+| Element | vorher | jetzt |
+|---|---|---|
+| `.seitenleiste-label` (h3, legend, label) | 12 px / 600 | 12 px / 600 |
+| `.seitenleiste-sub-label` | 11,2 px / 500 | 11,2 px / 500 |
+| `.input-status-hint` | **11,52 px** / 600 | 11,2 px / 600 |
+| `.workbench-status` | **13,6 px** / 700 | 12 px / 600 |
+| `.workbench-title` | **13,6 px** / 700 | 12 px / 600 |
+| `.save-status` | 12 px / 500 | 12 px / 600 |
+| `.debug-kopf strong` | **11,2 px** | 12 px / 600 |
+| `.debug-block-kopf strong` | **11,2 px** | 11,2 px / 500 |
+
+Die Ausreißer waren Einzelwerte aus verschiedenen Bauphasen: `0.85rem` für
+Arbeitsbank-Titel (größer als die Abschnittsüberschrift!), `0.72rem` für
+Hinweise, `0.7rem` für Debug-Titel.
+
+Neu in `base.css`:
+
+```css
+--seitenleiste-titel: 0.75rem;      /* 12 px  */
+--seitenleiste-untertitel: 0.7rem;  /* 11,2 px */
+```
+
+Alles Überschriftliche nimmt `--seitenleiste-titel`, alles Untergeordnete
+`--seitenleiste-untertitel`. Nachgemessen nach dem Umbau: **nur noch 12 px
+(14 Elemente) und 11,2 px (5 Elemente)** — zwei Größen statt fünf.

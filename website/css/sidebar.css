@@ -125,7 +125,7 @@ fieldset.seitenleiste-field-group > legend {
 }
 
 .seitenleiste-label {
-  font-size: 0.75rem;
+  font-size: var(--seitenleiste-titel);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -448,7 +448,7 @@ fieldset.seitenleiste-field-group > legend {
 }
 
 .seitenleiste-sub-label {
-  font-size: 0.7rem;
+  font-size: var(--seitenleiste-untertitel);
   color: var(--text-muted);
   font-weight: 500;
   display: block;
@@ -555,7 +555,7 @@ fieldset.seitenleiste-field-group > legend {
 
 .input-status-hint {
   display: block;
-  font-size: 0.72rem;
+  font-size: var(--seitenleiste-untertitel);
   font-weight: 600;
   min-height: 1.2em;
   margin-top: var(--space-2xs);
@@ -860,7 +860,7 @@ input[type="checkbox"][switch] {
   justify-content: center;
 }
 .save-status {
-  font-size: 0.75rem;
+  font-size: var(--seitenleiste-titel);
   font-weight: 500;
   padding: var(--space-2xs) var(--space-md);
   border-radius: var(--radius-full);
@@ -1470,12 +1470,13 @@ aside select {
   margin-bottom: var(--space-xs);
 }
 .workbench-title {
-  font-size: 0.85rem;
+  font-size: var(--seitenleiste-titel);
+  font-weight: 600;
   color: var(--accent-color);
 }
 .workbench-status {
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-weight: 600;
+  font-size: var(--seitenleiste-titel);
   font-variant-numeric: tabular-nums;
 }
 .workbench-actions {
@@ -1542,7 +1543,7 @@ aside select {
   margin-bottom: var(--space-xs);
 }
 
-.debug-kopf strong { flex: 1; font-size: 0.7rem; }
+.debug-kopf strong { flex: 1; font-size: var(--seitenleiste-titel); }
 
 .debug-schliessen {
   width: 1.4rem;
@@ -1584,7 +1585,7 @@ aside select {
   margin-bottom: var(--space-2xs);
 }
 
-.debug-block-kopf strong { flex: 1; font-size: 0.7rem; }
+.debug-block-kopf strong { flex: 1; font-size: var(--seitenleiste-untertitel); }
 
 .debug-block-kopf .btn {
   padding: 0 var(--space-2xs);

@@ -226,8 +226,6 @@
           <div class="seitenleiste-setup-content">
             <div class="seitenleiste-field-group">
               <label for="select-schriftart" class="seitenleiste-label">Schriftart / Stil</label>
-              <input type="search" id="schrift-filter" class="input-field w-full" placeholder="Schrift suchen …"
-                     aria-label="Systemschriften filtern" autocomplete="off" spellcheck="false" hidden>
               <select id="select-schriftart" class="seitenleiste-select w-full" aria-label="Schriftart für DIN-Brief wählen">
                 <optgroup label="System-Standard">
                   <option value="default" selected>Liberation Sans (18pt DIN-Subset)</option>
@@ -240,13 +238,6 @@
                 🔤 Eigene Schriftart laden
               </button>
               <input type="file" id="font-uploader" accept=".woff2,.ttf,.otf" class="hidden" aria-label="Schriftart-Datei auswählen">
-              <!-- Local Font Access API (Chrome 103+): zeigt die auf dem Rechner
-                   installierten Familien in derselben Auswahlliste. Wird erst
-                   eingeblendet, wenn der Browser die API kennt — ohne sie gibt
-                   es nichts anzubieten. Berechtigung fragt der Browser. -->
-              <button type="button" id="btn-systemschriften" class="btn w-full" hidden>
-                🖥️ Systemschriften anzeigen
-              </button>
             </div>
 
             <div class="seitenleiste-field-group">

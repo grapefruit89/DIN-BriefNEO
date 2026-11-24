@@ -179,13 +179,13 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
   - Visualisierung der `navigator.storage.estimate()` Speichernutzung.
   - Reine synchrone Settings-Verwaltung ohne Blob- oder Font-Abhängigkeiten.
 
-#### [`font-feature.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/font-feature.js) (283 Zeilen)
+#### [`font-feature.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/font-feature.js) (449 Zeilen)
 * **Zweck:** Preset-Auswahl, Custom-Font-Upload (WOFF2/TTF/OTF), CSS Font Loading API Injection und Persistenz.
 * **Exports:** `FontFeature`, `FONT_PRESETS`.
 * **Details:**
-  - 4 Presets: `default`, `inter`, `aptos`, `michelangelus`.
+  - Presets: `default`, `inter` (sowie optionale Dev-Schriften aus `fonts/`).
   - Native CSS Font Loading API: `FontFace`, `document.fonts.add()`, sauberes Entladen via `document.fonts.delete()`.
-  - 2-Zustände-Button mit View Transitions und 400-KB-Validierung.
+  - 2-Zustände-Button mit 400-KB-Validierung.
   - Speichert Custom-Font-Blob in IndexedDB (`binary-storage.js`).
 
 #### [`signature.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/signature.js) (310 Zeilen)

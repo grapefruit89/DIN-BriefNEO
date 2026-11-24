@@ -73,9 +73,9 @@ Der Brief braucht keine Systemschrift, um richtig auszusehen — er bringt seine
 
 `fonts/` ist komplett gitignoriert. Der Dev-Server listet es unter `/__fonts` aus, die App baut daraus die Gruppe „Nur lokal" und lädt per `FontFace`-API. Auf GitHub Pages gibt es weder Liste noch Dateien.
 
-### Systemschriften (gemessen gefiltert)
+### Eigene Schriftarten (lokal in IndexedDB)
 
-`queryLocalFonts()` liefert nur Namen — Brauchbarkeit wird deshalb gemessen: Emoji/Symbol (Namensmuster), Monospace (`iiii` == `MMMM`), lateinische Glyphen, Textproportionen (H/x, W/i, Unterlänge), normaler Schnitt, Schriftsystem-Dichte (cmap), DACH-Kernzeichen (cmap), Formelsatz (cmap), Schmalschnitt, TeX-Sippe. Auf dem Referenzrechner bleiben so **18 von 166 Familien** übrig.
+Eigene Schriftdateien (`.woff2`, `.ttf`, `.otf`) können über „Eigene Schriftart laden" eingebunden werden. Sie werden lokal in IndexedDB (`briefneo-assets`) gespeichert, bleiben dauerhaft erhalten und werden per `font-size-adjust: 0.535` auf das DIN-5008-Raster skaliert.
 
 ---
 

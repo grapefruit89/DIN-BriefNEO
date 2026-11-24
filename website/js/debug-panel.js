@@ -350,10 +350,14 @@ function initAnsichtRegler() {
   /** @type {'px' | 'prozent'} */
   let einheit = gelesen.zoomEinheit === 'prozent' ? 'prozent' : 'px';
 
+  const zuruecksetzen = /** @type {HTMLButtonElement | null} */ (document.getElementById('dbg-breite-original'));
+
   const zeige = () => {
     const px = wendeBlattBreite(breite);
     breite = px;
     speichereAnsicht('blattBreitePx', px);
+    /* Der Zuruecksetzen-Knopf erscheint nur, wenn der Standard verstellt ist. */
+    if (zuruecksetzen) zuruecksetzen.hidden = px === BREITE_ORIGINAL;
     wert.textContent =
       einheit === 'px'
         ? `${px} px`
@@ -429,7 +433,7 @@ function initAnsichtRegler() {
     breite = passend;
     wert.textContent = einheit === 'px' ? `${passend} px` : `${Math.round((passend / BREITE_ORIGINAL) * 100)} %`;
   });
-  document.getElementById('dbg-breite-original')?.addEventListener('click', () => {
+  zuruecksetzen?.addEventListener('click', () => {
     breite = BREITE_ORIGINAL;
     zeige();
   });

@@ -195,23 +195,20 @@ body {
   /* Blattbreite in CSS-Pixeln: die EINE Stellschraube fuer die Blattgroesse.
      `zoom` rechnet daraus den Faktor (breite / 793.7) — kein zweiter Faktor.
 
-     WARUM 900?
-     Der Nutzer hat am Referenzmonitor nachgemessen: 900 px Breite sind 21 cm
-     Papier. Daraus folgt die Pixel-Dichte dieses Bildschirms:
+     WARUM 900 px? Rechnung Pixel -> Zoll -> Zentimeter:
 
-        900 px / 21 cm        = 42,86 px/cm
-        42,86 px/cm * 2,54    = 108,9 px/Zoll
-        sqrt(2560² + 1440²) / 27" = 108,8 ppi      (27-Zoll-2560x1440-Panel)
+       Monitordichte        sqrt(2560² + 1440²) / 27 Zoll  = 108,8 ppi
+       900 px / 108,8 ppi                                 =   8,27 Zoll
+       8,27 Zoll * 2,54                                   =  21,0 cm
 
-     CSS rechnet dagegen fest mit 96 px/Zoll: 21 cm waeren dort 8,268 Zoll
-     * 96 = 793,7 px. Auf einem 109-ppi-Monitor ist das Papier deshalb nur
-     793,7 / 900 = 88 % der realen Groesse — genau der Effekt, den man als
-     "Blatt wirkt zu klein" sieht.
+     Gegenprobe mit dem CSS-Mass (feste 96 px/Zoll):
+       793,7 px / 108,8 ppi = 7,29 Zoll = 18,5 cm
+     Ein Blatt in CSS-Massen wirkt auf einem 109-ppi-Monitor deshalb 12 % zu
+     klein; 900 / 793,7 = 1,134 gleicht genau diese Dichte-Differenz aus.
 
-     Anderer Monitor = andere Dichte = anderer Wert. Deshalb der Regler im
-     Debug-Panel (px/%/Einpassen) statt einer Zahl, die fuer alle gilt.
-     Formel fuer eigene Monitore:
-        Breite_px = 21 cm * (Bildschirmbreite_px / Bildschirmbreite_cm) */
+     Anderer Monitor = andere Dichte. Formel:
+       Breite_px = (21 cm / 2,54) * ppi        mit ppi = Diagonale_px / Diagonale_Zoll
+     Deshalb der Regler im Debug-Panel statt einer Zahl fuer alle. */
   --blatt-breite-px: 900;
   --blatt-mm-px: 793.7;
   --c-viewport-night: oklch(calc(var(--nacht-basis) - 0.08) 0.004 250);

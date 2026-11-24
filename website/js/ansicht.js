@@ -72,11 +72,13 @@ export const BREITE_MIN = 400;
 /**
  * Blattbreite in CSS-Pixeln, die am Referenzmonitor 1:1 ist.
  *
- * Herleitung (Nutzer-Messung 2026-11-24): 900 px sind 21 cm Papier, also
- * 42,86 px/cm = 108,9 px/Zoll — das ist ein 27"-2560x1440-Panel (108,8 ppi).
- * CSS nimmt fest 96 px/Zoll an, dort waeren 21 cm nur 793,7 px; auf einem
- * 109-ppi-Schirm wirkt das Blatt deshalb 12 % zu klein.
- * Anderer Monitor = anderer Wert; siehe Debug-Panel.
+ * Herleitung Pixel -> Zoll -> Zentimeter:
+ *   108,8 ppi = sqrt(2560² + 1440²) / 27 Zoll   (Referenzmonitor)
+ *   900 px / 108,8 ppi = 8,27 Zoll
+ *   8,27 Zoll * 2,54   = 21,0 cm Papier
+ * CSS nimmt fest 96 px/Zoll an; 21 cm waeren dort 793,7 px. Auf 109 ppi wirkt
+ * das Blatt deshalb 12 % zu klein — 900 / 793,7 = 1,134 gleicht das aus.
+ * Anderer Monitor = andere Dichte, siehe Debug-Panel.
  */
 export const BREITE_ORIGINAL = 900;
 export const BREITE_MAX = 1200;

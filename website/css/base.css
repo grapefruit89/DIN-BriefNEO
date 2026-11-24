@@ -193,10 +193,11 @@ body {
      schreibt nur diese eine Variable, gespeichert in din_settings. */
   --nacht-basis: 0.5;
   /* Blatt-Grundskala: das Blatt ist so viel groesser als die CSS-mm.
-     1.061 = 1.03 x 1.03 — am Referenzmonitor ist das 1:1 (gemessen 2026-11-24:
-     794 px x 1.061 = 842 px). Das ist die GROESSE des Blattes, kein Zoom;
-     der Regler im Debug-Panel multipliziert darauf (1 = Grundskala). */
-  --blatt-grundskala: 1.061;
+     Am Referenzmonitor gemessen (2026-11-24): 842 px waren 97 % der realen
+     Papierbreite, also ist 100 % = 842 / 0.97 = 868 px.
+     868 px / 794 px (210 mm bei 96 dpi) = 1.0932. Das ist die GROESSE des
+     Blattes, kein Zoom; der Regler im Debug-Panel multipliziert darauf. */
+  --blatt-grundskala: 1.0932;
   --ansicht-zoom: 1;
   --c-viewport-night: oklch(calc(var(--nacht-basis) - 0.08) 0.004 250);
   --c-seitenleiste-night: oklch(calc(var(--nacht-basis) + 0.08) 0.004 250);

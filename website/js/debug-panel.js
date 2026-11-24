@@ -341,7 +341,9 @@ function initAnsichtRegler() {
       const faktor = Number(zoom.value) / 100;
       wendeZoom(faktor);
       speichereAnsicht('ansichtZoom', faktor);
-      zoomWert.textContent = `${Math.round(faktor * 100)} %`;
+      const blatt = document.querySelector('din-blatt');
+      const px = blatt ? Math.round(blatt.getBoundingClientRect().width) : 0;
+      zoomWert.textContent = `${Math.round(faktor * 100)} % · ${px} px`;
     };
     zoom.addEventListener('input', anwenden);
     zoom.value = String(Math.round((loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS).ansichtZoom ?? 1) * 100));

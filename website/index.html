@@ -487,6 +487,24 @@
                aria-label="Grundhelligkeit der Nachtpalette">
         <small id="dbg-nacht-status">Regler bewegen — Wert wird gespeichert und kopiert.</small>
       </div>
+      <div class="debug-block debug-zoom">
+        <div class="debug-block-kopf">
+          <strong>Blattgröße</strong>
+        </div>
+        <div class="debug-zoom-zeile">
+          <button type="button" id="dbg-breite-minus" class="btn" aria-label="Blatt kleiner">−</button>
+          <button type="button" id="dbg-einheit-px" class="btn" aria-pressed="true">px</button>
+          <button type="button" id="dbg-einheit-prozent" class="btn" aria-pressed="false">%</button>
+          <button type="button" id="dbg-breite-plus" class="btn" aria-label="Blatt größer">+</button>
+        </div>
+        <output id="dbg-breite-wert">900 px</output>
+        <div class="debug-zoom-zeile">
+          <button type="button" id="dbg-breite-einpassen" class="btn">Einpassen</button>
+          <button type="button" id="dbg-breite-original" class="btn">100 %</button>
+        </div>
+        <small>−/+ gedrückt halten läuft weiter. „Einpassen“ verkleinert, „100 %“ setzt 900 px.</small>
+      </div>
+
       <dl class="debug-tabelle">
         <dt>PLZ im Bestand</dt><dd id="dbg-plz">–</dd>
         <dt>Ortsnamen</dt><dd id="dbg-orte">–</dd>

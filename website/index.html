@@ -324,6 +324,8 @@
                 <button type="button" class="agenten-info" popovertarget="agenten-info"
                         aria-label="Was ist der Web-MCP-Server?">info</button>
               </div>
+              <button type="button" id="btn-agent-konfig" class="btn w-full agenten-kopieren"
+                      title="MCP-Konfiguration für den Coding-Agenten kopieren">📋 Config kopieren</button>
             </div>
 
             <!-- Overlay: natives Popover (Top-Layer, Escape/Klick daneben schliesst) -->
@@ -342,6 +344,12 @@
                 <dt>Ohne Agent</dt>
                 <dd>Passiert nichts. Die Werkzeuge sind ein Angebot an den Browser-Agenten,
                     den du installiert hast.</dd>
+                <dt>Coding-Agent</dt>
+                <dd>Ein Agent im Terminal sieht die Seite nicht. „📋 Config“ kopiert den
+                    Eintrag für opencode (<code>mcp.servers</code>); der Server
+                    <code>tools/mcp-dinbrief.mjs</code> holt den Tab über DevTools.
+                    Claude Code nimmt dasselbe Kommando per
+                    <code>claude mcp add</code>.</dd>
               </dl>
               <p class="agenten-stand" id="agenten-info-status">wird geprüft …</p>
             </div>

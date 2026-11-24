@@ -104,6 +104,12 @@ aside.seitenleiste,
   gap: var(--space-sm);
 }
 
+/* „info" sitzt rechts neben dem Titel; der Kopierknopf steht darunter ueber
+   die volle Breite — in einer Zeile wuerde der Titel umbrechen. */
+.agenten-kopieren {
+  margin-block-start: var(--space-sm);
+}
+
 /* „info" als Link erkennbar, aber ein <button>: nur der darf popovertarget. */
 .agenten-info {
   padding: 0;

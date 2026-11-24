@@ -367,8 +367,38 @@ export class SettingsManager {
  * 2. AGENTEN-HILFE (WebMCP / MCP)
  * ========================================================================================= */
 
+/** Das Repo, aus dem der MCP-Server kommt — so braucht niemand einen lokalen Pfad. */
+const MCP_PAKET = 'github:grapefruit89/DIN-BriefNEO#main';
+
+/**
+ * Die Konfiguration, die ein Coding-Agent erwartet.
+ *
+ * Form belegt am 2026-11-24: `opencode mcp add briefneo -- npx -y <paket>`
+ * (opencode 2.4.1) schreibt genau dieses Objekt `mcp.servers.<name>` mit
+ * `type: "local"` und `command` als Feld. Andere Clients (Claude Desktop,
+ * Cursor) nehmen `mcpServers` mit `command`/`args` — derselbe Server.
+ * @returns {string}
+ */
+function agentenKonfiguration() {
+  return JSON.stringify(
+    {
+      mcp: {
+        servers: {
+          briefneo: {
+            type: 'local',
+            command: ['npx', '-y', MCP_PAKET]
+          }
+        }
+      }
+    },
+    null,
+    2
+  );
+}
+
 export function initAgentenHilfe() {
   const status = document.getElementById('agenten-info-status');
+  const knopf = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-agent-konfig'));
   if (!status) return;
   const agent = /** @type {any} */ (window).dinBriefAgent;
   const anzahl = typeof agent?.werkzeuge === 'function' ? agent.werkzeuge().length : 0;
@@ -377,5 +407,23 @@ export function initAgentenHilfe() {
     `${anzahl} Werkzeuge`,
     webmcp ? 'WebMCP aktiv' : 'kein WebMCP in diesem Browser'
   ].join(' · ');
+
+  /* Knopf: Config kopieren, kurz quittieren. Eine Seite kann keinen Prozess
+     starten — sie kann nur sagen, was in die Agenten-Config gehoert. */
+  if (!knopf) return;
+  const beschriftung = knopf.textContent;
+  knopf.addEventListener('click', async () => {
+    let kopiert = false;
+    try {
+      await navigator.clipboard.writeText(agentenKonfiguration());
+      kopiert = true;
+    } catch {
+      kopiert = false;
+    }
+    knopf.textContent = kopiert ? '✓ Kopiert' : '✗ gesperrt';
+    setTimeout(() => {
+      knopf.textContent = beschriftung;
+    }, 1500);
+  });
 }
 

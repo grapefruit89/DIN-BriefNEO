@@ -187,22 +187,28 @@ body {
   --c-tinte-day: oklch(0% 0 0);
   --c-schwach-day: oklch(50% 0 0);
 
-  /* --- NACHTMODUS (NO-FLIP: dunkle Schrift auf gedimmten Flaechen, KEINE Invertierung) ---
-   Anthrazit statt Graublau (Chroma 0.004 statt 0.01-0.02) und der Schreibtisch liegt
-   JETZT 0.14 unter der Leiste, damit das weisse Papier Tiefe bekommt. Papier bleibt
-   hell, Schrift bleibt dunkel — Dimmen, keine Invertierung. */
-  --c-viewport-night: oklch(0.42 0.004 250);       /* Dunklerer Schreibtisch (gibt dem Blatt Tiefe) */
-  --c-seitenleiste-night: oklch(0.58 0.004 250);   /* Mattes, ruhiges Werkzeug-Grau */
-  --c-card-night: oklch(0.64 0.004 250);           /* Input-Karten heben sich dezent ab */
-  --c-border-night: oklch(0.44 0.005 250);         /* Saubere Konturlinien */
-  --c-text-night: oklch(0.085 0.006 250);           /* 🚨 KEIN FLIP! Sattes Anthrazit-Dunkel */
-  --c-muted-night: oklch(0.30 0.006 250);          /* Gedämpftere Beschriftungen */
-  --c-accent-night: oklch(0.33 0.12 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
+  /* --- NACHTMODUS (NO-FLIP: dunkle Schrift auf gedimmten Flaechen) ---
+     EINE Stellschraube: --nacht-basis. Alle Tokens leiten sich per calc() ab,
+     damit CSS und JS nie auseinanderlaufen. Der Nutzer-Regler (Debug-Panel)
+     schreibt nur diese eine Variable, gespeichert in din_settings. */
+  --nacht-basis: 0.5;
+  /* Blatt-Grundskala: 1.03 = das Blatt ist 3 % groesser als die CSS-mm
+     (am Referenzmonitor 1:1). Das ist die GROESSE des Blattes, kein Zoom.
+     Der Regler im Debug-Panel multipliziert darauf: 1 = Grundskala. */
+  --blatt-grundskala: 1.03;
+  --ansicht-zoom: 1;
+  --c-viewport-night: oklch(calc(var(--nacht-basis) - 0.08) 0.004 250);
+  --c-seitenleiste-night: oklch(calc(var(--nacht-basis) + 0.08) 0.004 250);
+  --c-card-night: oklch(calc(var(--nacht-basis) + 0.14) 0.004 250);
+  --c-border-night: oklch(calc(var(--nacht-basis) - 0.06) 0.005 250);
+  --c-text-night: oklch(0.085 0.006 250);
+  --c-muted-night: oklch(0.31 0.02 250);
+  --c-accent-night: oklch(0.33 0.12 260);
   --c-danger-night: oklch(0.33 0.18 25);
-  --c-segment-night: oklch(0.53 0.004 250);       /* Schalter-Vertiefungen */
-  --c-blatt-night: oklch(0.76 0.004 250);         /* Gedimmtes Papier (blendfrei, wie Papier unter Abendlampe) */
-  --c-tinte-night: oklch(0.09 0.004 250);          /* Dunkle Tinte auf Papier */
-  --c-schwach-night: oklch(0.36 0.004 250);        /* Hilfslinien und Platzhalter */
+  --c-segment-night: oklch(calc(var(--nacht-basis) + 0.03) 0.004 250);
+  --c-blatt-night: oklch(calc(var(--nacht-basis) + 0.26) 0.004 250);
+  --c-tinte-night: oklch(0.09 0.004 250);
+  --c-schwach-night: oklch(0.36 0.004 250);
 
   /* --- DYNAMISCHE TOKEN-AUFLÖSUNG (light-dark) --- */
   --bg-viewport: light-dark(var(--c-viewport-day), var(--c-viewport-night));

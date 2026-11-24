@@ -10,7 +10,7 @@
  * Einstellung den Reload überlebt, auch ohne offenes Debug-Panel.
  *
  * Gespeichert wird in `din_settings`:
- *   `ansichtZoom`       1.03 = 103 % (Vorgabe), erlaubt 0.9–1.1 (±10 %)
+ *   `ansichtZoom`       1 = Grundskala (1,03 = Blattgröße), erlaubt 0.9–1.1 (±10 %)
  *   `nachtHelligkeit`   Grundhelligkeit der Nachtpalette, 0.38–0.68
  */
 
@@ -38,8 +38,8 @@ export const NACHT_MIN = 0.38;
 export const NACHT_MAX = 0.68;
 /** Erlaubte Spanne des Zooms (1 = 100 %). */
 export const ZOOM_MIN = 0.9;
-/** 103 %: am Referenzmonitor ist das Blatt damit 1:1 (CSS-mm sind 96 dpi). */
-export const ZOOM_VORGABE = 1.03;
+/** Regler-Vorgabe: 1 = die Grundskala des Blattes (1,03 in base.css). */
+export const ZOOM_VORGABE = 1;
 export const ZOOM_MAX = 1.1;
 
 /**
@@ -62,10 +62,9 @@ export function nachtCss(basis) {
  */
 export function wendeNachtpalette(basis) {
   const wert = Math.max(NACHT_MIN, Math.min(NACHT_MAX, Number(basis) || 0.5));
-  for (const [name, abstand, chroma, hue] of NACHT_TOKENS) {
-    const l = Math.max(0, Math.min(1, wert + abstand)).toFixed(3);
-    document.documentElement.style.setProperty(name, `oklch(${l} ${chroma} ${hue})`);
-  }
+  /* Nur die Basis: die Tokens leiten sich in CSS per calc() ab. So kann der
+     erste Paint (boot.js) denselben Weg nehmen wie der Regler. */
+  document.documentElement.style.setProperty('--nacht-basis', String(wert));
 }
 
 /**
@@ -88,7 +87,7 @@ export function wendeZoom(faktor) {
  */
 export function wendeGespeicherteAnsicht() {
   const gespeichert = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-  wendeZoom(typeof gespeichert.ansichtZoom === 'number' ? gespeichert.ansichtZoom : 1.03);
+  wendeZoom(typeof gespeichert.ansichtZoom === 'number' ? gespeichert.ansichtZoom : 1);
   wendeNachtpalette(
     typeof gespeichert.nachtHelligkeit === 'number' ? gespeichert.nachtHelligkeit : 0.5
   );

@@ -344,7 +344,7 @@ function initAnsichtRegler() {
       zoomWert.textContent = `${Math.round(faktor * 100)} %`;
     };
     zoom.addEventListener('input', anwenden);
-    zoom.value = String(Math.round((loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS).ansichtZoom ?? 1.03) * 100));
+    zoom.value = String(Math.round((loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS).ansichtZoom ?? 1) * 100));
     anwenden();
   }
 

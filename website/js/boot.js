@@ -34,7 +34,9 @@ try {
     marks: true,
     pluginTestbrief: true,
     pluginGeschaeftsangaben: false,
-    randU: 20
+    randU: 20,
+    ansichtZoom: 1,
+    nachtHelligkeit: 0.5
   };
 
   let parsed = {};
@@ -70,6 +72,15 @@ try {
    * es gibt keinen Stylesheet-Tausch mehr. `sheet.css` bleibt ungenutzt
    * liegen (nichts geloescht). */
   root.setAttribute('data-plugin-multipage', 'true');
+
+  /* Anzeige-Werte gehoeren in den Boot: `zoom` und die Nachtpalette kommen aus
+   * zwei CSS-Variablen. Setzt sie erst `settings.js`, springt der erste Paint
+   * (FOUC, gemeldet 2026-11-24). Hier steht der gespeicherte Wert, bevor das
+   * Blatt zum ersten Mal gezeichnet wird. */
+  const zoom = Number(settings.ansichtZoom);
+  root.style.setProperty('--ansicht-zoom', String(Number.isFinite(zoom) && zoom >= 0.9 && zoom <= 1.1 ? zoom : 1));
+  const nacht = Number(settings.nachtHelligkeit);
+  root.style.setProperty('--nacht-basis', String(Number.isFinite(nacht) && nacht >= 0.38 && nacht <= 0.68 ? nacht : 0.5));
 
   /* Anlagen und Fusszeile als Root-Attribute (ADR-KISS-MINIMAL-JS).
    * Vor dem ersten Paint gesetzt, damit das Blatt 100% FOUC-frei bleibt. */

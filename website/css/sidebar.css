@@ -447,10 +447,11 @@ fieldset.seitenleiste-field-group > legend {
   gap: var(--space-md);
 }
 
-.seitenleiste-sub-label {
+/* Hinweistext unter einem Feld — kein Label, deshalb kein Label-Stil. */
+.seitenleiste-hinweis {
   font-size: var(--seitenleiste-untertitel);
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 400;
   display: block;
   margin-bottom: var(--space-xs);
 }
@@ -521,7 +522,7 @@ fieldset.seitenleiste-field-group > legend {
   margin: 0 0 var(--space-xs);
 }
 
-.key-zeile .seitenleiste-sub-label {
+.key-zeile .seitenleiste-hinweis {
   display: inline;
   margin-bottom: 0;
 }

@@ -225,7 +225,7 @@
         <section id="zone-setup" class="seitenleiste-zone seitenleiste-setup" aria-label="Einstellungen">
           <div class="seitenleiste-setup-content">
             <div class="seitenleiste-field-group">
-              <label for="select-schriftart" class="seitenleiste-sub-label">Schriftart / Stil:</label>
+              <label for="select-schriftart" class="seitenleiste-label">Schriftart / Stil</label>
               <input type="search" id="schrift-filter" class="input-field w-full" placeholder="Schrift suchen …"
                      aria-label="Systemschriften filtern" autocomplete="off" spellcheck="false" hidden>
               <select id="select-schriftart" class="seitenleiste-select w-full" aria-label="Schriftart für DIN-Brief wählen">
@@ -254,11 +254,11 @@
                 <label for="btn-rand-u-30" class="seitenleiste-label">Unterrand 30 mm</label>
                 <input type="checkbox" switch id="btn-rand-u-30" aria-describedby="unterrand-hinweis">
               </div>
-              <p class="seitenleiste-sub-label" id="unterrand-hinweis">Aus = 20 mm (DIN-5008-Standard). An = 30 mm, mehr Abstand zum Fußblock (nicht normgerecht, aber zulässig).</p>
+              <p class="seitenleiste-hinweis" id="unterrand-hinweis">Aus = 20 mm (DIN-5008-Standard). An = 30 mm, mehr Abstand zum Fußblock (nicht normgerecht, aber zulässig).</p>
             </div>
 
             <div class="seitenleiste-field-group">
-              <span class="seitenleiste-sub-label">Unterschrift / Stempel:</span>
+              <span class="seitenleiste-label">Unterschrift / Stempel</span>
               <button type="button" id="btn-unterschrift-aktion" class="btn w-full" data-state="empty">
                 ✒️ Unterschrift / Stempel laden
               </button>
@@ -267,7 +267,7 @@
 
             <div class="seitenleiste-field-group">
               <p class="key-zeile">
-                <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
+                <label for="input-geoapify-key" class="seitenleiste-label">Geoapify API-Key</label>
                 <a
                   class="key-hint-link"
                   href="https://myprojects.geoapify.com/projects"

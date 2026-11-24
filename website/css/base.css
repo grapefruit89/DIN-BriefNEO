@@ -317,6 +317,15 @@ body {
   /* --- 3. SPACING & RADII RASTER (2px-Basis: 0.125rem) --- */
   --grid-unit: 0.125rem;  /* 2px Basis-Raster: alle Abstände und Radien sind Vielfache */
 
+  /* --- SEITENLEISTE: genau ZWEI Schriftgroessen ---------------------------
+     Vorher liefen hier 12 / 11,2 / 11,52 / 13,6 px nebeneinander, teils war
+     eine Statuszeile groesser als die Ueberschrift (gemessen 2026-11-24).
+     Alles Ueberschriftliche nimmt --seitenleiste-titel, alles Untergeordnete
+     --seitenleiste-untertitel. Wer eine dritte Groesse braucht: erst pruefen,
+     ob es wirklich eine dritte Ebene ist. */
+  --seitenleiste-titel: 0.75rem;      /* 12 px  – h3, legend, Status, Speicherhinweis */
+  --seitenleiste-untertitel: 0.7rem;  /* 11,2 px – Feldunterschrift, Hinweise */  /* 2px Basis-Raster: alle Abstände und Radien sind Vielfache */
+
   --space-2xs: calc(1 * var(--grid-unit));   /*  2px */
   --space-xs:  calc(2 * var(--grid-unit));   /*  4px */
   --space-sm:  calc(3 * var(--grid-unit));   /*  6px */

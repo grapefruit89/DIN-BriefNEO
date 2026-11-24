@@ -19,7 +19,7 @@
 
 import { ortsVorschlaege, strassenSuchPfad } from './address.js';
 import { AddressIntelligence } from './address-data.js';
-import { BREITE_ORIGINAL, MM_PX, nachtCss, passendeBreite, speichereAnsicht, wendeBlattBreite, wendeNachtpalette } from './ansicht.js';
+import { BREITE_ORIGINAL, nachtCss, passendeBreite, speichereAnsicht, wendeBlattBreite, wendeNachtpalette } from './ansicht.js';
 import { collectDraft } from './document.js';
 import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
@@ -357,13 +357,14 @@ function initAnsichtRegler() {
     wert.textContent =
       einheit === 'px'
         ? `${px} px`
-        : `${(Math.round((px / MM_PX) * 1000) / 10).toFixed(1).replace('.', ',')} %`;
+        : `${Math.round((px / BREITE_ORIGINAL) * 100)} %`;
     if (knopfPx) knopfPx.setAttribute('aria-pressed', String(einheit === 'px'));
     if (knopfProzent) knopfProzent.setAttribute('aria-pressed', String(einheit === 'prozent'));
   };
 
   /* Schritt: in px genau 1 px, in Prozent 1 % von 793,7 = 7,937 px. */
-  const schritt = () => (einheit === 'px' ? 1 : Math.round(MM_PX / 100));
+  /* 1 % = ein Hundertstel der Blattgroesse (900 px), also 9 px. */
+  const schritt = () => (einheit === 'px' ? 1 : Math.round(BREITE_ORIGINAL / 100));
   minus.addEventListener('click', () => {
     breite -= schritt();
     zeige();
@@ -390,7 +391,7 @@ function initAnsichtRegler() {
     const passend = Math.min(breite, passendeBreite());
     wendeBlattBreite(passend);
     breite = passend;
-    wert.textContent = einheit === 'px' ? `${passend} px` : `${(Math.round((passend / MM_PX) * 1000) / 10).toFixed(1).replace('.', ',')} %`;
+    wert.textContent = einheit === 'px' ? `${passend} px` : `${Math.round((passend / BREITE_ORIGINAL) * 100)} %`;
   });
   document.getElementById('dbg-breite-original')?.addEventListener('click', () => {
     breite = BREITE_ORIGINAL;

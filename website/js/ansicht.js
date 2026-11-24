@@ -82,7 +82,7 @@ export const BREITE_MIN = 400;
  */
 export const BREITE_ORIGINAL = 900;
 export const BREITE_MAX = 1200;
-/** 210 mm bei 96 dpi — Bezugspunkt fuer die Prozent-Anzeige. */
+/** 210 mm bei 96 dpi — nur fuer die Rechnung im Kommentar, nicht fuer die Anzeige. */
 export const MM_PX = 793.7;
 
 /**

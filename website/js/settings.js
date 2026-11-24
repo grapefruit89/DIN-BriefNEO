@@ -442,13 +442,13 @@ export function initAgentenHilfe() {
       kanalStatus.textContent = stand.verbunden
         ? 'verbunden'
         : kanalOffen()
-          ? 'wartet auf Agent'
+          ? 'wartet auf deinen Agenten'
           : 'aus';
     }
     status.textContent = [
       `${anzahl} Werkzeuge`,
       webmcp ? 'WebMCP aktiv' : 'kein WebMCP',
-      kanalOffen() ? 'Kanal an' : 'Kanal aus'
+      kanalOffen() ? 'Zugriff erlaubt' : 'kein Zugriff'
     ].join(' · ');
   };
 

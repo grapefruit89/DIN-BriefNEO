@@ -1,11 +1,18 @@
 /* website/addons/fokusmodus/fokusmodus.css
  * ==========================================================================
- * Fokus-Modus & Zen-Modus Addon (iA-Writer-Philosophie)
+ * Fokus-Modus & Zen-Modus Addon
  *
- * Regeln (Ratschen P41-P44):
- * - Kein HEX/RGB/HSL: Nur OKLCH, color-mix oder CSS-Variablen.
- * - Keine Transforms als shorthand: Nur translate / scale.
- * - Vollkommen isoliert: Greift nur, wenn data-fokus aktiv ist.
+ * Herkunft & Vorbilder (Provenienz):
+ * - iA Writer (Information Architects): Absatz- und Satz-Fokus zur Vermeidung
+ *   von vorzeitigem Korrekturwahn und Förderung des kontinuierlichen Schreibflusses.
+ * - Ghostwriter (KDE) & Apostrophe (GNOME): Reduktion auf den aktiven Textblock.
+ * - W3C CSS Custom Highlight API (Chrome 105+ Baseline): Satz-Hervorhebung
+ *   ohne DOM-Mutationen oder Cursor-Störungen (Highlight-Registry).
+ *
+ * Farbregeln:
+ * - Kein Textmarker-Effekt! Keine braune oder gelbe Hintergrundsuppe.
+ * - Inaktiver Text wird sauber gedimmt (Transparenz/Mix).
+ * - Aktiver Satz / Absatz bleibt 100% tiefschwarz und gestochen scharf.
  * ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -21,56 +28,79 @@ din-blatt[data-fokus] #text :is(*, *:hover, *:focus) {
 }
 
 /* --------------------------------------------------------------------------
- * 2. ABSATZ-FOKUS (data-fokus="absatz")
- * Sobald der Cursor im Briefkörper (#text) steht, verblassen alle inaktiven
- * Absätze sanft auf 28% Deckkraft. Nur der aktive Absatz leuchtet mit 100%.
- * Außerhalb des Schreibens bleibt alles 100% normal lesbar.
+ * 2. DIMMUNG ALLER PERIPHEREN FELDER (FOKUS AKTIV IM SCHREIBBEREICH)
+ * Sobald der Cursor im Briefkörper (#text) steht, treten ausnahmslos ALLE
+ * anderen Elemente des Briefbogens sanft in den Hintergrund (25% Deckkraft):
+ * Anschriftfeld, Infoblock, Betreff, Datum, Anrede, Gruß, Anlagen, Fußzeile.
  * -------------------------------------------------------------------------- */
-din-blatt[data-fokus="absatz"]:has(#text:focus-within) #text > * {
-  opacity: 0.28;
-  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+din-blatt[data-fokus]:has(#text:focus-within) :is(
+  #anschriftfeld,
+  #infoblock,
+  #betreff,
+  #datum,
+  #anrede,
+  #grussformel,
+  .unterschrift-zeile,
+  din-anlagenvermerk,
+  din-geschaeftsangaben,
+  din-falzmarke-1,
+  din-falzmarke-2,
+  din-lochmarke
+) {
+  opacity: 0.22;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Der aktive Absatz (vom JavaScript präzise mit .fokus-aktiv markiert) */
+/* --------------------------------------------------------------------------
+ * 3. ABSATZ-FOKUS (data-fokus="absatz")
+ * Alle inaktiven Absätze im Fließtext dimmen auf 25%.
+ * Nur der aktuell bearbeitete Absatz (.fokus-aktiv) leuchtet mit 100%.
+ * -------------------------------------------------------------------------- */
+din-blatt[data-fokus="absatz"]:has(#text:focus-within) #text > * {
+  opacity: 0.25;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 din-blatt[data-fokus="absatz"]:has(#text:focus-within) #text > *.fokus-aktiv {
   opacity: 1;
 }
 
-/* Dezent gedimmte Peripherie während des Schreibens im Kerntext */
-din-blatt[data-fokus="absatz"]:has(#text:focus-within) #kern > input,
-din-blatt[data-fokus="absatz"]:has(#text:focus-within) #anschriftfeld,
-din-blatt[data-fokus="absatz"]:has(#text:focus-within) #infoblock {
-  opacity: 0.38;
-  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
 /* --------------------------------------------------------------------------
- * 3. ZEILEN- & SATZ-FOKUS (data-fokus="zeile")
- * Nutzt die native CSS Custom Highlight API (Chrome 105+ Baseline).
+ * 4. ZEILEN- & SATZ-FOKUS (data-fokus="zeile")
+ * Vorbild: iA Writer Sentence Focus.
+ * Der aktive Absatz wird selektiv gedimmt; nur der exakt aktive Satz
+ * wird per CSS Custom Highlight API gestochen scharf auf 100% gehalten.
+ * KEINE Hintergrundfarbe (keine Suppe), kein Verfälschen der Papieroptik!
  * -------------------------------------------------------------------------- */
 din-blatt[data-fokus="zeile"]:has(#text:focus-within) #text > * {
-  opacity: 0.28;
-  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0.25;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 din-blatt[data-fokus="zeile"]:has(#text:focus-within) #text > *.fokus-aktiv {
   opacity: 1;
+  /* Text im aktiven Absatz wird auf 35% gedimmt, damit der aktive Satz hervorsticht */
+  color: color-mix(in oklch, currentColor 32%, transparent);
 }
 
+/* Der aktive Satz tritt mit voller 100% Kontraststärke und Schärfe hervor */
 ::highlight(fokus-satz) {
-  color: oklch(20% 0 0);
-  background-color: oklch(90% 0.05 95 / 0.35);
+  color: oklch(15% 0 0);
+  background-color: transparent;
+  text-shadow: 0 0 0.4px oklch(15% 0 0 / 0.5); /* ganz dezent gefettet/präsent */
 }
 
 @media (prefers-color-scheme: dark) {
+  /* Auf dem A4-Blatt (weißes Papier) bleibt die Schrift dunkel */
   ::highlight(fokus-satz) {
-    color: oklch(95% 0 0);
-    background-color: oklch(35% 0.05 95 / 0.45);
+    color: oklch(10% 0 0);
+    background-color: transparent;
+    text-shadow: 0 0 0.4px oklch(10% 0 0 / 0.5);
   }
 }
 
 /* --------------------------------------------------------------------------
- * 4. ZEN-SCHREIBMODUS (data-zen="true")
+ * 5. ZEN-SCHREIBMODUS (data-zen="true")
  * Seitenleiste blendet sich beim aktiven Tippen sanft aus.
  * -------------------------------------------------------------------------- */
 body[data-zen="true"].is-typing #seitenleiste {

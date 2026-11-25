@@ -76,6 +76,8 @@ function updateParagraphFocus() {
 
 /**
  * Ermittelt die Satzgrenzen um den aktuellen Text-Cursor und setzt den CSS Highlight.
+ * Vorbild: iA Writer Sentence Focus & Ghostwriter.
+ * Nutzt die native W3C CSS Custom Highlight API (Chrome 105+ Baseline).
  */
 function updateSentenceHighlight() {
   if (typeof CSS === 'undefined' || !('highlights' in CSS)) return;
@@ -93,8 +95,8 @@ function updateSentenceHighlight() {
     return;
   }
 
-  const node = sel.anchorNode;
-  if (!node || node.nodeType !== Node.TEXT_NODE) {
+  let node = sel.anchorNode;
+  if (!node) {
     // @ts-ignore
     CSS.highlights.delete('fokus-satz');
     return;
@@ -107,14 +109,42 @@ function updateSentenceHighlight() {
     return;
   }
 
-  const text = node.textContent || '';
-  const offset = sel.anchorOffset;
+  let offset = sel.anchorOffset;
 
-  // Suche Satzanfang (letztes Satzende davor)
+  // Wenn der Cursor auf einem Element-Knoten statt TextNode steht (z.B. Zeilenanfang/Ende),
+  // finden wir den zugehörigen TextNode:
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const el = /** @type {Element} */ (node);
+    const childNodes = el.childNodes;
+    if (childNodes.length > 0) {
+      const idx = Math.min(Math.max(0, offset > 0 ? offset - 1 : 0), childNodes.length - 1);
+      const targetChild = childNodes[idx];
+      if (targetChild.nodeType === Node.TEXT_NODE) {
+        node = targetChild;
+        offset = targetChild.textContent?.length || 0;
+      } else {
+        const walker = document.createTreeWalker(targetChild, NodeFilter.SHOW_TEXT);
+        const firstText = walker.nextNode();
+        if (firstText) {
+          node = firstText;
+          offset = firstText.textContent?.length || 0;
+        }
+      }
+    }
+  }
+
+  if (!node || node.nodeType !== Node.TEXT_NODE) {
+    // @ts-ignore
+    CSS.highlights.delete('fokus-satz');
+    return;
+  }
+
+  const text = node.textContent || '';
+
+  // Suche Satzanfang (letztes Satzende davor: . ! ? gefolgt von Leerzeichen)
   let start = 0;
   for (let i = offset - 1; i >= 0; i--) {
     if (/[.!?\n]/.test(text[i])) {
-      // Überspringe folgende Leerzeichen
       let s = i + 1;
       while (s < offset && /\s/.test(text[s])) s++;
       start = s;

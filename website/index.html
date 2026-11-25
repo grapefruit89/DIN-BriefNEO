@@ -42,20 +42,20 @@
       <div id="probe" aria-hidden="true"></div>
       <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
         <!-- Normaler Modus Header -->
-        <div class="seitenleiste-header-row" role="group" aria-label="Allgemein">
+        <seitenleiste-kopf class="seitenleiste-header-row" role="group" aria-label="Allgemein">
           <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github" aria-hidden="true">
               <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path>
             </svg>
           </a>
-          <div class="seitenleiste-header-actions">
+          <seitenleiste-aktionen class="seitenleiste-header-actions">
             <button type="button" id="btn-theme-toggle" class="icon-btn theme-toggle-btn" aria-label="Darstellung: Automatisch (System)">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-auto lucide lucide-sun-moon" aria-hidden="true"><path d="M12 2v2"></path><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"></path><path d="M16 12a4 4 0 0 0-4-4"></path><path d="m19 5-1.256 1.256"></path><path d="M20 12h2"></path></svg>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-light lucide lucide-sun" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-dark lucide lucide-moon-star" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></svg>
             </button>
-          </div>
-        </div>
+          </seitenleiste-aktionen>
+        </seitenleiste-kopf>
 
         <!-- Ansicht: Brief oder Einstellungen. Radiogruppe statt Checkbox —
              der Zustand steht im Namen, die Pfeiltasten schalten nativ, und es
@@ -63,24 +63,24 @@
              Optik = dieselbe Segment-Pille wie Form A/B. -->
         <fieldset class="seitenleiste-modus">
           <legend class="sr-only">Ansicht</legend>
-          <div class="segmented-control">
+          <seitenleiste-segmente class="segmented-control">
             <input type="radio" name="ansicht-modus" id="modus-brief" value="brief" class="sr-only" checked>
             <label for="modus-brief">Brief</label>
             <input type="radio" name="ansicht-modus" id="modus-einstellungen" value="einstellungen" class="sr-only">
             <label for="modus-einstellungen">Einstellungen</label>
-          </div>
+          </seitenleiste-segmente>
         </fieldset>
 
-        <div class="seitenleiste-export-group" role="group" aria-label="Schnellstart und Ausgabe">
+        <seitenleiste-schnellstart class="seitenleiste-export-group" role="group" aria-label="Schnellstart und Ausgabe">
           <button type="button" id="btn-testbrief" class="btn btn-accent w-full" data-addon="testbrief" data-addon-action="start" title="Zufälligen DIN-5008-Musterbrief generieren">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
             <span>Musterbrief laden</span>
           </button>
-          <div class="seitenleiste-btn-row">
+          <seitenleiste-zeile class="seitenleiste-btn-row">
             <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
             <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern</button>
-          </div>
-        </div>
+          </seitenleiste-zeile>
+        </seitenleiste-schnellstart>
 
         <!-- Zone 1: Brief-Steuerung. Der sichtbare Zonentitel entfaellt hier
              (2026-11-22, Nutzerwunsch) - fuer Screenreader bleibt er als
@@ -101,9 +101,9 @@
 
           <hr class="seitenleiste-divider">
 
-<!-- 2. Briefelemente -->
-          <div class="seitenleiste-subgroup">
-            <div class="seitenleiste-field-group">
+          <!-- 2. Briefelemente -->
+          <seitenleiste-gruppe class="seitenleiste-subgroup">
+            <seitenleiste-feld class="seitenleiste-field-group">
               <label id="label-postvermerk" for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
               <select id="seitenleiste-postvermerk-select" class="seitenleiste-select" aria-labelledby="label-postvermerk">
                 <option value="">— kein —</option>
@@ -124,20 +124,18 @@
                   <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
                 </optgroup>
               </select>
-            </div>
-
-
-          </div>
+            </seitenleiste-feld>
+          </seitenleiste-gruppe>
 
           <hr class="seitenleiste-divider">
 
           <!-- 3. Textformatierung -->
-          <div class="seitenleiste-subgroup">
-            <div class="seitenleiste-field-group">
+          <seitenleiste-gruppe class="seitenleiste-subgroup">
+            <seitenleiste-feld class="seitenleiste-field-group">
               <h3 class="seitenleiste-label" id="titel-textformatierung">Textformatierung</h3>
               <!-- aria-labelledby statt aria-label: der Name kommt aus der
                    sichtbaren Ueberschrift und wird nicht zweimal vorgelesen. -->
-              <div class="seitenleiste-btn-row" role="group" aria-labelledby="titel-textformatierung">
+              <seitenleiste-zeile class="seitenleiste-btn-row" role="group" aria-labelledby="titel-textformatierung">
                 <button type="button" id="btn-bold" class="icon-btn"
                         aria-pressed="false" aria-label="Fett (Strg+B)" title="Fett (Strg+B)">
                   <b aria-hidden="true">B</b>
@@ -150,9 +148,9 @@
                         aria-pressed="false" aria-label="Zitat (Strg+Q)" title="Zitat (Strg+Q)">
                   <span aria-hidden="true">❝</span>
                 </button>
-              </div>
-            </div>
-          </div>
+              </seitenleiste-zeile>
+            </seitenleiste-feld>
+          </seitenleiste-gruppe>
 
           <hr class="seitenleiste-divider">
 
@@ -161,7 +159,7 @@
                drei Brief-Optionen semantisch (Legende sichtbar). -->
           <fieldset class="seitenleiste-field-group seitenleiste-latch-group">
             <legend class="seitenleiste-label">Brief-Optionen</legend>
-            <div class="latch-item">
+            <seitenleiste-ratsche class="latch-item">
               <input type="checkbox" id="toggle-falzmarken" class="sr-only" checked>
               <label for="toggle-falzmarken" class="btn-latch">
                 <span class="btn-latch-left">
@@ -170,8 +168,8 @@
                 </span>
                 <span class="btn-latch-led" aria-hidden="true"></span>
               </label>
-            </div>
-            <div class="latch-item">
+            </seitenleiste-ratsche>
+            <seitenleiste-ratsche class="latch-item">
               <input type="checkbox" id="toggle-anlagen" class="sr-only">
               <label for="toggle-anlagen" class="btn-latch">
                 <span class="btn-latch-left">
@@ -180,8 +178,8 @@
                 </span>
                 <span class="btn-latch-led" aria-hidden="true"></span>
               </label>
-            </div>
-            <div class="latch-item" data-addon="geschaeftsangaben">
+            </seitenleiste-ratsche>
+            <seitenleiste-ratsche class="latch-item" data-addon="geschaeftsangaben">
               <input type="checkbox" id="toggle-fuss" class="sr-only">
               <label for="toggle-fuss" class="btn-latch">
                 <span class="btn-latch-left">
@@ -190,7 +188,7 @@
                 </span>
                 <span class="btn-latch-led" aria-hidden="true"></span>
               </label>
-            </div>
+            </seitenleiste-ratsche>
           </fieldset>
           <!-- Layout zuletzt: global, selten, wirkt auf das ganze Blatt. -->
           <!-- 1. Format & Ansicht -->
@@ -198,12 +196,12 @@
             <legend class="seitenleiste-label">DIN-Brief Layout</legend>
             <!-- Eigene Klasse: dieser Schalter haengt an `data-layout` (B63),
                  nicht an :checked. Begruendung in sidebar.css. -->
-            <div class="segmented-control segmented-control-layout">
+            <seitenleiste-segmente class="segmented-control segmented-control-layout">
               <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
               <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
               <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
               <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
-            </div>
+            </seitenleiste-segmente>
           </fieldset>
 
           <hr class="seitenleiste-divider">
@@ -215,11 +213,11 @@
              Ausgabegruppe, Speichern/Drucken ebenso. -->
         <section id="zone-werkzeuge" class="seitenleiste-zone">
           <h2 class="sr-only">Dateien</h2>
-          <div class="seitenleiste-btn-row">
+          <seitenleiste-zeile class="seitenleiste-btn-row">
             <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen</button>
             <input type="file" id="dinletter-uploader" accept=".json,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">
             <button type="button" id="btn-copy-dinletter" class="btn w-full" title="Kopiert das vollständige Brief-JSON direkt in die Zwischenablage">📋 Kopieren</button>
-          </div>
+          </seitenleiste-zeile>
         </section>
 
         <!-- Zone 3: Grundeinstellungen & Setup -->
@@ -228,8 +226,8 @@
              Zone ein Landmark bleibt (ein section-Element ohne Namen ist
              generic und taucht in der Landmark-Liste nicht auf). -->
         <section id="zone-setup" class="seitenleiste-zone seitenleiste-setup" aria-label="Einstellungen">
-          <div class="seitenleiste-setup-content">
-            <div class="seitenleiste-field-group">
+          <seitenleiste-inhalt class="seitenleiste-setup-content">
+            <seitenleiste-feld class="seitenleiste-field-group">
               <label for="select-schriftart" class="seitenleiste-label">Schriftart / Stil</label>
               <select id="select-schriftart" class="seitenleiste-select w-full" aria-label="Schriftart für DIN-Brief wählen">
                 <optgroup label="System-Standard">
@@ -243,25 +241,31 @@
                 🔤 Eigene Schriftart laden
               </button>
               <input type="file" id="font-uploader" accept=".woff2,.ttf,.otf" class="hidden" aria-label="Schriftart-Datei auswählen">
-            </div>
+            </seitenleiste-feld>
 
-            <div class="seitenleiste-field-group">
-              <div class="seitenleiste-switch-row">
-                <label for="btn-rand-u-30" class="seitenleiste-label">Unterrand 30 mm</label>
-                <input type="checkbox" switch id="btn-rand-u-30" aria-describedby="unterrand-hinweis">
-              </div>
+            <seitenleiste-feld class="seitenleiste-field-group">
+              <seitenleiste-ratsche class="latch-item">
+                <input type="checkbox" id="btn-rand-u-30" class="sr-only" aria-describedby="unterrand-hinweis">
+                <label for="btn-rand-u-30" class="btn-latch">
+                  <span class="btn-latch-left">
+                    <span class="btn-latch-icon" aria-hidden="true">📏</span>
+                    <span class="btn-latch-text">Unterrand 30 mm</span>
+                  </span>
+                  <span class="btn-latch-led" aria-hidden="true"></span>
+                </label>
+              </seitenleiste-ratsche>
               <p class="seitenleiste-hinweis" id="unterrand-hinweis">Aus = 20 mm (DIN-5008-Standard). An = 30 mm, mehr Abstand zum Fußblock (nicht normgerecht, aber zulässig).</p>
-            </div>
+            </seitenleiste-feld>
 
-            <div class="seitenleiste-field-group">
+            <seitenleiste-feld class="seitenleiste-field-group">
               <span class="seitenleiste-label">Unterschrift / Stempel</span>
               <button type="button" id="btn-unterschrift-aktion" class="btn w-full" data-state="empty">
                 ✒️ Unterschrift / Stempel laden
               </button>
               <input type="file" id="unterschriftsbild-datei" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="hidden">
-            </div>
+            </seitenleiste-feld>
 
-            <div class="seitenleiste-field-group">
+            <seitenleiste-feld class="seitenleiste-field-group">
               <p class="key-zeile">
                 <label for="input-geoapify-key" class="seitenleiste-label">Geoapify API-Key</label>
                 <a
@@ -279,22 +283,34 @@
                 spellcheck="false"
                 placeholder="Key einfügen (optional für Adress-Vorschläge)…">
               <small id="geoapify-status" class="input-status-hint" role="status"></small>
-            </div>
+            </seitenleiste-feld>
 
             <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
 
             <hr class="seitenleiste-divider">
 
-            <div class="seitenleiste-subgroup">
+            <seitenleiste-gruppe class="seitenleiste-subgroup">
               <h3 class="seitenleiste-label">Erweiterungen (Plugins)</h3>
-              <div class="seitenleiste-switch-row">
-                <label for="plugin-geschaeftsangaben" class="seitenleiste-label">Geschäftsangaben (§ 35a)</label>
-                <input type="checkbox" switch id="plugin-geschaeftsangaben" data-addon-toggle="geschaeftsangaben">
-              </div>
-              <div class="seitenleiste-switch-row">
-                <label for="toggle-debug" class="seitenleiste-label">Debug-Panel</label>
-                <input type="checkbox" switch id="toggle-debug">
-              </div>
+              <seitenleiste-ratsche class="latch-item" style="margin-block-end: var(--space-xs);">
+                <input type="checkbox" id="plugin-geschaeftsangaben" class="sr-only" data-addon-toggle="geschaeftsangaben">
+                <label for="plugin-geschaeftsangaben" class="btn-latch">
+                  <span class="btn-latch-left">
+                    <span class="btn-latch-icon" aria-hidden="true">🏢</span>
+                    <span class="btn-latch-text">Geschäftsangaben (§ 35a)</span>
+                  </span>
+                  <span class="btn-latch-led" aria-hidden="true"></span>
+                </label>
+              </seitenleiste-ratsche>
+              <seitenleiste-ratsche class="latch-item" style="margin-block-end: var(--space-xs);">
+                <input type="checkbox" id="toggle-debug" class="sr-only">
+                <label for="toggle-debug" class="btn-latch">
+                  <span class="btn-latch-left">
+                    <span class="btn-latch-icon" aria-hidden="true">🐞</span>
+                    <span class="btn-latch-text">Debug-Panel</span>
+                  </span>
+                  <span class="btn-latch-led" aria-hidden="true"></span>
+                </label>
+              </seitenleiste-ratsche>
               <fieldset class="seitenleiste-field-group" style="border: none; padding: 0; margin-block-start: var(--space-3, 12px);">
                 <label for="select-fokusmodus" class="seitenleiste-label">Fokus-Modus (iA-Stil)</label>
                 <select id="select-fokusmodus" class="seitenleiste-select w-full" aria-label="Fokus-Modus wählen">
@@ -302,40 +318,52 @@
                   <option value="absatz">Absatz-Fokus</option>
                   <option value="zeile">Zeilen- &amp; Satz-Fokus</option>
                 </select>
-                <label class="seitenleiste-switch-row" style="cursor: pointer; margin-block-start: var(--space-2, 8px);">
-                  <span class="seitenleiste-label" style="font-size: 0.8125rem; font-weight: normal;">Zen-Modus (Werkzeuge verblassen)</span>
-                  <input type="checkbox" switch id="toggle-zen-modus">
-                </label>
+                <seitenleiste-ratsche class="latch-item" style="margin-block-start: var(--space-2, 8px);">
+                  <input type="checkbox" id="toggle-zen-modus" class="sr-only">
+                  <label for="toggle-zen-modus" class="btn-latch">
+                    <span class="btn-latch-left">
+                      <span class="btn-latch-icon" aria-hidden="true">🧘</span>
+                      <span class="btn-latch-text" style="font-size: 0.8125rem; font-weight: normal;">Zen-Modus (Werkzeuge verblassen)</span>
+                    </span>
+                    <span class="btn-latch-led" aria-hidden="true"></span>
+                  </label>
+                </seitenleiste-ratsche>
               </fieldset>
               <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
                    stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
-              <div class="seitenleiste-subgroup workbench-box">
-                <div class="workbench-header">
+              <seitenleiste-werkbank class="seitenleiste-subgroup workbench-box">
+                <header class="workbench-header">
                   <strong class="workbench-title">📄 Mehrseiten-Workbench</strong>
                   <span id="seiten-status" class="workbench-status">Seite 1 von 1</span>
-                </div>
-                <div class="workbench-actions">
+                </header>
+                <seitenleiste-zeile class="workbench-actions">
                   <button type="button" id="btn-demo-lang" class="btn" data-addon="testbrief" data-addon-action="demo" data-addon-arg="lang" title="Fügt langen 2-3 Seiten Fließtext ein">📝 Langer Text</button>
                   <button type="button" id="btn-demo-kurz" class="btn" data-addon="testbrief" data-addon-action="demo" data-addon-arg="kurz" title="Setzt auf kurzen 1-Seiten-Text zurück">↩️ 1 Seite</button>
-                </div>
-              </div>
-            </div>
+                </seitenleiste-zeile>
+              </seitenleiste-werkbank>
+            </seitenleiste-gruppe>
             <hr class="seitenleiste-divider">
 
-            <div class="seitenleiste-subgroup agenten-block">
-              <div class="agenten-kopf">
+            <seitenleiste-agent class="seitenleiste-subgroup agenten-block">
+              <header class="agenten-kopf">
                 <h3 class="seitenleiste-label" id="agenten-titel">Agent verbinden</h3>
                 <button type="button" class="agenten-info" popovertarget="agenten-info"
                         aria-label="Wie ein Agent den Brief schreiben kann?">info</button>
-              </div>
-              <div class="seitenleiste-switch-row">
-                <label for="toggle-agent-kanal" class="seitenleiste-label">Zugriff erlauben</label>
-                <input type="checkbox" switch id="toggle-agent-kanal">
-              </div>
+              </header>
+              <seitenleiste-ratsche class="latch-item" style="margin-block-end: var(--space-xs);">
+                <input type="checkbox" id="toggle-agent-kanal" class="sr-only">
+                <label for="toggle-agent-kanal" class="btn-latch">
+                  <span class="btn-latch-left">
+                    <span class="btn-latch-icon" aria-hidden="true">🤖</span>
+                    <span class="btn-latch-text">Zugriff erlauben</span>
+                  </span>
+                  <span class="btn-latch-led" aria-hidden="true"></span>
+                </label>
+              </seitenleiste-ratsche>
               <button type="button" id="btn-agent-konfig" class="btn w-full agenten-kopieren"
                       title="Verbindung für deinen Agenten kopieren">📋 Verbindung kopieren</button>
               <small id="agenten-kanal-status" class="agenten-kanal-status">aus</small>
-            </div>
+            </seitenleiste-agent>
 
             <!-- Overlay: natives Popover (Top-Layer, Escape/Klick daneben schliesst) -->
             <div id="agenten-info" popover class="agenten-popover" aria-labelledby="agenten-info-titel">
@@ -357,20 +385,20 @@
               </dl>
               <p class="agenten-stand" id="agenten-info-status">wird geprüft …</p>
             </div>
-          </div>
+          </seitenleiste-inhalt>
         </section>
 
         <!-- Zone 4: Fester Fußbereich -->
-        <div role="group" id="zone-aktionen" class="seitenleiste-footer" aria-label="Aktionen">
+        <seitenleiste-fuss role="group" id="zone-aktionen" class="seitenleiste-footer" aria-label="Aktionen">
           <!-- Name nennt beide Inhalte: der Speicherstatus und das Zuruecksetzen.
                "Aktionen" verschwieg den Status, "Status" das Zuruecksetzen
                (Befund B15/B3). -->
           <h2 class="sr-only">Status &amp; Zurücksetzen</h2>
-          <div class="save-status-row">
+          <seitenleiste-status class="save-status-row">
             <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
-          </div>
+          </seitenleiste-status>
           <button type="button" id="btn-reset" class="btn btn-ghost btn-danger-subtle w-full" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
-        </div>
+        </seitenleiste-fuss>
       </aside>
       <main id="viewport">
         <h1 class="sr-only">DIN-BriefNEO – Brief-Editor nach DIN 5008</h1>

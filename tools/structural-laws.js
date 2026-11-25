@@ -149,13 +149,23 @@ function checkStructuralLaws(repoRoot) {
   }
 
   // --- Div-Budget-Ratsche (Schutz vor Div-Suppe) ---
-  const MAX_DIVS_GESAMT = 66;
+  const MAX_DIVS_GESAMT = 35;
   const alleDivs = htmlText.match(/<div\b/gi) || [];
   if (alleDivs.length > MAX_DIVS_GESAMT) {
     violations.push({
       file: 'website/index.html',
       line: 1,
-      message: `Div-Suppen-Alarm: ${alleDivs.length} <div>-Tags gefunden (Budget-Deckel ist ${MAX_DIVS_GESAMT}). Bitte semantisches HTML nutzen (<fieldset>, <legend>, <menu>, <section>, <output>).`
+      message: `Div-Suppen-Alarm: ${alleDivs.length} <div>-Tags gefunden (Budget-Deckel ist ${MAX_DIVS_GESAMT}). Bitte semantisches HTML oder <seitenleiste-*>-Elemente nutzen.`
+    });
+  }
+
+  // --- Checkbox-Ratsche: alle Checkboxen muessen haptische Rast-Buttons sein (.sr-only + .btn-latch) ---
+  const rawCheckboxMatch = htmlText.match(/<input[^>]*type=["']checkbox["'](?![^>]*class=["'][^"']*\bsr-only\b)[^>]*>/gi);
+  if (rawCheckboxMatch) {
+    violations.push({
+      file: 'website/index.html',
+      line: 1,
+      message: `Checkbox-Ratsche verletzt: ${rawCheckboxMatch.length} nackte Checkbox(en) gefunden. Alle Schalter müssen als haptische Rast-Buttons (<seitenleiste-ratsche> mit .sr-only und .btn-latch) ausgeführt sein.`
     });
   }
 

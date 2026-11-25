@@ -3,6 +3,58 @@
 
 /* css/sidebar.css — Sidebar: Navigation, Custom Inputs, Autocomplete, Adressbuch, Geoapify, Guides */
 
+/* --- SIDEBAR CUSTOM ELEMENTS --- */
+seitenleiste-kopf,
+seitenleiste-aktionen,
+seitenleiste-segmente,
+seitenleiste-schnellstart,
+seitenleiste-zeile,
+seitenleiste-gruppe,
+seitenleiste-feld,
+seitenleiste-ratsche,
+seitenleiste-inhalt,
+seitenleiste-werkbank,
+seitenleiste-agent,
+seitenleiste-fuss,
+seitenleiste-status {
+  display: block;
+}
+
+seitenleiste-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+seitenleiste-zeile {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+seitenleiste-gruppe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+seitenleiste-feld {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+seitenleiste-ratsche {
+  position: relative;
+  width: 100%;
+}
+
+seitenleiste-fuss {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
 /* --- SIDEBAR --- */
 aside,
 aside.seitenleiste,

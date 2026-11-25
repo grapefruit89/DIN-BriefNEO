@@ -9,52 +9,54 @@
  * ========================================================================== */
 
 /* --------------------------------------------------------------------------
- * 1. ABSATZ-FOKUS (data-fokus="absatz")
- * Wenn im Briefbogen editiert wird (:focus-within), treten alle inaktiven
- * Absätze und Blöcke sanft in den Hintergrund (28% Deckkraft).
+ * 1. RUHE IM SCHREIBBEREICH (#text)
+ * Im Fokus-Modus werden alle störenden Hover-Rahmen, Fokus-Ringe und 
+ * Hintergrundfarben auf dem Textkörper restlos unterdrückt.
  * -------------------------------------------------------------------------- */
-din-blatt[data-fokus="absatz"]:focus-within [contenteditable] > *,
-din-blatt[data-fokus="absatz"]:focus-within [data-feld],
-din-blatt[data-fokus="absatz"]:focus-within p,
-din-blatt[data-fokus="absatz"]:focus-within address,
-din-blatt[data-fokus="absatz"]:focus-within h1 {
-  opacity: 0.28;
-  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Der aktuell fokussierte Absatz oder Block erhält volle Präsenz */
-din-blatt[data-fokus="absatz"]:focus-within [contenteditable] > *:focus-within,
-din-blatt[data-fokus="absatz"]:focus-within [contenteditable] > *.fokus-aktiv,
-din-blatt[data-fokus="absatz"]:focus-within [data-feld]:focus,
-din-blatt[data-fokus="absatz"]:focus-within [data-feld]:focus-within,
-din-blatt[data-fokus="absatz"]:focus-within p:focus-within,
-din-blatt[data-fokus="absatz"]:focus-within address:focus-within,
-din-blatt[data-fokus="absatz"]:focus-within h1:focus-within {
-  opacity: 1;
+din-blatt[data-fokus] :is(#text, #text:hover, #text:focus, #text:focus-within),
+din-blatt[data-fokus] #text :is(*, *:hover, *:focus) {
+  outline: none;
+  box-shadow: none;
+  background-color: transparent;
 }
 
 /* --------------------------------------------------------------------------
- * 2. ZEILEN- & SATZ-FOKUS (data-fokus="zeile")
- * Nutzt die native CSS Custom Highlight API (Chrome 105+ Baseline)
- * ohne den DOM oder Cursor-Positionen zu stören.
+ * 2. ABSATZ-FOKUS (data-fokus="absatz")
+ * Sobald der Cursor im Briefkörper (#text) steht, verblassen alle inaktiven
+ * Absätze sanft auf 28% Deckkraft. Nur der aktive Absatz leuchtet mit 100%.
+ * Außerhalb des Schreibens bleibt alles 100% normal lesbar.
  * -------------------------------------------------------------------------- */
-din-blatt[data-fokus="zeile"]:focus-within [contenteditable] > *,
-din-blatt[data-fokus="zeile"]:focus-within [data-feld],
-din-blatt[data-fokus="zeile"]:focus-within p,
-din-blatt[data-fokus="zeile"]:focus-within address,
-din-blatt[data-fokus="zeile"]:focus-within h1 {
+din-blatt[data-fokus="absatz"]:has(#text:focus-within) #text > * {
   opacity: 0.28;
   transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Im aktiven Absatz wird der Text grundlegend leicht gedimmt... */
-din-blatt[data-fokus="zeile"]:focus-within [contenteditable] > *:focus-within,
-din-blatt[data-fokus="zeile"]:focus-within p:focus-within,
-din-blatt[data-fokus="zeile"]:focus-within [data-feld]:focus-within {
+/* Der aktive Absatz (vom JavaScript präzise mit .fokus-aktiv markiert) */
+din-blatt[data-fokus="absatz"]:has(#text:focus-within) #text > *.fokus-aktiv {
   opacity: 1;
 }
 
-/* ...und nur der exakte Satz / die Zeile leuchtet hervor */
+/* Dezent gedimmte Peripherie während des Schreibens im Kerntext */
+din-blatt[data-fokus="absatz"]:has(#text:focus-within) #kern > input,
+din-blatt[data-fokus="absatz"]:has(#text:focus-within) #anschriftfeld,
+din-blatt[data-fokus="absatz"]:has(#text:focus-within) #infoblock {
+  opacity: 0.38;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+ * 3. ZEILEN- & SATZ-FOKUS (data-fokus="zeile")
+ * Nutzt die native CSS Custom Highlight API (Chrome 105+ Baseline).
+ * -------------------------------------------------------------------------- */
+din-blatt[data-fokus="zeile"]:has(#text:focus-within) #text > * {
+  opacity: 0.28;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+din-blatt[data-fokus="zeile"]:has(#text:focus-within) #text > *.fokus-aktiv {
+  opacity: 1;
+}
+
 ::highlight(fokus-satz) {
   color: oklch(20% 0 0);
   background-color: oklch(90% 0.05 95 / 0.35);
@@ -68,9 +70,8 @@ din-blatt[data-fokus="zeile"]:focus-within [data-feld]:focus-within {
 }
 
 /* --------------------------------------------------------------------------
- * 3. ZEN-SCHREIBMODUS (data-zen="true")
- * Sobald getippt wird, fade die Seitenleiste dezent zurück.
- * Bei Mausbewegung oder Escape kehrt sie sofort zurück.
+ * 4. ZEN-SCHREIBMODUS (data-zen="true")
+ * Seitenleiste blendet sich beim aktiven Tippen sanft aus.
  * -------------------------------------------------------------------------- */
 body[data-zen="true"].is-typing #seitenleiste {
   opacity: 0.08;

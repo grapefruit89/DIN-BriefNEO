@@ -46,6 +46,35 @@ function removeStylesheet() {
 }
 
 /**
+ * Aktualisiert die .fokus-aktiv Klasse auf dem aktiven Paragraphen in #text.
+ */
+function updateParagraphFocus() {
+  if (currentMode === 'aus') return;
+
+  const sel = window.getSelection();
+  const textContainer = document.getElementById('text');
+  if (!textContainer) return;
+
+  const node = sel?.anchorNode;
+  const isInside = node && textContainer.contains(node);
+
+  const prev = textContainer.querySelectorAll('.fokus-aktiv');
+  prev.forEach((el) => {
+    el.classList.remove('fokus-aktiv');
+  });
+
+  if (isInside && node) {
+    let target = node.nodeType === Node.ELEMENT_NODE ? /** @type {Element} */ (node) : node.parentElement;
+    while (target && target.parentElement !== textContainer && target !== textContainer) {
+      target = target.parentElement;
+    }
+    if (target && target !== textContainer) {
+      target.classList.add('fokus-aktiv');
+    }
+  }
+}
+
+/**
  * Ermittelt die Satzgrenzen um den aktuellen Text-Cursor und setzt den CSS Highlight.
  */
 function updateSentenceHighlight() {
@@ -154,6 +183,7 @@ export async function activate(ctx = {}) {
   };
 
   const onSelectionChange = () => {
+    updateParagraphFocus();
     if (currentMode === 'zeile') {
       updateSentenceHighlight();
     }
@@ -162,15 +192,23 @@ export async function activate(ctx = {}) {
   window.addEventListener('keydown', onKeyDown, { passive: true });
   window.addEventListener('mousemove', onMouseMove, { passive: true });
   document.addEventListener('selectionchange', onSelectionChange, { passive: true });
+  document.addEventListener('click', onSelectionChange, { passive: true });
 
   const dispose = () => {
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('selectionchange', onSelectionChange);
+    document.removeEventListener('click', onSelectionChange);
     if (typingTimer) clearTimeout(typingTimer);
     document.body.classList.remove('is-typing');
     document.body.removeAttribute('data-zen');
     if (blatt) blatt.removeAttribute('data-fokus');
+    const textContainer = document.getElementById('text');
+    if (textContainer) {
+      textContainer.querySelectorAll('.fokus-aktiv').forEach((el) => {
+        el.classList.remove('fokus-aktiv');
+      });
+    }
     if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
       // @ts-ignore
       CSS.highlights.delete('fokus-satz');
@@ -199,6 +237,12 @@ export async function run(action, arg, _ctx = {}) {
     if (blatt) {
       if (currentMode === 'aus') {
         blatt.removeAttribute('data-fokus');
+        const textContainer = document.getElementById('text');
+        if (textContainer) {
+          textContainer.querySelectorAll('.fokus-aktiv').forEach((el) => {
+            el.classList.remove('fokus-aktiv');
+          });
+        }
         if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
           // @ts-ignore
           CSS.highlights.delete('fokus-satz');
@@ -206,6 +250,7 @@ export async function run(action, arg, _ctx = {}) {
       } else {
         ensureStylesheet();
         blatt.setAttribute('data-fokus', currentMode);
+        updateParagraphFocus();
         if (currentMode === 'zeile') updateSentenceHighlight();
       }
     }

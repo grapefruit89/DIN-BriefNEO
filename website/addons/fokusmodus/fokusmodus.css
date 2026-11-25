@@ -101,16 +101,29 @@ din-blatt[data-fokus="zeile"]:has(#text:focus-within) #text > *.fokus-aktiv {
 
 /* --------------------------------------------------------------------------
  * 5. ZEN-SCHREIBMODUS (data-zen="true")
- * Seitenleiste blendet sich beim aktiven Tippen sanft aus.
+ * Seitenleiste wird sanft geblurt und tritt in den Hintergrund, sobald der
+ * Blick auf dem Brief liegt. Beim Hovern oder Fokussieren der Seitenleiste
+ * wird sie sofort glasklar; beim aktiven Tippen verblasst sie noch tiefer.
  * -------------------------------------------------------------------------- */
+body[data-zen="true"] #seitenleiste {
+  filter: blur(4px);
+  opacity: 0.35;
+  transition: filter 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body[data-zen="true"] #seitenleiste:hover,
+body[data-zen="true"] #seitenleiste:focus-within {
+  filter: blur(0);
+  opacity: 1;
+}
+
 body[data-zen="true"].is-typing #seitenleiste {
-  opacity: 0.08;
-  pointer-events: none;
-  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: blur(8px);
+  opacity: 0.06;
 }
 
 body[data-zen="true"].is-typing #seitenleiste:hover,
 body[data-zen="true"].is-typing #seitenleiste:focus-within {
+  filter: blur(0);
   opacity: 1;
-  pointer-events: auto;
 }

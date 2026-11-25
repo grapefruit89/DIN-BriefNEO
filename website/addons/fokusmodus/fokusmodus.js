@@ -193,8 +193,8 @@ export async function activate(ctx = {}) {
   }
 
   // Zen-Modus Listener
-  /** @param {KeyboardEvent} e */
-  const onKeyDown = (e) => {
+  /** @param {Event} e */
+  const onUserTyping = (e) => {
     if (!zenEnabled) return;
     const target = /** @type {Element | null} */ (e.target);
     if (target?.closest?.('din-blatt')) {
@@ -206,9 +206,13 @@ export async function activate(ctx = {}) {
     }
   };
 
-  const onMouseMove = () => {
-    if (document.body.classList.contains('is-typing')) {
-      document.body.classList.remove('is-typing');
+  /** @param {MouseEvent} e */
+  const onMouseMove = (e) => {
+    const target = /** @type {Element | null} */ (e.target);
+    if (target?.closest?.('#seitenleiste')) {
+      if (document.body.classList.contains('is-typing')) {
+        document.body.classList.remove('is-typing');
+      }
     }
   };
 
@@ -219,13 +223,15 @@ export async function activate(ctx = {}) {
     }
   };
 
-  window.addEventListener('keydown', onKeyDown, { passive: true });
+  window.addEventListener('keydown', onUserTyping, { passive: true });
+  window.addEventListener('input', onUserTyping, { passive: true });
   window.addEventListener('mousemove', onMouseMove, { passive: true });
   document.addEventListener('selectionchange', onSelectionChange, { passive: true });
   document.addEventListener('click', onSelectionChange, { passive: true });
 
   const dispose = () => {
-    window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('keydown', onUserTyping);
+    window.removeEventListener('input', onUserTyping);
     window.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('selectionchange', onSelectionChange);
     document.removeEventListener('click', onSelectionChange);

@@ -131,10 +131,15 @@ export class SettingsManager {
     );
     document.documentElement.setAttribute('data-plugin-multipage', 'true');
 
-    if (this.settings.fokusModus && this.settings.fokusModus !== 'aus') {
+    const braucheFokusAddon =
+      (this.settings.fokusModus && this.settings.fokusModus !== 'aus') ||
+      Boolean(this.settings.zenModus);
+    if (braucheFokusAddon) {
       void toggleAddon('fokusmodus', true).then(async () => {
         const { invokeAddon } = await import('./addons.js');
-        await invokeAddon('fokusmodus', 'setMode', this.settings.fokusModus);
+        if (this.settings.fokusModus && this.settings.fokusModus !== 'aus') {
+          await invokeAddon('fokusmodus', 'setMode', this.settings.fokusModus);
+        }
         if (this.settings.zenModus) {
           await invokeAddon('fokusmodus', 'setZen', true);
         }
@@ -340,7 +345,7 @@ export class SettingsManager {
         if (!this.isReady) return;
         this.settings.fokusModus = selectFokus.value;
         this.updateSettings();
-        const aktiv = selectFokus.value !== 'aus';
+        const aktiv = selectFokus.value !== 'aus' || Boolean(this.settings.zenModus);
         void toggleAddon('fokusmodus', aktiv).then(async () => {
           const { invokeAddon } = await import('./addons.js');
           await invokeAddon('fokusmodus', 'setMode', selectFokus.value);
@@ -356,7 +361,9 @@ export class SettingsManager {
         if (!this.isReady) return;
         this.settings.zenModus = toggleZen.checked;
         this.updateSettings();
-        void import('./addons.js').then(async ({ invokeAddon }) => {
+        const aktiv = Boolean(toggleZen.checked || (this.settings.fokusModus && this.settings.fokusModus !== 'aus'));
+        void toggleAddon('fokusmodus', aktiv).then(async () => {
+          const { invokeAddon } = await import('./addons.js');
           await invokeAddon('fokusmodus', 'setZen', toggleZen.checked);
         });
       });

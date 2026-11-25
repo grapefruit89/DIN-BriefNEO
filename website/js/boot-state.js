@@ -78,17 +78,6 @@
     const randU = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-rand-u-30'));
     if (randU) randU.checked = settings.randU === 30;
 
-    /* 2b-ii. Statuszeile. Der echte Text entsteht in settings.js#rendereZustand,
-       das erst mit dem Modul laeuft - und dieses Skript gibt die Seite schon
-       davor frei (Reveal weiter unten). Ein Frame lang stand dort deshalb das
-       HTML-Fallback "Schrift: System". Hier derselbe Text aus denselben zwei
-       Quellen (Auswahlliste + gespeicherter Unterrand), bevor die Maske
-       aufgeht. settings.js bleibt die Anzeige-Wahrheit fuer Aenderungen. */
-    const zustand = document.getElementById('zustand-text');
-    if (zustand) {
-      const schriftName = (schrift?.selectedOptions?.[0]?.textContent || 'System').split('/')[0].trim();
-      zustand.textContent = `Schrift: ${schriftName} · Unterrand ${settings.randU === 30 ? 30 : 20} mm`;
-    }
     const testbrief = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
     if (testbrief) testbrief.checked = istAn(settings.pluginTestbrief);
     const geschaeft = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));

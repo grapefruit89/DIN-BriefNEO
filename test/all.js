@@ -5721,17 +5721,6 @@ describe('Import ist atomar (Befund B13)', () => {
   });
 });
 
-describe('Statuszeile und mobile Schublade (2026-11-13)', () => {
-  it('Statuszeile ist ein echter Button mit Ziel, kein Label', async () => {
-    const html = await (await fetch('/website/index.html')).text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    assert(doc.getElementById('zustand-text'), 'Text-Element vorhanden');
-    const knopf = doc.getElementById('btn-zustand-aendern');
-    assert(knopf instanceof HTMLButtonElement, 'echter Button (Tastatur bedienbar)');
-  });
-
-});
-
 describe('Einstellungs-Modus ist strukturell geschlossen (Befund B14)', () => {
   it('jede Zone wird geoeffnet und geschlossen, Layout-Regler liegen in zone-dokument', async () => {
     const html = await (await fetch('/website/index.html')).text();
@@ -5747,15 +5736,6 @@ describe('Einstellungs-Modus ist strukturell geschlossen (Befund B14)', () => {
     assert(leiste.querySelectorAll('section.seitenleiste-zone').length >= 3, 'mindestens drei Zonen');
     assert(leiste.querySelector('#zone-dokument #btn-form-a'), 'Form A liegt in zone-dokument');
     assert(leiste.querySelector('#zone-dokument #toggle-falzmarken'), 'Falzmarken liegen in zone-dokument');
-  });
-
-  it('Statuszeile ist im Einstellungs-Modus ausgeblendet', async () => {
-    /* Seit B64 steht der Modus-Vertrag in base.css (vorher sidebar.css). */
-    const css = await (await fetch('/website/css/base.css')).text();
-    const ab = css.indexOf('#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument');
-    assert(ab > -1, 'Ausblendregel vorhanden');
-    const block = css.slice(ab, css.indexOf('}', ab));
-    assert(block.includes('.seitenleiste-zustand'), 'Statuszeile wird mit ausgeblendet');
   });
 
   it('Escape haengt an der Leiste, nicht am Modusschalter', async () => {
@@ -5950,7 +5930,6 @@ describe('Strukturvertrag liegt nicht in der Design-Schicht (Befund B15)', () =>
       '#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument',
       '#seitenleiste:has(#modus-einstellungen:checked) #zone-werkzeuge',
       '#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-export-group',
-      '#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-zustand',
       '#seitenleiste:has(#modus-einstellungen:checked) #zone-aktionen #btn-reset'
     ];
     for (const sel of VERTRAG) {
@@ -5995,14 +5974,12 @@ describe('Strukturvertrag liegt nicht in der Design-Schicht (Befund B15)', () =>
 });
 
 describe('Jedes Fokusziel hat eine benannte Gruppe (B75)', () => {
-  it('Kopfzeile, Ausgabe und Statuszeile sind benannt', async () => {
+  it('Kopfzeile und Ausgabe sind benannt', async () => {
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     assertEqual(doc.querySelector('.seitenleiste-header-row')?.getAttribute('aria-label'), 'Allgemein', 'Kopfzeile');
     assertEqual(doc.querySelector('.seitenleiste-export-group')?.getAttribute('aria-label'), 'Schnellstart und Ausgabe', 'Drucken/Speichern');
-    assertEqual(doc.querySelector('.seitenleiste-zustand')?.getAttribute('aria-label'), 'Aktueller Stand', 'Statuszeile');
     assertEqual(doc.querySelector('#zone-aktionen')?.getAttribute('aria-label'), 'Aktionen', 'Fusszeile');
-    assertEqual(doc.getElementById('btn-zustand-aendern')?.getAttribute('aria-label'), 'Ansicht ändern', 'aendern-Knopf');
   });
 
   it('die Zone heisst nicht mehr "Daten" (deckte den Inhalt nicht)', async () => {
@@ -6342,37 +6319,6 @@ describe('Anrede-Varianten (Auswahl am Feld, 2026-11-22)', () => {
     assert(texte.includes(SALUTATION_TONES.formal.salutationDefault), 'foermlich allgemein');
     assert(texte.includes('Guten Tag, geschätzte Damen und Herren,'), 'DIN-5008-Beispiel');
     assert(v.every((x) => x.anrede.endsWith(',')));
-  });
-});
-
-describe('Statuszeile ohne FOUC (Reveal vor Modul-Init)', () => {
-  it('boot-state.js schreibt die Statuszeile VOR dem Reveal', async () => {
-    /* Der Befund: boot-state.js gibt die Seite frei (klassisch, Ende Body),
-       settings.js#rendereZustand laeuft erst als Modul danach. Ein Frame lang
-       stand dort das HTML-Fallback "Schrift: System". Der Test haelt die
-       Reihenfolge fest, nicht die Zeilengleichheit. */
-    const src = await (await fetch('/website/js/boot-state.js')).text();
-    const schreiben = src.indexOf("getElementById('zustand-text')");
-    const reveal = src.indexOf("removeAttribute('data-booting')");
-    assert(schreiben > -1, 'boot-state.js schreibt #zustand-text');
-    assert(reveal > -1, 'boot-state.js entfernt data-booting');
-    assert(schreiben < reveal, 'Statuszeile steht vor dem Reveal');
-  });
-
-  it('Format der Statuszeile ist in beiden Schreibern identisch', async () => {
-    /** @param {string} pfad */
-    const muster = async (pfad) => {
-      const src = await (await fetch(pfad)).text();
-      const treffer = src.match(/`Schrift: \$\{[^}]+\} · Unterrand \$\{[^}]+\} mm`/);
-      assert(treffer, `${pfad}: Format gefunden`);
-      if (!treffer) return '';
-      return treffer[0].replace(/\$\{[^}]+\}/g, '${X}');
-    };
-    assertEqual(
-      await muster('/website/js/settings.js'),
-      await muster('/website/js/boot-state.js'),
-      'gleicher Anzeigetext'
-    );
   });
 });
 

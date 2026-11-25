@@ -502,8 +502,8 @@ html:active-view-transition::view-transition-new(brief-viewport) {
    Austausch der Optik.
 
    Spezifitaet (3,1,0): `#seitenleiste` + `:has(#modus-einstellungen:checked)`
-   + Ziel. Die Gegner im Design (`.seitenleiste-setup`, `.seitenleiste-zustand`,
-   `.btn`) liegen bei (0,1,0) — die Ladereihenfolge entscheidet hier nichts,
+   + Ziel. Die Gegner im Design (`.seitenleiste-setup`, `.btn`) liegen bei
+   (0,1,0) — die Ladereihenfolge entscheidet hier nichts,
    die Spezifitaet tut es.
 
    Der Umschalter selbst ist `sr-only` (Abschnitt 1) und damit tastatur-
@@ -518,10 +518,7 @@ html:active-view-transition::view-transition-new(brief-viewport) {
 
 #seitenleiste:has(#modus-einstellungen:checked) #zone-dokument,
 #seitenleiste:has(#modus-einstellungen:checked) #zone-werkzeuge,
-#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-export-group,
-/* Statuszeile auch ausblenden: sie zeigt den Brief-Zustand, und "aendern"
-   waere im Einstellungs-Modus ein Knopf ohne Ziel (gemessen 2026-11-13). */
-#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-zustand {
+#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-export-group {
   display: none;
 }
 

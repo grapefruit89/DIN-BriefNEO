@@ -774,6 +774,22 @@
       ],
       "replacement": "Haptische Rast-Buttons nutzen: <input type=\"checkbox\" class=\"sr-only\" id=\"...\"><label class=\"btn-latch\" for=\"...\">",
       "exemptions": []
+    },
+    {
+      "id": "P46",
+      "catalog_ref": [],
+      "no_catalog_ref_reason": "DIN 5008 § 19.9 & Schreibstabilität: Blocksatz (text-align: justify) ist verboten. Blocksatz führt in editierbarem Fließtext (contenteditable) zu dynamischem Zeilenspringen und Wortstauchung vor dem Cursor. Pflicht ist DIN-5008-Flatterrand (text-align: left; hyphens: manual; text-wrap: wrap;).",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "Blocksatz (text-align: justify) im CSS gefunden. Verboten: erzeugt dynamische Textstauchung und Zeilenspringen beim Tippen. Pflicht: DIN-5008-Flatterrand (text-align: left).",
+      "pattern": "(?<![\\w-])text-align\\s*:\\s*justify\\b",
+      "file_patterns": [
+        "*.css"
+      ],
+      "replacement": "DIN-5008-Flatterrand nutzen: text-align: left; hyphens: manual; text-wrap: wrap;",
+      "exemptions": []
     }
   ]
 }

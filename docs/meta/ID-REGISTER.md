@@ -57,7 +57,7 @@ Format: Präfix in Großbuchstaben, Zahl ohne Trennzeichen, im Fließtext in Bac
 | `A` | Immutable Law (Norm oder Verbot) | `docs/00-foundation/Immutable-Law-Catalog.md` | A1–A68 | `tools/lawcoverage.js` |
 | `H` | HARD BAN / PREFERRED innerhalb des Law Catalog | `docs/00-foundation/Immutable-Law-Catalog.md` | H1–H11 | Teil von `lawcoverage.js` |
 | `C` | Farb-Fallback-Kette (Stufenfolge) | `docs/00-foundation/Immutable-Law-Catalog.md` (A16–A20) | C1 | `lawcoverage.js` |
-| `P` | Projekt-Antipattern-Regel mit `max_violations`-Ratsche | `tools/antipatterns/project.json` | P1–P45 | `tools/reconciliation.js` |
+| `P` | Projekt-Antipattern-Regel mit `max_violations`-Ratsche | `tools/antipatterns/project.json` | P1–P46 | `tools/reconciliation.js` |
 | `W` | Web-Antipattern-Regel (Browser-/Plattformmuster, nicht projektspezifisch) | `tools/antipatterns/web.json` | W2–W11 | `tools/reconciliation.js` |
 | `B` | Backlog-Punkt: offen oder abgeschlossen | `docs/30-meta/BACKLOG.md` (offen), `docs/30-meta/BACKLOG-ARCHIV.md` (erledigt) | B6–B96 | `tools/backlog-sync.mjs` (Tabelle), `tools/id-register.js` (Auflösbarkeit) |
 

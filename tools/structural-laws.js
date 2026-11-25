@@ -227,6 +227,20 @@ function checkStructuralLaws(repoRoot) {
         }
       });
     }
+    // 4. DIN 5008 § 19.9 & Schreibstabilität: Flatterrand-Pflicht (text-align: left) für #text
+    for (const name of ['sheet.css', 'sheet-multipage.css']) {
+      const sheetFile = path.join(cssDir, name);
+      if (!fs.existsSync(sheetFile)) continue;
+      const content = fs.readFileSync(sheetFile, 'utf8');
+      const textBlockMatch = content.match(/#text\s*\{[^}]*\}/s);
+      if (textBlockMatch && textBlockMatch[0].includes('text-align: justify')) {
+        violations.push({
+          file: `website/css/${name}`,
+          line: 1,
+          message: 'DIN-Strukturgesetz verletzt: #text darf niemals text-align: justify (Blocksatz) nutzen. Pflicht ist DIN-5008-Flatterrand (text-align: left).'
+        });
+      }
+    }
   }
 
   return violations;

@@ -108,7 +108,7 @@ export async function activate(ctx = {}) {
   const onUserTyping = (e) => {
     if (!zenEnabled) return;
     const target = /** @type {Element | null} */ (e.target);
-    if (target?.closest?.('din-blatt')) {
+    if (target?.closest?.('#text')) {
       document.body.classList.add('is-typing');
       if (typingTimer) clearTimeout(typingTimer);
       typingTimer = setTimeout(() => {

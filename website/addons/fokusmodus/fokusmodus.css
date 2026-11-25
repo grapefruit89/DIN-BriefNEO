@@ -68,29 +68,30 @@ din-blatt[data-fokus="absatz"]:has(#text:focus-within) #text > *.fokus-aktiv {
 
 /* --------------------------------------------------------------------------
  * 5. FOKUS-SCHREIBMODUS (SEITENLEISTE WIRD GEBLURT)
- * Seitenleiste wird sanft geblurt und tritt in den Hintergrund, sobald der
- * Fokus-Modus aktiv ist. Beim Hovern oder Fokussieren der Seitenleiste
- * wird sie sofort glasklar; beim aktiven Tippen verblasst sie noch tiefer.
+ * Die Seitenleiste wird NUR DANN sanft weichgezeichnet und ausgeblendet,
+ * wenn der Fokus-Modus aktiv ist UND sich der Cursor im Fließtext (#text)
+ * befindet. In allen anderen Feldern (Empfänger, Absender, Betreff etc.)
+ * bleibt die Seitenleiste 100% scharf und bedienbar.
  * -------------------------------------------------------------------------- */
-:is(body[data-fokus-aktiv="true"], body[data-zen="true"]) #seitenleiste {
+:is(body[data-fokus-aktiv="true"], body[data-zen="true"]):has(#text:focus-within) #seitenleiste {
   filter: blur(4px);
   opacity: 0.35;
   transition: filter 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-:is(body[data-fokus-aktiv="true"], body[data-zen="true"]) #seitenleiste:hover,
-:is(body[data-fokus-aktiv="true"], body[data-zen="true"]) #seitenleiste:focus-within {
+:is(body[data-fokus-aktiv="true"], body[data-zen="true"]):has(#text:focus-within) #seitenleiste:hover,
+:is(body[data-fokus-aktiv="true"], body[data-zen="true"]):has(#text:focus-within) #seitenleiste:focus-within {
   filter: blur(0);
   opacity: 1;
 }
 
-:is(body[data-fokus-aktiv="true"], body[data-zen="true"]).is-typing #seitenleiste {
+:is(body[data-fokus-aktiv="true"], body[data-zen="true"]).is-typing:has(#text:focus-within) #seitenleiste {
   filter: blur(8px);
   opacity: 0.06;
 }
 
-:is(body[data-fokus-aktiv="true"], body[data-zen="true"]).is-typing #seitenleiste:hover,
-:is(body[data-fokus-aktiv="true"], body[data-zen="true"]).is-typing #seitenleiste:focus-within {
+:is(body[data-fokus-aktiv="true"], body[data-zen="true"]).is-typing:has(#text:focus-within) #seitenleiste:hover,
+:is(body[data-fokus-aktiv="true"], body[data-zen="true"]).is-typing:has(#text:focus-within) #seitenleiste:focus-within {
   filter: blur(0);
   opacity: 1;
 }

@@ -81,7 +81,11 @@ din-blatt {
   }
 
   din-blatt {
-    user-select: auto;
+    user-select: none;
+  }
+
+  din-blatt :is([contenteditable], input, textarea) {
+    user-select: text;
   }
 }
 

@@ -276,21 +276,45 @@ function initApp() {
       });
     }
 
-    const viewport = document.getElementById('viewport');
-    if (viewport) {
-      viewport.addEventListener('pointerdown', (e) => {
-        const target = e.target instanceof Element ? e.target : null;
-        if (!target?.closest('din-blatt')) {
-          // Klick auf den Hintergrund außerhalb des Blattes:
-          // Verhindert, dass Blink den Caret ans Zeilenende von #text setzt
-          e.preventDefault();
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
+    // Globaler Schutz vor Blinks nativer Caret-Delegation (PositionForPoint):
+    // Alle Klicks außerhalb von #text (der einzigen contenteditable-Box) ziehen
+    // den Cursor sofort und restlos aus der Box ab. Klicks auf nicht-interaktive
+    // Flächen (Blattränder, Spacer, Kern, Viewport) verhindern zusätzlich die
+    // automatische Caret-Synthese in #text.
+    document.addEventListener('pointerdown', (e) => {
+      const target = e.target instanceof Element ? e.target : null;
+      if (!target) return;
+
+      // 1. Klick innerhalb von #text: reguläres Editieren erlauben
+      if (target.closest('#text')) return;
+
+      // 2. Textformatierungs-Buttons: Auswahl in #text muss für Formatierungs-Aktionen erhalten bleiben
+      if (target.closest('#btn-bold, #btn-italic, #btn-quote')) return;
+
+      // 3. Andere interaktive Steuerelemente (Inputs, Textareas, Buttons, Dialoge, Popovers):
+      // Falls der Cursor noch in #text steht, diesen sofort abziehen.
+      if (
+        target.closest(
+          'input, textarea, select, button, label, a, summary, dialog, [popover], [tabindex]:not([tabindex="-1"])',
+        )
+      ) {
+        const active = document.activeElement;
+        if (active?.id === 'text' || active?.closest('#text')) {
+          if (active instanceof HTMLElement) active.blur();
           window.getSelection()?.removeAllRanges();
         }
-      });
-    }
+        return;
+      }
+
+      // 4. Nicht-interaktive Flächen (Blattränder, Spacer, Kern, Viewport, Leerräume):
+      // e.preventDefault() stoppt Blinks PositionForPoint-Algorithmus, damit der
+      // Caret nicht ungefragt an ein Zeilenende in #text gesetzt wird.
+      e.preventDefault();
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      window.getSelection()?.removeAllRanges();
+    });
 
     const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
 

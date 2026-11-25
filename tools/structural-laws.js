@@ -9,6 +9,9 @@
  *   - A59: keine Theme-Variablen (--text-primary, --bg-surface etc.) auf dem DIN-A4-Blatt
  *          (sheet.css, sheet-common.css, sheet-multipage.css; #viewport ausgenommen,
  *          weil das der Schreibtisch ist und kein A4-Blatt)
+ *   - DIN-Strukturgesetze: zwingende Custom Elements und Kern-Atome in website/index.html,
+ *          dazu ein Div-Budget (gesamt und auf <din-blatt>), damit semantisches HTML
+ *          nicht durch <div>-Suppe ersetzt wird
  */
 
 const fs = require('fs');
@@ -106,6 +109,66 @@ function checkStructuralLaws(repoRoot) {
   for (const [name, radios] of radioGroups) {
     if (radios.length === 2 && !A57_AUSNAHMEN.has(name)) {
       violations.push({ file: 'website/index.html', line: radios[0].line, message: `A57: binäre Radio-Gruppe "${name}" als Schalter — Checkbox switch verwenden oder fachlich begründete Ausnahme dokumentieren.` });
+    }
+  }
+
+  // --- DIN-Strukturgesetze: Zwingende Pflicht-Elemente in website/index.html ---
+  const PFLICHT_CUSTOM_ELEMENTS = [
+    'din-blatt',
+    'din-briefkopf',
+    'din-anschriftfeld',
+    'din-infoblock',
+    'din-kern',
+    'din-geschaeftsangaben',
+    'din-falzmarke-1',
+    'din-falzmarke-2',
+    'din-lochmarke',
+    'din-text',
+    'din-seitennummerierung'
+  ];
+  for (const tag of PFLICHT_CUSTOM_ELEMENTS) {
+    const re = new RegExp(`<${tag}\\b`, 'i');
+    if (!re.test(htmlText)) {
+      violations.push({
+        file: 'website/index.html',
+        line: 1,
+        message: `DIN-Strukturgesetz verletzt: Zwingendes Custom Element <${tag}> fehlt in website/index.html.`
+      });
+    }
+  }
+
+  const PFLICHT_KERN_ATOME = ['betreff', 'anrede', 'datum', 'text', 'grussformel'];
+  for (const id of PFLICHT_KERN_ATOME) {
+    if (!ids.has(id)) {
+      violations.push({
+        file: 'website/index.html',
+        line: 1,
+        message: `DIN-Strukturgesetz verletzt: Zwingendes Kern-Atom id="${id}" fehlt in website/index.html.`
+      });
+    }
+  }
+
+  // --- Div-Budget-Ratsche (Schutz vor Div-Suppe) ---
+  const MAX_DIVS_GESAMT = 66;
+  const alleDivs = htmlText.match(/<div\b/gi) || [];
+  if (alleDivs.length > MAX_DIVS_GESAMT) {
+    violations.push({
+      file: 'website/index.html',
+      line: 1,
+      message: `Div-Suppen-Alarm: ${alleDivs.length} <div>-Tags gefunden (Budget-Deckel ist ${MAX_DIVS_GESAMT}). Bitte semantisches HTML nutzen (<fieldset>, <legend>, <menu>, <section>, <output>).`
+    });
+  }
+
+  const blattMatch = htmlText.match(/<din-blatt[\s\S]*?<\/din-blatt>/i);
+  if (blattMatch) {
+    const blattDivs = blattMatch[0].match(/<div\b/gi) || [];
+    const MAX_BLATT_DIVS = 10;
+    if (blattDivs.length > MAX_BLATT_DIVS) {
+      violations.push({
+        file: 'website/index.html',
+        line: 1,
+        message: `Div-Suppen-Alarm auf DIN-Blatt: ${blattDivs.length} <div>-Tags in <din-blatt> gefunden (Budget-Deckel ist ${MAX_BLATT_DIVS}). Auf dem Briefbogen sind ausschliesslich semantische Tags und <din-*>-Elemente erlaubt.`
+      });
     }
   }
 

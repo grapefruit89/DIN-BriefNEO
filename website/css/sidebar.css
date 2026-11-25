@@ -638,6 +638,98 @@ input[type="checkbox"][switch] {
 }
 
 
+/* --- Haptische Rast-Buttons (Tactile Latch Buttons) --- */
+.btn-accent {
+  background: color-mix(in oklch, var(--accent-color) 12%, var(--bg-card));
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  font-weight: 600;
+  gap: var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--ctl-h-aktion);
+  margin-block-end: var(--space-sm);
+}
+.btn-accent:hover {
+  background: color-mix(in oklch, var(--accent-color) 20%, var(--bg-card));
+}
+
+.seitenleiste-latch-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.latch-item {
+  position: relative;
+  width: 100%;
+}
+
+.btn-latch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: var(--ctl-h);
+  padding-inline: var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--seitenleiste-titel);
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, translate 0.1s ease;
+}
+
+.btn-latch:hover {
+  border-color: var(--accent-color);
+}
+
+.btn-latch-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.btn-latch-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.btn-latch-led {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--border-color);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Eingerasteter Zustand (Checked) */
+input[type="checkbox"]:checked + .btn-latch {
+  background: color-mix(in oklch, var(--accent-color) 15%, var(--bg-card));
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: inset 0 2px 4px oklch(0% 0 0 / 12%);
+  translate: 0 1px;
+}
+
+input[type="checkbox"]:checked + .btn-latch .btn-latch-led {
+  background: var(--accent-color);
+  box-shadow: 0 0 6px var(--accent-color);
+}
+
+input[type="checkbox"]:focus-visible + .btn-latch {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+
 /* Accessibility: Windows High Contrast / forced-colors. Ohne diesen Guard
    verlieren Buttons ihren Hintergrund und sind mit `transparent`-Border
    unsichtbar. Systemfarben (ButtonFace/ButtonText) sind hier der Standardweg. */
@@ -1666,13 +1758,10 @@ aside select {
 }
 
 body:has(:is(din-falzmarke-1, din-falzmarke-2, din-lochmarke):hover)
-  .seitenleiste-switch-row:has(#toggle-falzmarken),
-body:has(din-anlagenvermerk:hover) .seitenleiste-switch-row:has(#toggle-anlagen),
-body:has(din-geschaeftsangaben:hover) .seitenleiste-switch-row:has(#toggle-fuss) {
-  background: color-mix(in oklch, var(--accent-color) 10%, transparent);
-  outline: 1px dashed var(--accent-color);
-  outline-offset: -1px;
-  border-radius: var(--radius-sm);
+  .latch-item:has(#toggle-falzmarken) .btn-latch,
+body:has(din-anlagenvermerk:hover) .latch-item:has(#toggle-anlagen) .btn-latch,
+body:has(din-geschaeftsangaben:hover) .latch-item:has(#toggle-fuss) .btn-latch {
+  border-color: var(--accent-color);
 }
 
 body:has(#toggle-falzmarken:is(:hover, :focus-visible), label[for="toggle-falzmarken"]:hover)

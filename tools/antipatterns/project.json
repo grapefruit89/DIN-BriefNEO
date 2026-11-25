@@ -757,6 +757,23 @@
       ],
       "replacement": "CSS Individual Properties nutzen: translate: x y;, scale: s;, rotate: r deg;",
       "exemptions": []
+    },
+    {
+      "id": "P45",
+      "catalog_ref": [],
+      "no_catalog_ref_reason": "UI-Hygiene & Haptik: Ungestylte oder nackte Checkboxen in der Seitenleiste sind verboten. Schalter muessen als haptische Rast-Buttons (.btn-latch) mit .sr-only-Input oder definierte Switches gebaut sein.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "html",
+      "description": "Nackte Checkbox ohne .sr-only in der Seitenleiste gefunden. Schalter muessen haptische Latch-Buttons (.btn-latch) sein.",
+      "pattern": "<input[^>]*type=[\"']checkbox[\"'](?![^>]*class=[\"'][^\"']*\\bsr-only\\b)[^>]*class=[\"'][^\"']*seitenleiste",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*|<!--)",
+      "file_patterns": [
+        "website/index.html"
+      ],
+      "replacement": "Haptische Rast-Buttons nutzen: <input type=\"checkbox\" class=\"sr-only\" id=\"...\"><label class=\"btn-latch\" for=\"...\">",
+      "exemptions": []
     }
   ]
 }

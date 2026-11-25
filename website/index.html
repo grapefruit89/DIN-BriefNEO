@@ -71,9 +71,15 @@
           </div>
         </fieldset>
 
-        <div class="seitenleiste-export-group seitenleiste-btn-row" role="group" aria-label="Ausgabe">
-          <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
-          <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
+        <div class="seitenleiste-export-group" role="group" aria-label="Schnellstart und Ausgabe">
+          <button type="button" id="btn-testbrief" class="btn btn-accent w-full" data-addon="testbrief" data-addon-action="start" title="Zufälligen DIN-5008-Musterbrief generieren">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            <span>Musterbrief laden</span>
+          </button>
+          <div class="seitenleiste-btn-row">
+            <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
+            <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern</button>
+          </div>
         </div>
 
         <!-- Statuszeile: zeigt nur, was im Brief-Modus NICHT als Regler
@@ -160,61 +166,70 @@
 
           <hr class="seitenleiste-divider">
 
-          <!-- 4. Zusatzblöcke -->
-          <div class="seitenleiste-subgroup">
-            <div class="seitenleiste-switch-row">
-              <label for="toggle-anlagen" class="seitenleiste-label">Anlagen</label>
-              <input type="checkbox" switch id="toggle-anlagen">
+          <!-- 4. Zusatzblöcke: haptische Rast-Schalter statt nackter Checkboxen.
+               Ein fieldset spart die früheren switch-row-Divs und gruppiert die
+               drei Brief-Optionen semantisch (Legende sichtbar). -->
+          <fieldset class="seitenleiste-field-group seitenleiste-latch-group">
+            <legend class="seitenleiste-label">Brief-Optionen</legend>
+            <div class="latch-item">
+              <input type="checkbox" id="toggle-falzmarken" class="sr-only" checked>
+              <label for="toggle-falzmarken" class="btn-latch">
+                <span class="btn-latch-left">
+                  <span class="btn-latch-icon" aria-hidden="true">✂</span>
+                  <span class="btn-latch-text">Falz- &amp; Lochmarken</span>
+                </span>
+                <span class="btn-latch-led" aria-hidden="true"></span>
+              </label>
             </div>
-
-            <!-- Nur sichtbar, wenn das Addon „Geschäftsangaben" in den
-                 Einstellungen eingeschaltet ist (data-plugin-geschaeftsangaben).
-                 Ein Addon darf den Brief nicht ungefragt erweitern. -->
-            <div class="seitenleiste-switch-row" data-addon="geschaeftsangaben">
-              <label for="toggle-fuss" class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</label>
-              <input type="checkbox" switch id="toggle-fuss">
+            <div class="latch-item">
+              <input type="checkbox" id="toggle-anlagen" class="sr-only">
+              <label for="toggle-anlagen" class="btn-latch">
+                <span class="btn-latch-left">
+                  <span class="btn-latch-icon" aria-hidden="true">📎</span>
+                  <span class="btn-latch-text">Anlagen-Vermerk</span>
+                </span>
+                <span class="btn-latch-led" aria-hidden="true"></span>
+              </label>
             </div>
-          </div>
+            <div class="latch-item" data-addon="geschaeftsangaben">
+              <input type="checkbox" id="toggle-fuss" class="sr-only">
+              <label for="toggle-fuss" class="btn-latch">
+                <span class="btn-latch-left">
+                  <span class="btn-latch-icon" aria-hidden="true">🏢</span>
+                  <span class="btn-latch-text">Geschäftszeile (Fußblock)</span>
+                </span>
+                <span class="btn-latch-led" aria-hidden="true"></span>
+              </label>
+            </div>
+          </fieldset>
           <!-- Layout zuletzt: global, selten, wirkt auf das ganze Blatt. -->
           <!-- 1. Format & Ansicht -->
-          <div class="seitenleiste-subgroup">
-            <fieldset class="seitenleiste-field-group">
-              <legend class="seitenleiste-label">DIN-Brief Layout</legend>
-              <!-- Eigene Klasse: dieser Schalter haengt an `data-layout` (B63),
-                   nicht an :checked. Begruendung in sidebar.css. -->
-              <div class="segmented-control segmented-control-layout">
-                <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
-                <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
-                <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
-                <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
-              </div>
-            </fieldset>
-
-            <div class="seitenleiste-switch-row">
-              <label for="toggle-falzmarken" class="seitenleiste-label">Falz- &amp; Lochmarken</label>
-              <input type="checkbox" switch id="toggle-falzmarken" checked>
+          <fieldset class="seitenleiste-field-group">
+            <legend class="seitenleiste-label">DIN-Brief Layout</legend>
+            <!-- Eigene Klasse: dieser Schalter haengt an `data-layout` (B63),
+                 nicht an :checked. Begruendung in sidebar.css. -->
+            <div class="segmented-control segmented-control-layout">
+              <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
+              <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
+              <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
+              <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
             </div>
-
-          </div>
+          </fieldset>
 
           <hr class="seitenleiste-divider">
         </section>
 
-        <!-- Zone 2: Dateien & Testbrief. Hies "Daten" und deckte den Inhalt
-             nicht: die Zone enthaelt Oeffnen, Testbrief und In-Zwischenablage,
-             waehrend Speichern/Drucken in der Gruppe "Ausgabe" oben liegen
-             (B75). -->
+        <!-- Zone 2: Dateien. Hies "Daten" und deckte den Inhalt nicht (B75).
+             Seit dem Seitenleisten-Umbau 2026-11-25 enthaelt sie nur noch
+             Oeffnen und Kopieren; der Musterbrief sitzt oben in der
+             Ausgabegruppe, Speichern/Drucken ebenso. -->
         <section id="zone-werkzeuge" class="seitenleiste-zone">
-          <h2 class="sr-only">Dateien &amp; Testbrief</h2>
-          
-
-          <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
-          <input type="file" id="dinletter-uploader" accept=".json,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">
-
-          <button type="button" id="btn-testbrief" class="btn btn-ghost w-full" data-addon="testbrief" data-addon-action="start" title="Zufälligen Testbrief mit zwei Figuren generieren">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg> Testbrief
-          </button>
-          <button type="button" id="btn-copy-dinletter" class="btn w-full" title="Kopiert das vollständige Brief-JSON direkt in die Zwischenablage">📋 In Zwischenablage (.json)</button>
+          <h2 class="sr-only">Dateien</h2>
+          <div class="seitenleiste-btn-row">
+            <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen</button>
+            <input type="file" id="dinletter-uploader" accept=".json,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">
+            <button type="button" id="btn-copy-dinletter" class="btn w-full" title="Kopiert das vollständige Brief-JSON direkt in die Zwischenablage">📋 Kopieren</button>
+          </div>
         </section>
 
         <!-- Zone 3: Grundeinstellungen & Setup -->

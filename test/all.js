@@ -5969,9 +5969,9 @@ describe('Strukturvertrag liegt nicht in der Design-Schicht (Befund B15)', () =>
        der Postvermerk gehoert in den Anschriftbereich, vor alles Zusaetzliche. */
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    const labels = [...doc.querySelectorAll('#zone-dokument .seitenleiste-label')].map((e) => e.textContent.trim());
+    const labels = [...doc.querySelectorAll('#zone-dokument .seitenleiste-label, #zone-dokument .btn-latch-text')].map((e) => e.textContent.trim());
     const post = labels.indexOf('Postvermerk');
-    const anlagen = labels.indexOf('Anlagen');
+    const anlagen = labels.indexOf('Anlagen-Vermerk');
     assert(post > -1 && anlagen > -1, 'beide Labels vorhanden');
     assert(post < anlagen, 'Postvermerk vor den Zusatzbloecken');
   });
@@ -5999,7 +5999,7 @@ describe('Jedes Fokusziel hat eine benannte Gruppe (B75)', () => {
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     assertEqual(doc.querySelector('.seitenleiste-header-row')?.getAttribute('aria-label'), 'Allgemein', 'Kopfzeile');
-    assertEqual(doc.querySelector('.seitenleiste-export-group')?.getAttribute('aria-label'), 'Ausgabe', 'Drucken/Speichern');
+    assertEqual(doc.querySelector('.seitenleiste-export-group')?.getAttribute('aria-label'), 'Schnellstart und Ausgabe', 'Drucken/Speichern');
     assertEqual(doc.querySelector('.seitenleiste-zustand')?.getAttribute('aria-label'), 'Aktueller Stand', 'Statuszeile');
     assertEqual(doc.querySelector('#zone-aktionen')?.getAttribute('aria-label'), 'Aktionen', 'Fusszeile');
     assertEqual(doc.getElementById('btn-zustand-aendern')?.getAttribute('aria-label'), 'Ansicht ändern', 'aendern-Knopf');
@@ -6011,7 +6011,7 @@ describe('Jedes Fokusziel hat eine benannte Gruppe (B75)', () => {
     const h2 = doc.querySelector('#zone-werkzeuge h2');
     assert(h2, 'Zonen-Ueberschrift vorhanden');
     assert(!/^Daten$/.test(h2?.textContent?.trim() || ''), 'Name "Daten" ist ersetzt');
-    assertEqual(h2?.textContent?.trim(), 'Dateien & Testbrief', 'neuer Name');
+    assertEqual(h2?.textContent?.trim(), 'Dateien', 'neuer Name');
   });
 });
 

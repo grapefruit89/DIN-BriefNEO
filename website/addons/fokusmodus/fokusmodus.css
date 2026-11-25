@@ -65,39 +65,6 @@ din-blatt[data-fokus="absatz"]:has(#text:focus-within) #text > *.fokus-aktiv {
   opacity: 1;
 }
 
-/* --------------------------------------------------------------------------
- * 4. ZEILEN- & SATZ-FOKUS (data-fokus="zeile")
- * Vorbild: iA Writer Sentence Focus.
- * Der aktive Absatz wird selektiv gedimmt; nur der exakt aktive Satz
- * wird per CSS Custom Highlight API gestochen scharf auf 100% gehalten.
- * KEINE Hintergrundfarbe (keine Suppe), kein Verfälschen der Papieroptik!
- * -------------------------------------------------------------------------- */
-din-blatt[data-fokus="zeile"]:has(#text:focus-within) #text > * {
-  opacity: 0.25;
-  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-din-blatt[data-fokus="zeile"]:has(#text:focus-within) #text > *.fokus-aktiv {
-  opacity: 1;
-  /* Text im aktiven Absatz wird auf 35% gedimmt, damit der aktive Satz hervorsticht */
-  color: color-mix(in oklch, currentColor 32%, transparent);
-}
-
-/* Der aktive Satz tritt mit voller 100% Kontraststärke und Schärfe hervor */
-::highlight(fokus-satz) {
-  color: oklch(15% 0 0);
-  background-color: transparent;
-  text-shadow: 0 0 0.4px oklch(15% 0 0 / 0.5); /* ganz dezent gefettet/präsent */
-}
-
-@media (prefers-color-scheme: dark) {
-  /* Auf dem A4-Blatt (weißes Papier) bleibt die Schrift dunkel */
-  ::highlight(fokus-satz) {
-    color: oklch(10% 0 0);
-    background-color: transparent;
-    text-shadow: 0 0 0.4px oklch(10% 0 0 / 0.5);
-  }
-}
 
 /* --------------------------------------------------------------------------
  * 5. FOKUS-SCHREIBMODUS (SEITENLEISTE WIRD GEBLURT)

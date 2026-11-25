@@ -47,6 +47,8 @@ function removeStylesheet() {
 
 /**
  * Aktualisiert die .fokus-aktiv Klasse auf dem aktiven Paragraphen in #text.
+ * Wichtig: Wenn der aktive Absatz derselbe bleibt (beim normalen Tippen),
+ * erfolgt KEINE DOM-Mutation (verhindert Text-Stauchung und Re-Layout).
  */
 function updateParagraphFocus() {
   if (currentMode === 'aus') return;
@@ -56,124 +58,26 @@ function updateParagraphFocus() {
   if (!textContainer) return;
 
   const node = sel?.anchorNode;
-  const isInside = node && textContainer.contains(node);
+  const isInside = Boolean(node && textContainer.contains(node));
 
-  const prev = textContainer.querySelectorAll('.fokus-aktiv');
-  prev.forEach((el) => {
-    el.classList.remove('fokus-aktiv');
-  });
-
+  let target = null;
   if (isInside && node) {
-    let target = node.nodeType === Node.ELEMENT_NODE ? /** @type {Element} */ (node) : node.parentElement;
-    while (target && target.parentElement !== textContainer && target !== textContainer) {
-      target = target.parentElement;
+    let curr = node.nodeType === Node.ELEMENT_NODE ? /** @type {Element} */ (node) : node.parentElement;
+    while (curr && curr.parentElement !== textContainer && curr !== textContainer) {
+      curr = curr.parentElement;
     }
-    if (target && target !== textContainer) {
-      target.classList.add('fokus-aktiv');
-    }
-  }
-}
-
-/**
- * Ermittelt die Satzgrenzen um den aktuellen Text-Cursor und setzt den CSS Highlight.
- * Vorbild: iA Writer Sentence Focus & Ghostwriter.
- * Nutzt die native W3C CSS Custom Highlight API (Chrome 105+ Baseline).
- */
-function updateSentenceHighlight() {
-  if (typeof CSS === 'undefined' || !('highlights' in CSS)) return;
-
-  if (currentMode !== 'zeile') {
-    // @ts-ignore
-    CSS.highlights.delete('fokus-satz');
-    return;
-  }
-
-  const sel = window.getSelection();
-  if (!sel?.rangeCount || sel.isCollapsed === false) {
-    // @ts-ignore
-    CSS.highlights.delete('fokus-satz');
-    return;
-  }
-
-  let node = sel.anchorNode;
-  if (!node) {
-    // @ts-ignore
-    CSS.highlights.delete('fokus-satz');
-    return;
-  }
-
-  const blatt = document.querySelector('din-blatt');
-  if (!blatt?.contains(node)) {
-    // @ts-ignore
-    CSS.highlights.delete('fokus-satz');
-    return;
-  }
-
-  let offset = sel.anchorOffset;
-
-  // Wenn der Cursor auf einem Element-Knoten statt TextNode steht (z.B. Zeilenanfang/Ende),
-  // finden wir den zugehörigen TextNode:
-  if (node.nodeType === Node.ELEMENT_NODE) {
-    const el = /** @type {Element} */ (node);
-    const childNodes = el.childNodes;
-    if (childNodes.length > 0) {
-      const idx = Math.min(Math.max(0, offset > 0 ? offset - 1 : 0), childNodes.length - 1);
-      const targetChild = childNodes[idx];
-      if (targetChild.nodeType === Node.TEXT_NODE) {
-        node = targetChild;
-        offset = targetChild.textContent?.length || 0;
-      } else {
-        const walker = document.createTreeWalker(targetChild, NodeFilter.SHOW_TEXT);
-        const firstText = walker.nextNode();
-        if (firstText) {
-          node = firstText;
-          offset = firstText.textContent?.length || 0;
-        }
-      }
+    if (curr && curr !== textContainer) {
+      target = curr;
     }
   }
 
-  if (!node || node.nodeType !== Node.TEXT_NODE) {
-    // @ts-ignore
-    CSS.highlights.delete('fokus-satz');
+  const currentAktiv = textContainer.querySelector('.fokus-aktiv');
+  if (currentAktiv === target) {
     return;
   }
 
-  const text = node.textContent || '';
-
-  // Suche Satzanfang (letztes Satzende davor: . ! ? gefolgt von Leerzeichen)
-  let start = 0;
-  for (let i = offset - 1; i >= 0; i--) {
-    if (/[.!?\n]/.test(text[i])) {
-      let s = i + 1;
-      while (s < offset && /\s/.test(text[s])) s++;
-      start = s;
-      break;
-    }
-  }
-
-  // Suche Satzende (nächstes Satzende danach)
-  let end = text.length;
-  for (let i = offset; i < text.length; i++) {
-    if (/[.!?\n]/.test(text[i])) {
-      end = i + 1;
-      break;
-    }
-  }
-
-  try {
-    const range = document.createRange();
-    range.setStart(node, Math.max(0, start));
-    range.setEnd(node, Math.min(text.length, end));
-
-    // @ts-ignore
-    const highlight = new Highlight(range);
-    // @ts-ignore
-    CSS.highlights.set('fokus-satz', highlight);
-  } catch (_e) {
-    // @ts-ignore
-    CSS.highlights.delete('fokus-satz');
-  }
+  if (currentAktiv) currentAktiv.classList.remove('fokus-aktiv');
+  if (target) target.classList.add('fokus-aktiv');
 }
 
 /**
@@ -183,6 +87,12 @@ function updateSentenceHighlight() {
  */
 export async function activate(ctx = {}) {
   ensureStylesheet();
+
+  // Alte Highlights sofort rückstandslos entfernen
+  if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
+    // @ts-ignore
+    CSS.highlights.delete('fokus-satz');
+  }
 
   const blatt = document.querySelector('din-blatt');
   if (blatt && currentMode !== 'aus') {
@@ -219,9 +129,6 @@ export async function activate(ctx = {}) {
 
   const onSelectionChange = () => {
     updateParagraphFocus();
-    if (currentMode === 'zeile') {
-      updateSentenceHighlight();
-    }
   };
 
   window.addEventListener('keydown', onUserTyping, { passive: true });
@@ -294,11 +201,15 @@ export async function run(action, arg, _ctx = {}) {
         updateParagraphFocus();
       }
     }
+    if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
+      // @ts-ignore
+      CSS.highlights.delete('fokus-satz');
+    }
     return aktiv;
   }
 
   if (action === 'setMode') {
-    currentMode = String(arg || 'aus');
+    currentMode = arg === 'aus' ? 'aus' : 'absatz';
     const blatt = document.querySelector('din-blatt');
     if (blatt) {
       if (currentMode === 'aus') {
@@ -317,7 +228,6 @@ export async function run(action, arg, _ctx = {}) {
         ensureStylesheet();
         blatt.setAttribute('data-fokus', currentMode);
         updateParagraphFocus();
-        if (currentMode === 'zeile') updateSentenceHighlight();
       }
     }
     return currentMode;

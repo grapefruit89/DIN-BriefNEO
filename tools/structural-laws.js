@@ -149,7 +149,7 @@ function checkStructuralLaws(repoRoot) {
   }
 
   // --- Div-Budget-Ratsche (Schutz vor Div-Suppe) ---
-  const MAX_DIVS_GESAMT = 35;
+  const MAX_DIVS_GESAMT = 20;
   const alleDivs = htmlText.match(/<div\b/gi) || [];
   if (alleDivs.length > MAX_DIVS_GESAMT) {
     violations.push({

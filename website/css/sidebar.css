@@ -1653,10 +1653,13 @@ aside select {
      Seitenleiste bleibt bedienbar. --seitenleiste-breite ist der Token der Shell. */
   left: calc(var(--seitenleiste-breite, 290px) + var(--space-md));
   bottom: var(--space-md);
-  z-index: 1;              /* liegt ueber dem Blatt, unter Dialogen/Top-Layer */
-  max-width: 22rem;
-  max-height: 60vh;
-  overflow-y: auto;
+  z-index: 100;              /* liegt ueber dem Blatt, unter Dialogen/Top-Layer */
+  display: grid;
+  grid-template-columns: 290px 290px;
+  gap: var(--space-md);
+  max-width: 620px;
+  max-height: none;
+  overflow: hidden !important; /* ZERO-SCROLL: Niemals Scrollbalken im Debug-Panel */
   padding: var(--space-sm) var(--space-md);
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.68rem;
@@ -1667,6 +1670,19 @@ aside select {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
+}
+
+.debug-spalte {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+
+.debug-panel menu {
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .debug-zoom-zeile {

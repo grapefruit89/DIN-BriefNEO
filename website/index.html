@@ -549,78 +549,83 @@
          Ein-/Ausblenden in JS). Die Werte schreibt debug-panel.js; das × ist
          ein <label> auf denselben Schalter und schaltet ihn damit nativ aus. -->
     <aside id="debug-panel" class="debug-panel nicht-drucken" role="complementary" aria-label="Entwickler-Informationen">
-      <div class="debug-kopf">
-        <strong>Debug · DIN-BriefNEO</strong>
-        <label for="toggle-debug" class="debug-schliessen" title="Panel ausschalten">×</label>
-      </div>
-      <div class="debug-block debug-nacht">
-        <div class="debug-block-kopf">
-          <strong>Nacht-Helligkeit</strong>
-          <output id="dbg-nacht-wert">0,50</output>
-        </div>
-        <input type="range" id="dbg-nacht" min="38" max="68" step="1" value="50"
-               aria-label="Grundhelligkeit der Nachtpalette">
-        <small id="dbg-nacht-status">Regler bewegen — Wert wird dauerhaft gespeichert.</small>
-      </div>
-      <div class="debug-block debug-zoom">
-        <div class="debug-block-kopf">
-          <strong>Blattgröße</strong>
-        </div>
-        <div class="debug-zoom-zeile">
-          <button type="button" id="dbg-breite-minus" class="btn" aria-label="Blatt kleiner">−</button>
-          <button type="button" id="dbg-einheit-px" class="btn" aria-pressed="true">px</button>
-          <button type="button" id="dbg-einheit-prozent" class="btn" aria-pressed="false">%</button>
-          <button type="button" id="dbg-breite-plus" class="btn" aria-label="Blatt größer">+</button>
-        </div>
-        <output id="dbg-breite-wert">900 px</output>
-        <div class="debug-zoom-zeile">
-          <button type="button" id="dbg-breite-einpassen" class="btn">Einpassen</button>
-          <button type="button" id="dbg-breite-original" class="btn" hidden
-                  title="Auf Standardgröße zurücksetzen" aria-label="Auf Standardgröße zurücksetzen">↺</button>
-        </div>
-        <small>−/+ gedrückt halten läuft weiter. ↺ erscheint, sobald der Standard (900 px) verstellt ist.</small>
-      </div>
+      <section class="debug-spalte">
+        <header class="debug-kopf">
+          <strong>Debug · DIN-BriefNEO</strong>
+          <label for="toggle-debug" class="debug-schliessen" title="Panel ausschalten">×</label>
+        </header>
+        <section class="debug-block debug-nacht">
+          <header class="debug-block-kopf">
+            <strong>Nacht-Helligkeit</strong>
+            <output id="dbg-nacht-wert">0,50</output>
+          </header>
+          <input type="range" id="dbg-nacht" min="38" max="68" step="1" value="50"
+                 aria-label="Grundhelligkeit der Nachtpalette">
+          <small id="dbg-nacht-status">Regler bewegen — Wert wird dauerhaft gespeichert.</small>
+        </section>
+        <section class="debug-block debug-zoom">
+          <header class="debug-block-kopf">
+            <strong>Blattgröße</strong>
+          </header>
+          <menu class="debug-zoom-zeile">
+            <button type="button" id="dbg-breite-minus" class="btn" aria-label="Blatt kleiner">−</button>
+            <button type="button" id="dbg-einheit-px" class="btn" aria-pressed="true">px</button>
+            <button type="button" id="dbg-einheit-prozent" class="btn" aria-pressed="false">%</button>
+            <button type="button" id="dbg-breite-plus" class="btn" aria-label="Blatt größer">+</button>
+          </menu>
+          <output id="dbg-breite-wert">900 px</output>
+          <menu class="debug-zoom-zeile">
+            <button type="button" id="dbg-breite-einpassen" class="btn">Einpassen</button>
+            <button type="button" id="dbg-breite-original" class="btn" hidden
+                    title="Auf Standardgröße zurücksetzen" aria-label="Auf Standardgröße zurücksetzen">↺</button>
+          </menu>
+          <small>−/+ gedrückt halten läuft weiter. ↺ erscheint, sobald der Standard (900 px) verstellt ist.</small>
+        </section>
 
-      <dl class="debug-tabelle">
-        <dt>PLZ im Bestand</dt><dd id="dbg-plz">–</dd>
-        <dt>Ortsnamen</dt><dd id="dbg-orte">–</dd>
-        <dt>Ortsteile (PLZ)</dt><dd id="dbg-ortsteile">–</dd>
-        <dt>PLZ mit Bundesland</dt><dd id="dbg-bundesland">–</dd>
-        <dt>Adressbuch</dt><dd id="dbg-adressbuch">–</dd>
-        <dt>Geo-Cache</dt><dd id="dbg-cache">–</dd>
-        <dt>localStorage</dt><dd id="dbg-speicher">–</dd>
-        <dt>Entwurf</dt><dd id="dbg-entwurf">–</dd>
-        <dt>Gedruckt</dt><dd id="dbg-gedruckt">–</dd>
-        <dt>Layout</dt><dd id="dbg-layout">–</dd>
-        <dt>Unterrand</dt><dd id="dbg-unterrand">–</dd>
-        <dt>Uhrzeit</dt><dd id="dbg-uhr">–</dd>
-        <dt>Fehler/Warnungen</dt><dd id="dbg-fehler">–</dd>
-        <dt>Schrift</dt><dd id="dbg-schrift">–</dd>
-      </dl>
-      <dl class="debug-tabelle" id="debug-felder"></dl>
-      <div class="debug-block">
-        <div class="debug-block-kopf">
-          <strong>Anrede &amp; Grußformel</strong>
-          <button type="button" class="btn" data-dbg-liste="anrede-gruss" title="Tonalität, aktueller Wert und alle Angebote in die Zwischenablage">Copy to Clipboard</button>
-        </div>
-      </div>
-      <div class="debug-block">
-        <div class="debug-block-kopf">
-          <strong>Straßen (Absender &amp; Empfänger)</strong>
-          <button type="button" class="btn" data-dbg-liste="strassen" title="Aktueller Wert und alle Angebote beider Straßenfelder (fragt Geoapify live ab, kostet zwei Abrufe)">Copy to Clipboard</button>
-        </div>
-      </div>
-      <div class="debug-block">
-        <div class="debug-block-kopf">
-          <strong>PLZ + Ort (Absender &amp; Empfänger)</strong>
-          <button type="button" class="btn" data-dbg-liste="orte" title="Aktueller Wert und alle Angebote beider Ortsfelder (lokal, keine Netzanfrage)">Copy to Clipboard</button>
-        </div>
-      </div>
-      <div class="debug-knoepfe">
-        <button type="button" class="btn" id="dbg-copy-json" title="Debug-Werte, Brief-JSON und Fehler als JSON in die Zwischenablage">📋 Zustand (.json)</button>
-        <button type="button" class="btn" id="dbg-copy-log" title="Nur die Fehler und Warnungen in die Zwischenablage">📋 Fehler (.txt)</button>
-      </div>
-      <dl class="debug-tabelle" id="debug-log"></dl>
+        <section class="debug-block">
+          <header class="debug-block-kopf">
+            <strong>Anrede &amp; Grußformel</strong>
+            <button type="button" class="btn" data-dbg-liste="anrede-gruss" title="Tonalität, aktueller Wert und alle Angebote in die Zwischenablage">Copy</button>
+          </header>
+        </section>
+        <section class="debug-block">
+          <header class="debug-block-kopf">
+            <strong>Straßen (Absender &amp; Empfänger)</strong>
+            <button type="button" class="btn" data-dbg-liste="strassen" title="Aktueller Wert und alle Angebote beider Straßenfelder (fragt Geoapify live ab, kostet zwei Abrufe)">Copy</button>
+          </header>
+        </section>
+        <section class="debug-block">
+          <header class="debug-block-kopf">
+            <strong>PLZ + Ort (Absender &amp; Empfänger)</strong>
+            <button type="button" class="btn" data-dbg-liste="orte" title="Aktueller Wert und alle Angebote beider Ortsfelder (lokal, keine Netzanfrage)">Copy</button>
+          </header>
+        </section>
+        <menu class="debug-knoepfe">
+          <button type="button" class="btn" id="dbg-copy-json" title="Debug-Werte, Brief-JSON und Fehler als JSON in die Zwischenablage">📋 Zustand (.json)</button>
+          <button type="button" class="btn" id="dbg-copy-log" title="Nur die Fehler und Warnungen in die Zwischenablage">📋 Fehler (.txt)</button>
+        </menu>
+      </section>
+
+      <section class="debug-spalte">
+        <dl class="debug-tabelle">
+          <dt>PLZ im Bestand</dt><dd id="dbg-plz">–</dd>
+          <dt>Ortsnamen</dt><dd id="dbg-orte">–</dd>
+          <dt>Ortsteile (PLZ)</dt><dd id="dbg-ortsteile">–</dd>
+          <dt>PLZ mit Bundesland</dt><dd id="dbg-bundesland">–</dd>
+          <dt>Adressbuch</dt><dd id="dbg-adressbuch">–</dd>
+          <dt>Geo-Cache</dt><dd id="dbg-cache">–</dd>
+          <dt>localStorage</dt><dd id="dbg-speicher">–</dd>
+          <dt>Entwurf</dt><dd id="dbg-entwurf">–</dd>
+          <dt>Gedruckt</dt><dd id="dbg-gedruckt">–</dd>
+          <dt>Layout</dt><dd id="dbg-layout">–</dd>
+          <dt>Unterrand</dt><dd id="dbg-unterrand">–</dd>
+          <dt>Uhrzeit</dt><dd id="dbg-uhr">–</dd>
+          <dt>Fehler/Warnungen</dt><dd id="dbg-fehler">–</dd>
+          <dt>Schrift</dt><dd id="dbg-schrift">–</dd>
+        </dl>
+        <dl class="debug-tabelle" id="debug-felder"></dl>
+        <dl class="debug-tabelle" id="debug-log"></dl>
+      </section>
     </aside>
 
     <!-- Setzt den gespeicherten UI-Zustand (Form, Postvermerk, Schalter) vor

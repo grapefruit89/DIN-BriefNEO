@@ -56,7 +56,6 @@ export class SettingsManager {
     this.seitenleiste = document.getElementById('seitenleiste');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
-    this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
     this.debugSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-debug'));
     this.pluginGeschaeftSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));
 
@@ -89,7 +88,6 @@ export class SettingsManager {
     this.applyTheme(currentTheme);
 
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), istAn(this.settings.marks));
-    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), istAn(this.settings.pluginTestbrief));
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.debugSwitch), this.settings.debugPanel === true);
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginGeschaeftSwitch), this.settings.pluginGeschaeftsangaben === true);
 
@@ -305,15 +303,6 @@ export class SettingsManager {
       debugSwitch.addEventListener('change', () => {
         if (!this.isReady) return;
         this.settings.debugPanel = debugSwitch.checked;
-        this.updateSettings();
-      });
-    }
-
-    const pluginTestbrief = this.pluginTestbriefSwitch;
-    if (pluginTestbrief) {
-      pluginTestbrief.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.pluginTestbrief = pluginTestbrief.checked;
         this.updateSettings();
       });
     }

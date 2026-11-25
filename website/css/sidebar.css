@@ -1581,9 +1581,8 @@ aside select {
 }
 
 /* --- PLUGINS (Schalter in den Einstellungen) ---
-   Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
-   setzt SettingsManager.#applyPlugins() aus din_settings. */
-:root[data-plugin-testbrief="false"] #btn-testbrief { display: none; }
+   Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist.
+   #btn-testbrief (Musterbrief laden) ist permanent aktiv. */
 
 /* Debug-Panel (2026-11-22). Sichtbarkeit ist eine reine CSS-Ableitung aus dem
    Schalter in den Einstellungen — kein Ein-/Ausblenden in JS. Das x im Kopf

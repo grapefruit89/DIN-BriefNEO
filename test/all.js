@@ -1847,7 +1847,7 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     const src = await (await fetch('/website/js/boot-state.js')).text();
     /* #stil-select ist am 2026-11-22 entfallen (Tonalitaet kommt aus der
        Anrede-Wahl) - die uebrigen Regler bleiben in der Ratsche. */
-    for (const id of ['select-schriftart', 'btn-rand-u-30', 'plugin-testbrief', 'datum']) {
+    for (const id of ['select-schriftart', 'btn-rand-u-30', 'datum']) {
       assert(src.includes(`'${id}'`), `#${id} wird vor dem Paint gesetzt`);
     }
     /* B62: die Optik kommt aus :has(option:checked...), nicht aus einem

@@ -78,8 +78,6 @@
     const randU = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-rand-u-30'));
     if (randU) randU.checked = settings.randU === 30;
 
-    const testbrief = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
-    if (testbrief) testbrief.checked = istAn(settings.pluginTestbrief);
     const geschaeft = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));
     if (geschaeft) geschaeft.checked = settings.pluginGeschaeftsangaben === true;
 

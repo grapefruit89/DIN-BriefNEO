@@ -299,6 +299,18 @@
                 <label for="toggle-debug" class="seitenleiste-label">Debug-Panel</label>
                 <input type="checkbox" switch id="toggle-debug">
               </div>
+              <fieldset class="seitenleiste-field-group" style="border: none; padding: 0; margin-block-start: var(--space-3, 12px);">
+                <label for="select-fokusmodus" class="seitenleiste-label">Fokus-Modus (iA-Stil)</label>
+                <select id="select-fokusmodus" class="seitenleiste-select w-full" aria-label="Fokus-Modus wählen">
+                  <option value="aus" selected>Aus (Normal)</option>
+                  <option value="absatz">Absatz-Fokus</option>
+                  <option value="zeile">Zeilen- &amp; Satz-Fokus</option>
+                </select>
+                <label class="seitenleiste-switch-row" style="cursor: pointer; margin-block-start: var(--space-2, 8px);">
+                  <span class="seitenleiste-label" style="font-size: 0.8125rem; font-weight: normal;">Zen-Modus (Werkzeuge verblassen)</span>
+                  <input type="checkbox" switch id="toggle-zen-modus">
+                </label>
+              </fieldset>
               <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
                    stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
               <div class="seitenleiste-subgroup workbench-box">

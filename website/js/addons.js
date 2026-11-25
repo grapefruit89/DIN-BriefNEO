@@ -31,6 +31,7 @@ export const ADDON_REGISTRY = /** @type {const} */ ({
   testbrief: () => import('../addons/testbrief/testbrief.js'),
   geschaeftsangaben: () => import('../addons/geschaeftsangaben/geschaeftsangaben.js'),
   verlauf: () => import('../addons/verlauf/verlauf.js'),
+  fokusmodus: () => import('../addons/fokusmodus/fokusmodus.js'),
 });
 
 /** @typedef {keyof typeof ADDON_REGISTRY} AddonId */

@@ -39,6 +39,8 @@ import { DOCUMENT_SCHEMA_V5 } from './schema.js';
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {20 | 30 | number} [randU]
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
+ * @property {'aus' | 'absatz' | 'zeile' | string} [fokusModus] Fokus-Modus (iA-Writer-Stil)
+ * @property {boolean} [zenModus] Zen-Modus (Werkzeuge treten beim Tippen zurück)
  */
 
 /**
@@ -72,7 +74,10 @@ export const DEFAULT_SETTINGS = {
   blattBreitePx: 900,
   zoomEinheit: 'px',
   formality: 'formal',
-  randU: 20
+  randU: 20,
+  /* Fokus-Modus (iA-Writer-Stil): aus, absatz, zeile */
+  fokusModus: 'aus',
+  zenModus: false
 };
 
 /**

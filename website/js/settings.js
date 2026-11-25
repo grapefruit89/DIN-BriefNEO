@@ -132,6 +132,16 @@ export class SettingsManager {
       this.settings.pluginGeschaeftsangaben === true ? 'true' : 'false',
     );
     document.documentElement.setAttribute('data-plugin-multipage', 'true');
+
+    if (this.settings.fokusModus && this.settings.fokusModus !== 'aus') {
+      void toggleAddon('fokusmodus', true).then(async () => {
+        const { invokeAddon } = await import('./addons.js');
+        await invokeAddon('fokusmodus', 'setMode', this.settings.fokusModus);
+        if (this.settings.zenModus) {
+          await invokeAddon('fokusmodus', 'setZen', true);
+        }
+      });
+    }
   }
 
   #spiegleLayoutFlags() {
@@ -320,6 +330,39 @@ export class SettingsManager {
         }
         /* Addon über zentralen AddonManager aktivieren/deaktivieren */
         void toggleAddon('geschaeftsangaben', pluginGeschaeft.checked);
+      });
+    }
+
+    const selectFokus = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-fokusmodus'));
+    const toggleZen = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-zen-modus'));
+
+    if (selectFokus) {
+      if (this.settings.fokusModus) {
+        selectFokus.value = this.settings.fokusModus;
+      }
+      selectFokus.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.fokusModus = selectFokus.value;
+        this.updateSettings();
+        const aktiv = selectFokus.value !== 'aus';
+        void toggleAddon('fokusmodus', aktiv).then(async () => {
+          const { invokeAddon } = await import('./addons.js');
+          await invokeAddon('fokusmodus', 'setMode', selectFokus.value);
+        });
+      });
+    }
+
+    if (toggleZen) {
+      if (this.settings.zenModus !== undefined) {
+        toggleZen.checked = Boolean(this.settings.zenModus);
+      }
+      toggleZen.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.zenModus = toggleZen.checked;
+        this.updateSettings();
+        void import('./addons.js').then(async ({ invokeAddon }) => {
+          await invokeAddon('fokusmodus', 'setZen', toggleZen.checked);
+        });
       });
     }
 

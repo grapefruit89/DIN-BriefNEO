@@ -19,7 +19,7 @@
 
 import { ortsVorschlaege, strassenSuchPfad } from './address.js';
 import { AddressIntelligence } from './address-data.js';
-import { BREITE_ORIGINAL, nachtCss, passendeBreite, speichereAnsicht, wendeBlattBreite, wendeNachtpalette } from './ansicht.js';
+import { BREITE_MAX, BREITE_ORIGINAL, nachtCss, passendeBreite, speichereAnsicht, wendeBlattBreite, wendeNachtpalette } from './ansicht.js';
 import { collectDraft } from './document.js';
 import { aktuelleStunde, formatZahl } from './format.js';
 import { geoCacheGroesse } from './geo-cache.js';
@@ -324,13 +324,11 @@ function initAnsichtRegler() {
       wendeNachtpalette(basis);
       speichereAnsicht('nachtHelligkeit', basis);
       nachtWert.textContent = basis.toFixed(2).replace('.', ',');
-      if (nachtStatus) nachtStatus.textContent = 'gespeichert und kopiert';
+      if (nachtStatus) nachtStatus.textContent = 'dauerhaft gespeichert';
       clearTimeout(timerNacht);
       const css = nachtCss(basis);
       timerNacht = setTimeout(() => {
-        navigator.clipboard?.writeText(css).catch(() => {
-          if (nachtStatus) nachtStatus.textContent = 'gespeichert · Zwischenablage gesperrt';
-        });
+        navigator.clipboard?.writeText(css).catch(() => {});
       }, 350);
     };
     nacht.addEventListener('input', anwenden);
@@ -423,15 +421,16 @@ function initAnsichtRegler() {
     speichereAnsicht('zoomEinheit', 'prozent');
     zeige();
   });
-  /* Einpassen: Breite so weit reduzieren, dass Breite UND Hoehe hineinpassen.
-     "1:1" stellt die gemerkte Wunschbreite wieder her (Standard 900 px). */
-  /* „Einpassen“ ist eine Sitzungs-Hilfe und wird NICHT gespeichert — sonst
-     ueberschreibt ein Blick auf den kleinen Monitor die 1:1-Groesse. */
+  /* Einpassen: Breite so anpassen, dass Breite UND Hoehe hineinpassen.
+     Erneuter Klick stellt die Originalbreite (900 px) wieder her (Toggle). */
   document.getElementById('dbg-breite-einpassen')?.addEventListener('click', () => {
-    const passend = Math.min(breite, passendeBreite());
-    wendeBlattBreite(passend);
-    breite = passend;
-    wert.textContent = einheit === 'px' ? `${passend} px` : `${Math.round((passend / BREITE_ORIGINAL) * 100)} %`;
+    const passend = Math.min(BREITE_MAX, passendeBreite());
+    if (breite === passend) {
+      breite = BREITE_ORIGINAL;
+    } else {
+      breite = passend;
+    }
+    zeige();
   });
   zuruecksetzen?.addEventListener('click', () => {
     breite = BREITE_ORIGINAL;

@@ -199,6 +199,11 @@ export class SettingsManager {
   }
 
   updateSettings() {
+    const live = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+    if (typeof live.nachtHelligkeit === 'number') this.settings.nachtHelligkeit = live.nachtHelligkeit;
+    if (typeof live.blattBreitePx === 'number') this.settings.blattBreitePx = live.blattBreitePx;
+    if (live.zoomEinheit) this.settings.zoomEinheit = live.zoomEinheit;
+
     const gespeichert = saveJSON(STORAGE_KEYS.settings, this.settings);
     if (!gespeichert) {
       // saveJSON schluckt Quota-Fehler und gibt false zurück; ohne diese Prüfung

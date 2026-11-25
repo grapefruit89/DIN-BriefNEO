@@ -73,6 +73,15 @@ din-blatt {
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
     min-height: 0;
+    user-select: none;
+  }
+
+  #brief-ansicht {
+    user-select: none;
+  }
+
+  din-blatt {
+    user-select: auto;
   }
 }
 
@@ -351,9 +360,9 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     font-size: 10.5pt;
     line-height: 4.5mm;
     min-height: 20mm;
-    text-align: justify;
-    hyphens: auto;
-    text-wrap: pretty;
+    text-align: left;
+    hyphens: manual;
+    text-wrap: wrap;
     orphans: 2;
     widows: 2;
     /* Absaetze des Generators sind \n\n — ohne pre-line kollabieren sie. */

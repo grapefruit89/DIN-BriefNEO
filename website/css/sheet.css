@@ -213,9 +213,9 @@ din-blatt {
     font-size: --pt-rel(attr(data-font type(<number>))); /* 10.5pt in cqw */
     line-height: 1.4;
     min-height: --mm-rel-y(40);
-    text-align: justify;
-    hyphens: auto;
-    text-wrap: pretty;
+    text-align: left;
+    hyphens: manual;
+    text-wrap: wrap;
     orphans: 3;
     widows: 3;
     white-space: pre-line;

@@ -276,6 +276,22 @@ function initApp() {
       });
     }
 
+    const viewport = document.getElementById('viewport');
+    if (viewport) {
+      viewport.addEventListener('pointerdown', (e) => {
+        const target = e.target instanceof Element ? e.target : null;
+        if (!target?.closest('din-blatt')) {
+          // Klick auf den Hintergrund außerhalb des Blattes:
+          // Verhindert, dass Blink den Caret ans Zeilenende von #text setzt
+          e.preventDefault();
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          window.getSelection()?.removeAllRanges();
+        }
+      });
+    }
+
     const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
 
     if (btnReset && resetDialog) {

@@ -58,6 +58,7 @@ export class SettingsManager {
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.debugSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-debug'));
     this.pluginGeschaeftSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));
+    this.btnFokusSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fokus-modus'));
 
     this.isReady = false;
   }
@@ -131,18 +132,14 @@ export class SettingsManager {
     );
     document.documentElement.setAttribute('data-plugin-multipage', 'true');
 
-    const braucheFokusAddon =
-      (this.settings.fokusModus && this.settings.fokusModus !== 'aus') ||
-      Boolean(this.settings.zenModus);
-    if (braucheFokusAddon) {
+    const fokusGespeichert = Boolean(this.settings.fokusModus && this.settings.fokusModus !== 'aus');
+    if (this.btnFokusSwitch) {
+      this.btnFokusSwitch.checked = fokusGespeichert;
+    }
+    if (fokusGespeichert) {
       void toggleAddon('fokusmodus', true).then(async () => {
         const { invokeAddon } = await import('./addons.js');
-        if (this.settings.fokusModus && this.settings.fokusModus !== 'aus') {
-          await invokeAddon('fokusmodus', 'setMode', this.settings.fokusModus);
-        }
-        if (this.settings.zenModus) {
-          await invokeAddon('fokusmodus', 'setZen', true);
-        }
+        await invokeAddon('fokusmodus', 'setFokus', true);
       });
     }
   }
@@ -334,37 +331,16 @@ export class SettingsManager {
       });
     }
 
-    const selectFokus = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-fokusmodus'));
-    const toggleZen = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-zen-modus'));
-
-    if (selectFokus) {
-      if (this.settings.fokusModus) {
-        selectFokus.value = this.settings.fokusModus;
-      }
-      selectFokus.addEventListener('change', () => {
+    if (this.btnFokusSwitch) {
+      this.btnFokusSwitch.addEventListener('change', () => {
         if (!this.isReady) return;
-        this.settings.fokusModus = selectFokus.value;
+        const aktiv = this.btnFokusSwitch?.checked ?? false;
+        this.settings.fokusModus = aktiv ? 'absatz' : 'aus';
+        this.settings.zenModus = aktiv;
         this.updateSettings();
-        const aktiv = selectFokus.value !== 'aus' || Boolean(this.settings.zenModus);
         void toggleAddon('fokusmodus', aktiv).then(async () => {
           const { invokeAddon } = await import('./addons.js');
-          await invokeAddon('fokusmodus', 'setMode', selectFokus.value);
-        });
-      });
-    }
-
-    if (toggleZen) {
-      if (this.settings.zenModus !== undefined) {
-        toggleZen.checked = Boolean(this.settings.zenModus);
-      }
-      toggleZen.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.zenModus = toggleZen.checked;
-        this.updateSettings();
-        const aktiv = Boolean(toggleZen.checked || (this.settings.fokusModus && this.settings.fokusModus !== 'aus'));
-        void toggleAddon('fokusmodus', aktiv).then(async () => {
-          const { invokeAddon } = await import('./addons.js');
-          await invokeAddon('fokusmodus', 'setZen', toggleZen.checked);
+          await invokeAddon('fokusmodus', 'setFokus', aktiv);
         });
       });
     }

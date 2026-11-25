@@ -497,7 +497,7 @@ export const WERKZEUGE = [
   {
     name: 'brief_setzen',
     description:
-      'Schreibt genau ein Feld oder einen Schalter. Feld-IDs liefert brief_hilfe; Schalter sind toggle-anlagen, toggle-fuss, toggle-falzmarken und erwarten einen booleschen wert. Text wird als reiner Text geschrieben (HTML-Tags werden entfernt).',
+      'Schreibt genau ein Feld oder einen Schalter. Feld-IDs liefert brief_hilfe; Schalter sind toggle-anlagen, toggle-fuss, toggle-falzmarken, toggle-fokus-modus und erwarten einen booleschen wert. Text wird als reiner Text geschrieben (HTML-Tags werden entfernt).',
     nurLesen: false,
     ausfuehren: (argumente) => {
       const api = briefApi();

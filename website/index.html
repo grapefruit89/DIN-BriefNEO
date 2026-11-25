@@ -204,6 +204,17 @@
             </seitenleiste-segmente>
           </fieldset>
 
+          <seitenleiste-ratsche class="latch-item" data-addon="fokusmodus" style="margin-block-start: var(--space-xs);">
+            <input type="checkbox" id="toggle-fokus-modus" class="sr-only">
+            <label for="toggle-fokus-modus" class="btn-latch">
+              <span class="btn-latch-left">
+                <span class="btn-latch-icon" aria-hidden="true">🎯</span>
+                <span class="btn-latch-text">Fokus-Modus</span>
+              </span>
+              <span class="btn-latch-led" aria-hidden="true"></span>
+            </label>
+          </seitenleiste-ratsche>
+
           <hr class="seitenleiste-divider">
         </section>
 
@@ -311,30 +322,7 @@
                   <span class="btn-latch-led" aria-hidden="true"></span>
                 </label>
               </seitenleiste-ratsche>
-              <!-- Fokus- & Zen-Modus (Addon: website/addons/fokusmodus/)
-                   Provenienz & Herkunft:
-                   - Vorbild: iA Writer (Information Architects) Absatz- & Satzfokus
-                   - Linux-Entsprechungen: Ghostwriter (KDE/Qt) & Apostrophe (GNOME)
-                   - Native Web-API: W3C CSS Custom Highlight API (::highlight(fokus-satz))
-                     ohne DOM-Verfälschung, rein deklarative Farbsteuerung. -->
-              <fieldset class="seitenleiste-field-group" style="border: none; padding: 0; margin-block-start: var(--space-3, 12px);">
-                <label for="select-fokusmodus" class="seitenleiste-label">Fokus-Modus (iA-Stil)</label>
-                <select id="select-fokusmodus" class="seitenleiste-select w-full" aria-label="Fokus-Modus wählen">
-                  <option value="aus" selected>Aus (Normal)</option>
-                  <option value="absatz">Absatz-Fokus</option>
-                  <option value="zeile">Zeilen- &amp; Satz-Fokus</option>
-                </select>
-                <seitenleiste-ratsche class="latch-item" style="margin-block-start: var(--space-2, 8px);">
-                  <input type="checkbox" id="toggle-zen-modus" class="sr-only">
-                  <label for="toggle-zen-modus" class="btn-latch">
-                    <span class="btn-latch-left">
-                      <span class="btn-latch-icon" aria-hidden="true">🧘</span>
-                      <span class="btn-latch-text" style="font-size: 0.8125rem; font-weight: normal;">Zen-Modus (Werkzeuge verblassen)</span>
-                    </span>
-                    <span class="btn-latch-led" aria-hidden="true"></span>
-                  </label>
-                </seitenleiste-ratsche>
-              </fieldset>
+
               <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
                    stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
               <seitenleiste-werkbank class="seitenleiste-subgroup workbench-box">

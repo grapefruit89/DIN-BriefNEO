@@ -58,7 +58,7 @@ export const API_FELDER = [
 ];
 
 /** Schalter, die die API umlegen darf. */
-export const API_SCHALTER = ['toggle-anlagen', 'toggle-fuss', 'toggle-falzmarken'];
+export const API_SCHALTER = ['toggle-anlagen', 'toggle-fuss', 'toggle-falzmarken', 'toggle-fokus-modus'];
 
 /**
  * @typedef {{ ok: true } & Record<string, unknown>} ApiOk

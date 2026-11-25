@@ -187,6 +187,7 @@ export async function activate(ctx = {}) {
   const blatt = document.querySelector('din-blatt');
   if (blatt && currentMode !== 'aus') {
     blatt.setAttribute('data-fokus', currentMode);
+    document.body.setAttribute('data-fokus-aktiv', 'true');
   }
   if (zenEnabled) {
     document.body.setAttribute('data-zen', 'true');
@@ -237,6 +238,7 @@ export async function activate(ctx = {}) {
     document.removeEventListener('click', onSelectionChange);
     if (typingTimer) clearTimeout(typingTimer);
     document.body.classList.remove('is-typing');
+    document.body.removeAttribute('data-fokus-aktiv');
     document.body.removeAttribute('data-zen');
     if (blatt) blatt.removeAttribute('data-fokus');
     const textContainer = document.getElementById('text');
@@ -267,6 +269,34 @@ export async function activate(ctx = {}) {
  * @param {any} [_ctx]
  */
 export async function run(action, arg, _ctx = {}) {
+  if (action === 'setFokus' || action === 'toggle') {
+    const aktiv = Boolean(arg);
+    currentMode = aktiv ? 'absatz' : 'aus';
+    zenEnabled = aktiv;
+    const blatt = document.querySelector('din-blatt');
+    if (blatt) {
+      if (!aktiv) {
+        blatt.removeAttribute('data-fokus');
+        document.body.removeAttribute('data-fokus-aktiv');
+        document.body.removeAttribute('data-zen');
+        document.body.classList.remove('is-typing');
+        const textContainer = document.getElementById('text');
+        if (textContainer) {
+          textContainer.querySelectorAll('.fokus-aktiv').forEach((el) => {
+            el.classList.remove('fokus-aktiv');
+          });
+        }
+      } else {
+        ensureStylesheet();
+        blatt.setAttribute('data-fokus', 'absatz');
+        document.body.setAttribute('data-fokus-aktiv', 'true');
+        document.body.setAttribute('data-zen', 'true');
+        updateParagraphFocus();
+      }
+    }
+    return aktiv;
+  }
+
   if (action === 'setMode') {
     currentMode = String(arg || 'aus');
     const blatt = document.querySelector('din-blatt');

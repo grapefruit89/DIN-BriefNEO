@@ -81,6 +81,9 @@
     const geschaeft = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));
     if (geschaeft) geschaeft.checked = settings.pluginGeschaeftsangaben === true;
 
+    const fokusBtn = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fokus-modus'));
+    if (fokusBtn) fokusBtn.checked = Boolean(settings.fokusModus && settings.fokusModus !== 'aus');
+
     /* 2c. Die "Gefuellt"-Optik der Auswahllisten braucht hier nichts mehr:
        sie kommt aus `:has(option:checked:not([value=""]))` (B62, siehe
        sidebar.css). Das fruehere Attribut wurde an dieser Stelle berechnet,

@@ -4,7 +4,7 @@ title: 'ADR-TYPOGRAPHY: DIN 5008 Font-Subsetting & Typografie-Architektur'
 type: adr
 status: active
 created: '2026-11-08'
-updated: '2026-11-08'
+updated: '2026-11-27'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -46,14 +46,14 @@ Gemäß [[Immutable-Law-Catalog]] gelten strenge Rahmenbedingungen:
 Ein unreflektiertes Laden von 1,1 MB Rohschriften widerspricht dem Zero-Bloat- und KISS-Prinzip. Zugleich erfordert ein normgerechter Schriftwechsel nach **DIN 5008:2020-03 (Anhang H & F)** sowie der **Tastaturbelegung E1 (DIN 2137-1:2018-12)** die lückenlose Verfügbarkeit aller deutschen und europäischen Geschäftsbrief-Sonderzeichen.
 
 ### 1.2 Zielsetzung & Lösung
-Durch gezieltes **DIN-5008-Subsetting** mit Brotli-Kompression (`.woff2`) wird das Datenvolumen von 1.110 KB auf **~75 KB für alle vier Schriften zusammen** reduziert (−93,2 % Ersparnis), ohne dass ein einziges normativ relevantes Zeichen verloren geht.
+Durch gezieltes **DIN-5008-Subsetting** mit Brotli-Kompression (`.woff2`) wird aus der variablen Inter (856,0 KB) **eine einzige Datei mit 34 556 B** (≈ 33,7 KiB), die alle drei Gewichte trägt (−96,1 %). Die Optical-Size-Achse (`opsz`) wird dabei auf 18pt eingefroren, die Gewichtsachse (`wght`, 100..900) bleibt variabel.
 
 ### 1.3 Reproduzierbarkeit
 Die Pipeline ist vollständig automatisiert und deterministisch im Repository verankert:
 - **Werkzeug:** `fonts/subset_fonts.py` — **lokal, nicht im Repo** (`fonts/` ist komplett gitignored, Lizenz)
-- **Engine:** Python-Modul `fontTools.subset` (`sys.executable, "-m", "fontTools.subset"` mit `brotli`)
-- **Quell-Verzeichnis:** `fonts/*.[to]tf`
-- **Ziel-Verzeichnis:** `website/fonts/*.woff2`
+- **Engine:** `fontTools.varLib.instancer.instantiateVariableFont` (opsz = 18) + Python-Modul `fontTools.subset` (`sys.executable, "-m", "fontTools.subset"` mit `brotli`)
+- **Quell-Verzeichnis:** `fonts/*.[to]tf` (variable Quelle: `fonts/Inter-Variable.ttf`)
+- **Ziel-Verzeichnis:** `website/fonts/inter-variable.woff2`
 
 ---
 
@@ -120,7 +120,7 @@ Fügt der Nutzer Text mit Zeichen außerhalb der DIN-Allowlist ein (z. B. ein ja
 ├────────────────────────────────────────────────────────┤
 │  2. System-Stack (CSS-Fallback via --font-system-stack)│
 │     -> Greift bei fehlender Glyphe auf System-Font     │
-│        (Liberation Sans, Segoe UI, San Francisco)      │
+│        (Arial, Segoe UI, San Francisco)                │
 ├────────────────────────────────────────────────────────┤
 │  3. OS Glyph-Fallback (System-Rasterizer / Skia)       │
 │     -> Systemweite Schrift (z. B. Noto Sans CJK,       │
@@ -139,77 +139,75 @@ Fügt der Nutzer Text mit Zeichen außerhalb der DIN-Allowlist ein (z. B. ein ja
 
 ### 5.1 CSS `@font-face`-Deklarationen (`website/css/base.css`)
 
-Im Repo liegen genau **zwei** Familien (DACH + Normzeichen eingedampft):
-Liberation Sans (**Standard**, metrisch identisch zu Arial) und Inter.
+Im Repo liegt genau **eine** Datei: **Inter 18pt als Variable Font**
+(opsz in der Pipeline auf 18pt eingefroren, `wght` 100..900). Liberation Sans
+ist am 2026-11-27 restlos entfernt worden (Dateien, Lizenz, `@font-face`,
+Preset, Auswahl); die statischen Inter-Schnitte folgten am selben Tag.
 
 ```css
 @font-face {
-  font-family: "Test-Liberation";
-  src: url("../fonts/liberation-sans-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Test-Liberation";
-  src: url("../fonts/liberation-sans-bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
   font-family: "Test-Inter";
-  src: url("../fonts/inter_18pt-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Test-Inter";
-  src: url("../fonts/inter_18pt-bold.woff2") format("woff2");
-  font-weight: 700;
+  src: url("../fonts/inter-variable.woff2") format("woff2-variations"),
+       url("../fonts/inter-variable.woff2") format("woff2");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
+/* Die drei aktiven Gewichte: 400 Fließtext, 600 Fett, 700 Betreff. */
+b,
+strong,
+.font-bold {
+  font-weight: 600;
+}
+
 :root {
-  /* Bedienoberflaeche: Systemschrift */
+  /* Bedienoberflaeche: Systemschrift. "Liberation Sans" ist hier die
+     OS-eigene Schrift (z. B. /usr/share/fonts), NICHT mitgeliefert. */
   --font-system-stack: "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
-  /* Brief: die mitgelieferte, eingedampfte Liberation Sans zuerst */
-  --font-brief-stack: "Test-Liberation", "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  /* Brief: die variable Inter, danach nur Systemschriften. */
+  --font-brief-stack: "Test-Inter", system-ui, -apple-system, sans-serif;
   --active-font-family: var(--font-brief-stack);
 }
 
 din-blatt {
   font-family: var(--active-font-family, var(--font-brief-stack));
-  font-size-adjust: 0.52;
+  font-weight: 400;
+  font-size-adjust: 0.535;
   font-variant-numeric: tabular-nums;
 }
 ```
 
-**Warum Liberation Sans Standard ist:** DIN 5008 Kap. 20.7.1 nennt Arial und
-Helvetica ausdruecklich. Liberation Sans ist deren freie, metrisch identische
-Umsetzung — ein Brief bricht zeilenweise genauso um wie ein Arial-Brief
-(gemessen 2026-11-23: Breite 638,1 px in beiden). Weil die Datei mitgeliefert
-wird, ist der Vanilla-Brief auf jedem Betriebssystem gleich; fehlende Zeichen
-ausserhalb des DACH-Subsets (z. B. `é`) fallen auf die echte Liberation Sans
-bzw. Arial zurueck — gleiche Konstruktion, gleiche Metrik.
+**Warum Inter 18pt Standard ist:** Die „1" hat in Liberation Sans einen
+Fußbalken unter dem Stamm (Arial und Inter setzen den Stamm auf die
+Grundlinie), und Liberation Sans bietet upstream keine Zwischengewichte.
+Inter löst beides ohne Eingriff in eine fremde Schrift. Der Preis: Inter ist zu
+Arial **nicht** metrisch identisch — der Brief bricht also anders um als ein
+Arial-Brief, obwohl DIN 5008 Kap. 20.7.1 Arial und Helvetica ausdrücklich
+nennt. Die vier neuen Akzent-/Guillemet-Zeichen (`U+00B4`, `U+00AB`, `U+00BB`,
+`U+00E0`, `U+00E7`, `U+00E8`, `U+00E9`) decken deutsche QWERTZ-Eingaben und
+Namen wie „Renée" oder „François" direkt aus dem Subset ab.
 
 **Nicht im Repo, nur lokal:** Aptos (Microsoft) und Michelangelus (kommerziell)
 sowie eigene Testschriften liegen ausschliesslich in `<repo>/fonts/`
 (gitignoriert). Der Dev-Server listet sie unter `/__fonts` aus, die App laedt
 sie per `FontFace`-API; auf GitHub Pages fehlen sie — statt eine 404 zu laden.
 
-### 5.2 Settings-Steuerung (`website/js/settings.js`)
-Der `SettingsManager` verwaltet die Schriftartenauswahl zentral und typisiert:
-- `settings.previewFont`: `'default' | 'inter' | 'sys:<Familie>' | 'lokal:<Datei>'`
+### 5.2 Settings-Steuerung (`website/js/font-feature.js`)
+Der `FontFeature`-Layer verwaltet die Schriftartenauswahl zentral:
+- `FONT_PRESETS` enthält nur noch `default: ''`; Inter ist fester Standard und
+  wird über `--font-brief-stack` gesetzt.
+- `settings.previewFont` speichert weiterhin `'default'` bzw. `'lokal:<Datei>'`
+  für hochgeladene bzw. lokale Schriften. Ein altes `'inter'`/`'liberation'`
+  fällt beim Start sauber auf `default` zurück.
 - Schaltet `--active-font-family` deklarativ am `:root`-Element um.
 - Bleibt 100 % kompatibel mit dem IndexedDB-Binär-Upload benutzerdefinierter Schriften (`#btn-schrift-aktion`, siehe [[ADR-BINARY-ASSETS]]).
 
-## Zeichensatz der Web-Schriften: DACH-only (2026-11-22)
+## Zeichensatz der Web-Schriften: QWERTZ + DIN 5008 (2026-11-27)
 
-**Entscheidung des Nutzers:** „keine ausländischen Fonts, nur DACH — Deutschland,
-Österreich, Schweiz — plus die unsichtbaren Zeichen."
+**Entscheidung des Nutzers:** „Deutscher QWERTZ- und DIN-5008-Zeichensatz" —
+Deutschland, Österreich, Schweiz, plus die Zeichen, die deutsche Tastaturen
+und französische Eigennamen tatsächlich erzeugen.
 
 DIN 5008 schreibt **keinen** Zeichenvorrat vor. Kapitel 5 („Zeichensatz und
 Datenaustausch") sagt nur: „Die Zeichen aus dem Zeichenvorrat von
@@ -217,7 +215,7 @@ Anwendungsprogrammen dürfen verwendet werden" und empfiehlt ISO/IEC 10646
 (Unicode). Verlangt werden konkret: geschütztes Leerzeichen (7.2), bedingter
 Trennstrich (6.1), Anführungszeichen (8.3–8.5), § (9.1), & (9.2).
 
-### Enthalten (172 Codepoints)
+### Soll-Vorrat (187 Codepoints)
 
 | Bereich | Zeichen |
 |---|---|
@@ -225,10 +223,11 @@ Trennstrich (6.1), Anführungszeichen (8.3–8.5), § (9.1), & (9.2).
 | — | Ä Ö Ü ä ö ü |
 | — | ß und ẞ (großes Eszett) |
 | — | geschütztes Leerzeichen (DIN 7.2) |
-| — | bedingter Trennstrich — **in Inter nicht vorhanden**, Browser nutzt Fallback |
+| — | bedingter Trennstrich |
 | — | „ “ ” ‚ ‘ ’ (DIN 8.3–8.5) |
 | — | § (DIN 9.1) |
 | — | © ® ° ± × ² ³ µ ¼ ½ ¾ (Währung, Maß, Rechnen) |
+| — | Akut `´`, Guillemets `« »`, `à ç è é` (QWERTZ/Namen) |
 | — | Striche, Bullets, Mittelpunkt, Ellipse, Schmal-Leerzeichen |
 | — | € № ™ |
 | — | − ≈ ≤ ≥ ⌀ |
@@ -236,18 +235,24 @@ Trennstrich (6.1), Anführungszeichen (8.3–8.5), § (9.1), & (9.2).
 
 ### Bewusst NICHT enthalten
 
-`é è ê á à â ç ñ` (französisch), `U+0100–017F` (polnisch/tschechisch/türkisch).
-Namen damit rendern in der Ersatzschrift. Bewusste Entscheidung: ein DIN-Brief
-an deutschsprachige Empfänger.
+Kyrillisch, Griechisch, CJK, Arabisch, Hebräisch, Emoji, `U+0100–017F`
+(polnisch/tschechisch/türkisch) und weitere Latin-Extended-Akzente. Was fehlt,
+rendert in der Systemschrift. Bewusste Entscheidung: ein DIN-Brief an
+deutschsprachige Empfänger.
 
-### Größen
+### Größen (Ist, 2026-11-27)
 
-| Datei | Quelle | vorher | jetzt (DACH) |
+| Datei | Quelle | vorher | jetzt (QWERTZ + DIN) |
 |---|---|---|---|
-| `liberation-sans-regular.woff2` | LiberationSans-Regular.ttf | 401,1 KB | **17 560 B** |
-| `liberation-sans-bold.woff2` | LiberationSans-Bold.ttf | 404,7 KB | **17 004 B** |
-| `inter_18pt-regular.woff2` | Inter_18pt-Regular.ttf | 334,6 KB | **15 208 B** |
-| `inter_18pt-bold.woff2` | Inter_18pt-Bold.ttf | 336,1 KB | **15 664 B** |
+| `inter-variable.woff2` | Inter-Variable.ttf (opsz 18, wght 100–900) | 856,0 KB | **34 556 B** (33,7 KiB) |
+
+Die eine Datei bleibt unter dem Budget von **38 KiB** (38 912 B). Sie trägt
+gleichzeitig 400 (Fließtext), 600 (`b`/`strong`/`.font-bold`) und 700
+(`#betreff`); statische Schnitte werden nicht mehr ausgeliefert.
+
+Das Build-Script (`fonts/subset_fonts.py`) ist **nicht versioniert** (`fonts/`
+ist komplett gitignored). Die Liste oben ist deshalb die Quelle der Wahrheit im
+Repo.
 
 Das Build-Script (`fonts/subset_fonts.py`) ist **nicht versioniert** (`fonts/`
 ist komplett gitignored). Die Liste oben ist deshalb die Quelle der Wahrheit im
@@ -255,10 +260,9 @@ Repo.
 
 ### Lizenz
 
-Liberation Sans steht unter **SIL Open Font License 1.1** (Weitergabe erlaubt,
-Lizenz muss mitgeliefert werden). Die Lizenzdatei liegt als
-`website/fonts/LICENSE-Liberation.txt` neben den Schriften. Inter steht
-ebenfalls unter SIL OFL 1.1.
+Inter steht unter **SIL Open Font License 1.1**. Die Lizenzdatei liegt als
+`website/fonts/LICENSE-Inter.txt` neben den Schriften. Die
+Liberation-Lizenzdatei ist mit der Schrift am 2026-11-27 entfallen.
 
 Aptos (Microsoft) und Michelangelus (kommerziell) dürfen nicht weitergegeben
 werden — sie bleiben in `<repo>/fonts/` und erreichen die veröffentlichte Seite
@@ -275,11 +279,63 @@ Was dort liegt, erscheint in der Auswahl — ohne Code-Änderung:
    `FontFace`-API geladen.
 
 Der Dev-Server liefert die Liste unter `/__fonts` (`tools/static-server.mjs`).
-Inter- und Liberation-Quelldateien werden dort ausgeblendet, weil sie bereits
-als Subset ausgeliefert werden.
+Inter-Quelldateien werden dort ausgeblendet, weil sie bereits als Subset
+ausgeliefert werden.
 
 **Pfeiltasten:** Bei geschlossener Auswahl ändern sich die eingebauten
 Pfeiltasten von Chrome nicht mehr (`appearance: base-select`); `font-feature.js`
 fängt sie selbst ab und zieht den Brief live mit. Gespeichert wird erst nach
 dem Stehenbleiben (120 ms Entprellung), damit Durchblättern nicht jede Stufe in
 `localStorage` schreibt.
+
+---
+
+## Brief-Standard: Inter 18pt, Liberation Sans restlos entfernt (2026-11-27)
+
+**Entscheidung des Nutzers:** „Auf Inter umstellen" und danach „Liberation Sans
+restlos entfernen". Inter 18pt ist der einzige Brief-Standard, seit demselben
+Tag als **Variable Font** (eine Datei, `wght` 100–900); es gibt keine zweite
+wählbare Familie mehr.
+
+### Warum
+
+1. **Die „1" hat in Liberation Sans einen Fußbalken.** Gemessen an der Kontur
+   aus `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/fonts/LiberationSans-Regular.ttf`:
+   eine einzige Kontur, Punkte `(156,0) (156,153) (515,153) (515,1237) (197,1010)
+   (197,1180) (530,1409) (696,1409) (696,153) (1039,153) (1039,0)` — der Stamm
+   steht auf einem Balken `x=156..1039`, `y=0..153`, nicht auf der Grundlinie.
+   Arial zeichnet die 1 ohne Fuß. Inter ebenfalls: Kontur
+   `(640,1490) (640,0) (456,0) (456,1312) (448,1312) (85,1049) (85,1249) (420,1490)`
+   — Stamm auf `y=0`, kein Balken.
+2. **Liberation Sans hat keine Zwischengewichte.** Upstream existieren nur
+   Regular/Bold/Italic/BoldItalic; 2.1.5 (2021-09-30) ist die letzte Version
+   überhaupt. Inter liefert 100–900.
+3. **Zwei Familien bedeuteten zwei Pflegepfade.** Mit dem Wegfall von
+   Liberation entfallen vier Dateien, eine Lizenzdatei, drei CSS-Blöcke, zwei
+   Presets und die zweite Stufe der Font-Kette.
+
+### Was dafür geändert wurde
+
+| Datei | Änderung |
+| :--- | :--- |
+| `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/css/base.css` | Ein `@font-face` für `inter-variable.woff2` (`font-weight: 100 900`); `--font-brief-stack: "Test-Inter", system-ui, -apple-system, sans-serif` |
+| `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/js/font-feature.js` | `FONT_PRESETS` enthält nur `default: ''`; Liberation-Preset gelöscht, kein `inter`-Sonder-Key mehr |
+| `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/index.html` | Auswahl enthält nur noch „Inter 18pt Variable (DIN-Subset)" |
+| `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/fonts/` | `liberation-sans-regular.woff2`, `liberation-sans-bold.woff2`, `LICENSE-Liberation.txt` gelöscht |
+| `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/fonts/subset_fonts.py` | `BAUT` baut nur noch Inter; `UNICODES` um Akut, Guillemets und `à ç è é` erweitert (187 Soll-Codepoints) |
+| `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/test/index.html`, `test/all.js` | Fixture und Preset-Test auf „nur Inter" umgestellt |
+
+### Unverändert
+
+Bau-Pipeline (`fonts/subset_fonts.py`), **eine** variable Datei
+(`wght` 100–900; aktiv 400/600/700), `font-size-adjust: 0.535` auf `din-blatt`.
+`font-variant-numeric: tabular-nums` wirkt in Inter über die mitsubsetzte
+`tnum`-Funktion (im Subset vorhanden: GSUB `calt`, `tnum`).
+
+### Ist-Abdeckung
+
+Von 187 Soll-Codepoints sind **179** im Inter-Subset vorhanden. Es fehlen acht
+Zeichen, die die Quelle nicht hat: `U+00AD` (bedingter Trennstrich), `U+2300`
+(⌀), `U+2714-2716`, `U+2718` und `U+27E8-27E9`. Diese rendert die
+Systemschrift. Vollständige Datei-Abdeckung und Messwerte:
+`Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/fonts/README.md`.

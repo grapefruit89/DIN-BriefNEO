@@ -24,11 +24,15 @@ import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistenc
  * @type {Record<string, string>}
  */
 export const FONT_PRESETS = {
-  default: '',
-  /* Fallback bewusst Liberation Sans/Arial: das DACH-Subset hat keine
-     franzoesischen Akzente — "Renée" bekommt so das e mit derselben
-     Konstruktion, nicht aus einer fremden Ersatzschrift. */
-  inter: '"Test-Inter", "Liberation Sans", Arial, sans-serif'
+  /* Fester Standard seit 2026-11-27: Inter 18pt als Variable Font
+     (eine Datei, wght 100..900; aktiv 400/600/700),
+     siehe --font-brief-stack in
+     /home/moritz/repos/DIN-BriefNEO/website/css/base.css). Leerer Wert =
+     --active-font-family wird entfernt, es greift der Brief-Stack.
+     Es gibt bewusst keinen zweiten Preset-Key: Liberation Sans ist restlos
+     entfernt, und ein gespeichertes `previewFont: "inter"` faellt beim Start
+     sauber auf `default` zurueck (applyInitialFont). */
+  default: ''
 };
 
 export class FontFeature {

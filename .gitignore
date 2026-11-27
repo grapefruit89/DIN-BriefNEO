@@ -54,16 +54,16 @@ batch/**/merge.txt
 batch/**/verweise/
 
 # Ausgelieferte Webfonts. Im Repo darf nur liegen, was die Lizenz erlaubt:
-# Inter (SIL OFL 1.1) und Liberation Sans (SIL OFL 1.1, metrisch identisch zu
-# Arial). Alles andere bleibt lokal in fonts/ (Aptos = Microsoft,
-# Michelangelus = kommerziell) und wird nur vom Dev-Server ausgeliefert.
+# Inter (SIL OFL 1.1) als EINE variable Datei (wght 100..900). Liberation
+# Sans und die statischen Inter-Schnitte sind am 2026-11-27 entfallen.
+# Alles andere bleibt lokal in fonts/ (Aptos = Microsoft, Michelangelus =
+# kommerziell) und wird nur vom Dev-Server ausgeliefert.
 website/fonts/*
-!website/fonts/inter_18pt-regular.woff2
-!website/fonts/inter_18pt-bold.woff2
-!website/fonts/liberation-sans-regular.woff2
-!website/fonts/liberation-sans-bold.woff2
-!website/fonts/LICENSE-Liberation.txt
+!website/fonts/inter-variable.woff2
 !website/fonts/LICENSE-Inter.txt
+# Zeichenvorrat, Ist-Abdeckung und Grenzen der Subsets (Nutzerentscheidung
+# 2026-11-27): Doku gehoert ins Repo, die Rohschriften nicht.
+!website/fonts/README.md
 # fonts/ KOMPLETT: lokale Schriften und ihre Werkzeuge. Nichts davon ins Repo
 # (Lizenz: Aptos = Microsoft, Michelangelus = kommerziell).
 # Mit fuehrendem Schraegstrich: ohne ihn trifft das Muster auch

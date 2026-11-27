@@ -100,9 +100,10 @@ function findeFontsOrdner(root) {
 function liesLokaleSchriften(ordner) {
   if (!ordner) return [];
   const ERLAUBT = new Set(['.woff2', '.ttf', '.otf']);
-  /* Was bereits ausgeliefert wird, ist keine "lokale Testschrift": Inter und
-     Liberation Sans liegen als Subset in website/fonts/. Ihre Quelldateien
-     hier mitzulisten wuerde nur Doppel-Eintraege erzeugen. */
+  /* Was bereits ausgeliefert wird, ist keine "lokale Testschrift": Inter liegt
+     als Subset in website/fonts/. Die Liberation-Quelldateien werden seit
+     2026-11-27 nicht mehr gebaut, bleiben aber ausgeblendet, damit der
+     Altbestand nicht als waehlbare Schrift in der App auftaucht. */
   const AUSGELIEFERT = /^(inter|liberationsans)/i;
   let dateien;
   try {

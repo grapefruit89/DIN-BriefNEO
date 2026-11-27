@@ -60,13 +60,13 @@ Der Brief braucht keine Systemschrift, um richtig auszusehen — er bringt seine
 
 | Datei | Größe | Rolle |
 |---|---|---|
-| `website/fonts/liberation-sans-regular.woff2` | 17.560 B | **Standard** für den ganzen Brief |
-| `website/fonts/liberation-sans-bold.woff2` | 17.004 B | Betreff, Anlagen, `<b>` |
-| `website/fonts/inter_18pt-regular.woff2` | 15.208 B | wählbare Alternative |
-| `website/fonts/inter_18pt-bold.woff2` | 15.664 B | Betreff bei Inter |
+| `website/fonts/inter-variable.woff2` | 34.556 B (33,7 KiB) | **einzige Datei** für den ganzen Brief: `wght` 100–900, aktiv 400 (Fließtext), 600 (`b`/`strong`/`.font-bold`), 700 (`#betreff`) |
 
-- **Warum Liberation Sans:** DIN 5008 Kap. 20.7.1 nennt Arial und Helvetica. Liberation Sans ist deren freie, **metrisch identische** Umsetzung — ein Brief bricht zeilenweise genauso um wie ein Arial-Brief, auf Linux, Windows und macOS.
-- **DACH-Zeichensatz:** ASCII, Umlaute, ẞ, typografische Anführungszeichen, `§`, `€`, Rechen- und Maßzeichen. Keine fremden Alphabete — was fehlt, fällt auf dieselbe Konstruktion zurück.
+- **Warum Inter:** Die „1" hat in Liberation Sans einen Fußbalken unter dem Stamm (Arial und Inter setzen den Stamm auf die Grundlinie), und Liberation Sans bietet upstream keine Zwischengewichte. Inter löst beides — der Preis: Inter ist zu Arial **nicht** metrisch identisch, der Brief bricht also anders um als ein Arial-Brief (DIN 5008 Kap. 20.7.1 nennt Arial und Helvetica).
+- **Variable Font statt zwei Schnitte:** `opsz` ist auf 18pt eingefroren, `wght` bleibt 100–900 variabel. Das Budget liegt bei 38 KiB (38.912 B); die Datei bleibt mit 4,3 KiB Reserve darunter.
+- **Liberation Sans und die statischen Inter-Schnitte sind restlos entfernt:** keine WOFF2-Dateien, keine Lizenzdatei, kein `@font-face`, kein Preset, keine Option in der Schriftauswahl. `--font-brief-stack` lautet `"Test-Inter", system-ui, -apple-system, sans-serif`.
+- **Zeichenvorrat und Ist-Abdeckung:** [`website/fonts/README.md`](website/fonts/README.md) — 187 Soll-Codepoints (QWERTZ + DIN 5008), 179 tatsächlich in Inter, bewusst ohne Kyrillisch/Griechisch/CJK.
+- **QWERTZ-/DIN-Zeichensatz:** ASCII, Umlaute, ẞ, typografische Anführungszeichen, `§`, `€`, Rechen- und Maßzeichen sowie Akut `´`, Guillemets `« »` und `à ç è é` für deutsche Tastaturen und Namen wie „Renée" oder „François". Keine fremden Alphabete — was fehlt, fällt auf die Systemschrift zurück.
 - **Einheitliche optische Größe:** `font-size-adjust: 0.535` normalisiert die x-Höhe über alle Schriften, auch in den Eingabefeldern.
 
 ### Lokale Testschriften (`fonts/`, nicht im Repo)
@@ -153,7 +153,6 @@ Der `pre-commit`-Hook fährt Linter, Tests, Antipattern- und Fitness-Gate.
 
 | Schrift | Lizenz | Datei |
 |---|---|---|
-| Liberation Sans | SIL OFL 1.1 (© Red Hat / Google) | [`website/fonts/LICENSE-Liberation.txt`](website/fonts/LICENSE-Liberation.txt) |
 | Inter | SIL OFL 1.1 (© The Inter Project Authors) | [`website/fonts/LICENSE-Inter.txt`](website/fonts/LICENSE-Inter.txt) |
 
 **Nicht im Repo und nie ausgeliefert:** Aptos (Microsoft) und Michelangelus (Gusto IDS, „All rights reserved") liegen ausschließlich lokal in `fonts/` und sind über die veröffentlichte Seite nicht erreichbar.

@@ -4443,23 +4443,29 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
-  it('schaltet über applyFontPreset zwischen Inter und dem Standard um', () => {
+  it('haelt Inter als festen Standard und faellt bei altem Liberation-Wert darauf zurueck', () => {
     const sel = /** @type {HTMLSelectElement} */ (document.getElementById('select-schriftart'));
     const sm = new SettingsManager();
     const ff = new FontFeature(sm);
-    ff.applyFontPreset('inter');
-    assertEqual(sel.value, 'inter');
-    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Inter'), 'Inter aktiv');
+    /* Ein gespeichertes `previewFont: "liberation"` darf die Schrift nicht mehr
+       umschalten: der Key ist kein Preset, also greift der Brief-Stack. */
+    ff.applyFontPreset('liberation');
+    assertEqual(sel.value, 'default');
+    assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
 
     ff.applyFontPreset('default');
     assertEqual(sel.value, 'default');
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
-  it('exportiert FONT_PRESETS mit den mitgelieferten Vorgaben', () => {
+  it('exportiert FONT_PRESETS nur noch mit dem festen Inter-Standard', () => {
     assertEqual(typeof FONT_PRESETS, 'object');
     assertEqual(FONT_PRESETS.default, '');
-    assert(FONT_PRESETS.inter.includes('Test-Inter'), 'Test-Inter Preset vorhanden');
+    assertEqual(Object.keys(FONT_PRESETS).length, 1, 'kein zweiter Preset-Key');
+    /* Liberation Sans ist am 2026-11-27 restlos entfernt worden; auch der alte
+       Inter-Key existiert nicht mehr, weil Inter jetzt der Standard ist. */
+    assertEqual(FONT_PRESETS.liberation, undefined, 'Liberation ist kein Preset mehr');
+    assertEqual(FONT_PRESETS.inter, undefined, 'Inter braucht keinen Sonder-Key mehr');
     /* Aptos und Michelangelus sind seit 2026-11-23 nicht mehr mitgeliefert:
        Lizenz (Microsoft / kommerziell). Sie kommen zur Laufzeit aus dem
        lokalen Ordner fonts/ ueber /__fonts, nicht als Preset. */
@@ -4470,6 +4476,36 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
   it('erzwingt 400 KB Obergrenze in Constants.LIMITS', () => {
     assertEqual(Constants.LIMITS.FONT_SIZE_MAX_KB, 400);
     assert(Constants.TOASTS.FONT.SIZE_ERROR.includes('400 KB'), 'Fehlermeldung nennt 400 KB');
+  });
+});
+
+describe('Variable Font: eine Datei fuer 400/600/700', () => {
+  it('baut genau EINEN @font-face auf inter-variable.woff2 (wght 100..900)', async () => {
+    const css = await (await fetch('/website/css/base.css')).text();
+    const faces = css.match(/@font-face\s*\{[^}]*\}/g) || [];
+    assertEqual(faces.length, 1, 'genau ein @font-face');
+    const face = faces[0] ?? '';
+    assert(face.includes('inter-variable.woff2'), 'Referenz auf inter-variable.woff2');
+    assert(face.includes('format("woff2-variations")'), 'woff2-variations zuerst');
+    assert(/font-weight:\s*100\s+900/.test(face), 'Gewichtsachse 100..900');
+    assert(face.includes('inter_18pt-') === false, 'kein statischer Schnitt mehr');
+  });
+
+  it('liefert die Datei aus und haelt das 38-KiB-Budget', async () => {
+    const res = await fetch('/website/fonts/inter-variable.woff2');
+    assertEqual(res.status, 200, 'inter-variable.woff2 erreichbar');
+    const bytes = (await res.arrayBuffer()).byteLength;
+    assert(bytes > 0, 'Datei ist nicht leer');
+    assert(bytes < 38 * 1024, `Datei ${bytes} B < ${38 * 1024} B`);
+  });
+
+  it('aktiviert 600 fuer b/strong und 700 fuer den Betreff', async () => {
+    const base = await (await fetch('/website/css/base.css')).text();
+    const common = await (await fetch('/website/css/sheet-common.css')).text();
+    const multipage = await (await fetch('/website/css/sheet-multipage.css')).text();
+    assert(/b,\s*strong,\s*\.font-bold\s*\{[^}]*font-weight:\s*600/.test(base), 'global b/strong/.font-bold = 600');
+    assert(/#text b, #text strong, #text \.font-bold\s*\{[^}]*font-weight:\s*600/.test(common), '#text b/strong/.font-bold = 600');
+    assert(/#betreff\s*\{[^}]*font-weight:\s*700/.test(multipage), '#betreff = 700');
   });
 });
 

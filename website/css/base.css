@@ -117,41 +117,35 @@ html, body {
   outline-offset: -2px;
 }
 
-/* --- MITGELIEFERTE SCHRIFTEN (DIN-5008-SUBSET, DACH + Normzeichen) ---
-   Im Repo liegen genau zwei Familien: Liberation Sans (Standard — metrisch
-   identisch zu Arial) und Inter. Schriften, die ausschliesslich lokal in
+/* --- MITGELIEFERTE SCHRIFT (DIN-5008-SUBSET, DACH + Normzeichen) ---
+   Im Repo liegt genau eine Datei: Inter 18pt als Variable Font. Die
+   opsz-Achse ist in fonts/subset_fonts.py auf 18pt eingefroren, die
+   wght-Achse bleibt 100..900 variabel. Damit deckt EINE Datei Fließtext
+   (400), Fett (600) und Betreff (700) ab. Zeichenvorrat, Ist-Abdeckung und
+   die bewusst ausgeschlossenen Bereiche (Kyrillisch, Griechisch, CJK,
+   Latin-Ext): /home/moritz/repos/DIN-BriefNEO/website/fonts/README.md.
+   Schriften, die ausschliesslich lokal in
    <repo>/fonts/ liegen (Aptos, Michelangelus, eigene Testschriften), bekommen
    hier bewusst KEIN @font-face: der Dev-Server liefert ihre Liste unter
    /__fonts aus, font-feature.js laedt sie per FontFace-API. Auf GitHub Pages
    gibt es weder Liste noch Dateien — dort fehlen sie, statt stillschweigend
    eine 404 zu laden (Nutzerentscheidung 2026-11-23). */
 @font-face {
-  font-family: "Test-Liberation";
-  src: url("../fonts/liberation-sans-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Test-Liberation";
-  src: url("../fonts/liberation-sans-bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
   font-family: "Test-Inter";
-  src: url("../fonts/inter_18pt-regular.woff2") format("woff2");
-  font-weight: 400;
+  src: url("../fonts/inter-variable.woff2") format("woff2-variations"),
+       url("../fonts/inter-variable.woff2") format("woff2");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: "Test-Inter";
-  src: url("../fonts/inter_18pt-bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
+
+/* Die drei aktiven Gewichte der Variablen (Nutzerentscheidung 2026-11-27):
+   400 Fließtext, 600 Fett, 700 Betreff. Der Browser interpoliert die
+   wght-Achse, es gibt keine statischen Schnitte mehr. */
+b,
+strong,
+.font-bold {
+  font-weight: 600;
 }
 
 din-blatt {
@@ -323,19 +317,20 @@ body {
   --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
   --glass-blur: blur(20px);
 
-  /* Standard: Arial-Metrik. Liberation Sans ist die freie, metrisch
+  /* Bedienoberflaeche: Arial-Metrik. Liberation Sans ist die freie, metrisch
      identische Umsetzung — auf Windows/macOS greift Arial selbst, also
-     brechen Briefe auf allen drei Systemen gleich um. Aptos/Segoe UI/
+     brechen UI-Texte auf allen drei Systemen gleich um. Aptos/Segoe UI/
      -apple-system standen hier bis 2026-11-23 und machten den Umbruch
      betriebssystemabhaengig (gemessen: Aptos 593,7 vs Liberation 638,1).
      DIN 5008 Kap. 20.7.1 nennt ausdruecklich Arial und Helvetica. */
   --font-system-stack: "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
-  /* Brief-Standard: die eingedampfte Liberation Sans liegt im Repo, also ist
-     der Vanilla-Brief auf jedem Rechner identisch. Fehlende Zeichen (z. B.
-     franzoesische Akzente, nicht im DACH-Subset) fallen auf die echte
-     Liberation Sans bzw. Arial zurueck — gleiche Konstruktion, gleiche
-     Metrik, also faellt der Wechsel nicht auf. */
-  --font-brief-stack: "Test-Liberation", "Liberation Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  /* Brief-Standard: Inter 18pt, fest (Nutzerentscheidung 2026-11-27).
+     Gruende: die 1 hat keinen Fussbalken (Liberation Sans setzte einen Balken
+     unter den Stamm, der im Brief stoert), und Inter bietet Zwischengewichte.
+     Liberation Sans ist restlos entfernt; danach greifen nur noch die
+     Systemschriften. Die Kette bleibt bewusst kurz, damit ein fehlendes
+     Zeichen nicht unbemerkt in eine fremde Familie kippt. */
+  --font-brief-stack: "Test-Inter", system-ui, -apple-system, sans-serif;
   --active-font-family: var(--font-brief-stack);
   --schrift-stack: var(--font-system-stack);
 

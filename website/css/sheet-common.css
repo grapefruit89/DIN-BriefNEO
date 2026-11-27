@@ -31,6 +31,7 @@ din-blatt {
      Trefferflaechen auseinanderlaufen lassen. Im Druck unten zurueck auf 1. */
   zoom: calc(var(--blatt-breite-px, 900) / var(--blatt-mm-px, 793.7));
   font-family: var(--active-font-family, var(--font-system-stack));
+  font-weight: 400;
   font-size-adjust: 0.535;
   font-variant-numeric: tabular-nums;
 
@@ -727,8 +728,10 @@ din-anlagen-angabe {
       border-bottom-style: solid;
     }
 
-  #text b, #text strong {
-      font-weight: 700;
+  /* Variable Inter: Fett ist 600, nicht 700. Der Betreff behaelt 700
+     (sheet-multipage.css), damit er sich vom Fettsatz im Text abhebt. */
+  #text b, #text strong, #text .font-bold {
+      font-weight: 600;
     }
 
   #text u {

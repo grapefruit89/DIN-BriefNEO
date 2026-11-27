@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-11-15'
+updated: '2026-11-27'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -6072,3 +6072,144 @@ Deshalb ist 900 kein allgemeiner Wert, sondern der des Referenzmonitors — und
 deshalb bleibt der Regler im Debug-Panel (px/%/Einpassen). Kommentar mit dieser
 Herleitung steht an `--blatt-breite-px` (base.css) und an `BREITE_ORIGINAL`
 (ansicht.js).
+
+---
+
+## 2026-11-27 — Inter 18pt als Brief-Standard (löst Liberation Sans ab)
+
+**Entscheidung des Nutzers:** „Auf Inter umstellen" — bei zwei Schnitten (Regular
+400, Bold 700). Auslöser waren zwei Beobachtungen am gelieferten Brief: die „1"
+in Liberation Sans hat einen Fußbalken, und Liberation Sans bietet keine
+Zwischengewichte. Beides ist dort nicht behebbar: die Kontur der `one` in
+`LiberationSans-Regular.ttf` ist eine einzige Kontur mit Balken
+`x=156..1039, y=0..153`; upstream gibt es nur Regular/Bold/Italic/BoldItalic, und
+2.1.5 (2021-09-30) ist die letzte Veröffentlichung überhaupt. Inter 18pt zeichnet
+die 1 mit Stamm auf `y=0` ohne Balken.
+
+**Was dafür geprüft und verworfen wurde:**
+
+- *google-webfonts-helper als Subset-Quelle.* Am 2026-11-27 gegen
+  `https://gwfh.mranftl.com/api/fonts/inter?subsets=latin` gemessen: Googles
+  „latin"-Subset (Inter v20, regular) hat **230 Codepoints / 23.664 B** und
+  enthält 96 Zeichen, die in einem DIN-Brief nichts verloren haben (À Á Â Ã,
+  Œ œ, Combining-Diakritika, ↑ ↓, U+FEFF), während 46 benötigte fehlen (⌀, ✓/✗,
+  ⟨⟩, typografische Striche). Unsere Datei: 172 Codepoints / 15.208 B. gwfh
+  liefert vordefinierte Sprach-Subsets, nicht den DIN-Vorrat — als Rohschrift-
+  Quelle brauchbar, als Subsetter nicht. Zweiter Grund: dort steht „Inter v20",
+  im Repo liegt „Inter **18pt**" (eigene Optical-Size-Familie) — der Tausch wäre
+  auch ein Metrikwechsel gewesen.
+- *Liberation Sans patchen* (Fußbalken entfernen, Stamm auf `y=0`). Technisch
+  trivial und metrisch neutral (Vorschub bliebe 1139/2048 = 0,556 em), aber
+  `LICENSE-Liberation.txt:4` reserviert den Namen „Liberation" — eine
+  modifizierte Datei müsste umbenannt werden (Name-Tabelle **und**
+  `@font-face`-Familie). Nicht gewählt, weil Inter das Problem ohne Eingriff in
+  eine fremde Schrift löst.
+
+**Offen geblieben (bewusst):** DIN 5008 Kap. 20.7.1 nennt Arial und Helvetica
+ausdrücklich; Inter ist metrisch **nicht** Arial. Der Brief ist damit nicht mehr
+Arial-zeilenidentisch — das ist der Preis für die Glyphe ohne Fuß und für die
+Gewichtsoption. `⌀` (`U+2300`) fehlt in beiden Familien und fällt weiter auf die
+Systemschrift zurück.
+
+---
+
+## 2026-11-27 — Liberation Sans restlos entfernt (Inter 18pt ist der einzige Standard)
+
+**Entscheidung des Nutzers:** „Wir entfernen Liberation Sans restlos und schärfen
+Inter 18pt (Regular 400 & Bold 700) mit dem vollständigen deutschen QWERTZ- und
+DIN-5008-Zeichensatz." Damit ist der Zwischenstand vom selben Tag („Inter als
+Standard, Liberation als wählbare Alternative") überholt: es gibt keine zweite
+Familie mehr.
+
+**Was entfernt wurde:**
+
+- `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/fonts/liberation-sans-regular.woff2`
+- `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/fonts/liberation-sans-bold.woff2`
+- `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/fonts/LICENSE-Liberation.txt`
+- beide `@font-face`-Blöcke (`Test-Liberation`) in
+  `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/css/base.css`
+- das `liberation`-Preset in
+  `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/js/font-feature.js`
+- die Liberation-Option in
+  `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/index.html` und
+  `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/test/index.html`
+
+**Was bleibt bzw. neu ist:**
+
+- `--font-brief-stack: "Test-Inter", system-ui, -apple-system, sans-serif` —
+  `--font-system-stack` (Bedienoberfläche) nennt weiterhin die **OS-eigene**
+  Liberation Sans; die ist nicht mitgeliefert und hat mit dem Brief nichts zu tun.
+- `FONT_PRESETS` enthält nur `default: ''`. Gespeicherte Werte `inter` oder
+  `liberation` fallen beim Start sauber auf `default` zurück.
+- `UNICODES` in `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/fonts/subset_fonts.py`
+  um `U+00B4` (Akut), `U+00AB`/`U+00BB` (Guillemets) und `U+00E0`, `U+00E7`,
+  `U+00E8`, `U+00E9` (`à ç è é`) erweitert: **187 Soll-Codepoints**.
+- Neu gebaut: `inter_18pt-regular.woff2` = **15 356 B**,
+  `inter_18pt-bold.woff2` = **15 808 B** — beide unter dem 18-KiB-Budget.
+- Ist-Abdeckung: **179** der 187 Soll-Codepoints. Acht fehlen in der Quelle und
+  fallen auf die Systemschrift: `U+00AD`, `U+2300`, `U+2714-2716`, `U+2718`,
+  `U+27E8-27E9`.
+
+**Bewusst nicht angefasst:** Die Rohschriften `LiberationSans-Regular.ttf` und
+`LiberationSans-Bold.ttf` liegen weiterhin lokal in
+`Nobara-PC: /home/moritz/repos/DIN-BriefNEO/fonts/` (komplett gitignoriert).
+Sie sind kein Auslieferungsbestandteil mehr; die Pipeline baut sie nicht.
+
+---
+
+## 2026-11-27 — Variable Font: eine Datei statt zwei statischer Schnitte
+
+**Entscheidung des Nutzers:** „Wir stellen die Typografie auf einen echten
+Variable Font um: 1 einzige Datei (`inter-variable.woff2`) für alle Gewichte
+(Normal 400, Fett 600, Betreff 700)."
+
+**Warum:**
+
+- **Ein Asset statt zwei.** 34 556 B (33,7 KiB) ersetzen 31 164 B in zwei
+  Dateien; der Zuwachs von 3,4 KiB kauft die komplette Gewichtsachse
+  100..900 und damit echte Zwischengewichte (600 für `b`/`strong`, 700 für
+  `#betreff`).
+- **Kein zweiter Ladevorgang.** Vorher musste der Browser für fetten Text
+  eine zweite Datei anfordern; jetzt genügt eine Verbindung und ein
+  `@font-face` mit `font-weight: 100 900`.
+- **Optical Size bleibt fixiert.** Die Inter-Variable hat `opsz` 14..32 und
+  `wght` 100..900. `instantiateVariableFont` friert `opsz` auf **18pt** ein
+  (der bisherige Brief-Standard), die `wght`-Achse bleibt unangetastet.
+
+**Umsetzung:**
+
+- `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/fonts/subset_fonts.py` nutzt
+  `fonts/Inter-Variable.ttf` als Quelle,
+  `from fontTools.varLib.instancer import instantiateVariableFont` mit
+  `{"opsz": 18}` und subsettet danach mit den unveränderten **187
+  DIN-5008/QWERTZ-Codepoints** und den Features `kern,liga,calt,tnum` nach
+  `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/fonts/inter-variable.woff2`.
+  `BAUT` enthält nur noch diesen einen Eintrag; das Skript bricht ab, wenn die
+  Datei 38 KiB (38 912 B) erreicht.
+- `@font-face` in
+  `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/css/base.css`: **ein**
+  Block, `src` zuerst `format("woff2-variations")`, dann `format("woff2")`,
+  `font-weight: 100 900`.
+- Gewichte: `din-blatt` = 400, `b, strong, .font-bold` = 600,
+  `#betreff` = 700 (bestehende Regel in `sheet-multipage.css` bleibt).
+- Entfernt:
+  `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/fonts/inter_18pt-regular.woff2`
+  und
+  `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/fonts/inter_18pt-bold.woff2`.
+  Es verbleiben `inter-variable.woff2` und `LICENSE-Inter.txt`.
+- Tests: `test/all.js` prüft den einen `@font-face`, das 38-KiB-Budget der
+  ausgelieferten Datei und die drei Gewichte; `test/index.html` nennt
+  „Inter 18pt Variable (DIN-Subset)".
+
+**Ist-Werte (gemessen 2026-11-27):** 34 556 B · 179 Codepoints
+(`U+0020` … `U+2717`) · 299 Glyphen · Achsen nach dem Build: nur `wght`
+(100/400/900). `npm test` 427/427 grün, `node tools/build_db.js -q` = 100 %.
+
+**Verworfen:**
+
+- *Zwei statische Schnitte behalten.* Kein Platzgewinn, aber ein zweiter
+  Request und keine Zwischengewichte; 600 wäre nur über synthetisches Fett
+  möglich gewesen.
+- *Die volle Variable ohne `opsz`-Pin ausliefern.* `opsz` 14..32 hätte die
+  Metrik vom Browser-Skalierungsverhalten abhängig gemacht und die Datei
+  größer gehalten; 18pt ist der dokumentierte Brief-Standard.

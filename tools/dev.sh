@@ -87,7 +87,9 @@ ist_dev_server() {
     case "$arg" in
       */tools/serve.mjs|tools/serve.mjs) return 0 ;;
       */tools/static-server.mjs|tools/static-server.mjs) return 0 ;;
+      */tools/runtime/static-server.mjs|tools/runtime/static-server.mjs) return 0 ;;
       */tools/mcp-live.mjs|tools/mcp-live.mjs) return 0 ;;
+      */tools/runtime/mcp-live.mjs|tools/runtime/mcp-live.mjs) return 0 ;;
     esac
   done
   for arg in "${argv[@]:1}"; do

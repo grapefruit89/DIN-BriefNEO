@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 import buildDb from './build_db.js';
 
 const HIER = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(HIER, '../..');
 
 function starte(datei, argumente, optionen = {}) {
   const ziel = path.join(HIER, datei);
@@ -61,6 +62,6 @@ export function runRules(args = [], optionen = {}) {
  * Schreibt nur docs/STRUCTURE.md (inkl. Stand-Hash), ohne Score-Lauf.
  * @param {string} [targetDir] Repo-Wurzel; Standard ist die echte Wurzel.
  */
-export function generateStructure(targetDir) {
+export function generateStructure(targetDir = ROOT) {
   return buildDb.generateStructure(targetDir);
 }

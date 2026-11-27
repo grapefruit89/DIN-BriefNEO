@@ -15,7 +15,8 @@
  * Schichtung (Ziel, siehe tools/CONSOLIDATION-BLUEPRINT.md §0):
  *   din.mjs → fitness/ → laws/     (laws/ importiert niemals fitness/)
  * Seit Etappe 5 liegen die Sonden in `laws/` und die Gate-Engine in `fitness/`;
- * die alten Pfade in `tools/` bleiben als Shims bestehen.
+ * seit Etappe 6 die Inhalts-Pipelines in `content/` und die Einmal-Werkzeuge
+ * in `oneoff/`. Die alten Pfade in `tools/` bleiben als Shims bestehen.
  *
  * Aufruf: node tools/din.mjs [bereich] [befehl] [flags] [--] [argumente]
  * Exit:   0 ok · 1 Gate/Test rot · 2 Aufruf-/Vorbedingungsfehler · 3 IO/Render
@@ -141,21 +142,34 @@ const WERKZEUGE = [
   { name: 'lawcoverage', group: 'laws', summary: 'SHIM → tools/laws/lawcoverage.js (alter Pfad bleibt)', file: 'tools/lawcoverage.js', gate: true, status: 'shim' },
   { name: 'id-register', group: 'laws', summary: 'SHIM → tools/laws/id-register.js (Zielort laws/, alter Pfad bleibt)', file: 'tools/id-register.js', gate: true, status: 'shim' },
 
-  // Inhalte (Ziel: content/)
-  { name: 'adr-check', group: 'content', summary: 'ADR-Format-Check, eigenes CLI (manuell)', file: 'tools/adr-check.js', gate: false },
-  { name: 'backlog-sync', group: 'content', summary: 'BACKLOG.md-Übersichtstabelle schreiben oder prüfen (--check)', file: 'tools/backlog-sync.mjs', gate: false },
-  { name: 'test-dossier', group: 'content', summary: 'docs/30-meta/TEST-DOSSIER.md schreiben oder prüfen (--check)', file: 'tools/test-dossier.mjs', gate: false },
-  { name: 'build_plz_data', group: 'content', summary: 'PLZ-Stammdaten bauen (Quartals-Workflow, --download/--neu)', file: 'tools/build_plz_data.mjs', gate: false },
-  { name: 'build_grosskunden_columnar', group: 'content', summary: 'Grosskunden-Spaltenformat bauen (CI-Schritt)', file: 'tools/build_grosskunden_columnar.mjs', gate: false },
-  { name: 'query_chrome_feature', group: 'content', summary: 'Chrome-Feature-Verfügbarkeit abfragen', file: 'tools/query_chrome_feature.mjs', gate: false },
+  // Inhalte (Etappe 6: content/)
+  { name: 'content', group: 'content', summary: 'Öffentliche Schnittstelle: buildPlzData, buildGrosskunden, syncBacklog, generateDossier, queryFeature, checkAdr', file: 'tools/content/index.mjs', gate: false },
+  { name: 'content/build_plz_data', group: 'content', summary: 'PLZ-Stammdaten bauen (Quartals-Workflow, --download/--neu)', file: 'tools/content/build_plz_data.mjs', gate: false },
+  { name: 'content/build_grosskunden', group: 'content', summary: 'Grosskunden-Spaltenformat bauen (CI-Schritt)', file: 'tools/content/build_grosskunden_columnar.mjs', gate: false },
+  { name: 'content/backlog-sync', group: 'content', summary: 'BACKLOG.md-Übersichtstabelle schreiben oder prüfen (--check)', file: 'tools/content/backlog-sync.mjs', gate: false },
+  { name: 'content/test-dossier', group: 'content', summary: 'docs/meta/TEST-DOSSIER.md schreiben oder prüfen (--check)', file: 'tools/content/test-dossier.mjs', gate: false },
+  { name: 'content/query_chrome_feature', group: 'content', summary: 'Chrome-Feature-Verfügbarkeit abfragen (Chromestatus API)', file: 'tools/content/query_chrome_feature.mjs', gate: false },
+  { name: 'content/adr-check', group: 'content', summary: 'ADR-Format-Check: Bijektion, Annotationen, Zähler, verwaiste Assets', file: 'tools/content/adr-check.js', gate: false },
+  { name: 'adr-check', group: 'content', summary: 'SHIM → tools/content/adr-check.js (alter Pfad bleibt)', file: 'tools/adr-check.js', gate: false, status: 'shim' },
+  { name: 'backlog-sync', group: 'content', summary: 'SHIM → tools/content/backlog-sync.mjs (npm run docs:backlog)', file: 'tools/backlog-sync.mjs', gate: false, status: 'shim' },
+  { name: 'test-dossier', group: 'content', summary: 'SHIM → tools/content/test-dossier.mjs (npm run docs:tests)', file: 'tools/test-dossier.mjs', gate: false, status: 'shim' },
+  { name: 'build_plz_data', group: 'content', summary: 'SHIM → tools/content/build_plz_data.mjs (npm run build:data, CI)', file: 'tools/build_plz_data.mjs', gate: false, status: 'shim' },
+  { name: 'build_grosskunden_columnar', group: 'content', summary: 'SHIM → tools/content/build_grosskunden_columnar.mjs (CI)', file: 'tools/build_grosskunden_columnar.mjs', gate: false, status: 'shim' },
+  { name: 'query_chrome_feature', group: 'content', summary: 'SHIM → tools/content/query_chrome_feature.mjs (npm run check:browser-feature)', file: 'tools/query_chrome_feature.mjs', gate: false, status: 'shim' },
+
+  // Schriften (Etappe 6: fonts/)
+  { name: 'subset_fonts', group: 'fonts', summary: 'DIN-5008-Font-Subsetting (Inter → website/fonts; lokale Testschriften nach fonts/)', file: 'tools/fonts/subset_fonts.py', gate: false },
 
   // Tests
   { name: 'test-runner', group: 'test', summary: 'SHIM → tools/runtime/runner.mjs (npm test, CI, Wegweiser)', file: 'tools/test-runner.mjs', gate: true, status: 'shim' },
 
-  // Einmal-/Altlasten (Ziel: Archiv bzw. oneoff/)
-  { name: 'check-feature', group: 'oneoff', summary: 'TOT: kein Aufrufer, installiert zur Laufzeit npm-Pakete', file: 'tools/check-feature.js', gate: false, status: 'archivkandidat' },
-  { name: 'og-image', group: 'oneoff', summary: 'Einmaliger OG-Image-Generator (kein Aufrufer, Port 8099)', file: 'tools/og-image.mjs', gate: false, status: 'einmalig' },
-  { name: 'seeder-diff', group: 'oneoff', summary: 'Einmal-Differenztest batch/05 — wird archiviert (Blueprint K5)', file: 'tools/seeder-diff.mjs', gate: false, status: 'archivkandidat' },
+  // Einmal-/Altlasten (Etappe 6: oneoff/, alte Pfade bleiben als Shims)
+  { name: 'oneoff/check-feature', group: 'oneoff', summary: 'TOT: kein Aufrufer, installiert zur Laufzeit npm-Pakete', file: 'tools/oneoff/check-feature.js', gate: false, status: 'archivkandidat' },
+  { name: 'oneoff/og-image', group: 'oneoff', summary: 'Einmaliger OG-Image-Generator (kein Aufrufer, Port 8099)', file: 'tools/oneoff/og-image.mjs', gate: false, status: 'einmalig' },
+  { name: 'oneoff/seeder-diff', group: 'oneoff', summary: 'Einmal-Differenztest batch/05 — archiviert (Blueprint K5)', file: 'tools/oneoff/seeder-diff.mjs', gate: false, status: 'archivkandidat' },
+  { name: 'check-feature', group: 'oneoff', summary: 'ARCHIV-SHIM → tools/oneoff/check-feature.js (TOT)', file: 'tools/check-feature.js', gate: false, status: 'shim' },
+  { name: 'og-image', group: 'oneoff', summary: 'SHIM → tools/oneoff/og-image.mjs (alter Pfad bleibt)', file: 'tools/og-image.mjs', gate: false, status: 'shim' },
+  { name: 'seeder-diff', group: 'oneoff', summary: 'ARCHIV-SHIM → tools/oneoff/seeder-diff.mjs (Blueprint K5)', file: 'tools/seeder-diff.mjs', gate: false, status: 'shim' },
 ];
 
 /**
@@ -253,6 +267,11 @@ const BEREICHE = [
     'din docs backlog|tests|index [--check]',
   ],
   [
+    'content',
+    'Inhalts-Werkzeuge direkt: Chrome-Feature, ADR-Check (Logik in tools/content/)',
+    'din content feature <begriff> | din content adr [--json]',
+  ],
+  [
     'tools',
     'Vollständige Werkzeug-Landkarte (für LLMs)',
     'din tools [--json]',
@@ -283,6 +302,10 @@ const UNTERBEFEHLE = {
     ['backlog', 'BACKLOG.md-Tabelle synchronisieren/ prüfen', 'din docs backlog [--check]'],
     ['tests', 'TEST-DOSSIER.md schreiben/ prüfen', 'din docs tests [--check]'],
     ['index', 'docs/STRUCTURE.md + Fitness-Score erzeugen', 'din docs index'],
+  ],
+  content: [
+    ['feature', 'Chrome-Feature-Status abfragen (chromestatus.com)', 'din content feature popover'],
+    ['adr', 'ADR-Drift-Check: Bijektion, Annotationen, Zähler', 'din content adr [--json]'],
   ],
   tools: [
     ['--json', 'Landkarte als JSON', 'din tools --json'],
@@ -376,7 +399,9 @@ function landkarte(alsJson) {
     gate: e.gate,
     entry: e.file.endsWith('.sh')
       ? `bash ${e.file}`
-      : `node ${e.file}`,
+      : e.file.endsWith('.py')
+        ? `python3 ${e.file}`
+        : `node ${e.file}`,
     ...(e.status ? { status: e.status } : {}),
   }));
 
@@ -406,6 +431,7 @@ function landkarte(alsJson) {
     fitness: 'FITNESS',
     laws: 'GESETZE',
     content: 'INHALTE',
+    fonts: 'SCHRIFTEN',
     test: 'TESTS',
     oneoff: 'EINMAL / ARCHIV',
     sonstiges: 'NICHT KATALOGISIERT',
@@ -419,6 +445,7 @@ function landkarte(alsJson) {
     fitness: 4,
     laws: 5,
     content: 6,
+    fonts: 6.5,
     test: 7,
     oneoff: 8,
     sonstiges: 9,
@@ -525,19 +552,31 @@ function main(argv) {
     case 'data': {
       const unter = rest[0];
       const weite = rest.slice(1);
-      if (unter === 'plz') return nodeSkript('tools/build_plz_data.mjs', weite);
+      if (unter === 'plz') return nodeSkript('tools/content/build_plz_data.mjs', weite);
       if (unter === 'grosskunden')
-        return nodeSkript('tools/build_grosskunden_columnar.mjs', weite);
+        return nodeSkript('tools/content/build_grosskunden_columnar.mjs', weite);
       return unbekannt('Unterbefehl', 'data', unter);
     }
 
     case 'docs': {
       const unter = rest[0];
       const weite = rest.slice(1);
-      if (unter === 'backlog') return nodeSkript('tools/backlog-sync.mjs', weite);
-      if (unter === 'tests') return nodeSkript('tools/test-dossier.mjs', weite);
+      if (unter === 'backlog') return nodeSkript('tools/content/backlog-sync.mjs', weite);
+      if (unter === 'tests') return nodeSkript('tools/content/test-dossier.mjs', weite);
       if (unter === 'index') return nodeSkript('tools/build_db.js', ['-q', ...weite]);
       return unbekannt('Unterbefehl', 'docs', unter);
+    }
+
+    case 'content': {
+      const unter = rest[0];
+      const weite = rest.slice(1);
+      const ziel = {
+        feature: 'tools/content/query_chrome_feature.mjs',
+        adr: 'tools/content/adr-check.js',
+      }[unter];
+      if (!unter) return hilfe('content');
+      if (!ziel) return unbekannt('Unterbefehl', 'content', unter);
+      return nodeSkript(ziel, weite);
     }
 
     case 'tools':

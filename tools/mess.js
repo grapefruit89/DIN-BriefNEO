@@ -1,6 +1,7 @@
 // @ts-check
 /**
- * tools/mess.js — Messwerte aus dem laufenden Brief, ohne Screenshot.
+ * tools/measure/inpage.js — Messwerte aus dem laufenden Brief, ohne Screenshot.
+ * Spiegel: tools/mess.js (identischer Inhalt, sourcePath-Vertrag bleibt dort).
  *
  * Aufruf ueber chrome-devtools-MCP:
  *   evaluate_script({ sourcePath: "/home/moritz/repos/DIN-BriefNEO/tools/mess.js",

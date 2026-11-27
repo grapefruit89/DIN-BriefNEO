@@ -91,14 +91,24 @@ const WERKZEUGE = [
   { name: 'seed-geoapify', group: 'dev', summary: 'Geoapify-Key aus ~/.secrets in localStorage des Debug-Browsers', file: 'tools/seed-geoapify.mjs', gate: false },
   { name: 'setup-din-home', group: 'dev', summary: 'CI-Schritt: Home-Verzeichnis für tsc/CDP vorbereiten', file: 'tools/setup-din-home.sh', gate: true },
 
-  // Messen (Ziel: measure/)
-  { name: 'mess.js', group: 'measure', summary: 'In-Page-Messfunktion für CDP evaluate_script (sourcePath-Vertrag)', file: 'tools/mess.js', gate: false },
-  { name: 'mess', group: 'measure', summary: 'CLI-Transport für mess.js gegen CDP 9222', file: 'tools/mess.mjs', gate: false },
-  { name: 'mess-print', group: 'measure', summary: 'Dieselben Messwerte wie mess, aber in Druck-Emulation', file: 'tools/mess-print.mjs', gate: false },
-  { name: 'print-messung', group: 'measure', summary: 'PDF-Wahrheit: Seiten, yMax, Unterrand (6 Assertions in test/all.js)', file: 'tools/print-messung.mjs', gate: true },
-  { name: 'testbrief-messung', group: 'measure', summary: 'Testbrief-Generator ohne Browser messen (n Sätze, Szenario)', file: 'tools/testbrief-messung.mjs', gate: false },
-  { name: 'paint-probe', group: 'measure', summary: 'TTC/Paint-Timing über CDP: --runs, --profile local|cpu6|slow', file: 'tools/paint-probe.mjs', gate: false },
-  { name: 'druck-pixel', group: 'measure', summary: '4 Referenzbriefe als PDF für Vorher/Nachher-Pixel-Diffs', file: 'tools/druck-pixel.mjs', gate: false },
+  // Messen (measure/, Etappe 4)
+  { name: 'measure', group: 'measure', summary: 'Öffentliche Schnittstelle: measureSheet, measurePrint, measurePdf, measureBrief, probeTtc, diffPixels', file: 'tools/measure/index.mjs', gate: false },
+  { name: 'measure/inpage', group: 'measure', summary: 'In-Page-Messfunktion für CDP evaluate_script (eigene Datei, keine Importe)', file: 'tools/measure/inpage.js', gate: false },
+  { name: 'measure/sheet', group: 'measure', summary: 'Bildschirm-Geometrie numerisch über CDP 9222 (measureSheet)', file: 'tools/measure/sheet.mjs', gate: false },
+  { name: 'measure/print', group: 'measure', summary: 'Dieselben Messwerte in Druck-Emulation (measurePrint)', file: 'tools/measure/print.mjs', gate: false },
+  { name: 'measure/pdf', group: 'measure', summary: 'PDF-Wahrheit: Seiten, yMax, Unterrand (measurePdf; 6 Assertions in test/all.js)', file: 'tools/measure/pdf.mjs', gate: true },
+  { name: 'measure/brief', group: 'measure', summary: 'Testbrief-Generator ohne Browser messen (measureBrief)', file: 'tools/measure/brief.mjs', gate: false },
+  { name: 'measure/ttc', group: 'measure', summary: 'TTC/Paint-Timing über CDP: --runs, --profile local|cpu6|slow (probeTtc)', file: 'tools/measure/ttc.mjs', gate: false },
+  { name: 'measure/pixel', group: 'measure', summary: '4 Referenzbriefe als PDF für Vorher/Nachher-Pixel-Diffs (diffPixels)', file: 'tools/measure/pixel.mjs', gate: false },
+
+  // Mess-Shims (Altpfade bleiben stabil, Etappe 4)
+  { name: 'mess.js', group: 'measure', summary: 'Spiegel von tools/measure/inpage.js (sourcePath-Vertrag für evaluate_script)', file: 'tools/mess.js', gate: false, status: 'spiegel' },
+  { name: 'mess', group: 'measure', summary: 'SHIM → tools/measure/sheet.mjs (Pfad bleibt stabil)', file: 'tools/mess.mjs', gate: false, status: 'shim' },
+  { name: 'mess-print', group: 'measure', summary: 'SHIM → tools/measure/print.mjs (Pfad bleibt stabil)', file: 'tools/mess-print.mjs', gate: false, status: 'shim' },
+  { name: 'print-messung', group: 'measure', summary: 'SHIM → tools/measure/pdf.mjs (Pfad bleibt stabil)', file: 'tools/print-messung.mjs', gate: false, status: 'shim' },
+  { name: 'testbrief-messung', group: 'measure', summary: 'SHIM → tools/measure/brief.mjs (Pfad bleibt stabil)', file: 'tools/testbrief-messung.mjs', gate: false, status: 'shim' },
+  { name: 'paint-probe', group: 'measure', summary: 'SHIM → tools/measure/ttc.mjs (Pfad bleibt stabil)', file: 'tools/paint-probe.mjs', gate: false, status: 'shim' },
+  { name: 'druck-pixel', group: 'measure', summary: 'SHIM → tools/measure/pixel.mjs (Pfad bleibt stabil)', file: 'tools/druck-pixel.mjs', gate: false, status: 'shim' },
 
   // Fitness (Ziel: fitness/)
   { name: 'build_db', group: 'fitness', summary: 'Fitness-Gate + docs/STRUCTURE.md (Wegweiser + Score), -q still', file: 'tools/build_db.js', gate: true },
@@ -456,12 +466,12 @@ function main(argv) {
       const unter = rest[0];
       const weiter = rest.slice(1);
       const ziel = {
-        sheet: 'tools/mess.mjs',
-        print: 'tools/mess-print.mjs',
-        pdf: 'tools/print-messung.mjs',
-        brief: 'tools/testbrief-messung.mjs',
-        ttc: 'tools/paint-probe.mjs',
-        pixel: 'tools/druck-pixel.mjs',
+        sheet: 'tools/measure/sheet.mjs',
+        print: 'tools/measure/print.mjs',
+        pdf: 'tools/measure/pdf.mjs',
+        brief: 'tools/measure/brief.mjs',
+        ttc: 'tools/measure/ttc.mjs',
+        pixel: 'tools/measure/pixel.mjs',
       }[unter];
       if (!ziel) return unbekannt('Unterbefehl', 'measure', unter);
       return nodeSkript(ziel, weiter);

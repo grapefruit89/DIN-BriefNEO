@@ -36,34 +36,34 @@ Code; dann diesen Wegweiser korrigieren.
 
 ## 1. Aufgabe → Dateien → Test → Gate
 
-| Aufgabe | Primär lesen | Test (`node tools/runtime/runner.mjs`) | Gate |
+| Aufgabe | Primär lesen | Test (`node tools/runtime.mjs test`) | Gate |
 |---|---|---|---|
 | Paste, Caret, Zeilenlimit, `contenteditable` | `website/js/document.js`, `website/css/sheet-common.css` | `--filter=DraftManager` | beide |
 | Adress-Autocomplete, PLZ, Großkunden | `website/js/address.js`, `website/js/address-data.js` | `--filter="PLZ|Address"` | beide |
 | Persistenz, Export/Import, Undo | `website/js/persistence.js`, `website/js/draft-manager.js`, `website/js/binary-storage.js` | `--filter="DraftManager|Import/Export|51-storage"` | beide |
 | Form A/B, Mehrseiten, Umbruch | `website/css/sheet.css`, `website/css/sheet-multipage.css`, `website/js/multipage-controller.js`, `website/js/settings.js` | `--filter="Layout|Scrollbars"` (nur indirekt) | beide |
-| Druck-/Layout-Bug (visuell) | `docs/css/ADR-MESS-SCHLEIFE.md`, `website/css/sheet-multipage.css`, `tools/measure/pdf.mjs` | `--filter=Druck`, `node tools/measure/pdf.mjs --saetze 42` | test-runner |
+| Druck-/Layout-Bug (visuell) | `docs/css/ADR-MESS-SCHLEIFE.md`, `website/css/sheet-multipage.css`, `tools/measure.mjs` | `--filter=Druck`, `node tools/measure.mjs pdf --saetze 42` | test-runner |
 | Prompt für eine Aufgabe schreiben | `docs/meta/PERFEKTER-PROMPT.md` (Pflichtfelder, Anti-Patterns) | — | — |
 | Anrede, Grußformel, Stil | `website/js/salutation.js` | `--filter=Salutation` | test-runner |
 | Telefon/Datum/IBAN/Geld | `website/js/format.js` | `--filter=format` | test-runner |
 | Unterschrift, Stempel | `website/js/signature.js`, `website/css/sheet-common.css` | `--filter=Signature` | test-runner |
 | Schriften, Font-Upload | `website/js/font-feature.js`, `website/fonts/`, `tools/fonts/subset_fonts.py` | `--filter=FontFeature` | test-runner |
-| Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/addons/testbrief-generator.md` | `node tools/measure/brief.mjs` | Messgate |
-| Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/measure/brief.mjs` | Messgate |
+| Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/addons/testbrief-generator.md` | `node tools/measure.mjs brief` | Messgate |
+| Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/measure.mjs brief` | Messgate |
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
 | Addons, Plugins, Erweiterungen | `website/js/addons.js`, `website/addons/` | `--filter="Addon"` | test-runner |
-| Agenten, WebMCP, MCP-Bridge | `website/js/webmcp.js`, `website/js/api.js`, `tools/runtime/mcp-live.mjs`, `docs/js/AGENTEN-WEBMCP.md` | `--filter="dinBriefAgent\|WebMCP"`, `node tools/runtime/mcp-live.mjs --check` | beide |
+| Agenten, WebMCP, MCP-Bridge | `website/js/webmcp.js`, `website/js/api.js`, `tools/runtime.mjs`, `docs/js/AGENTEN-WEBMCP.md` | `--filter="dinBriefAgent\|WebMCP"`, `node tools/runtime.mjs live --check` | beide |
 | Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/boot-state.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
 | Dev-Server + Debug-Browser | `tools/dev.sh` (= `din-dev`) | `din-dev --status`, Tabs via CDP `:9222` | — |
-| Messen am Bildschirm (ohne Bild) | `tools/measure/inpage.js` | MCP `evaluate_script` mit `sourcePath`, `format:"function"` | — |
-| Messen im Druck (ohne PDF) | `tools/measure/print.mjs` | `node tools/measure/print.mjs [url] [breite]` | — |
-| Antipattern-Regel, Gate | `tools/fitness/reconciliation.js`, `tools/antipatterns/project.json` | `node tools/fitness/reconciliation.js --only-rules` | beide |
+| Messen am Bildschirm (ohne Bild) | `tools/measure.mjs` | `node tools/measure.mjs sheet` | — |
+| Messen im Druck (ohne PDF) | `tools/measure.mjs` | `node tools/measure.mjs print [url] [breite]` | — |
+| Antipattern-Regel, Gate | `tools/fitness.mjs`, `tools/antipatterns/project.json` | `node tools/fitness.mjs --only-rules` | beide |
 | contenteditable-Feld migrieren | `docs/js/ADR-CONTENTEDITABLE-MIGRATION.md` (13 Fallstricke), `website/js/field.js` | `--filter="Anlagen-Migration|Field"` | test-runner |
 
 ## 1b. Immer zuerst: `din-dev`
 
 Ein Aufruf räumt auf und startet beides neu — **das ist der Standardweg**, nicht
-`node tools/runtime/static-server.mjs` von Hand:
+`node tools/runtime.mjs serve` von Hand:
 
 ```
 din-dev                 # [0] alte Instanzen weg  [1] Server  [2] Debug-Browser (CDP 9222)
@@ -126,8 +126,8 @@ website/js/debug-panel.js       Selbstauskunft (Schalter „Debug-Panel“ in de
 website/js/ansicht.js           Benutzer-Anzeige: Blatt-Zoom, Nachtpalette (gespeichert in din_settings)
 website/js/geo-cache.js         Ringspeicher (1 MB, LFU) — Review: docs/meta/REVIEW-anrede-dropdown.md
 website/js/api.js             window.dinApi: Brief-Schnittstelle für Agenten (lesen/setzen/anrede/adresse/datum/export)
-website/js/webmcp.js          Agenten-Werkzeuge: WebMCP-Registrierung + window.dinBriefAgent (Vertrag für tools/runtime/mcp-live.mjs)
-website/js/live-bridge.js     Agenten-Kanal ohne Debug-Port: Seite wählt sich per #agent=<token> bei tools/runtime/mcp-live.mjs ein (SSE)
+website/js/webmcp.js          Agenten-Werkzeuge: WebMCP-Registrierung + window.dinBriefAgent (Vertrag für tools/runtime.mjs live)
+website/js/live-bridge.js     Agenten-Kanal ohne Debug-Port: Seite wählt sich per #agent=<token> bei tools/runtime.mjs live ein (SSE)
 website/js/date-picker.js      Kalender-Popover für #datum (Temporal, deutsche Langform, Monatsansicht, Heute)
 website/js/log.js               Ringpuffer der letzten 50 Fehler/Warnungen (Debug-Panel)
 website/js/format.js             Reine DIN-5008-Formatter + Mikro-Typografie
@@ -177,7 +177,7 @@ Drift-Wächter (Tests) und Grundlage des Kaltstart-Restores.
   `docs/js/ADR-CONTENTEDITABLE-MIGRATION.md` vor dem ersten Feld.
   13 Fallstricke, die der Anlagen-Pilot aufgedeckt hat. Die Ratsche `P38` meldet
   jedes einzeilige `contenteditable` als `warning` (kein Gate, nur Sichtbarkeit).
-- **Tests filtern:** `node tools/runtime/runner.mjs --filter=<regex>` (Suite: 222 Fälle).
+- **Tests filtern:** `node tools/runtime.mjs test --filter=<regex>` (Suite: 430 Fälle).
 - **Visuelle Bugs (Druck, Layout, Umbruch):** Lies
   `docs/css/ADR-MESS-SCHLEIFE.md`. Heatmap als Prozess (wo ist der
   Unterschied?), `pdftotext -bbox` in Millimetern als Messmethode, Wort-Kollision
@@ -210,5 +210,5 @@ Stillgelegt:      Einzelseiten-Modus — website/css/sheet.css ungenutzt
 3. Neue Kategorie? Sektion 2 prüfen und das Modul ergänzen.
 
 Das ist der einzige Mechanismus, der diese Tabelle aktuell hält: Wer sie benutzt,
-erweitert sie. `tools/fitness/repo-map-check.mjs` erzwingt, dass alle genannten Pfade
+erweitert sie. `tools/fitness.mjs repo-map` erzwingt, dass alle genannten Pfade
 existieren und jedes Modul aus `website/js/` erwähnt ist.

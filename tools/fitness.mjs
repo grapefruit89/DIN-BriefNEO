@@ -1,13 +1,111 @@
-const fs = require('fs');
-const standHelper = require('./structure-stand.js');
-const path = require('path');
-const os = require('os');
-const { execSync } = require('child_process');
+#!/usr/bin/env node
+/**
+ * tools/fitness.mjs — Konsolidierte Fitness-Engine für DIN-BriefNEO.
+ *
+ * Verschmilzt:
+ *   - structure-stand: SHA-256 Hash-Helfer gegen Git-Drift (computeStand, STAND_RE, bodyOf)
+ *   - repo-map-check: Wegweiser-Gate (checkRepoMap)
+ *   - reconciliation: Reality Reconciliation & Antipattern Score Engine (evaluateAntipatterns, runReconciliation)
+ *   - build_db: SSoT-Build & docs/STRUCTURE.md Generator (buildDatabase)
+ *
+ * CLI:
+ *   node tools/fitness.mjs [-q]
+ *   node tools/fitness.mjs --only-rules
+ *   node tools/fitness.mjs repo-map
+ */
 
-const targetDir = path.resolve(__dirname, '../..');
+import fs from "node:fs";
+import path from "node:path";
+import crypto from "node:crypto";
+import os from "node:os";
+import { parseArgs } from "node:util";
+import { execFileSync, execSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+import * as laws from "./laws.mjs";
+const { matchFilePattern } = laws;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+export const ROOT = path.resolve(__dirname, "..");
+
+/* ==================================================================
+   1. Structure-Stand (SHA-256 Hash-Helfer)
+   ================================================================== */
+export const STAND_RE = /<!-- Stand: ([a-f0-9]{64}|__STAND__) -->/;
+
+export function bodyOf(text) {
+  const m = text.match(STAND_RE);
+  if (!m || m.index === undefined) return text;
+  const after = m.index + m[0].length;
+  return text.slice(after).replace(/^\r?\n/, "");
+}
+
+export function computeStand(text) {
+  return crypto.createHash("sha256").update(bodyOf(text), "utf8").digest("hex");
+}
+
+/* ==================================================================
+   2. Repo-Map-Check (Wegweiser-Gate)
+   ================================================================== */
+export function checkRepoMap(root = ROOT) {
+  const MAP_REL = "docs/meta/AUFGABEN-WEGWEISER.md";
+  const MAP = path.join(root, MAP_REL);
+  if (!fs.existsSync(MAP)) return { ok: false, fehler: [`FEHLT: ${MAP_REL}`] };
+
+  const text = fs.readFileSync(MAP, "utf8");
+  const fehler = [];
+
+  const pfade = new Set();
+  const re = /`((?:website|tools|test|docs)\/[^`\s]+)`/g;
+  for (const match of text.matchAll(re)) {
+    const pfad = match[1].replace(/[.,;:]+$/, "").replace(/[#?].*$/, "");
+    if (pfad.includes("*")) continue;
+    pfade.add(pfad);
+  }
+  for (const pfad of pfade) {
+    if (!fs.existsSync(path.join(root, pfad))) fehler.push(`FEHLT: ${pfad}`);
+  }
+
+  const jsDir = path.join(root, "website", "js");
+  const module = fs.existsSync(jsDir) ? fs.readdirSync(jsDir).filter((f) => f.endsWith(".js")) : [];
+  for (const datei of module) {
+    const rel = `website/js/${datei}`;
+    if (!text.includes(rel)) fehler.push(`NICHT ERWÄHNT: ${rel}`);
+  }
+
+  const agentsPath = path.join(root, "AGENTS.md");
+  if (fs.existsSync(agentsPath)) {
+    const lines = fs.readFileSync(agentsPath, "utf8").split("\n").length;
+    if (lines > 70) fehler.push(`BUDGET-OVERFLOW: AGENTS.md hat ${lines} Zeilen (Limit: 70).`);
+  } else {
+    fehler.push("FEHLT: AGENTS.md im Projekt-Root.");
+  }
+
+  const mapPath = path.join(root, "map.md");
+  if (fs.existsSync(mapPath)) {
+    const lines = fs.readFileSync(mapPath, "utf8").split("\n").length;
+    if (lines > 100) fehler.push(`BUDGET-OVERFLOW: map.md hat ${lines} Zeilen (Limit: 100).`);
+  } else {
+    fehler.push("FEHLT: map.md im Projekt-Root.");
+  }
+
+  return { ok: fehler.length === 0, fehler, pfadeCount: pfade.size, moduleCount: module.length };
+}
+
+/* ==================================================================
+   3. Reconciliation & Antipattern Score Engine
+   ================================================================== */
+
+const standHelper = { STAND_RE, computeStand, bodyOf };
+
+// os already imported
+// execSync already imported
+
+const targetDir = ROOT;
 const DIN_HOME = process.env.DIN_BRIEFNEO_HOME || path.join(os.homedir(), '.din-briefneo');
 const websiteDir = path.join(targetDir, 'website');
-const antipatternsDir = path.join(__dirname, '..', 'antipatterns');
+const antipatternsDir = path.join(ROOT, 'tools', 'antipatterns');
 
 // Layered antipattern loading for generalizability to llm_boilerplate
 // See boilerplate.config.json and tools/antipatterns/{base,web,project}.json
@@ -254,7 +352,7 @@ function parseYamlFrontmatter(content) {
 
 // Dateimuster-Abgleich liegt in tools/filematch.js -- dieselbe Logik nutzt
 // tools/lawcoverage.js fuer die Totsonden-Erkennung. Siehe Kopf dort.
-const { matchFilePattern } = require('../laws/scan.mjs');
+
 
 function isExempt(rule, filePath, line, lineContent) {
   if (!rule.exemptions || rule.exemptions.length === 0) return false;
@@ -560,7 +658,7 @@ function runReconciliation() {
   {
     let imrViolations = [];
     try {
-      imrViolations = require('../laws/imr.js').checkImr(targetDir).violations;
+      imrViolations = laws.checkImr(targetDir).violations;
     } catch (err) {
       // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
       imrViolations = [{ file: 'tools/imr.js', message: `IMR-Check fehlgeschlagen (fail-closed): ${err.message}` }];
@@ -588,7 +686,7 @@ function runReconciliation() {
   {
     let linkViolations = [];
     try {
-      linkViolations = require('../laws/links.js').checkLinks(targetDir).violations;
+      linkViolations = laws.checkLinks(targetDir).violations;
     } catch (err) {
       // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
       linkViolations = [{ file: 'tools/links.js', message: `Link-Check fehlgeschlagen (fail-closed): ${err.message}` }];
@@ -616,7 +714,7 @@ function runReconciliation() {
   {
     let isoViolations = [];
     try {
-      isoViolations = require('../laws/isolation.js').checkIsolation(targetDir).violations;
+      isoViolations = laws.checkIsolation(targetDir).violations;
     } catch (err) {
       // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
       isoViolations = [{ file: 'tools/isolation.js', line: 1, message: `Hermetik-Check fehlgeschlagen (fail-closed): ${err.message}` }];
@@ -640,7 +738,7 @@ function runReconciliation() {
   {
     let structuralViolations = [];
     try {
-      structuralViolations = require('../laws/structural-laws.js').checkStructuralLaws(targetDir);
+      structuralViolations = laws.checkStructuralLaws(targetDir);
     } catch (err) {
       // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
       structuralViolations = [{ file: 'tools/structural-laws.js', line: 1, message: `Struktur-Gate fehlgeschlagen (fail-closed): ${err.message}` }];
@@ -670,7 +768,7 @@ function runReconciliation() {
     let covViolations = [];
     let coverage = null;
     try {
-      const res = require('../laws/lawcoverage.js').checkLawCoverage(targetDir);
+      const res = laws.checkLawCoverage(targetDir);
       covViolations = res.violations;
       coverage = res.coverage;
     } catch (err) {
@@ -708,7 +806,7 @@ function runReconciliation() {
   {
     let termViolations = [];
     try {
-      termViolations = require('../laws/terminology.js').checkTerminology(targetDir).violations;
+      termViolations = laws.checkTerminology(targetDir).violations;
     } catch (err) {
       // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
       termViolations = [{ file: 'tools/terminology.js', line: 1, found: err.message, canonical: 'tool muss laden' }];
@@ -736,7 +834,7 @@ function runReconciliation() {
   {
     let idViolations = [];
     try {
-      idViolations = require('../laws/id-register.js').checkIds(targetDir).violations;
+      idViolations = laws.checkIds(targetDir).violations;
     } catch (err) {
       // Fail-closed: ein ausgefallenes Sub-Gate darf den Fitness-Score nicht heben.
       idViolations = [{ file: 'tools/id-register.js', line: 1, rule: 'FAIL-CLOSED', message: `ID-Check fehlgeschlagen (fail-closed): ${err.message}` }];
@@ -1002,11 +1100,7 @@ function runReconciliation() {
   };
 }
 
-module.exports = {
-  runReconciliation,
-  // --only-rules (Pre-Commit): nur die Antipattern-Regeln, gleiches Exit-Verhalten.
-  runRules: checkAntipatternsOnly
-};
+
 
 function checkAntipatternsOnly() {
   const codeFiles = scanCodeFiles(websiteDir);
@@ -1028,12 +1122,408 @@ function checkAntipatternsOnly() {
   process.exit(0);
 }
 
-if (require.main === module) {
-  if (process.argv.includes('--only-rules')) {
-    checkAntipatternsOnly();
-  } else {
-    const res = runReconciliation();
-    console.log(`Evolutionary Fitness Score: ${res.score}%`);
-    process.exit(res.success ? 0 : 1);
+
+
+export { runReconciliation, evaluateAntipatterns };
+
+/* ==================================================================
+   4. Build DB & docs/STRUCTURE.md Generator
+   ================================================================== */
+process.removeAllListeners('warning');
+
+
+
+// os already imported
+// parseArgs already imported
+
+
+const { values: options } = parseArgs({
+  options: {
+    quiet: {
+      type: 'boolean',
+      short: 'q',
+      default: false
+    },
+    silent: {
+      type: 'boolean',
+      default: false
+    },
+    verbose: {
+      type: 'boolean',
+      short: 'v',
+      default: false
+    }
+  },
+  strict: false
+});
+
+const isQuiet = (options.quiet || options.silent || !process.stdout.isTTY) && !options.verbose;
+
+// targetDir, DIN_HOME already ROOT
+const BUILD_DIR = path.join(DIN_HOME, 'build');
+const CACHE_DIR = path.join(DIN_HOME, 'cache');
+// Externe Auslagerung: BUILD_DIR und CACHE_DIR bei Bedarf anlegen
+fs.mkdirSync(BUILD_DIR, { recursive: true });
+fs.mkdirSync(CACHE_DIR, { recursive: true });
+
+// standHelper already defined above
+
+const REPO_JSON_PATH = path.join(ROOT, 'docs', 'norm', 'repository.json');
+
+/** @returns {{html?: any[], css?: any[], js?: any[], addons?: any[], data?: any[]}} */
+function ladeRepository() {
+  return JSON.parse(fs.readFileSync(REPO_JSON_PATH, 'utf8'));
+}
+
+/**
+ * @param {{file: string, adr?: string, guide?: string, desc: string}} eintrag
+ * @returns {string}
+ */
+function tabellenZeile(eintrag) {
+  const adr = eintrag.adr && eintrag.adr.trim() ? eintrag.adr.trim() : '-';
+  const guide = eintrag.guide && eintrag.guide.trim() ? eintrag.guide.trim() : '-';
+  return `| ${eintrag.file} | ${adr} | ${guide} | ${eintrag.desc} |`;
+}
+
+/**
+ * Baut die Tabelle "Produktionscode" aus docs/10-architecture/repository.json.
+ * Neue Dateien brauchen nur dort einen Eintrag.
+ * @returns {string}
+ */
+function produktionscodeTabelle() {
+  const repo = ladeRepository();
+  const zeilen = ['| Datei | @adr | @guide | Haupt-Export |', '|---|---|---|---|'];
+  for (const gruppe of ['html', 'css', 'js', 'addons', 'data']) {
+    for (const eintrag of repo[gruppe] || []) zeilen.push(tabellenZeile(eintrag));
   }
+  return zeilen.join('\n');
+}
+
+/**
+ * Fail-closed: die @adr/@guide-Angaben in repository.json muessen zu den
+ * Annotationen in den Dateikoepfen passen. Sonst wuerde die generierte
+ * Tabelle luegen — genau das soll die SSoT verhindern.
+ */
+function pruefeRepositoryDrift() {
+  const repo = ladeRepository();
+  const probleme = [];
+  for (const gruppe of ['css', 'js', 'addons']) {
+    for (const eintrag of repo[gruppe] || []) {
+      const pfad = path.join(ROOT, 'website', eintrag.file);
+      if (!fs.existsSync(pfad)) {
+        probleme.push(`${eintrag.file}: Datei existiert nicht`);
+        continue;
+      }
+      const kopf = fs.readFileSync(pfad, 'utf8').split('\n').slice(0, 40).join('\n');
+      const liste = (re) => [...new Set([...kopf.matchAll(re)].map((m) => m[1]))].sort();
+      const adrDatei = liste(/@adr \[\[([^\]]+)\]\]/g);
+      const guideDatei = liste(/@guide \[\[([^\]]+)\]\]/g);
+      const split = (wert) => String(wert || '').split(',').map((s) => s.trim()).filter(Boolean).sort();
+      const adrJson = split(eintrag.adr);
+      const guideJson = split(eintrag.guide);
+      if (adrDatei.join('|') !== adrJson.join('|')) {
+        probleme.push(`${eintrag.file}: @adr JSON [${adrJson.join(', ')}] vs Datei [${adrDatei.join(', ')}]`);
+      }
+      if (guideDatei.join('|') !== guideJson.join('|')) {
+        probleme.push(`${eintrag.file}: @guide JSON [${guideJson.join(', ')}] vs Datei [${guideDatei.join(', ')}]`);
+      }
+    }
+  }
+  if (probleme.length) {
+    throw new Error(`repository.json driftet gegen die Dateien:\n  - ${probleme.join('\n  - ')}`);
+  }
+}
+
+function generateStructureMap(targetDir) {
+  pruefeRepositoryDrift();
+  // Datum OHNE Uhrzeit-Zugriff (kein new Date): der letzte Commit, der die
+  // Quellen (docs/, ohne dieses Artefakt) geaendert hat. Bleibt ueber Laeufe
+  // hinweg stabil -> die Datei ist idempotent; der Vergleich ignoriert `updated:`
+  // ohnehin, es loest also nie eine Neuschreibung aus.
+  let isoDate = '2026-10-17';
+  try {
+    // execFileSync statt execSync: unter Windows zerlegt cmd.exe die
+    // einfachen Anführungszeichen des Pathspecs (':!docs') und git bricht mit
+    // "Invalid path" ab. Ohne Shell gibt es diese Klasse Fehler nicht.
+// execFileSync already imported
+    isoDate =
+      execFileSync('git', ['log', '-1', '--format=%cs', '--', 'docs', ':(exclude)docs/STRUCTURE.md'], {
+        cwd: targetDir,
+        encoding: 'utf8',
+      }).trim() || isoDate;
+  } catch (e) {}
+
+  const structMd = `---
+id: structure
+title: 'Repo-Struktur — DIN-BriefNEO'
+type: reference
+status: active
+created: '2026-10-17'
+updated: '${isoDate}'
+tags:
+  - autogenerated
+  - structure
+  - repo-map
+doc_links:
+  - index
+code_links: []
+depends_on: []
+---
+
+<!-- AUTOGENERATED - DO NOT EDIT -->
+<!-- Stand: __STAND__ -->
+<!-- Regeneriert durch: node tools/fitness/build_db.js -->
+
+# Repo-Struktur — DIN-BriefNEO
+
+## Produktionscode (\`website/\`)
+${produktionscodeTabelle()}
+## Werkzeuge (\`tools/\`)
+| Datei / Modul | Zweck |
+|---|---|
+| din.mjs | Zentrale CLI: Test, Fitness, Laws, Dev, Measure, Data, Docs, Content |
+| dev.sh | Server 8088 + Debug-Browser (CDP :9222) mit Altprozess-Bereinigung |
+| runtime/ | M1: Browser-, CDP- und Dev-Laufzeit (static-server, cdp, runner, mcp-live) |
+| measure/ | M2: Geometrie-, Druck-, PDF-, TTC- und Pixel-Messung |
+| fitness/ | M3: Score-Engine, DB-Build, Stand-Hash, Repo-Map-Check |
+| laws/ | M4: Die 7 Verfassungs-Sonden (imr, structural, isolation, links, terms, coverage, ids) |
+| content/ | M5: Daten-Pipelines & Inhalts-Sync (PLZ, Grosskunden, Backlog, Dossier, Chrome-Radar, ADR) |
+| fonts/ | DIN-5008 Font-Subsetting (Python) |
+| oneoff/ | Archivierte Einmalskripte (check-feature, og-image, seeder-diff) |
+| browser-audit.html | Interaktives Browser-Feature-Audit (GUI) |
+
+## Dokumentation (\`docs/\`)
+| Ordner | Zweck |
+|---|---|
+| css/ | CSS-Architektur, Sheets, Geometrie, Multi-Page, No-Scroll |
+| js/ | JS-Module, State-Management, Salutation, Autocomplete |
+| data/ | Daten-Pipelines, PLZ- und Großkundendaten |
+| fonts/ | Typografie & DIN-5008 Schriften |
+| addons/ | Addon-Dokumentation & Erweiterungen |
+| norm/ | Verfassung, Law Catalog, Longevity Guidelines, Spezifikation, IMR |
+| meta/ | Arbeitsweise, Decision-Log, Backlog, Roadmap, Tooling-Übersicht |
+| archive/ | Eingefrorene historische Artefakte & Reviews (nicht normativ) |
+| audit/ | Zeitbezogene Sprint- und Review-Spezifikationen |
+
+## Tests (\`test/\`)
+| Datei | Zweck |
+|---|---|
+| all.js | Unit-Tests (Sanitizer, Caret, Domain-Funktionen) |
+| runner.js | Zero-Dependency Test-Runner (Konsole & Browser) |
+| index.html | Test-Einstiegspunkt für den Browser |
+`;
+
+  // Stand = Inhalts-Hash des Rumpfs; damit ist die Datei idempotent (Lauf 2
+  // schreibt nichts). Zeitabhaengige Felder ('updated:') werden beim Vergleich
+  // neutralisiert, damit sie allein keine Neuschreibung ausloesen.
+  const stand = standHelper.computeStand(structMd);
+  const finalMd = structMd.replace('__STAND__', stand);
+
+  const structurePath = path.join(targetDir, 'docs', 'STRUCTURE.md');
+  if (fs.existsSync(structurePath)) {
+    const existing = fs.readFileSync(structurePath, 'utf8');
+    const normalize = (s) => s.replace(/^updated: .*$/m, 'updated: <t>');
+    if (normalize(existing) === normalize(finalMd)) {
+      return;
+    }
+  }
+  fs.writeFileSync(structurePath, finalMd, 'utf8');
+}
+
+function buildDatabase(targetDir = ROOT, { quiet = false } = {}) {
+  const startTime = performance.now();
+  const isQ = isQuiet || quiet;
+  const trashDir = path.join(targetDir, '.trash');
+  if (!fs.existsSync(trashDir) || fs.readdirSync(trashDir).length === 0) {
+    console.error("🔴 Build failed: Invariante verletzt — '.trash/' existiert nicht oder ist leer!");
+    process.exit(1);
+  }
+  // Wegweiser-Gate (E3): genannte Pfade existieren, jedes JS-Modul ist erwaehnt.
+  const mapRes = checkRepoMap(targetDir);
+  if (!mapRes.ok) {
+    console.error('🔴 Build failed: Wegweiser-Gate (AUFGABEN-WEGWEISER.md):');
+    for (const f of mapRes.fehler) console.error(f);
+    process.exit(1);
+  }
+
+  generateStructureMap(targetDir);
+  if (!isQ) console.log('Running Reality Reconciliation & Fitness Check...');
+  const report = runReconciliation();
+
+  if (!isQuiet) {
+    console.log('\n==================================================');
+    console.log(`EVOLUTIONARY FITNESS SCORE: ${report.score}%`);
+    console.log('--------------------------------------------------');
+    console.log(`- Metadata Score:    ${report.dimensions.metadata}%`);
+    console.log(`- Coherence Score:   ${report.dimensions.coherence}%`);
+    console.log(`- Conformance Score: ${report.dimensions.conformance}%`);
+    console.log(`- Features Score:    ${report.dimensions.features}%`);
+    console.log('==================================================\n');
+
+    if (report.logs.length > 0) {
+      console.log('Diagnoses and Violations:');
+      report.logs.forEach(log => {
+        const icon = log.severity === 'critical' ? '🔴 [CRITICAL]' : log.severity === 'high' ? '🟡 [HIGH]' : log.severity === 'medium' ? '🔵 [MEDIUM]' : '⚪ [LOW]';
+        console.log(`${icon} (${log.check_type}) in ${log.file_path || 'Global'}: ${log.message}`);
+      });
+      console.log('');
+    }
+  }
+
+  if (!report.success || report.score < 100) {
+    if (isQuiet) {
+      console.error(`✗ Fitness Score: ${report.score}% (< 100.0%)`);
+      report.logs.forEach(log => {
+        const icon = log.severity === 'critical' ? '🔴 [CRITICAL]' : log.severity === 'high' ? '🟡 [HIGH]' : log.severity === 'medium' ? '🔵 [MEDIUM]' : '⚪ [LOW]';
+        console.error(`${icon} (${log.check_type}) in ${log.file_path || 'Global'}: ${log.message}`);
+      });
+    } else {
+      console.error('🔴 Build failed: Critical architectural violations found or Fitness Score < 100%! Generation stopped.');
+    }
+    process.exit(1);
+  }
+
+  // Tri-direktionale Code-Verknüpfung (Code-Referenzen.md & Function-Traceability.md)
+  const codeDirs = [path.join(targetDir, 'website'), path.join(targetDir, 'website', 'js'), path.join(targetDir, 'website', 'css')];
+  const codeLinks = [];
+  codeDirs.forEach(dir => {
+    if (!fs.existsSync(dir)) return;
+    fs.readdirSync(dir).forEach(f => {
+      const p = path.join(dir, f);
+      if (fs.statSync(p).isFile() && (f.endsWith('.js') || f.endsWith('.css') || f.endsWith('.html'))) {
+        const lines = fs.readFileSync(p, 'utf8').split('\n');
+        lines.forEach((line, idx) => {
+          const adrMatch = line.match(/@adr\s+\[\[(.*?)\]\](?:\s+\{(.*?)\})?/);
+          const guideMatch = line.match(/@guide\s+\[\[(.*?)\]\](?:\s+\{(.*?)\})?/);
+          if (adrMatch || guideMatch) {
+            const adrRef = adrMatch ? adrMatch[1] : '';
+            const guideRef = guideMatch ? guideMatch[1] : '';
+            const funcName = (adrMatch && adrMatch[2]) || (guideMatch && guideMatch[2]) || null;
+            const relPath = path.relative(targetDir, p).replace(/\\/g, '/');
+            
+            // Vermeide Duplikate durch mehrfache codeDirs (z.B. website/ vs website/js)
+            if (!codeLinks.some(l => l.file === relPath && l.line === idx + 1)) {
+              codeLinks.push({ file: relPath, line: idx + 1, adr: adrRef, guide: guideRef, funcName });
+            }
+          }
+        });
+      }
+    });
+  });
+
+  // Generate Code-Referenzen.md into BUILD_DIR
+  if (codeLinks.length > 0) {
+    let md = `---
+id: adr-code-referenzen
+title: Code-Referenzen
+type: adr
+status: active
+doc_links: []
+code_links: []
+depends_on: []
+tags:
+  - autogenerated
+  - adr
+  - guide
+  - code
+created: 2026-07-06
+updated: 2026-07-06
+chosen_option: ""
+decision_options: []
+---
+
+# Code-Referenzen
+
+Diese Datei wird automatisch von \`build_db.js\` generiert und listet alle Architektur- und Guide-Verknüpfungen aus dem Quellcode auf.
+
+`;
+    md += '| Code Datei | Zeile | ADR | Guide |\n';
+    md += '| :--- | :--- | :--- | :--- |\n';
+    codeLinks.forEach(link => {
+       const adrStr = link.adr ? `[[${link.adr}]]` : '-';
+       const guideStr = link.guide ? `[[${link.guide}]]` : '-';
+       md += `| ${link.file} | ${link.line} | ${adrStr} | ${guideStr} |\n`;
+    });
+    fs.writeFileSync(path.join(BUILD_DIR, 'Code-Referenzen.md'), md, 'utf8');
+
+    // Generate Function-Traceability.md into BUILD_DIR
+    const matrix = new Map();
+    codeLinks.forEach(link => {
+      const key = `${link.file}::${link.funcName || ''}`;
+      if (!matrix.has(key)) {
+        matrix.set(key, { file: link.file, funcName: link.funcName, adrs: new Set(), guides: new Set() });
+      }
+      const entry = matrix.get(key);
+      if (link.adr) entry.adrs.add(link.adr);
+      if (link.guide) entry.guides.add(link.guide);
+    });
+
+    let ftMd = `---
+id: doc-function-traceability
+title: Function Traceability Matrix
+type: reference
+status: active
+tags:
+  - autogenerated
+  - architecture
+  - traceability
+---
+
+# Function Traceability Matrix
+
+Diese Datei wird automatisch von \`build_db.js\` generiert und bildet alle Quellcode-Dateien auf Architektur-Records (ADR) und Guides ab.
+
+| Funktion / Modul | Code Datei | Architektur-Record (ADR) | Implementierungs-Guide |
+| :--- | :--- | :--- | :--- |
+`;
+    Array.from(matrix.keys()).sort().forEach(k => {
+      const entry = matrix.get(k);
+      const basename = path.basename(entry.file);
+      const displayName = entry.funcName || basename.replace(/\.(js|css|html)$/, '').replace(/^[0-9]+-/, '').replace(/^./, c => c.toUpperCase());
+      const adrs = Array.from(entry.adrs).sort().map(a => `[[${a}]]`).join(', ') || '-';
+      const guides = Array.from(entry.guides).sort().map(g => `[[${g}]]`).join(', ') || '-';
+      ftMd += `| **${displayName}** | \`${entry.file}\` | ${adrs} | ${guides} |\n`;
+    });
+    fs.writeFileSync(path.join(BUILD_DIR, 'Function-Traceability.md'), ftMd, 'utf8');
+  }
+
+  const durationMs = Math.round(performance.now() - startTime);
+  console.log(`✓ Fitness Score: 100.0% (clean) [${durationMs}ms]`);
+  return 0;
+}
+
+// Als Modul geladen (z. B. von tools/build_db.js) darf das Gate nicht schon beim
+// require() loslaufen; der Direktaufruf `node tools/fitness/build_db.js` bleibt
+// identisch. `generateStructure` schreibt nur docs/STRUCTURE.md (kein Score).
+
+
+export const generateStructure = generateStructureMap;
+export { buildDatabase, generateStructureMap };
+
+/* ==================================================================
+   CLI Dispatcher
+   ================================================================== */
+async function main() {
+  const args = process.argv.slice(2);
+  if (args.includes("repo-map")) {
+    const res = checkRepoMap(ROOT);
+    if (!res.ok) {
+      for (const f of res.fehler) console.error(f);
+      console.error(`\n❌ Wegweiser-Gate: ${res.fehler.length} Problem(e).`);
+      return 1;
+    }
+    console.log(`✓ Wegweiser: ${res.pfadeCount} Pfade geprüft, ${res.moduleCount} Module erwähnt.`);
+    return 0;
+  }
+
+  if (args.includes("--only-rules") || args.includes("rules")) {
+    return checkAntipatternsOnly();
+  }
+
+  const quiet = args.includes("-q") || args.includes("--quiet");
+  return buildDatabase(ROOT, { quiet });
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  main().then((code) => { process.exitCode = typeof code === "number" ? code : 0; });
 }

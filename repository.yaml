@@ -27,8 +27,8 @@ project:
   branching: branchless-on-main
   fitness_gate:
     required_score: 100
-    entrypoint: node tools/fitness/build_db.js
-    engine: tools/fitness/reconciliation.js
+    entrypoint: node tools/fitness.mjs
+    engine: tools/fitness.mjs
 
 structure:
   docs/30-meta/AI-AGENTS-CLI.md:
@@ -55,7 +55,11 @@ structure:
       tools/README.md: Inventar und Statuskatalog der Werkzeuge & Automatisierungsskripte
       tools/din.mjs: Zentrale CLI und Routing für alle Werkzeuge
       tools/dev.sh: Dev-Server (Port 8088, no-cache) + Debug-Browser (CDP 9222); stoppt alte Instanzen, Vanilla-Modus, Live-Kanal
-      tools/fitness/build_db.js: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
+      tools/runtime.mjs: Deep Module Browser-, Server- und Test-Laufzeit (Port 8088, CDP 9222, Headless)
+      tools/measure.mjs: Deep Module Blatt-, Druck- & PDF-Geometrie, TTC-Messung & Testbriefe
+      tools/laws.mjs: Deep Module 7 Verfassungs- und Architektur-Sonden
+      tools/fitness.mjs: Deep Module Fitness-Gate, Reality Reconciliation & Wegweiser-Prüfung
+      tools/content.mjs: Deep Module Daten-Pipelines (PLZ, Großkunden), Backlog-Sync, Test-Dossier, Feature & ADR
       tools/antipatterns/: JSON-Regeldateien fuer den Scrub-Check (base/web/project layered)
     inventory_doc: docs/30-meta/tooling-overview.md
 
@@ -151,7 +155,7 @@ taxonomy:
     todo: Arbeitsvorrat und Planungsnotizen (keine lebende Doku)
 
 entrypoints:
-  build: tools/fitness/build_db.js
+  build: tools/fitness.mjs
   serve: tools/dev.sh
   browser_agent: docs/30-meta/AI-AGENTS-CLI.md
   platform_research: docs/30-meta/mcp_research.md

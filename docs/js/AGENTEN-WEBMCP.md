@@ -17,7 +17,7 @@ doc_links:
 code_links:
   - 'website/js/webmcp.js'
   - 'website/js/api.js'
-  - 'tools/runtime/mcp-live.mjs'
+  - 'tools/runtime.mjs'
 depends_on: []
 ---
 

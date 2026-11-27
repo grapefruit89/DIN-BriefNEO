@@ -23,8 +23,7 @@ code_links:
   - website/js/document.js
   - website/js/boot.js
   - website/js/multipage-controller.js
-  - tools/fitness/build_db.js
-  - tools/fitness/reconciliation.js
+  - tools/fitness.mjs
 depends_on: []
 ---
 

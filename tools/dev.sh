@@ -88,6 +88,7 @@ ist_dev_server() {
       */tools/serve.mjs|tools/serve.mjs) return 0 ;;
       */tools/static-server.mjs|tools/static-server.mjs) return 0 ;;
       */tools/runtime/static-server.mjs|tools/runtime/static-server.mjs) return 0 ;;
+      */tools/runtime.mjs|tools/runtime.mjs) return 0 ;;
       */tools/mcp-live.mjs|tools/mcp-live.mjs) return 0 ;;
       */tools/runtime/mcp-live.mjs|tools/runtime/mcp-live.mjs) return 0 ;;
     esac
@@ -338,19 +339,19 @@ case "$BEFEHL" in
   --help|-h|help) hilfe; exit 0 ;;
   live|--live)
     cd "$REPO" || { echo "Repo fehlt: $REPO"; exit 1; }
-    exec node tools/runtime/mcp-live.mjs "${ARGS[@]:1}"
+    exec node tools/runtime.mjs live "${ARGS[@]:1}"
     ;;
   --key|key)
     cd "$REPO" || { echo "Repo fehlt: $REPO"; exit 1; }
-    node tools/runtime/seed-geoapify.mjs "${ARGS[@]:1}"
+    node tools/runtime.mjs seed-key "${ARGS[@]:1}"
     exit $?
     ;;
   --mess|mess)
     cd "$REPO" || { echo "Repo fehlt: $REPO"; exit 1; }
     if [ "${ARGS[1]:-}" = "--print" ]; then
-      node tools/measure/print.mjs "${ARGS[@]:2}"
+      node tools/measure.mjs print "${ARGS[@]:2}"
     else
-      node tools/measure/sheet.mjs "${ARGS[@]:1}"
+      node tools/measure.mjs sheet "${ARGS[@]:1}"
     fi
     exit $?
     ;;
@@ -365,7 +366,7 @@ stoppe
 
 echo "[1/3] Dev-Server"
 cd "$REPO" || { echo "Repo fehlt: $REPO"; exit 1; }
-nohup node tools/runtime/static-server.mjs website "$PORT" >"$SERVER_LOG" 2>&1 &
+nohup node tools/runtime.mjs serve website "$PORT" >"$SERVER_LOG" 2>&1 &
 SERVER_PID=$!
 if ! warte_port "$PORT" an; then
   echo "  FEHLER: Port $PORT antwortet nicht. Log: $SERVER_LOG"; tail -5 "$SERVER_LOG"; exit 1
@@ -402,7 +403,7 @@ done
 echo "  CDP auf http://127.0.0.1:$CDP"
 
 # Geoapify-Key aus ~/.secrets/geoapify in den localStorage legen (nie im Repo).
-node "$REPO/tools/runtime/seed-geoapify.mjs" --port "$CDP"
+node "$REPO/tools/runtime.mjs" seed-key --port "$CDP"
 
 [ -n "$TAB" ] && echo "  Tab: $URL" || echo "  Tab noch nicht gemeldet — Log: $BROWSER_LOG"
 

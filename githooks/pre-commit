@@ -46,7 +46,7 @@ if ! npm run check:antipatterns > "$LOG" 2>&1; then
 fi
 
 # Stufe 5: Evolutionary Fitness & SSoT-Sync
-if ! node tools/fitness/build_db.js -q > "$LOG" 2>&1; then
+if ! node tools/fitness.mjs -q > "$LOG" 2>&1; then
   echo "❌ [pre-commit] Stufe 5: Evolutionary Fitness Gate fehlgeschlagen:" >&2
   cat "$LOG" >&2
   exit 1

@@ -23,13 +23,13 @@ jobs:
 
       - name: Build Columnar PLZ & Grosskunden Datasets
         run: |
-          node tools/content/build_plz_data.mjs --download
-          node tools/content/build_grosskunden_columnar.mjs
+          node tools/content.mjs plz --download
+          node tools/content.mjs grosskunden
 
       - name: Run Integrity Gates
         run: |
           npm test
-          node tools/fitness/build_db.js -q
+          node tools/fitness.mjs -q
 
       - name: Commit and push changes if data updated
         run: |

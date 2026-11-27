@@ -28,66 +28,55 @@ node tools/din.mjs <bereich> [befehl] [flags]
 
 ---
 
-## 2. Die 5 Deep Modules (`tools/*/`)
+## 2. Die 5 Deep Modules
 
-Alle Skripte sind modular in 5 Fachbereiche konsolidiert:
+Alle Werkzeuge sind in **5 große, in sich geschlossene Deep Modules** verschmolzen:
 
-### 🚀 `tools/runtime/` — Browser- & Test-Infrastruktur
-* `index.mjs` — Öffentliche Schnittstelle: `startServer`, `findBrowser`, `launch`, `runTests`, `startLive`.
-* `browser.mjs` — Plattformübergreifende Chrome/Chromium-Erkennung (`findBrowser()`).
-* `static-server.mjs` — Zero-Dependency Dual-Root HTTP-Server (Port 8088, no-cache, `/website/`, `/__fonts`, `/__geokey`).
-* `launch.mjs` — Headless-Browser-Starter (`mkdtemp`-Profil, CDP-Port-Warten, automatischer Cleanup).
-* `cdp.mjs` — Minimaler WebSocket/JSON-RPC CDP-Client (`findeSeite`, `verbinde`, `evaluate`).
-* `runner.mjs` — Test-Runner für `test/index.html` mit Exit-Codes.
-* `mcp-live.mjs` — Live-Kanal (stdio + SSE) für In-Browser-Debugging.
-* `debug-session.mjs` — Manuelle Debug-Sitzung mit Trace-Aufzeichnung.
-* `seed-geoapify.mjs` — Injiziert Geoapify-Schlüssel in das Testprofil.
-* `setup-din-home.sh` — Initialisiert `~/.din-briefneo` für Caches.
+### 🚀 `tools/runtime.mjs` — Browser-, Server- & Test-Infrastruktur (~30 KiB)
+* **Static Server:** Dual-Root HTTP-Server (Port 8088, no-cache, `/website/`, `/__fonts`, `/__geokey`).
+* **Browser Launcher:** Plattformübergreifende Erkennung & Headless-Chromium-Start mit `mkdtemp`-Profil und Port-Warten.
+* **CDP-Client:** Minimaler WebSocket- und JSON-RPC-Client für Chromium.
+* **Test-Runner:** Führt die gesamte 430-Test-Suite gegen `test/index.html` aus.
+* **MCP-Live-Kanal:** Stdio- und SSE-Bridge für Live-Inspektion im Browser.
+* **Debug-Session & Seeder:** Interaktives Debugging und Geoapify-Key-Injektion.
 
-### 📐 `tools/measure/` — Geometrie- & Drucksonden
-* `index.mjs` — Öffentliche Schnittstelle: `measureSheet`, `measurePrint`, `measurePdf`, `measureBrief`, `probeTtc`, `diffPixels`.
-* `inpage.js` — Autarke In-Page-Messfunktion für CDP `evaluate_script` (liefert Millimeter-Geometrie).
-* `sheet.mjs` — Numerische Blattgeometrie über CDP 9222.
-* `print.mjs` — Geometrie unter `@media print` Emulation.
-* `pdf.mjs` — PDF-Druckergebnis numerisch auswerten (yMax, Seitenanzahl, Ränder).
-* `brief.mjs` — Testbrief-Generator ohne Browser.
-* `ttc.mjs` — Time-to-Click und Paint-Timing-Messungen.
-* `pixel.mjs` — PDF-Referenzbriefe für Vorher/Nachher-Pixel-Diffs.
+### 📐 `tools/measure.mjs` — Geometrie-, Druck- & Messsonden (~22 KiB)
+* **Blatt- & Bildschirm-Geometrie:** Millimeter-genaue Messungen aller DIN-Felder via CDP (`measureSheet`).
+* **Druck-Emulation:** Geometrie unter `@media print` (`measurePrint`).
+* **PDF-Wahrheit:** Seitenanzahl, yMax und Rand-Geometrie aus echten PDFs (`measurePdf`).
+* **Testbrief-Generator:** Deterministische Generierung von 300+ Testbriefen ohne Browser (`measureBrief`).
+* **TTC & Paint-Timing:** Time-to-Click- und First-Paint-Messungen (`probeTtc`).
+* **Pixel-Differenzierung:** PDF-Referenzbriefe für pixelgenaue Vorher/Nachher-Diffs (`diffPixels`).
 
-### 🏛️ `tools/laws/` — Verfassungs- & Architektur-Sonden
-* `index.mjs` — Öffentliche Schnittstelle: `runLaws(names)`.
-* `imr.js` — IMR-Registry-Sonde (DIN-Geometrie, Zonen, Case-Contract).
-* `structural-laws.js` — Gesetze A42 (IDs), A57 (Radios), A58 (Theme-Toggle), A24/A59 (CSS-Tokens).
-* `isolation.js` — Gesetze A45/A38: Hermetische Isolation von `website/`.
-* `links.js` — Link-Integrität (Wikilinks, Frontmatter, Tags).
-* `terminology.js` — Terminologie-Sonde gegen `docs/norm/glossary.md`.
-* `lawcoverage.js` — Meta-Gate: Deckung aller Gesetze durch Sonden.
-* `id-register.js` — ID-Register-Sonde (B-Referenzen, Präfixe).
-* `scan.mjs` — Geteilte Glob-to-RegExp Hilfsfunktionen (`globToRegExp`, `matchFilePattern`).
+### 🏛️ `tools/laws.mjs` — Verfassungs- & Architektur-Sonden (~65 KiB)
+* **IMR-Registry-Sonde:** Prüft DIN-Zonen, Geometrie und Case-Verträge (`docs/norm/IMR-Registry.md`).
+* **Struktur-Gesetze:** A42 (IDs), A57 (Radios), A58 (Theme), A24/A59 (Design-Tokens).
+* **Isolations-Sonde:** Gesetze A45 & A38: Hermetische Isolation von `website/`.
+* **Link-Integrität:** Frontmatter-, Wikilink- und Dateipfad-Validierung über die gesamte Doku.
+* **Terminologie-Sonde:** Einheitliche Begrifflichkeiten gegen `docs/norm/glossary.md`.
+* **Law-Coverage-Gate:** Meta-Gate: 100% Abdeckung aller 40 A-Gesetze durch Sonden.
+* **ID-Register-Sonde:** Konsistenz aller B- und Gesetz-IDs.
 
-### 🛡️ `tools/fitness/` — Reality Reconciliation & Fitness-Gate
-* `index.mjs` — Öffentliche Schnittstelle: `runFitness`, `generateStructure`, `runRules`.
-* `build_db.js` — Fitness-Gate-Hauptprogramm, generiert `docs/STRUCTURE.md`.
-* `reconciliation.js` — Score-Engine, lädt Sonden aus `laws/` und berechnet den Fitness Score.
-* `repo-map-check.mjs` — Validiert `docs/meta/AUFGABEN-WEGWEISER.md` gegen reale Dateipfade.
-* `structure-stand.js` — SHA-256-Hash-Helfer gegen Git-Drift.
+### 🛡️ `tools/fitness.mjs` — Reality Reconciliation & Fitness-Gate (~58 KiB)
+* **Reality Reconciliation Score:** Berechnet den Gesamt-Fitness-Score des Repositories (muss 100.0 % clean sein).
+* **Antipattern-Prüfung:** Führt layered Checks gegen `tools/antipatterns/*.json` aus (`--only-rules`).
+* **Wegweiser-Gate:** Verifiziert `docs/meta/AUFGABEN-WEGWEISER.md` gegen alle realen Pfade (`repo-map`).
+* **Dokumentations-Index:** Generiert `docs/STRUCTURE.md` mit aktuellem Stand und Prüfsummen.
 
-### 📦 `tools/content/` — Daten- & Inhalts-Pipelines
-* `index.mjs` — Öffentliche Schnittstelle: `buildPlzData`, `buildGrosskunden`, `syncBacklog`, `generateDossier`, `queryFeature`, `checkAdr`.
-* `build_plz_data.mjs` — PLZ-Stammdaten nach `website/data/orte.json.gz` kompilieren.
-* `build_grosskunden_columnar.mjs` — Großkunden nach `website/data/grosskunden.json.gz` kompilieren.
-* `backlog-sync.mjs` — Synchronisiert `docs/meta/BACKLOG.md`.
-* `test-dossier.mjs` — Synchronisiert `docs/meta/TEST-DOSSIER.md`.
-* `query_chrome_feature.mjs` — Upstream Chrome-Feature-Status (`chromestatus.com`).
-* `adr-check.js` — ADR-Format-, Zähler- und Drift-Check.
+### 📦 `tools/content.mjs` — Daten- & Inhalts-Pipelines (~27 KiB)
+* **PLZ-Pipeline:** Kompiliert Columnar-JSON nach `website/data/orte.json.gz` mit GeoNames-Import (`plz`).
+* **Großkunden-Pipeline:** Kompiliert Großkundenverzeichnis nach `website/data/grosskunden.json.gz` (`grosskunden`).
+* **Backlog-Sync:** Synchronisiert und prüft `docs/meta/BACKLOG.md` (`backlog`).
+* **Test-Dossier:** Generiert die Gruppen- und Fallübersicht `docs/meta/TEST-DOSSIER.md` (`tests`).
+* **Chrome-Feature-Status:** Ground-Truth-Abfrage bei `chromestatus.com` (`feature`).
+* **ADR-Drift-Wächter:** Prüft Bijektion, Code-Links, Annotationen und verwaiste Assets (`adr`).
 
 ---
 
-## 3. Begleitordner
+## 3. Hilfswerkzeuge & Konfiguration
 
-* **`tools/fonts/`:** `subset_fonts.py` (Inter Variable Font & lokale Testschriften dampfen).
-* **`tools/oneoff/`:** Archivierte Einmal-Skripte (`check-feature.js`, `og-image.mjs`, `seeder-diff.mjs`).
+* **`tools/dev.sh`:** Komfortabler Starter für Dev-Server (Port 8088) und Debug-Browser (Port 9222).
+* **`tools/fonts/subset_fonts.py`:** DIN-5008-Font-Subsetting (Inter Variable Font & Schriften).
 * **`tools/antipatterns/`:** Layered JSON-Regelsätze (`base.json`, `web.json`, `project.json`).
 * **`tools/data/`:** Statische Zuordnungen (`plz_states.json`).
-* **`tools/dev.sh`:** Komfortabler Shell-Starter für Linux.
 * **`tools/boilerplate.config.json`:** Konfiguration der Fitness-Schichten.

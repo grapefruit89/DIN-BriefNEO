@@ -30,14 +30,14 @@ summary: "Verbindliche Agenten-Leitplanken, Verfassungs-Invarianten und Kern-Wor
 | :--- | :--- | :--- |
 | **Lokale Vorschau** | `./tools/dev.sh` (`din-dev`) | Server Port 8088 (no-cache) + Debug-Browser (CDP `:9222`); beendet alte Instanzen deterministisch |
 | **Unit- & Korpus-Tests** | `npm test` | Führt Chromium Unit-Tests & Korpus-Gate (76/80) aus |
-| **Fitness-Gate & SSoT** | `node tools/fitness/build_db.js` | Reality Reconciliation, Fitness-Score muss 100% sein |
-| **Wegweiser-Gate** | `node tools/fitness/repo-map-check.mjs` | Prüft Pfad-Existenz und Vollständigkeit der JS-Module |
+| **Fitness-Gate & SSoT** | `node tools/fitness.mjs` | Reality Reconciliation, Fitness-Score muss 100% sein |
+| **Wegweiser-Gate** | `node tools/fitness.mjs repo-map` | Prüft Pfad-Existenz und Vollständigkeit der JS-Module |
 
 ---
 
 ## 3. Checkliste vor & nach jeder Code-Änderung
 
 1. Vor der Bearbeitung: `map.md` prüfen und nur die zuständige Datei öffnen.
-2. Keine Annahmen bei Layout-Fragen: Visuelle Messungen per `tools/measure/inpage.js` oder `tools/measure/pdf.mjs` verifizieren.
-3. Vor jedem Abschluss / Commit: Pflichtlauf von `npm test` und `node tools/fitness/build_db.js`.
+2. Keine Annahmen bei Layout-Fragen: Visuelle Messungen per `node tools/measure.mjs pdf` verifizieren.
+3. Vor jedem Abschluss / Commit: Pflichtlauf von `npm test` und `node tools/fitness.mjs`.
 4. Ausführliche Richtlinien, Historie und Rollen: Siehe [`docs/meta/AUFGABEN-WEGWEISER.md`](docs/meta/AUFGABEN-WEGWEISER.md) und [`docs/archive/AGENTS-LEGACY.md`](docs/archive/AGENTS-LEGACY.md).

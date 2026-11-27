@@ -16,7 +16,7 @@ doc_links:
   - ADR-CSS
   - ADR-JS
 code_links:
-  - tools/content/query_chrome_feature.mjs
+  - tools/content.mjs
 depends_on: []
 ---
 

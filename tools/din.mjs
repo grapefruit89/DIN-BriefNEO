@@ -1,27 +1,24 @@
 #!/usr/bin/env node
 /**
- * tools/din.mjs — der eine Einstiegspunkt für `tools/` (Etappe 1).
+ * tools/din.mjs — der eine Einstiegspunkt für `tools/` (DIN-BriefNEO).
  *
- * Warum: ein Agent musste bisher 37 Dateinamen kennen; `tools/README.md` war
- * unvollständig und teils falsch. Hier gibt es einen Hilfe-Baum und ein
- * Manifest (`din tools --json`) — kein Raten.
+ * Warum: ein Agent musste bisher Dutzende Dateinamen kennen; hier gibt es einen
+ * klaren Hilfe-Baum und ein Manifest (`din tools --json`) — kein Raten.
  *
- * Architektur (Etappe 1, bewusst langweilig):
- *   din.mjs  → delegiert als Kindprozess an die BESTEHENDEN Skripte.
- *   Kein `await import()` auf CJS-Altlasten, keine Fachlogik, keine Kopie.
- *   stdio wird direkt durchgereicht (`stdio: 'inherit'`), damit `dev live`
- *   und interaktive Messungen unverändert funktionieren.
+ * Architektur:
+ *   din.mjs delegiert als Kindprozess an die 5 großen Deep Modules:
+ *   1. tools/runtime.mjs  (Server, Browser, CDP, Tests, Live-Kanal)
+ *   2. tools/measure.mjs  (Geometrie, Druck, PDF-Wahrheit, TTC, Testbrief)
+ *   3. tools/laws.mjs     (Verfassungs- & Architektur-Sonden)
+ *   4. tools/fitness.mjs  (Fitness Gate, Reality Reconciliation, Wegweiser)
+ *   5. tools/content.mjs  (PLZ, Grosskunden, Backlog, Tests, Feature, ADR)
+ *   Plus: tools/dev.sh (Starter) und tools/fonts/subset_fonts.py.
  *
- * Schichtung (Ziel, siehe tools/CONSOLIDATION-BLUEPRINT.md §0):
- *   din.mjs → fitness/ → laws/     (laws/ importiert niemals fitness/)
- * Seit Etappe 5 liegen die Sonden in `laws/` und die Gate-Engine in `fitness/`;
- * seit Etappe 6 die Inhalts-Pipelines in `content/` und die Einmal-Werkzeuge
- * in `oneoff/`. Die alten Pfade in `tools/` bleiben als Shims bestehen.
+ * stdio wird direkt durchgereicht (`stdio: 'inherit'`), damit `dev live`
+ * und interaktive Messungen unverändert funktionieren.
  *
  * Aufruf: node tools/din.mjs [bereich] [befehl] [flags] [--] [argumente]
  * Exit:   0 ok · 1 Gate/Test rot · 2 Aufruf-/Vorbedingungsfehler · 3 IO/Render
- *
- * Null Abhängigkeiten: nur `node:`-Builtins.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -66,73 +63,33 @@ if (!REPO_ROOT) {
 /* ------------------------------------------------------------------ Katalog */
 
 /**
- * Werkzeug-Landkarte. `file` ist relativ zur Repo-Wurzel; `entry` ist der
- * kanonische Aufruf für Menschen und Agenten.
+ * Werkzeug-Landkarte der 5 Deep Modules + Hilfswerkzeuge.
  * @type {{ name: string, group: string, summary: string, file: string, gate: boolean, status?: string }[]}
  */
 const WERKZEUGE = [
   // Meta
   { name: 'din', group: 'meta', summary: 'Dieser Einstiegspunkt: Routing, Hilfe-Baum, Werkzeug-Landkarte', file: 'tools/din.mjs', gate: false },
 
-  // Laufzeit-Modul (tools/runtime/)
-  { name: 'runtime', group: 'runtime', summary: 'Öffentliche Schnittstelle: startServer, findBrowser, launch, runTests, startLive', file: 'tools/runtime/index.mjs', gate: false },
-  { name: 'runtime/browser', group: 'runtime', summary: 'Chrome/Chromium-Erkennung findBrowser() (plattformübergreifend)', file: 'tools/runtime/browser.mjs', gate: false },
-  { name: 'runtime/static-server', group: 'runtime', summary: 'No-Cache-Server mit Dual-Root: website/, /__fonts, /__geokey', file: 'tools/runtime/static-server.mjs', gate: false },
-  { name: 'runtime/launch', group: 'runtime', summary: 'Headless-Chrome-Start: mkdtemp-Profil, spawn, Port-Warten, Aufräumen', file: 'tools/runtime/launch.mjs', gate: false },
-  { name: 'runtime/cdp', group: 'runtime', summary: 'CDP-Client (WebSocket/JSON-RPC): findeSeite, verbinde, evaluate', file: 'tools/runtime/cdp.mjs', gate: false },
-  { name: 'runtime/runner', group: 'runtime', summary: 'Test-Runner für Unit-Suite (test/index.html), liefert Exit-Code', file: 'tools/runtime/runner.mjs', gate: true },
-  { name: 'runtime/mcp-live', group: 'runtime', summary: 'MCP-Live-Kanal (stdio + SSE) für website/js/live-bridge.js', file: 'tools/runtime/mcp-live.mjs', gate: false },
-  { name: 'runtime/debug-session', group: 'runtime', summary: 'Manuelle Debug-Session: CDP, Screenshots, Netzwerk (kein Automatismus)', file: 'tools/runtime/debug-session.mjs', gate: false },
-  { name: 'runtime/seed-geoapify', group: 'runtime', summary: 'Geoapify-Key aus ~/.secrets in localStorage des Debug-Browsers', file: 'tools/runtime/seed-geoapify.mjs', gate: false },
-  { name: 'runtime/setup-din-home', group: 'runtime', summary: 'CI-Schritt: Home-Verzeichnis für tsc/CDP vorbereiten', file: 'tools/runtime/setup-din-home.sh', gate: true },
+  // Laufzeit-Modul
+  { name: 'runtime', group: 'runtime', summary: 'Deep Module: Server (Port 8088), Headless Browser, CDP, Runner, MCP-Live, Debug-Session', file: 'tools/runtime.mjs', gate: true },
 
-  // Dev (tools/dev.sh Starter)
-  { name: 'dev', group: 'dev', summary: 'Server 8088 + Debug-Browser (CDP 9222): start|stop|status|live|key', file: 'tools/dev.sh', gate: false },
+  // Dev-Starter
+  { name: 'dev', group: 'dev', summary: 'Dev-Starter: Server 8088 + Debug-Browser (CDP 9222): start|stop|status|live|key', file: 'tools/dev.sh', gate: false },
 
-  // Messen (tools/measure/)
-  { name: 'measure', group: 'measure', summary: 'Öffentliche Schnittstelle: measureSheet, measurePrint, measurePdf, measureBrief, probeTtc, diffPixels', file: 'tools/measure/index.mjs', gate: false },
-  { name: 'measure/inpage', group: 'measure', summary: 'In-Page-Messfunktion für CDP evaluate_script (eigene Datei, keine Importe)', file: 'tools/measure/inpage.js', gate: false },
-  { name: 'measure/sheet', group: 'measure', summary: 'Bildschirm-Geometrie numerisch über CDP 9222 (measureSheet)', file: 'tools/measure/sheet.mjs', gate: false },
-  { name: 'measure/print', group: 'measure', summary: 'Dieselben Messwerte in Druck-Emulation (measurePrint)', file: 'tools/measure/print.mjs', gate: false },
-  { name: 'measure/pdf', group: 'measure', summary: 'PDF-Wahrheit: Seiten, yMax, Unterrand (measurePdf; 6 Assertions in test/all.js)', file: 'tools/measure/pdf.mjs', gate: true },
-  { name: 'measure/brief', group: 'measure', summary: 'Testbrief-Generator ohne Browser messen (measureBrief)', file: 'tools/measure/brief.mjs', gate: false },
-  { name: 'measure/ttc', group: 'measure', summary: 'TTC/Paint-Timing über CDP: --runs, --profile local|cpu6|slow (probeTtc)', file: 'tools/measure/ttc.mjs', gate: false },
-  { name: 'measure/pixel', group: 'measure', summary: '4 Referenzbriefe als PDF für Vorher/Nachher-Pixel-Diffs (diffPixels)', file: 'tools/measure/pixel.mjs', gate: false },
+  // Messen
+  { name: 'measure', group: 'measure', summary: 'Deep Module: Bildschirm-, Druck- & PDF-Geometrie, TTC-Timing, Testbriefe & Pixel-Diffs', file: 'tools/measure.mjs', gate: true },
 
-  // Fitness (tools/fitness/)
-  { name: 'fitness', group: 'fitness', summary: 'Öffentliche Schnittstelle: runFitness, generateStructure, runRules', file: 'tools/fitness/index.mjs', gate: true },
-  { name: 'fitness/build_db', group: 'fitness', summary: 'Fitness-Gate + docs/STRUCTURE.md (Wegweiser + Score), -q still', file: 'tools/fitness/build_db.js', gate: true },
-  { name: 'fitness/reconciliation', group: 'fitness', summary: 'Score-Engine, lädt die Sonden aus laws/; --only-rules für Pre-Commit', file: 'tools/fitness/reconciliation.js', gate: true },
-  { name: 'fitness/structure-stand', group: 'fitness', summary: 'SHA-256-Stand-Helfer: bodyOf, computeStand, STAND_RE', file: 'tools/fitness/structure-stand.js', gate: true },
-  { name: 'fitness/repo-map-check', group: 'fitness', summary: 'Wegweiser-Gate: genannte Pfade existieren, JS-Module erwähnt', file: 'tools/fitness/repo-map-check.mjs', gate: true },
+  // Fitness
+  { name: 'fitness', group: 'fitness', summary: 'Deep Module: Reality Reconciliation Score-Engine, Wegweiser-Gate & docs/STRUCTURE.md', file: 'tools/fitness.mjs', gate: true },
 
-  // Gesetze (tools/laws/)
-  { name: 'laws', group: 'laws', summary: 'Öffentliche Schnittstelle: runLaws(names) sammelt alle Sonden-Verstöße', file: 'tools/laws/index.mjs', gate: true },
-  { name: 'laws/scan', group: 'laws', summary: 'Glob→RegExp-Matcher: globToRegExp, matchFilePattern', file: 'tools/laws/scan.mjs', gate: true },
-  { name: 'laws/imr', group: 'laws', summary: 'IMR-Registry-Sonde (docs/norm/IMR-Registry.md)', file: 'tools/laws/imr.js', gate: true },
-  { name: 'laws/structural-laws', group: 'laws', summary: 'Struktur-Gesetze des Repos (A42, A57, A58, A24, A59)', file: 'tools/laws/structural-laws.js', gate: true },
-  { name: 'laws/isolation', group: 'laws', summary: 'Isolations-Gesetze (Module dürfen nicht wild importieren)', file: 'tools/laws/isolation.js', gate: true },
-  { name: 'laws/links', group: 'laws', summary: 'Wikilink-/Pfad-Sonde für Docs', file: 'tools/laws/links.js', gate: true },
-  { name: 'laws/terminology', group: 'laws', summary: 'Terminologie-Sonde gegen glossary.md', file: 'tools/laws/terminology.js', gate: true },
-  { name: 'laws/lawcoverage', group: 'laws', summary: 'Meta-Gate: Abdeckung der Gesetze durch Sonden', file: 'tools/laws/lawcoverage.js', gate: true },
-  { name: 'laws/id-register', group: 'laws', summary: 'ID-Register-Sonde (B-Referenzen, Präfixe, Register-Deckung)', file: 'tools/laws/id-register.js', gate: true },
+  // Gesetze
+  { name: 'laws', group: 'laws', summary: 'Deep Module: 7 Verfassungs-Sonden (IMR, Struktur, Isolation, Links, Terme, Abdeckung, IDs)', file: 'tools/laws.mjs', gate: true },
 
-  // Inhalte (tools/content/)
-  { name: 'content', group: 'content', summary: 'Öffentliche Schnittstelle: buildPlzData, buildGrosskunden, syncBacklog, generateDossier, queryFeature, checkAdr', file: 'tools/content/index.mjs', gate: false },
-  { name: 'content/build_plz_data', group: 'content', summary: 'PLZ-Stammdaten bauen (Quartals-Workflow, --download/--neu)', file: 'tools/content/build_plz_data.mjs', gate: false },
-  { name: 'content/build_grosskunden', group: 'content', summary: 'Grosskunden-Spaltenformat bauen (CI-Schritt)', file: 'tools/content/build_grosskunden_columnar.mjs', gate: false },
-  { name: 'content/backlog-sync', group: 'content', summary: 'BACKLOG.md-Übersichtstabelle schreiben oder prüfen (--check)', file: 'tools/content/backlog-sync.mjs', gate: false },
-  { name: 'content/test-dossier', group: 'content', summary: 'docs/meta/TEST-DOSSIER.md schreiben oder prüfen (--check)', file: 'tools/content/test-dossier.mjs', gate: false },
-  { name: 'content/query_chrome_feature', group: 'content', summary: 'Chrome-Feature-Verfügbarkeit abfragen (Chromestatus API)', file: 'tools/content/query_chrome_feature.mjs', gate: false },
-  { name: 'content/adr-check', group: 'content', summary: 'ADR-Format-Check: Bijektion, Annotationen, Zähler, verwaiste Assets', file: 'tools/content/adr-check.js', gate: false },
+  // Inhalte
+  { name: 'content', group: 'content', summary: 'Deep Module: Columnar-PLZ & Grosskunden, Backlog-Sync, Test-Dossier, Chrome-Feature, ADR-Check', file: 'tools/content.mjs', gate: false },
 
-  // Schriften (tools/fonts/)
-  { name: 'subset_fonts', group: 'fonts', summary: 'DIN-5008-Font-Subsetting (Inter → website/fonts; lokale Testschriften nach fonts/)', file: 'tools/fonts/subset_fonts.py', gate: false },
-
-  // Einmal-/Archiv-Werkzeuge (tools/oneoff/)
-  { name: 'oneoff/check-feature', group: 'oneoff', summary: 'TOT: kein Aufrufer, installiert zur Laufzeit npm-Pakete', file: 'tools/oneoff/check-feature.js', gate: false, status: 'archiv' },
-  { name: 'oneoff/og-image', group: 'oneoff', summary: 'Einmaliger OG-Image-Generator (kein Aufrufer, Port 8099)', file: 'tools/oneoff/og-image.mjs', gate: false, status: 'archiv' },
-  { name: 'oneoff/seeder-diff', group: 'oneoff', summary: 'Einmal-Differenztest batch/05 — archiviert (Blueprint K5)', file: 'tools/oneoff/seeder-diff.mjs', gate: false, status: 'archiv' },
+  // Schriften
+  { name: 'fonts', group: 'fonts', summary: 'DIN-5008-Font-Subsetting (Inter → website/fonts; lokale Testschriften)', file: 'tools/fonts/subset_fonts.py', gate: false },
 ];
 
 /**
@@ -143,7 +100,7 @@ function ergaenzeUnbekannte(eintraege) {
   let dateien = [];
   try {
     dateien = readdirSync(path.join(REPO_ROOT, 'tools')).filter((f) =>
-      /\.(js|mjs|sh)$/.test(f),
+      /\.(js|mjs|sh|py)$/.test(f),
     );
   } catch {
     return eintraege;
@@ -153,7 +110,7 @@ function ergaenzeUnbekannte(eintraege) {
     .filter((f) => !bekannt.has(f))
     .sort()
     .map((f) => ({
-      name: path.basename(f).replace(/\.(js|mjs|sh)$/, ''),
+      name: path.basename(f).replace(/\.(js|mjs|sh|py)$/, ''),
       group: 'sonstiges',
       summary: 'nicht katalogisiert — bitte in tools/din.mjs ergänzen',
       file: `tools/${f}`,
@@ -181,7 +138,6 @@ function delegiere(programm, argumente) {
     return 2;
   }
   if (typeof ergebnis.status === 'number') return ergebnis.status;
-  // Signal (z. B. Ctrl+C): 128+n ist die Shell-Konvention.
   return 128 + (ergebnis.signal ? 1 : 0);
 }
 
@@ -202,7 +158,7 @@ const BEREICHE = [
   [
     'fitness',
     'Fitness-Gate + Score (build_db) oder nur Regeln (Pre-Commit)',
-    'din fitness [-q] [--only-rules]',
+    'din fitness [-q] [--only-rules] [repo-map]',
   ],
   [
     'laws',
@@ -231,7 +187,7 @@ const BEREICHE = [
   ],
   [
     'content',
-    'Inhalts-Werkzeuge direkt: Chrome-Feature, ADR-Check (Logik in tools/content/)',
+    'Inhalts-Werkzeuge direkt: Chrome-Feature, ADR-Check',
     'din content feature <begriff> | din content adr [--json]',
   ],
   [
@@ -243,12 +199,12 @@ const BEREICHE = [
 
 const UNTERBEFEHLE = {
   measure: [
-    ['sheet', 'Bildschirm-Geometrie numerisch (mess.mjs)', 'din measure sheet [ids…]'],
-    ['print', 'Dieselben Werte in Druck-Emulation', 'din measure print [url] [breite]'],
-    ['pdf', 'PDF-Wahrheit: Seiten/yMax/Unterrand', 'din measure pdf --saetze 42 [--rand-u 30] [--json]'],
-    ['brief', 'Testbrief-Generator ohne Browser', 'din measure brief -n 50 [-q] [--json]'],
-    ['ttc', 'Paint-/TTC-Timing über CDP', 'din measure ttc --runs 30 --profile all'],
-    ['pixel', '4 Referenzbriefe als PDF (Pixel-Diff)', 'din measure pixel <zielordner>'],
+    ['sheet', 'Bildschirm-Geometrie numerisch (measureSheet)', 'din measure sheet [ids…]'],
+    ['print', 'Dieselben Werte in Druck-Emulation (measurePrint)', 'din measure print [url] [breite]'],
+    ['pdf', 'PDF-Wahrheit: Seiten/yMax/Unterrand (measurePdf)', 'din measure pdf --saetze 42 [--rand-u 30] [--json]'],
+    ['brief', 'Testbrief-Generator ohne Browser (measureBrief)', 'din measure brief -n 50 [-q] [--json]'],
+    ['ttc', 'Paint-/TTC-Timing über CDP (probeTtc)', 'din measure ttc --runs 30 --profile all'],
+    ['pixel', '4 Referenzbriefe als PDF (diffPixels)', 'din measure pixel <zielordner>'],
   ],
   dev: [
     ['start', 'Server + Debug-Browser neu starten (Default)', 'din dev start'],
@@ -258,7 +214,7 @@ const UNTERBEFEHLE = {
     ['key', 'Geoapify-Key in den Debug-Browser legen', 'din dev key'],
   ],
   data: [
-    ['plz', 'PLZ-Stammdaten bauen', 'din data plz [--download|--neu]'],
+    ['plz', 'PLZ-Stammdaten bauen (Columnar)', 'din data plz [--download|--neu]'],
     ['grosskunden', 'Grosskunden-Spaltenformat bauen', 'din data grosskunden'],
   ],
   docs: [
@@ -340,9 +296,8 @@ function hilfe(bereich) {
     '  din tools --json           Maschinenlesbare Werkzeug-Landkarte',
     '',
     'Regeln:',
-    '  • din ist nur Routing: jeder Befehl startet das bestehende Skript',
-    '    als Kindprozess mit stdio: inherit (kein Import, keine Kopie).',
-    '  • Unbekannte Flags gehen unverändert an das Kindskript.',
+    '  • din delegiert an die 5 konsolidierten Deep Modules in tools/.',
+    '  • Unbekannte Flags gehen unverändert an das Modul weiter.',
     '  • Exit-Codes: 0 ok · 1 Gate/Test rot · 2 Aufruf-/Vorbedingung · 3 IO/Render',
     '',
     `Repo: ${REPO_ROOT}`,
@@ -388,18 +343,17 @@ function landkarte(alsJson) {
 
   const gruppenTitel = {
     meta: 'META',
-    runtime: 'LAUFZEIT',
-    dev: 'DEV / RUNTIME',
-    measure: 'MESSEN',
-    fitness: 'FITNESS',
-    laws: 'GESETZE',
-    content: 'INHALTE',
-    fonts: 'SCHRIFTEN',
+    runtime: 'LAUFZEIT (tools/runtime.mjs)',
+    dev: 'DEV-STARTER (tools/dev.sh)',
+    measure: 'MESSEN (tools/measure.mjs)',
+    fitness: 'FITNESS (tools/fitness.mjs)',
+    laws: 'GESETZE (tools/laws.mjs)',
+    content: 'INHALTE (tools/content.mjs)',
+    fonts: 'SCHRIFTEN (tools/fonts/)',
     test: 'TESTS',
-    oneoff: 'EINMAL / ARCHIV',
     sonstiges: 'NICHT KATALOGISIERT',
   };
-  const zeilen = [`Werkzeug-Landkarte (${eintraege.length} Skripte in tools/)`];
+  const zeilen = [`Werkzeug-Landkarte (${eintraege.length} Werkzeuge in tools/)`];
   const rang = {
     meta: 0,
     runtime: 1,
@@ -408,9 +362,8 @@ function landkarte(alsJson) {
     fitness: 4,
     laws: 5,
     content: 6,
-    fonts: 6.5,
-    test: 7,
-    oneoff: 8,
+    fonts: 7,
+    test: 8,
     sonstiges: 9,
   };
   const sortiert = [...eintraege].sort(
@@ -424,7 +377,7 @@ function landkarte(alsJson) {
     }
     const gate = e.gate ? '⛨' : ' ';
     const status = e.status ? ` [${e.status}]` : '';
-    zeilen.push(`  ${gate} ${e.file.padEnd(46)}${e.summary}${status}`);
+    zeilen.push(`  ${gate} ${e.file.padEnd(32)}${e.summary}${status}`);
   }
   zeilen.push('', 'Legende: ⛨ = Teil eines Gates (CI, Hook oder Test).');
   console.log(zeilen.join('\n'));
@@ -458,89 +411,34 @@ function main(argv) {
 
   switch (bereich) {
     case 'test':
-      return nodeSkript('tools/runtime/runner.mjs', rest);
+      return nodeSkript('tools/runtime.mjs', ['test', ...rest]);
 
-    case 'fitness': {
-      const nurRegeln =
-        rest.includes('--only-rules') || rest[0] === 'rules';
-      if (nurRegeln) {
-        const weiter = rest.filter((a) => a !== '--only-rules' && a !== 'rules');
-        return nodeSkript('tools/fitness/reconciliation.js', ['--only-rules', ...weiter]);
-      }
-      const still = rest.includes('-q') || rest.includes('--quiet');
-      const weiter = rest.filter((a) => a !== '-q' && a !== '--quiet');
-      return nodeSkript('tools/fitness/build_db.js', [...(still ? ['-q'] : []), ...weiter]);
-    }
+    case 'fitness':
+      return nodeSkript('tools/fitness.mjs', rest);
 
-    case 'laws': {
-      const unter = rest[0];
-      const weite = rest.slice(1);
-      const ziel = {
-        imr: 'tools/laws/imr.js',
-        structure: 'tools/laws/structural-laws.js',
-        isolation: 'tools/laws/isolation.js',
-        links: 'tools/laws/links.js',
-        terms: 'tools/laws/terminology.js',
-        coverage: 'tools/laws/lawcoverage.js',
-        ids: 'tools/laws/id-register.js',
-      }[unter];
-      if (!unter || unter === 'all') return nodeSkript('tools/laws/index.mjs', rest);
-      if (!ziel) return unbekannt('Unterbefehl', 'laws', unter);
-      return nodeSkript(ziel, weite);
-    }
+    case 'laws':
+      return nodeSkript('tools/laws.mjs', rest);
 
-    case 'dev': {
-      // dev.sh liest seinen Unterbefehl als erstes Argument (Default: start),
-      // kennt zusätzlich mess/--vanilla/help — also unverändert durchreichen.
-      // `live` erbt stdin/stdout/stderr direkt (stdio: inherit) und bleibt
-      // damit ein echter Vordergrundprozess (Ctrl+C erreicht das Kind).
+    case 'dev':
       return bashSkript('tools/dev.sh', rest);
-    }
 
-    case 'measure': {
-      const unter = rest[0];
-      const weiter = rest.slice(1);
-      const ziel = {
-        sheet: 'tools/measure/sheet.mjs',
-        print: 'tools/measure/print.mjs',
-        pdf: 'tools/measure/pdf.mjs',
-        brief: 'tools/measure/brief.mjs',
-        ttc: 'tools/measure/ttc.mjs',
-        pixel: 'tools/measure/pixel.mjs',
-      }[unter];
-      if (!ziel) return unbekannt('Unterbefehl', 'measure', unter);
-      return nodeSkript(ziel, weiter);
-    }
+    case 'measure':
+      return nodeSkript('tools/measure.mjs', rest);
 
-    case 'data': {
-      const unter = rest[0];
-      const weite = rest.slice(1);
-      if (unter === 'plz') return nodeSkript('tools/content/build_plz_data.mjs', weite);
-      if (unter === 'grosskunden')
-        return nodeSkript('tools/content/build_grosskunden_columnar.mjs', weite);
-      return unbekannt('Unterbefehl', 'data', unter);
-    }
+    case 'data':
+      return nodeSkript('tools/content.mjs', rest);
 
     case 'docs': {
       const unter = rest[0];
       const weite = rest.slice(1);
-      if (unter === 'backlog') return nodeSkript('tools/content/backlog-sync.mjs', weite);
-      if (unter === 'tests') return nodeSkript('tools/content/test-dossier.mjs', weite);
-      if (unter === 'index') return nodeSkript('tools/fitness/build_db.js', ['-q', ...weite]);
+      if (unter === 'backlog') return nodeSkript('tools/content.mjs', ['backlog', ...weite]);
+      if (unter === 'tests') return nodeSkript('tools/content.mjs', ['tests', ...weite]);
+      if (unter === 'index') return nodeSkript('tools/fitness.mjs', ['-q', ...weite]);
       return unbekannt('Unterbefehl', 'docs', unter);
     }
 
-    case 'content': {
-      const unter = rest[0];
-      const weite = rest.slice(1);
-      const ziel = {
-        feature: 'tools/content/query_chrome_feature.mjs',
-        adr: 'tools/content/adr-check.js',
-      }[unter];
-      if (!unter) return hilfe('content');
-      if (!ziel) return unbekannt('Unterbefehl', 'content', unter);
-      return nodeSkript(ziel, weite);
-    }
+    case 'content':
+      return nodeSkript('tools/content.mjs', rest);
 
     case 'tools':
       return landkarte(rest.includes('--json'));

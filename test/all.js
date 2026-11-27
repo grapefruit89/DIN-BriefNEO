@@ -1986,13 +1986,13 @@ describe('#kern — kein toter data-bottom', () => {
   });
 });
 
-describe('tools/measure/pdf.mjs', () => {
+describe('tools/measure.mjs (pdf-Modus)', () => {
   /* Das Werkzeug ist kein Produktcode, soll aber nicht still kaputtgehen:
    * es traegt die Messung fuer TODO #47/#48. Der Browser-Test kann keinen
    * Prozess starten (kein child_process), deshalb Quelltext-Vertrag —
    * Exit-Codes und --help sind in der Shell belegt (siehe Commit-Message). */
   it('liegt im Repo und beginnt mit einer Shebang-Zeile', async () => {
-    const antwort = await fetch('/tools/measure/pdf.mjs');
+    const antwort = await fetch('/tools/measure.mjs');
     assert(antwort.ok, `Datei ist erreichbar (HTTP ${antwort.status})`);
     const quelle = await antwort.text();
     assert(quelle.startsWith('#!/usr/bin/env node'), 'beginnt mit #!/usr/bin/env node');
@@ -2000,7 +2000,7 @@ describe('tools/measure/pdf.mjs', () => {
   });
 
   it('kennt die Flags --saetze, --rand-u, --json und --keep-pdf', async () => {
-    const quelle = await (await fetch('/tools/measure/pdf.mjs')).text();
+    const quelle = await (await fetch('/tools/measure.mjs')).text();
     for (const flagge of ['--saetze', '--rand-u', '--json', '--keep-pdf', '--help']) {
       assert(quelle.includes(flagge), `Flag ${flagge} dokumentiert und geparst`);
     }
@@ -2030,7 +2030,7 @@ describe('test/fixtures/brief-42.json', () => {
   });
 
   it('wird vom Werkzeug für --saetze 42 gelesen', async () => {
-    const quelle = await (await fetch('/tools/measure/pdf.mjs')).text();
+    const quelle = await (await fetch('/tools/measure.mjs')).text();
     assert(quelle.includes('fixtures/brief-42.json'), 'Hilfetext nennt das Fixture');
     assert(/fixture/i.test(quelle), 'Leselogik vorhanden');
     // Der Pfad wird aus saetze gebildet, damit auch 43/44 ein Fixture bekommen koennen.
@@ -2045,7 +2045,7 @@ describe('print-messung.mjs --modus bildschirm', () => {
    * zweiten Modus statt eines zweiten Skripts (der Browser-Start ist der
    * teuerste Teil). */
   it('kennt --modus mit beiden Werten und den Bildschirm-Feldern', async () => {
-    const quelle = await (await fetch('/tools/measure/pdf.mjs')).text();
+    const quelle = await (await fetch('/tools/measure.mjs')).text();
     assert(quelle.includes('--modus'), 'Flag --modus vorhanden');
     assert(quelle.includes("=== 'bildschirm'"), 'Bildschirm-Zweig vorhanden');
     for (const feld of ['columnHeight', 'dataSeiten', 'folgekopf-screen', '--nutz']) {
@@ -2054,7 +2054,7 @@ describe('print-messung.mjs --modus bildschirm', () => {
   });
 
   it('Help-Text nennt --modus bildschirm', async () => {
-    const quelle = await (await fetch('/tools/measure/pdf.mjs')).text();
+    const quelle = await (await fetch('/tools/measure.mjs')).text();
     assert(quelle.includes('--modus bildschirm'), 'Hilfe nennt --modus bildschirm');
     assert(quelle.includes('--modus pdf'), 'Hilfe nennt den PDF-Default');
   });

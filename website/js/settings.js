@@ -365,7 +365,7 @@ function agentenKonfigurationLive(token) {
         servers: {
           briefneo: {
             type: 'local',
-            command: ['node', 'tools/runtime/mcp-live.mjs', `--token=${token}`]
+            command: ['node', 'tools/runtime.mjs', 'live', `--token=${token}`]
           }
         }
       }

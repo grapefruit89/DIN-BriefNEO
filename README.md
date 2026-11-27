@@ -25,7 +25,7 @@
 ### 2. Single Source of Truth (SSoT) & Columnar Gzip
 - **Kompakt & Blitzschnell:** 10.184 deutsche Postleitzahlen, Orte und Bezirke komprimiert in verlustfreiem Columnar-JSON als [`website/data/orte.json.gz`](website/data/orte.json.gz) (81.745 B).
 - **Native Dekomprimierung:** Laden im Browser via standardisierter `DecompressionStream('gzip')`-Streaming-API in unter 1 ms bei Tastendruck.
-- **Data-as-Code Pipeline:** Kompiliert bit-deterministisch mit Level 9 und `mtime=0` über [`tools/content/build_plz_data.mjs`](tools/content/build_plz_data.mjs).
+- **Data-as-Code Pipeline:** Kompiliert bit-deterministisch mit Level 9 und `mtime=0` über [`tools/content.mjs`](tools/content.mjs).
 - **Automatisierte Pflege:** Quartalsweise automatische Updates via GitHub Actions ([`.github/workflows/update_plz_data.yml`](.github/workflows/update_plz_data.yml)).
 
 ### 3. Schema v5

@@ -461,7 +461,7 @@ function landkarte(alsJson) {
     }
     const gate = e.gate ? '⛨' : ' ';
     const status = e.status ? ` [${e.status}]` : '';
-    zeilen.push(`  ${gate} ${e.file.padEnd(44)}${e.summary}${status}`);
+    zeilen.push(`  ${gate} ${e.file.padEnd(46)}${e.summary}${status}`);
   }
   zeilen.push('', 'Legende: ⛨ = Teil eines Gates (CI, Hook oder Test).');
   console.log(zeilen.join('\n'));

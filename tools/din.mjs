@@ -14,7 +14,8 @@
  *
  * Schichtung (Ziel, siehe tools/CONSOLIDATION-BLUEPRINT.md §0):
  *   din.mjs → fitness/ → laws/     (laws/ importiert niemals fitness/)
- * Etappe 1 berührt diese Schichtung noch nicht — sie verschiebt nichts.
+ * Seit Etappe 5 liegen die Sonden in `laws/` und die Gate-Engine in `fitness/`;
+ * die alten Pfade in `tools/` bleiben als Shims bestehen.
  *
  * Aufruf: node tools/din.mjs [bereich] [befehl] [flags] [--] [argumente]
  * Exit:   0 ok · 1 Gate/Test rot · 2 Aufruf-/Vorbedingungsfehler · 3 IO/Render
@@ -110,23 +111,35 @@ const WERKZEUGE = [
   { name: 'paint-probe', group: 'measure', summary: 'SHIM → tools/measure/ttc.mjs (Pfad bleibt stabil)', file: 'tools/paint-probe.mjs', gate: false, status: 'shim' },
   { name: 'druck-pixel', group: 'measure', summary: 'SHIM → tools/measure/pixel.mjs (Pfad bleibt stabil)', file: 'tools/druck-pixel.mjs', gate: false, status: 'shim' },
 
-  // Fitness (Ziel: fitness/)
-  { name: 'build_db', group: 'fitness', summary: 'Fitness-Gate + docs/STRUCTURE.md (Wegweiser + Score), -q still', file: 'tools/build_db.js', gate: true },
-  { name: 'reconciliation', group: 'fitness', summary: 'Score-Engine, lädt 8 Sonden; --only-rules für Pre-Commit', file: 'tools/reconciliation.js', gate: true },
+  // Fitness (Etappe 5: fitness/)
+  { name: 'fitness', group: 'fitness', summary: 'Öffentliche Schnittstelle: runFitness, generateStructure, runRules', file: 'tools/fitness/index.mjs', gate: true },
+  { name: 'fitness/build_db', group: 'fitness', summary: 'Fitness-Gate + docs/STRUCTURE.md (Wegweiser + Score), -q still', file: 'tools/fitness/build_db.js', gate: true },
+  { name: 'fitness/reconciliation', group: 'fitness', summary: 'Score-Engine, lädt die Sonden aus laws/; --only-rules für Pre-Commit', file: 'tools/fitness/reconciliation.js', gate: true },
   { name: 'fitness/structure-stand', group: 'fitness', summary: 'SHA-256-Stand-Helfer: bodyOf, computeStand, STAND_RE', file: 'tools/fitness/structure-stand.js', gate: true },
-  { name: 'structure-stand', group: 'fitness', summary: 'CommonJS-Shim → fitness/structure-stand.js (alter Pfad bleibt)', file: 'tools/structure-stand.js', gate: true },
-  { name: 'repo-map-check', group: 'fitness', summary: 'Wegweiser-Gate: genannte Pfade existieren, JS-Module erwähnt', file: 'tools/repo-map-check.mjs', gate: true },
+  { name: 'fitness/repo-map-check', group: 'fitness', summary: 'Wegweiser-Gate: genannte Pfade existieren, JS-Module erwähnt', file: 'tools/fitness/repo-map-check.mjs', gate: true },
+  { name: 'build_db', group: 'fitness', summary: 'SHIM → tools/fitness/build_db.js (npm, CI, Hook, Doku nennen diesen Pfad)', file: 'tools/build_db.js', gate: true, status: 'shim' },
+  { name: 'reconciliation', group: 'fitness', summary: 'SHIM → tools/fitness/reconciliation.js (package.json check:antipatterns)', file: 'tools/reconciliation.js', gate: true, status: 'shim' },
+  { name: 'structure-stand', group: 'fitness', summary: 'SHIM → tools/fitness/structure-stand.js (alter Pfad bleibt)', file: 'tools/structure-stand.js', gate: true, status: 'shim' },
+  { name: 'repo-map-check', group: 'fitness', summary: 'SHIM → tools/fitness/repo-map-check.mjs (alter Pfad bleibt)', file: 'tools/repo-map-check.mjs', gate: true, status: 'shim' },
 
-  // Gesetze (Ziel: laws/)
+  // Gesetze (Etappe 5: laws/)
+  { name: 'laws', group: 'laws', summary: 'Öffentliche Schnittstelle: runLaws(names) sammelt alle Sonden-Verstöße', file: 'tools/laws/index.mjs', gate: true },
   { name: 'laws/scan', group: 'laws', summary: 'Glob→RegExp-Matcher: globToRegExp, matchFilePattern', file: 'tools/laws/scan.mjs', gate: true },
-  { name: 'filematch', group: 'laws', summary: 'CommonJS-Shim → laws/scan.mjs (alter Pfad bleibt)', file: 'tools/filematch.js', gate: true },
-  { name: 'imr', group: 'laws', summary: 'IMR-Registry-Sonde (docs/norm/IMR-Registry.md)', file: 'tools/imr.js', gate: true },
-  { name: 'structural-laws', group: 'laws', summary: 'Struktur-Gesetze des Repos', file: 'tools/structural-laws.js', gate: true },
-  { name: 'isolation', group: 'laws', summary: 'Isolations-Gesetze (Module dürfen nicht wild importieren)', file: 'tools/isolation.js', gate: true },
-  { name: 'links', group: 'laws', summary: 'Wikilink-/Pfad-Sonde für Docs', file: 'tools/links.js', gate: true },
-  { name: 'terminology', group: 'laws', summary: 'Terminologie-Sonde', file: 'tools/terminology.js', gate: true },
-  { name: 'lawcoverage', group: 'laws', summary: 'Meta-Gate: Abdeckung der Gesetze durch Tests', file: 'tools/lawcoverage.js', gate: true },
-  { name: 'id-register', group: 'laws', summary: 'ID-Register-Sonde (Ziel: laws/, nicht content/)', file: 'tools/id-register.js', gate: true },
+  { name: 'laws/imr', group: 'laws', summary: 'IMR-Registry-Sonde (docs/norm/IMR-Registry.md)', file: 'tools/laws/imr.js', gate: true },
+  { name: 'laws/structural-laws', group: 'laws', summary: 'Struktur-Gesetze des Repos (A42, A57, A58, A24, A59)', file: 'tools/laws/structural-laws.js', gate: true },
+  { name: 'laws/isolation', group: 'laws', summary: 'Isolations-Gesetze (Module dürfen nicht wild importieren)', file: 'tools/laws/isolation.js', gate: true },
+  { name: 'laws/links', group: 'laws', summary: 'Wikilink-/Pfad-Sonde für Docs', file: 'tools/laws/links.js', gate: true },
+  { name: 'laws/terminology', group: 'laws', summary: 'Terminologie-Sonde gegen glossary.md', file: 'tools/laws/terminology.js', gate: true },
+  { name: 'laws/lawcoverage', group: 'laws', summary: 'Meta-Gate: Abdeckung der Gesetze durch Sonden', file: 'tools/laws/lawcoverage.js', gate: true },
+  { name: 'laws/id-register', group: 'laws', summary: 'ID-Register-Sonde (B-Referenzen, Präfixe, Register-Deckung)', file: 'tools/laws/id-register.js', gate: true },
+  { name: 'filematch', group: 'laws', summary: 'SHIM → tools/laws/scan.mjs (alter Pfad bleibt)', file: 'tools/filematch.js', gate: true, status: 'shim' },
+  { name: 'imr', group: 'laws', summary: 'SHIM → tools/laws/imr.js (reconciliation, Doku, Aufrufer)', file: 'tools/imr.js', gate: true, status: 'shim' },
+  { name: 'structural-laws', group: 'laws', summary: 'SHIM → tools/laws/structural-laws.js (alter Pfad bleibt)', file: 'tools/structural-laws.js', gate: true, status: 'shim' },
+  { name: 'isolation', group: 'laws', summary: 'SHIM → tools/laws/isolation.js (alter Pfad bleibt)', file: 'tools/isolation.js', gate: true, status: 'shim' },
+  { name: 'links', group: 'laws', summary: 'SHIM → tools/laws/links.js (alter Pfad bleibt)', file: 'tools/links.js', gate: true, status: 'shim' },
+  { name: 'terminology', group: 'laws', summary: 'SHIM → tools/laws/terminology.js (alter Pfad bleibt)', file: 'tools/terminology.js', gate: true, status: 'shim' },
+  { name: 'lawcoverage', group: 'laws', summary: 'SHIM → tools/laws/lawcoverage.js (alter Pfad bleibt)', file: 'tools/lawcoverage.js', gate: true, status: 'shim' },
+  { name: 'id-register', group: 'laws', summary: 'SHIM → tools/laws/id-register.js (Zielort laws/, alter Pfad bleibt)', file: 'tools/id-register.js', gate: true, status: 'shim' },
 
   // Inhalte (Ziel: content/)
   { name: 'adr-check', group: 'content', summary: 'ADR-Format-Check, eigenes CLI (manuell)', file: 'tools/adr-check.js', gate: false },
@@ -215,6 +228,11 @@ const BEREICHE = [
     'din fitness [-q] [--only-rules]',
   ],
   [
+    'laws',
+    'Gesetzes-Sonden: IMR, Struktur, Isolation, Links, Terme, Abdeckung, IDs',
+    'din laws [all|imr|structure|isolation|links|terms|coverage|ids]',
+  ],
+  [
     'dev',
     'Dev-Server 8088 + Debug-Browser CDP 9222',
     'din dev start|stop|status|live|key [--vanilla]',
@@ -269,6 +287,16 @@ const UNTERBEFEHLE = {
   tools: [
     ['--json', 'Landkarte als JSON', 'din tools --json'],
     ['', 'Landkarte als Tabelle (Default)', 'din tools'],
+  ],
+  laws: [
+    ['', 'Alle Sonden (Default)', 'din laws'],
+    ['imr', 'IMR-Registry + Geometrie', 'din laws imr'],
+    ['structure', 'Strukturgesetze (A42, A57, A58, A24, A59)', 'din laws structure'],
+    ['isolation', 'Hermetik-Gate website/ (A45)', 'din laws isolation'],
+    ['links', 'Wikilinks + Frontmatter-Links', 'din laws links'],
+    ['terms', 'Terminologie gegen glossary.md', 'din laws terms'],
+    ['coverage', 'Meta-Gate: Gesetzes-Abdeckung', 'din laws coverage'],
+    ['ids', 'ID-Register (B-Referenzen, Präfixe)', 'din laws ids'],
   ],
 };
 
@@ -447,11 +475,28 @@ function main(argv) {
         rest.includes('--only-rules') || rest[0] === 'rules';
       if (nurRegeln) {
         const weiter = rest.filter((a) => a !== '--only-rules' && a !== 'rules');
-        return nodeSkript('tools/reconciliation.js', ['--only-rules', ...weiter]);
+        return nodeSkript('tools/fitness/reconciliation.js', ['--only-rules', ...weiter]);
       }
       const still = rest.includes('-q') || rest.includes('--quiet');
       const weiter = rest.filter((a) => a !== '-q' && a !== '--quiet');
-      return nodeSkript('tools/build_db.js', [...(still ? ['-q'] : []), ...weiter]);
+      return nodeSkript('tools/fitness/build_db.js', [...(still ? ['-q'] : []), ...weiter]);
+    }
+
+    case 'laws': {
+      const unter = rest[0];
+      const weite = rest.slice(1);
+      const ziel = {
+        imr: 'tools/laws/imr.js',
+        structure: 'tools/laws/structural-laws.js',
+        isolation: 'tools/laws/isolation.js',
+        links: 'tools/laws/links.js',
+        terms: 'tools/laws/terminology.js',
+        coverage: 'tools/laws/lawcoverage.js',
+        ids: 'tools/laws/id-register.js',
+      }[unter];
+      if (!unter || unter === 'all') return nodeSkript('tools/laws/index.mjs', rest);
+      if (!ziel) return unbekannt('Unterbefehl', 'laws', unter);
+      return nodeSkript(ziel, weite);
     }
 
     case 'dev': {

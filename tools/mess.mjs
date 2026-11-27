@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 // tools/mess.mjs — Shim (Etappe 4): führt tools/measure/sheet.mjs aus.
 //
-// Der Pfad bleibt der kanonische Aufruf (din measure sheet, docs/meta/
-// AUFGABEN-WEGWEISER.md). Logik liegt in tools/measure/sheet.mjs.
+// Der Pfad bleibt stabil für bestehende Aufrufe, Skripte und Doku-Verweise.
+// Logik liegt in tools/measure/sheet.mjs.
 
-import { measureSheet } from './measure/sheet.mjs';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
-process.exit(await measureSheet());
+const ziel = fileURLToPath(new URL('./measure/sheet.mjs', import.meta.url));
+const ergebnis = spawnSync(process.execPath, [ziel, ...process.argv.slice(2)], { stdio: 'inherit' });
+process.exit(ergebnis.status ?? 1);

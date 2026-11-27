@@ -28,8 +28,7 @@ import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const HIER = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(HIER, '..', '..');
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const BASE = 'http://127.0.0.1:8088/index.html';
 
 const profile = {
@@ -99,23 +98,14 @@ async function lauf(send, ev, i) {
 }
 
 /**
- * Misst TTC/Paint-Timing über CDP im laufenden Debug-Browser.
- * Ohne `options.argv` werden die Prozess-Argumente gelesen.
- * @param {{ argv?: string[] }} [options]
- * @returns {Promise<number>} Exit-Code (0 ok)
+ * Misst TTC/Paint-Timing über CDP gegen den laufenden Debug-Browser.
+ * @param {{ runs?: number, profile?: string, json?: boolean }} [optionen]
+ * @returns {Promise<Record<string, any>>} Messergebnis je Profil
  */
-export async function probeTtc(options = {}) {
-  const args = options.argv ?? process.argv.slice(2);
-  const wert = (n, def) => {
-    const i = args.indexOf(n);
-    return i > -1 && args[i + 1] ? args[i + 1] : def;
-  };
-  const RUNS = Number(wert('--runs', '30'));
-  const PROFIL = wert('--profile', 'all');
-  const JSON_OUT = args.includes('--json');
-
+export async function probeTtc({ runs = 30, profile: profilName = 'all', json = false } = {}) {
+  const RUNS = Number(runs);
   const { ws, send, ev } = await verbinde();
-  const ziele = PROFIL === 'all' ? ['local', 'cpu6', 'slow'] : [PROFIL];
+  const ziele = profilName === 'all' ? ['local', 'cpu6', 'slow'] : [profilName];
   const ergebnis = {};
 
   for (const name of ziele) {
@@ -159,13 +149,23 @@ export async function probeTtc(options = {}) {
   /* Rohdaten gehoeren zur Scheibe, die sie belegt - nicht in die Repo-Wurzel.
      Laeufe und Profil stehen im Namen: sonst ueberschreibt ein Kontrolllauf mit
      fuenf Laeufen die Beweisreihe mit neunzig (passiert am 2026-11-14, B78). */
-  const datei = join(ROOT, 'batch/02-boot-pfad', `paint-probe-${new Date().toISOString().slice(0, 10)}-r${RUNS}-${PROFIL}.json`);
+  const datei = join(ROOT, 'batch/02-boot-pfad', `paint-probe-${new Date().toISOString().slice(0, 10)}-r${RUNS}-${profilName}.json`);
   writeFileSync(datei, JSON.stringify(ergebnis, null, 2));
   console.log(`Rohdaten: ${datei}`);
-  if (JSON_OUT) console.log(JSON.stringify(ergebnis, null, 2));
-  return 0;
+  if (json) console.log(JSON.stringify(ergebnis, null, 2));
+  return ergebnis;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  process.exit(await probeTtc());
+  const args = process.argv.slice(2);
+  const wert = (n, def) => {
+    const i = args.indexOf(n);
+    return i > -1 && args[i + 1] ? args[i + 1] : def;
+  };
+  await probeTtc({
+    runs: Number(wert('--runs', '30')),
+    profile: wert('--profile', 'all'),
+    json: args.includes('--json'),
+  });
+  process.exit(0);
 }

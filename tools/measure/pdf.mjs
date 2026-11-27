@@ -190,7 +190,7 @@ function briefText(n) {
  * @param {{ saetze: number, randU?: 20 | 30, modus?: 'pdf' | 'bildschirm', json?: boolean, keepPdf?: boolean }} options
  * @returns {Promise<number>} Exit-Code: 0 ok · 2 Voraussetzung fehlt · 3 Render fehlgeschlagen
  */
-export async function measurePdf(options) {
+export async function measurePdf(options = {}) {
   const modus = options.modus === 'bildschirm' ? 'bildschirm' : 'pdf';
   const saetze = Number(options.saetze);
   if (!Number.isInteger(saetze) || saetze < 1) {

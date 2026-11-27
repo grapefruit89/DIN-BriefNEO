@@ -22,22 +22,21 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /**
- * Erzeugt vier Referenzbriefe als PDF im Zielordner (Pixel-Diff-Basis).
- * @param {string} [zielOrdner]
- * @returns {Promise<number>} Exit-Code (0 ok · 2 Voraussetzung fehlt)
+ * Rendert 4 Referenzbriefe als PDF in `zielOrdner`.
+ * @param {string} zielOrdner
+ * @returns {Promise<string[]>} erzeugte PDF-Dateinamen
  */
 export async function diffPixels(zielOrdner) {
-  const ZIEL = zielOrdner ?? process.argv[2];
-  if (!ZIEL) { console.error('Zielordner fehlt'); return 2; }
+  if (!zielOrdner) throw new Error('Zielordner fehlt');
+  const ZIEL = zielOrdner;
   mkdirSync(ZIEL, { recursive: true });
 
   if (!(await fetch('http://127.0.0.1:9222/json/version').then(() => true).catch(() => false))) {
-    console.error('Kein CDP auf 9222 — läuft din-dev?');
-    return 2;
+    throw new Error('Kein CDP auf 9222 — läuft din-dev?');
   }
   const liste = await (await fetch('http://127.0.0.1:9222/json/list')).json();
   const tab = liste.find((t) => t.type === 'page' && (t.url || '').startsWith('http://127.0.0.1:8088'));
-  if (!tab) { console.error('Kein Tab auf 8088'); return 2; }
+  if (!tab) throw new Error('Kein Tab auf 8088');
   const ws = new WebSocket(tab.webSocketDebuggerUrl);
   let id = 0;
   const offen = new Map();
@@ -140,11 +139,19 @@ export async function diffPixels(zielOrdner) {
     }
     ws.close();
   }
-  console.log(`${ergebnis.length} PDFs -> ${ZIEL}`);
-  for (const e of ergebnis) console.log(`  ${e}`);
-  return 0;
+  return ergebnis;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  process.exit(await diffPixels(process.argv[2]));
+  const ZIEL = process.argv[2];
+  if (!ZIEL) { console.error('Zielordner fehlt'); process.exit(2); }
+  try {
+    const ergebnis = await diffPixels(ZIEL);
+    console.log(`${ergebnis.length} PDFs -> ${ZIEL}`);
+    for (const e of ergebnis) console.log(`  ${e}`);
+  } catch (fehler) {
+    console.error(/** @type {Error} */ (fehler).message);
+    process.exit(2);
+  }
+  process.exit(0);
 }

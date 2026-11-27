@@ -1,9 +1,8 @@
-// tools/measure/index.mjs — öffentliche Schnittstelle des Mess-Moduls (Etappe 4).
+// tools/measure/index.mjs — öffentliche Schnittstelle des Mess-Moduls.
 //
-// Nach außen genau sechs Namen; inpage.js ist die Browser-Quelle und wird von
-// sheet.mjs/print.mjs als Funktionsrumpf gelesen, nicht importiert.
+// Nach außen genau sechs Namen; die Implementierung liegt in den Nachbardateien.
 // Aufrufer importieren nur dieses Modul:
-//   import { measureSheet, measurePdf } from './measure/index.mjs';
+//   import { measureSheet, measurePrint, measurePdf } from './measure/index.mjs';
 
 export { measureSheet } from './sheet.mjs';
 export { measurePrint } from './print.mjs';

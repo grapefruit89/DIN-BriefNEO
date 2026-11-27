@@ -74,7 +74,7 @@ const WERKZEUGE = [
   // Meta
   { name: 'din', group: 'meta', summary: 'Dieser Einstiegspunkt: Routing, Hilfe-Baum, Werkzeug-Landkarte', file: 'tools/din.mjs', gate: false },
 
-  // Laufzeit-Modul (Etappe 3)
+  // Laufzeit-Modul (tools/runtime/)
   { name: 'runtime', group: 'runtime', summary: 'Öffentliche Schnittstelle: startServer, findBrowser, launch, runTests, startLive', file: 'tools/runtime/index.mjs', gate: false },
   { name: 'runtime/browser', group: 'runtime', summary: 'Chrome/Chromium-Erkennung findBrowser() (plattformübergreifend)', file: 'tools/runtime/browser.mjs', gate: false },
   { name: 'runtime/static-server', group: 'runtime', summary: 'No-Cache-Server mit Dual-Root: website/, /__fonts, /__geokey', file: 'tools/runtime/static-server.mjs', gate: false },
@@ -82,18 +82,14 @@ const WERKZEUGE = [
   { name: 'runtime/cdp', group: 'runtime', summary: 'CDP-Client (WebSocket/JSON-RPC): findeSeite, verbinde, evaluate', file: 'tools/runtime/cdp.mjs', gate: false },
   { name: 'runtime/runner', group: 'runtime', summary: 'Test-Runner für Unit-Suite (test/index.html), liefert Exit-Code', file: 'tools/runtime/runner.mjs', gate: true },
   { name: 'runtime/mcp-live', group: 'runtime', summary: 'MCP-Live-Kanal (stdio + SSE) für website/js/live-bridge.js', file: 'tools/runtime/mcp-live.mjs', gate: false },
+  { name: 'runtime/debug-session', group: 'runtime', summary: 'Manuelle Debug-Session: CDP, Screenshots, Netzwerk (kein Automatismus)', file: 'tools/runtime/debug-session.mjs', gate: false },
+  { name: 'runtime/seed-geoapify', group: 'runtime', summary: 'Geoapify-Key aus ~/.secrets in localStorage des Debug-Browsers', file: 'tools/runtime/seed-geoapify.mjs', gate: false },
+  { name: 'runtime/setup-din-home', group: 'runtime', summary: 'CI-Schritt: Home-Verzeichnis für tsc/CDP vorbereiten', file: 'tools/runtime/setup-din-home.sh', gate: true },
 
-  // Dev (Shims bleiben die kanonischen Pfade)
+  // Dev (tools/dev.sh Starter)
   { name: 'dev', group: 'dev', summary: 'Server 8088 + Debug-Browser (CDP 9222): start|stop|status|live|key', file: 'tools/dev.sh', gate: false },
-  { name: 'serve', group: 'dev', summary: '19-Zeilen-Wrapper: startet static-server auf website/', file: 'tools/serve.mjs', gate: false },
-  { name: 'static-server', group: 'dev', summary: 'SHIM → tools/runtime/static-server.mjs (Pfad bleibt stabil)', file: 'tools/static-server.mjs', gate: false, status: 'shim' },
-  { name: 'browser', group: 'dev', summary: 'SHIM → tools/runtime/browser.mjs (Pfad bleibt stabil)', file: 'tools/browser.mjs', gate: false, status: 'shim' },
-  { name: 'debug-session', group: 'dev', summary: 'Manuelle Debug-Session: CDP, Screenshots, Netzwerk (kein Automatismus)', file: 'tools/debug-session.mjs', gate: false },
-  { name: 'mcp-live', group: 'dev', summary: 'SHIM → tools/runtime/mcp-live.mjs (settings.js/dev.sh nennen diesen Pfad)', file: 'tools/mcp-live.mjs', gate: false, status: 'shim' },
-  { name: 'seed-geoapify', group: 'dev', summary: 'Geoapify-Key aus ~/.secrets in localStorage des Debug-Browsers', file: 'tools/seed-geoapify.mjs', gate: false },
-  { name: 'setup-din-home', group: 'dev', summary: 'CI-Schritt: Home-Verzeichnis für tsc/CDP vorbereiten', file: 'tools/setup-din-home.sh', gate: true },
 
-  // Messen (measure/, Etappe 4)
+  // Messen (tools/measure/)
   { name: 'measure', group: 'measure', summary: 'Öffentliche Schnittstelle: measureSheet, measurePrint, measurePdf, measureBrief, probeTtc, diffPixels', file: 'tools/measure/index.mjs', gate: false },
   { name: 'measure/inpage', group: 'measure', summary: 'In-Page-Messfunktion für CDP evaluate_script (eigene Datei, keine Importe)', file: 'tools/measure/inpage.js', gate: false },
   { name: 'measure/sheet', group: 'measure', summary: 'Bildschirm-Geometrie numerisch über CDP 9222 (measureSheet)', file: 'tools/measure/sheet.mjs', gate: false },
@@ -103,27 +99,14 @@ const WERKZEUGE = [
   { name: 'measure/ttc', group: 'measure', summary: 'TTC/Paint-Timing über CDP: --runs, --profile local|cpu6|slow (probeTtc)', file: 'tools/measure/ttc.mjs', gate: false },
   { name: 'measure/pixel', group: 'measure', summary: '4 Referenzbriefe als PDF für Vorher/Nachher-Pixel-Diffs (diffPixels)', file: 'tools/measure/pixel.mjs', gate: false },
 
-  // Mess-Shims (Altpfade bleiben stabil, Etappe 4)
-  { name: 'mess.js', group: 'measure', summary: 'Spiegel von tools/measure/inpage.js (sourcePath-Vertrag für evaluate_script)', file: 'tools/mess.js', gate: false, status: 'spiegel' },
-  { name: 'mess', group: 'measure', summary: 'SHIM → tools/measure/sheet.mjs (Pfad bleibt stabil)', file: 'tools/mess.mjs', gate: false, status: 'shim' },
-  { name: 'mess-print', group: 'measure', summary: 'SHIM → tools/measure/print.mjs (Pfad bleibt stabil)', file: 'tools/mess-print.mjs', gate: false, status: 'shim' },
-  { name: 'print-messung', group: 'measure', summary: 'SHIM → tools/measure/pdf.mjs (Pfad bleibt stabil)', file: 'tools/print-messung.mjs', gate: false, status: 'shim' },
-  { name: 'testbrief-messung', group: 'measure', summary: 'SHIM → tools/measure/brief.mjs (Pfad bleibt stabil)', file: 'tools/testbrief-messung.mjs', gate: false, status: 'shim' },
-  { name: 'paint-probe', group: 'measure', summary: 'SHIM → tools/measure/ttc.mjs (Pfad bleibt stabil)', file: 'tools/paint-probe.mjs', gate: false, status: 'shim' },
-  { name: 'druck-pixel', group: 'measure', summary: 'SHIM → tools/measure/pixel.mjs (Pfad bleibt stabil)', file: 'tools/druck-pixel.mjs', gate: false, status: 'shim' },
-
-  // Fitness (Etappe 5: fitness/)
+  // Fitness (tools/fitness/)
   { name: 'fitness', group: 'fitness', summary: 'Öffentliche Schnittstelle: runFitness, generateStructure, runRules', file: 'tools/fitness/index.mjs', gate: true },
   { name: 'fitness/build_db', group: 'fitness', summary: 'Fitness-Gate + docs/STRUCTURE.md (Wegweiser + Score), -q still', file: 'tools/fitness/build_db.js', gate: true },
   { name: 'fitness/reconciliation', group: 'fitness', summary: 'Score-Engine, lädt die Sonden aus laws/; --only-rules für Pre-Commit', file: 'tools/fitness/reconciliation.js', gate: true },
   { name: 'fitness/structure-stand', group: 'fitness', summary: 'SHA-256-Stand-Helfer: bodyOf, computeStand, STAND_RE', file: 'tools/fitness/structure-stand.js', gate: true },
   { name: 'fitness/repo-map-check', group: 'fitness', summary: 'Wegweiser-Gate: genannte Pfade existieren, JS-Module erwähnt', file: 'tools/fitness/repo-map-check.mjs', gate: true },
-  { name: 'build_db', group: 'fitness', summary: 'SHIM → tools/fitness/build_db.js (npm, CI, Hook, Doku nennen diesen Pfad)', file: 'tools/build_db.js', gate: true, status: 'shim' },
-  { name: 'reconciliation', group: 'fitness', summary: 'SHIM → tools/fitness/reconciliation.js (package.json check:antipatterns)', file: 'tools/reconciliation.js', gate: true, status: 'shim' },
-  { name: 'structure-stand', group: 'fitness', summary: 'SHIM → tools/fitness/structure-stand.js (alter Pfad bleibt)', file: 'tools/structure-stand.js', gate: true, status: 'shim' },
-  { name: 'repo-map-check', group: 'fitness', summary: 'SHIM → tools/fitness/repo-map-check.mjs (alter Pfad bleibt)', file: 'tools/repo-map-check.mjs', gate: true, status: 'shim' },
 
-  // Gesetze (Etappe 5: laws/)
+  // Gesetze (tools/laws/)
   { name: 'laws', group: 'laws', summary: 'Öffentliche Schnittstelle: runLaws(names) sammelt alle Sonden-Verstöße', file: 'tools/laws/index.mjs', gate: true },
   { name: 'laws/scan', group: 'laws', summary: 'Glob→RegExp-Matcher: globToRegExp, matchFilePattern', file: 'tools/laws/scan.mjs', gate: true },
   { name: 'laws/imr', group: 'laws', summary: 'IMR-Registry-Sonde (docs/norm/IMR-Registry.md)', file: 'tools/laws/imr.js', gate: true },
@@ -133,16 +116,8 @@ const WERKZEUGE = [
   { name: 'laws/terminology', group: 'laws', summary: 'Terminologie-Sonde gegen glossary.md', file: 'tools/laws/terminology.js', gate: true },
   { name: 'laws/lawcoverage', group: 'laws', summary: 'Meta-Gate: Abdeckung der Gesetze durch Sonden', file: 'tools/laws/lawcoverage.js', gate: true },
   { name: 'laws/id-register', group: 'laws', summary: 'ID-Register-Sonde (B-Referenzen, Präfixe, Register-Deckung)', file: 'tools/laws/id-register.js', gate: true },
-  { name: 'filematch', group: 'laws', summary: 'SHIM → tools/laws/scan.mjs (alter Pfad bleibt)', file: 'tools/filematch.js', gate: true, status: 'shim' },
-  { name: 'imr', group: 'laws', summary: 'SHIM → tools/laws/imr.js (reconciliation, Doku, Aufrufer)', file: 'tools/imr.js', gate: true, status: 'shim' },
-  { name: 'structural-laws', group: 'laws', summary: 'SHIM → tools/laws/structural-laws.js (alter Pfad bleibt)', file: 'tools/structural-laws.js', gate: true, status: 'shim' },
-  { name: 'isolation', group: 'laws', summary: 'SHIM → tools/laws/isolation.js (alter Pfad bleibt)', file: 'tools/isolation.js', gate: true, status: 'shim' },
-  { name: 'links', group: 'laws', summary: 'SHIM → tools/laws/links.js (alter Pfad bleibt)', file: 'tools/links.js', gate: true, status: 'shim' },
-  { name: 'terminology', group: 'laws', summary: 'SHIM → tools/laws/terminology.js (alter Pfad bleibt)', file: 'tools/terminology.js', gate: true, status: 'shim' },
-  { name: 'lawcoverage', group: 'laws', summary: 'SHIM → tools/laws/lawcoverage.js (alter Pfad bleibt)', file: 'tools/lawcoverage.js', gate: true, status: 'shim' },
-  { name: 'id-register', group: 'laws', summary: 'SHIM → tools/laws/id-register.js (Zielort laws/, alter Pfad bleibt)', file: 'tools/id-register.js', gate: true, status: 'shim' },
 
-  // Inhalte (Etappe 6: content/)
+  // Inhalte (tools/content/)
   { name: 'content', group: 'content', summary: 'Öffentliche Schnittstelle: buildPlzData, buildGrosskunden, syncBacklog, generateDossier, queryFeature, checkAdr', file: 'tools/content/index.mjs', gate: false },
   { name: 'content/build_plz_data', group: 'content', summary: 'PLZ-Stammdaten bauen (Quartals-Workflow, --download/--neu)', file: 'tools/content/build_plz_data.mjs', gate: false },
   { name: 'content/build_grosskunden', group: 'content', summary: 'Grosskunden-Spaltenformat bauen (CI-Schritt)', file: 'tools/content/build_grosskunden_columnar.mjs', gate: false },
@@ -150,26 +125,14 @@ const WERKZEUGE = [
   { name: 'content/test-dossier', group: 'content', summary: 'docs/meta/TEST-DOSSIER.md schreiben oder prüfen (--check)', file: 'tools/content/test-dossier.mjs', gate: false },
   { name: 'content/query_chrome_feature', group: 'content', summary: 'Chrome-Feature-Verfügbarkeit abfragen (Chromestatus API)', file: 'tools/content/query_chrome_feature.mjs', gate: false },
   { name: 'content/adr-check', group: 'content', summary: 'ADR-Format-Check: Bijektion, Annotationen, Zähler, verwaiste Assets', file: 'tools/content/adr-check.js', gate: false },
-  { name: 'adr-check', group: 'content', summary: 'SHIM → tools/content/adr-check.js (alter Pfad bleibt)', file: 'tools/adr-check.js', gate: false, status: 'shim' },
-  { name: 'backlog-sync', group: 'content', summary: 'SHIM → tools/content/backlog-sync.mjs (npm run docs:backlog)', file: 'tools/backlog-sync.mjs', gate: false, status: 'shim' },
-  { name: 'test-dossier', group: 'content', summary: 'SHIM → tools/content/test-dossier.mjs (npm run docs:tests)', file: 'tools/test-dossier.mjs', gate: false, status: 'shim' },
-  { name: 'build_plz_data', group: 'content', summary: 'SHIM → tools/content/build_plz_data.mjs (npm run build:data, CI)', file: 'tools/build_plz_data.mjs', gate: false, status: 'shim' },
-  { name: 'build_grosskunden_columnar', group: 'content', summary: 'SHIM → tools/content/build_grosskunden_columnar.mjs (CI)', file: 'tools/build_grosskunden_columnar.mjs', gate: false, status: 'shim' },
-  { name: 'query_chrome_feature', group: 'content', summary: 'SHIM → tools/content/query_chrome_feature.mjs (npm run check:browser-feature)', file: 'tools/query_chrome_feature.mjs', gate: false, status: 'shim' },
 
-  // Schriften (Etappe 6: fonts/)
+  // Schriften (tools/fonts/)
   { name: 'subset_fonts', group: 'fonts', summary: 'DIN-5008-Font-Subsetting (Inter → website/fonts; lokale Testschriften nach fonts/)', file: 'tools/fonts/subset_fonts.py', gate: false },
 
-  // Tests
-  { name: 'test-runner', group: 'test', summary: 'SHIM → tools/runtime/runner.mjs (npm test, CI, Wegweiser)', file: 'tools/test-runner.mjs', gate: true, status: 'shim' },
-
-  // Einmal-/Altlasten (Etappe 6: oneoff/, alte Pfade bleiben als Shims)
-  { name: 'oneoff/check-feature', group: 'oneoff', summary: 'TOT: kein Aufrufer, installiert zur Laufzeit npm-Pakete', file: 'tools/oneoff/check-feature.js', gate: false, status: 'archivkandidat' },
-  { name: 'oneoff/og-image', group: 'oneoff', summary: 'Einmaliger OG-Image-Generator (kein Aufrufer, Port 8099)', file: 'tools/oneoff/og-image.mjs', gate: false, status: 'einmalig' },
-  { name: 'oneoff/seeder-diff', group: 'oneoff', summary: 'Einmal-Differenztest batch/05 — archiviert (Blueprint K5)', file: 'tools/oneoff/seeder-diff.mjs', gate: false, status: 'archivkandidat' },
-  { name: 'check-feature', group: 'oneoff', summary: 'ARCHIV-SHIM → tools/oneoff/check-feature.js (TOT)', file: 'tools/check-feature.js', gate: false, status: 'shim' },
-  { name: 'og-image', group: 'oneoff', summary: 'SHIM → tools/oneoff/og-image.mjs (alter Pfad bleibt)', file: 'tools/og-image.mjs', gate: false, status: 'shim' },
-  { name: 'seeder-diff', group: 'oneoff', summary: 'ARCHIV-SHIM → tools/oneoff/seeder-diff.mjs (Blueprint K5)', file: 'tools/seeder-diff.mjs', gate: false, status: 'shim' },
+  // Einmal-/Archiv-Werkzeuge (tools/oneoff/)
+  { name: 'oneoff/check-feature', group: 'oneoff', summary: 'TOT: kein Aufrufer, installiert zur Laufzeit npm-Pakete', file: 'tools/oneoff/check-feature.js', gate: false, status: 'archiv' },
+  { name: 'oneoff/og-image', group: 'oneoff', summary: 'Einmaliger OG-Image-Generator (kein Aufrufer, Port 8099)', file: 'tools/oneoff/og-image.mjs', gate: false, status: 'archiv' },
+  { name: 'oneoff/seeder-diff', group: 'oneoff', summary: 'Einmal-Differenztest batch/05 — archiviert (Blueprint K5)', file: 'tools/oneoff/seeder-diff.mjs', gate: false, status: 'archiv' },
 ];
 
 /**
@@ -495,7 +458,7 @@ function main(argv) {
 
   switch (bereich) {
     case 'test':
-      return nodeSkript('tools/test-runner.mjs', rest);
+      return nodeSkript('tools/runtime/runner.mjs', rest);
 
     case 'fitness': {
       const nurRegeln =
@@ -563,7 +526,7 @@ function main(argv) {
       const weite = rest.slice(1);
       if (unter === 'backlog') return nodeSkript('tools/content/backlog-sync.mjs', weite);
       if (unter === 'tests') return nodeSkript('tools/content/test-dossier.mjs', weite);
-      if (unter === 'index') return nodeSkript('tools/build_db.js', ['-q', ...weite]);
+      if (unter === 'index') return nodeSkript('tools/fitness/build_db.js', ['-q', ...weite]);
       return unbekannt('Unterbefehl', 'docs', unter);
     }
 

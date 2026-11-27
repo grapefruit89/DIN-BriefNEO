@@ -16,8 +16,8 @@ doc_links:
   - Immutable-Law-Catalog
 code_links:
   - package.json
-  - tools/build_plz_data.mjs
-  - tools/build_grosskunden_columnar.mjs
+  - tools/content/build_plz_data.mjs
+  - tools/content/build_grosskunden_columnar.mjs
   - tools/data/plz_states.json
   - website/data/orte.json.gz
   - website/data/grosskunden.json.gz

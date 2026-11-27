@@ -16,7 +16,7 @@ doc_links:
   - spec
 code_links:
   - test/all.js
-  - tools/test-runner.mjs
+  - tools/runtime/runner.mjs
   - test/corpus/run.js
   - test/corpus/address-cases.json
 error_patterns:

@@ -14,8 +14,8 @@ tags:
 doc_links:
   - constitution
 code_links:
-  - tools/reconciliation.js
-  - tools/build_db.js
+  - tools/fitness/reconciliation.js
+  - tools/fitness/build_db.js
 error_patterns:
   - omnitraceability
   - traceability

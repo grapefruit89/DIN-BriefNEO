@@ -9,7 +9,7 @@
 #   din-dev --vanilla      wie oben, aber vorher Logs und Dev-Caches leeren
 #   din-dev --stop         nur stoppen (Server, Live-Kanal, Debug-Browser)
 #   din-dev --status       Status zeigen (Ports, Prozesse, Tabs)
-#   din-dev live           MCP-Live-Kanal im Vordergrund (tools/mcp-live.mjs)
+#   din-dev live           MCP-Live-Kanal im Vordergrund (tools/runtime/mcp-live.mjs)
 #
 # Absichtlich NICHT angefasst: der normale Helium des Nutzers (Arbeitsprofil
 # `~/.config/net.imput.helium`, Debug 9223). Es sterben nur Prozesse mit
@@ -281,7 +281,7 @@ din-dev — Dev-Server + Debug-Browser für DIN-BriefNEO
   din-dev --vanilla       wie oben, aber Logs + Dev-Caches vorher leeren
   din-dev stop            nur stoppen (Server, Live-Kanal, Debug-Browser)
   din-dev status          Ports, Prozesse und offene Tabs
-  din-dev live [args…]    MCP-Live-Kanal im Vordergrund (tools/mcp-live.mjs)
+  din-dev live [args…]    MCP-Live-Kanal im Vordergrund (tools/runtime/mcp-live.mjs)
                           z. B. din-dev live --check
   din-dev mess [id ...]   Messwerte des laufenden Tabs, eine Zeile JSON in mm
                           Beispiel: din-dev mess betreff unterschrift
@@ -290,7 +290,7 @@ din-dev — Dev-Server + Debug-Browser für DIN-BriefNEO
   din-dev help            diese Hilfe
 
 Was gestoppt wird (deterministisch, vor jedem Start):
-  node tools/serve.mjs · static-server.mjs · mcp-live.mjs · python http.server
+  node tools/runtime/static-server.mjs · mcp-live.mjs · python http.server
   auf 8088 bzw. im Repo-Pfad · Debug-Browser mit den Profilen
   ~/.config/net.imput.helium-llm, ~/.local/share/din-briefneo/debug-profil,
   ~/.local/share/helium-din-briefneo.
@@ -304,7 +304,7 @@ Statt Bild (Token sparen): mess misst Geometrie numerisch. Ein Screenshot nur
 bei echter Optik-Frage — dann elementscharf, nie fullPage.
 
 Im Agenten-Chat (chrome-devtools-MCP, hängt an Port 9222):
-  evaluate_script({ sourcePath: "/home/moritz/repos/DIN-BriefNEO/tools/mess.js",
+  evaluate_script({ sourcePath: "/home/moritz/repos/DIN-BriefNEO/tools/measure/inpage.js",
                     format: "function", pageId: 1 })
 
 Eigenes Profil: ~/.config/net.imput.helium-llm · Arbeitsprofil (9223) bleibt unberührt.
@@ -338,19 +338,19 @@ case "$BEFEHL" in
   --help|-h|help) hilfe; exit 0 ;;
   live|--live)
     cd "$REPO" || { echo "Repo fehlt: $REPO"; exit 1; }
-    exec node tools/mcp-live.mjs "${ARGS[@]:1}"
+    exec node tools/runtime/mcp-live.mjs "${ARGS[@]:1}"
     ;;
   --key|key)
     cd "$REPO" || { echo "Repo fehlt: $REPO"; exit 1; }
-    node tools/seed-geoapify.mjs "${ARGS[@]:1}"
+    node tools/runtime/seed-geoapify.mjs "${ARGS[@]:1}"
     exit $?
     ;;
   --mess|mess)
     cd "$REPO" || { echo "Repo fehlt: $REPO"; exit 1; }
     if [ "${ARGS[1]:-}" = "--print" ]; then
-      node tools/mess-print.mjs "${ARGS[@]:2}"
+      node tools/measure/print.mjs "${ARGS[@]:2}"
     else
-      node tools/mess.mjs "${ARGS[@]:1}"
+      node tools/measure/sheet.mjs "${ARGS[@]:1}"
     fi
     exit $?
     ;;
@@ -365,7 +365,7 @@ stoppe
 
 echo "[1/3] Dev-Server"
 cd "$REPO" || { echo "Repo fehlt: $REPO"; exit 1; }
-nohup node tools/serve.mjs website "$PORT" >"$SERVER_LOG" 2>&1 &
+nohup node tools/runtime/static-server.mjs website "$PORT" >"$SERVER_LOG" 2>&1 &
 SERVER_PID=$!
 if ! warte_port "$PORT" an; then
   echo "  FEHLER: Port $PORT antwortet nicht. Log: $SERVER_LOG"; tail -5 "$SERVER_LOG"; exit 1
@@ -402,7 +402,7 @@ done
 echo "  CDP auf http://127.0.0.1:$CDP"
 
 # Geoapify-Key aus ~/.secrets/geoapify in den localStorage legen (nie im Repo).
-node "$REPO/tools/seed-geoapify.mjs" --port "$CDP"
+node "$REPO/tools/runtime/seed-geoapify.mjs" --port "$CDP"
 
 [ -n "$TAB" ] && echo "  Tab: $URL" || echo "  Tab noch nicht gemeldet — Log: $BROWSER_LOG"
 

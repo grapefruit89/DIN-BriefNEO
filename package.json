@@ -4,15 +4,15 @@
   "description": "DIN-BriefNEO — Reines natives DIN-5008-Briefsystem nach Web-Baseline Chrome 150+",
   "scripts": {
     "din": "node tools/din.mjs",
-    "test": "node tools/test-runner.mjs && node test/corpus/run.js",
+    "test": "node tools/runtime/runner.mjs && node test/corpus/run.js",
     "check": "biome check website/",
-    "check:antipatterns": "node tools/reconciliation.js --only-rules",
-    "check:browser-feature": "node tools/query_chrome_feature.mjs",
-    "check:fitness": "node tools/build_db.js -q",
-    "docs:index": "node tools/build_db.js -q",
-    "build:data": "node tools/build_plz_data.mjs",
-    "docs:backlog": "node tools/backlog-sync.mjs",
-    "docs:tests": "node tools/test-dossier.mjs",
+    "check:antipatterns": "node tools/fitness/reconciliation.js --only-rules",
+    "check:browser-feature": "node tools/content/query_chrome_feature.mjs",
+    "check:fitness": "node tools/fitness/build_db.js -q",
+    "docs:index": "node tools/fitness/build_db.js -q",
+    "build:data": "node tools/content/build_plz_data.mjs",
+    "docs:backlog": "node tools/content/backlog-sync.mjs",
+    "docs:tests": "node tools/content/test-dossier.mjs",
     "docs:all": "npm run docs:backlog && npm run docs:tests"
   },
   "keywords": [

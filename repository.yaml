@@ -27,8 +27,8 @@ project:
   branching: branchless-on-main
   fitness_gate:
     required_score: 100
-    entrypoint: node tools/build_db.js
-    engine: tools/reconciliation.js
+    entrypoint: node tools/fitness/build_db.js
+    engine: tools/fitness/reconciliation.js
 
 structure:
   docs/30-meta/AI-AGENTS-CLI.md:
@@ -53,8 +53,9 @@ structure:
     purpose: Build-, Validierungs- und Wartungsskripte inkl. Fitness Gate & lokaler Dev-Server
     subpaths:
       tools/README.md: Inventar und Statuskatalog der Werkzeuge & Automatisierungsskripte
-      tools/build_db.js: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
+      tools/din.mjs: Zentrale CLI und Routing für alle Werkzeuge
       tools/dev.sh: Dev-Server (Port 8088, no-cache) + Debug-Browser (CDP 9222); stoppt alte Instanzen, Vanilla-Modus, Live-Kanal
+      tools/fitness/build_db.js: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
       tools/antipatterns/: JSON-Regeldateien fuer den Scrub-Check (base/web/project layered)
     inventory_doc: docs/30-meta/tooling-overview.md
 
@@ -102,7 +103,7 @@ structure:
       .github/SECURITY.md: Sicherheitsrichtlinie und Meldekanal
 
 taxonomy:
-  # Erzwungen vom Fitness Gate (tools/reconciliation.js, check_type "taxonomy"):
+  # Erzwungen vom Fitness Gate (tools/fitness/reconciliation.js, check_type "taxonomy"):
   # Jede GETRACKTE Datei muss entweder unter einem allowed_top_level-Ordner
   # oder in allowed_root_files liegen. Unbekannter Ort = Fehler (critical).
   allowed_top_level:
@@ -150,7 +151,7 @@ taxonomy:
     todo: Arbeitsvorrat und Planungsnotizen (keine lebende Doku)
 
 entrypoints:
-  build: tools/build_db.js
+  build: tools/fitness/build_db.js
   serve: tools/dev.sh
   browser_agent: docs/30-meta/AI-AGENTS-CLI.md
   platform_research: docs/30-meta/mcp_research.md

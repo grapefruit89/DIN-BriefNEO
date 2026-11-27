@@ -25,7 +25,7 @@
 ### 2. Single Source of Truth (SSoT) & Columnar Gzip
 - **Kompakt & Blitzschnell:** 10.184 deutsche Postleitzahlen, Orte und Bezirke komprimiert in verlustfreiem Columnar-JSON als [`website/data/orte.json.gz`](website/data/orte.json.gz) (81.745 B).
 - **Native Dekomprimierung:** Laden im Browser via standardisierter `DecompressionStream('gzip')`-Streaming-API in unter 1 ms bei Tastendruck.
-- **Data-as-Code Pipeline:** Kompiliert bit-deterministisch mit Level 9 und `mtime=0` über [`tools/build_plz_data.mjs`](tools/build_plz_data.mjs).
+- **Data-as-Code Pipeline:** Kompiliert bit-deterministisch mit Level 9 und `mtime=0` über [`tools/content/build_plz_data.mjs`](tools/content/build_plz_data.mjs).
 - **Automatisierte Pflege:** Quartalsweise automatische Updates via GitHub Actions ([`.github/workflows/update_plz_data.yml`](.github/workflows/update_plz_data.yml)).
 
 ### 3. Schema v5
@@ -129,10 +129,10 @@ Die App ist anschließend unter `http://127.0.0.1:8088/index.html` erreichbar.
 
 ```bash
 npm run check                # Biome Linter & Formatierung (website/)
-npm test                     # Headless-Chrome-Tests: 420 Fälle + Korpus-Gate
+npm test                     # Headless-Chrome-Tests: 430 Fälle + Korpus-Gate
 npm run check:antipatterns   # 57 Antipattern-Regeln gegen die 40 A-Gesetze
-node tools/build_db.js       # Fitness Gate (muss 100.0 % clean erreichen)
-node tools/repo-map-check.mjs # Wegweiser: Pfade und Module vollständig
+node tools/din.mjs fitness   # Fitness Gate (muss 100.0 % clean erreichen)
+node tools/din.mjs laws      # Alle Verfassungs-Sonden prüfen
 ```
 
 ### 3. Git-Hooks scharfschalten

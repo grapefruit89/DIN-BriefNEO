@@ -1,143 +1,93 @@
 # Werkzeuge & Automatisierung (`tools/`)
 
-Dieses Verzeichnis enthält die Build-, Test-, Validierungs- und Entwicklungswerkzeuge von **DIN-BriefNEO**.
+Dieses Verzeichnis enthält die konsolidierten Build-, Test-, Validierungs- und Entwicklungswerkzeuge von **DIN-BriefNEO**.
 
 > **Architektur-Hinweis (Law A45):**
 > Die Skripte in `tools/` sind **reine Entwicklungsumgebung**. Sie werden nicht im Browser ausgeliefert. Die eigentliche Webanwendung (`website/`) läuft vollständig autark und hermetisch isoliert.
 
 ---
 
-## 1. Übersicht nach Funktionsbereichen
+## 1. Zentraler Einstiegspunkt: `tools/din.mjs`
 
-### 🏗️ Kern-Build & Fitness-Gate
+Statt Dutzender verstreuter Einzeldateien gibt es einen kanonischen Einstiegspunkt für Mensch und Agent:
 
-Verbindliche Schranken vor jedem Commit (`AGENTS.md` §2).
+```bash
+node tools/din.mjs <bereich> [befehl] [flags]
+```
 
-* **`build_db.js`**
-  * **Was es tut:** Führt die Reality Reconciliation durch, prüft Verfassungsinvarianten (z. B. Vorhandensein von `Papierkorb/`) und generiert `docs/STRUCTURE.md` deterministisch.
-  * **Aufruf:** `node tools/build_db.js -q` (bzw. `npm run check:fitness`)
-
-* **`reconciliation.js`**
-  * **Was es tut:** Die Reality-Reconciliation-Engine. Wertet Metadaten, Link-Integrität, Typisierungen und alle 36 Antipattern-Regeln aus und berechnet den *Evolutionary Fitness Score*.
-  * **Aufruf:** `node tools/reconciliation.js --only-rules` (bzw. `npm run check:antipatterns`)
-
-* **`structure-stand.js`**
-  * **Was es tut:** Berechnet einen zeitinvarianten SHA-256-Hash über den Rumpf von `docs/STRUCTURE.md`, um Git-Drift zu verhindern.
-
----
-
-### 🛡️ Architektur- & Verfassungswächter (Gates)
-
-Sichern die Einhaltung der Gesetze aus `Immutable-Law-Catalog.md`.
-
-* **`adr-check.js`**
-  * **Was es tut:** Manuelles On-Demand-Audit-Tool. Prüft die Bijektion zwischen `code_links` in den ADRs und realen Dateien in `website/`, Header-Annotationen und Dateizähler.
-  * **Aufruf:** `node tools/adr-check.js`
-
-* **`imr.js`**
-  * **Was es tut:** Prüft die 45 DIN-Atome, DIN-Geometrien, Zonen, Case-Contract (Kebab-Case) und das kanonische Vokabular gegen `docs/10-architecture/IMR-Registry.md`.
-
-* **`isolation.js`**
-  * **Was es tut:** Setzt Law A45 und A38 durch. Prüft, dass kein Pfad aus `website/` herausführt und keine verbotenen Fremd-Hosts geladen werden.
-
-* **`structural-laws.js`**
-  * **Was es tut:** AST- und DOM-Prüfung struktureller Gesetze: eindeutige IDs (A42), keine Binär-Radios als Schalter (A57), zyklischer Theme-Toggle (A58), CSS-Tokens (A24) und Verbot von Theme-Variablen auf dem DIN-Blatt (A59).
-
-* **`links.js`**
-  * **Was es tut:** Prüft alle Wikilinks `[[...]]`, Frontmatter-Links und `@adr`/`@guide`-Tags gegen existierende Dateien.
-
-* **`lawcoverage.js`**
-  * **Was es tut:** Meta-Gate. Stellt sicher, dass Antipattern-Regeln auf echte Gesetze verweisen und keine „toten Sonden“ existieren.
-
-* **`terminology.js`**
-  * **Was es tut:** Setzt „Ein Sachverhalt, ein Begriff“ durch. Gleicht Dokumente mit den Begriffspaaren aus `docs/20-implementation/glossary.md` ab.
-
-* **`filematch.js`**
-  * **Was es tut:** Geteiltes Glob-to-RegExp-Hilfsmodul für `reconciliation.js` und `lawcoverage.js`.
+* **`din`** — Zeigt den interaktiven Hilfe-Baum aller Bereiche.
+* **`din test`** — Startet die Test-Suite (430 Tests via Headless-Chromium CDP).
+* **`din fitness [-q] [--only-rules]`** — Führt das Fitness-Gate aus (muss 100.0 % clean sein).
+* **`din laws [all|imr|structure|isolation|links|terms|coverage|ids]`** — Führt die Verfassungs-Sonden aus.
+* **`din dev [start|stop|status|live|key]`** — Dev-Server (Port 8088) + Debug-Browser (CDP 9222).
+* **`din measure [sheet|print|pdf|brief|ttc|pixel]`** — Geometrie, Druck, PDF-Wahrheit und TTC messen.
+* **`din data [plz|grosskunden]`** — Daten-Pipelines ausführen.
+* **`din docs [backlog|tests|index]`** — Dokumentations-Tabellen synchronisieren oder prüfen.
+* **`din content [feature|adr]`** — Upstream Chrome-Feature abfragen oder ADR-Check.
+* **`din tools [--json]`** — Maschinenlesbare Werkzeug-Landkarte für Agenten.
 
 ---
 
-### 🧪 Test-Runner & Diagnose
+## 2. Die 5 Deep Modules (`tools/*/`)
 
-Prüfen Funktionalität und Browser-Kompatibilität.
+Alle Skripte sind modular in 5 Fachbereiche konsolidiert:
 
-* **`test-runner.mjs`**
-  * **Was es tut:** Startet einen Headless-Chromium via CDP, führt alle 183 Tests in `test/index.html` aus und wertet sie im Terminal aus.
-  * **Aufruf:** `npm test` oder `node tools/test-runner.mjs`
+### 🚀 `tools/runtime/` — Browser- & Test-Infrastruktur
+* `index.mjs` — Öffentliche Schnittstelle: `startServer`, `findBrowser`, `launch`, `runTests`, `startLive`.
+* `browser.mjs` — Plattformübergreifende Chrome/Chromium-Erkennung (`findBrowser()`).
+* `static-server.mjs` — Zero-Dependency Dual-Root HTTP-Server (Port 8088, no-cache, `/website/`, `/__fonts`, `/__geokey`).
+* `launch.mjs` — Headless-Browser-Starter (`mkdtemp`-Profil, CDP-Port-Warten, automatischer Cleanup).
+* `cdp.mjs` — Minimaler WebSocket/JSON-RPC CDP-Client (`findeSeite`, `verbinde`, `evaluate`).
+* `runner.mjs` — Test-Runner für `test/index.html` mit Exit-Codes.
+* `mcp-live.mjs` — Live-Kanal (stdio + SSE) für In-Browser-Debugging.
+* `debug-session.mjs` — Manuelle Debug-Sitzung mit Trace-Aufzeichnung.
+* `seed-geoapify.mjs` — Injiziert Geoapify-Schlüssel in das Testprofil.
+* `setup-din-home.sh` — Initialisiert `~/.din-briefneo` für Caches.
 
-* **`browser.mjs`**
-  * **Was es tut:** Erkennt installierte Browser (Helium, Chromium, Google Chrome) plattformübergreifend.
+### 📐 `tools/measure/` — Geometrie- & Drucksonden
+* `index.mjs` — Öffentliche Schnittstelle: `measureSheet`, `measurePrint`, `measurePdf`, `measureBrief`, `probeTtc`, `diffPixels`.
+* `inpage.js` — Autarke In-Page-Messfunktion für CDP `evaluate_script` (liefert Millimeter-Geometrie).
+* `sheet.mjs` — Numerische Blattgeometrie über CDP 9222.
+* `print.mjs` — Geometrie unter `@media print` Emulation.
+* `pdf.mjs` — PDF-Druckergebnis numerisch auswerten (yMax, Seitenanzahl, Ränder).
+* `brief.mjs` — Testbrief-Generator ohne Browser.
+* `ttc.mjs` — Time-to-Click und Paint-Timing-Messungen.
+* `pixel.mjs` — PDF-Referenzbriefe für Vorher/Nachher-Pixel-Diffs.
 
-* **`static-server.mjs`**
-  * **Was es tut:** Zero-Dependency No-Cache HTTP-Server für lokale Test- und Debug-Läufe.
+### 🏛️ `tools/laws/` — Verfassungs- & Architektur-Sonden
+* `index.mjs` — Öffentliche Schnittstelle: `runLaws(names)`.
+* `imr.js` — IMR-Registry-Sonde (DIN-Geometrie, Zonen, Case-Contract).
+* `structural-laws.js` — Gesetze A42 (IDs), A57 (Radios), A58 (Theme-Toggle), A24/A59 (CSS-Tokens).
+* `isolation.js` — Gesetze A45/A38: Hermetische Isolation von `website/`.
+* `links.js` — Link-Integrität (Wikilinks, Frontmatter, Tags).
+* `terminology.js` — Terminologie-Sonde gegen `docs/norm/glossary.md`.
+* `lawcoverage.js` — Meta-Gate: Deckung aller Gesetze durch Sonden.
+* `id-register.js` — ID-Register-Sonde (B-Referenzen, Präfixe).
+* `scan.mjs` — Geteilte Glob-to-RegExp Hilfsfunktionen (`globToRegExp`, `matchFilePattern`).
 
-* **`debug-session.mjs`**
-  * **Was es tut:** Startet eine sichtbare Browsersitzung mit flüchtigem Profil (`mkdtemp`) und schneidet Konsole, Netzwerk und Storage-Mutations mit.
+### 🛡️ `tools/fitness/` — Reality Reconciliation & Fitness-Gate
+* `index.mjs` — Öffentliche Schnittstelle: `runFitness`, `generateStructure`, `runRules`.
+* `build_db.js` — Fitness-Gate-Hauptprogramm, generiert `docs/STRUCTURE.md`.
+* `reconciliation.js` — Score-Engine, lädt Sonden aus `laws/` und berechnet den Fitness Score.
+* `repo-map-check.mjs` — Validiert `docs/meta/AUFGABEN-WEGWEISER.md` gegen reale Dateipfade.
+* `structure-stand.js` — SHA-256-Hash-Helfer gegen Git-Drift.
 
-* **`testbrief-messung.mjs`**
-  * **Was es tut:** Headless-Stochastiktest für Testbrief-Szenarien, Franchises und Hooks.
-
-* **`browser-audit.html`**
-  * **Was es tut:** Grafische Oberfläche zur Live-Erkennung moderner CSS/HTML-Features direkt im Browser.
-
----
-
-### 🌐 Upstream-Recherche & WebMCP
-
-* **`query_chrome_feature.mjs`**
-  * **Was es tut:** Fragt die offizielle Chrome Platform Status API (`chromestatus.com`) ab.
-  * **Aufruf:** `node tools/query_chrome_feature.mjs "popover"`
-
-* **`check-feature.js`**
-  * **Was es tut:** Prüft lokale BCD- und Baseline-Kompatibilität gegen Chrome 150+.
-
-* **`mcp-live.mjs`**
-  * **Was es tut:** MCP-Server für einen **normalen** Browser-Tab, ohne Debug-Port und ohne Flag. Ein Tab mit `#agent=<token>` hängt an einem Server-Sent-Events-Kanal; der Server schiebt die Aufrufe durch. Werkzeugliste kommt direkt aus `website/js/webmcp.js`.
-  * **Aufruf:** `node tools/mcp-live.mjs` — die Öffnungs-URL steht in der Ausgabe.
-
----
-
-### 📦 Daten- & Schrift-Pipelines
-
-* **`build_plz_data.mjs`**
-  * **Was es tut:** Kompiliert 10.184 Postleitzahlen deterministisch nach `website/data/orte.json.gz`.
-  * **Aufruf:** `npm run build:data`
-
-* **`build_grosskunden_columnar.mjs`**
-  * **Was es tut:** Kompiliert das Behörden- und Firmenverzeichnis nach `website/data/grosskunden.json.gz`.
-
-* **`fonts/subset_fonts.py`**
-  * **Was es tut:** Extrahiert den exakten DIN-5008-Zeichensatz (Anhang H/F) via `fontTools` in WOFF2-Dateien (liegt in `fonts/`).
-
----
-
-### 🚀 Lokale Starter & Umgebungs-Setup
-
-* **`dev.sh`**
-  * **Was es tut:** 1-Klick-Starter (Linux, einziger Standard): No-Cache-Server 8088 + Debug-Browser CDP 9222, beendet vorher deterministisch alte Instanzen.
-  * **Unterbefehle:** `status`, `stop`, `--vanilla`, `live` (MCP-Live-Kanal), `mess`, `key`.
-
-* **`setup-din-home.sh`**
-  * **Was es tut:** Initialisiert das Benutzerverzeichnis `~/.din-briefneo` für Caches und Tools.
+### 📦 `tools/content/` — Daten- & Inhalts-Pipelines
+* `index.mjs` — Öffentliche Schnittstelle: `buildPlzData`, `buildGrosskunden`, `syncBacklog`, `generateDossier`, `queryFeature`, `checkAdr`.
+* `build_plz_data.mjs` — PLZ-Stammdaten nach `website/data/orte.json.gz` kompilieren.
+* `build_grosskunden_columnar.mjs` — Großkunden nach `website/data/grosskunden.json.gz` kompilieren.
+* `backlog-sync.mjs` — Synchronisiert `docs/meta/BACKLOG.md`.
+* `test-dossier.mjs` — Synchronisiert `docs/meta/TEST-DOSSIER.md`.
+* `query_chrome_feature.mjs` — Upstream Chrome-Feature-Status (`chromestatus.com`).
+* `adr-check.js` — ADR-Format-, Zähler- und Drift-Check.
 
 ---
 
-### 🗄️ Daten- & Konfigurationsdateien im Ordner
+## 3. Begleitordner
 
-* **`antipatterns/` (`base.json`, `web.json`, `project.json`):** Die 36 maschinenlesbaren Scrub-Regeln.
-* **`data/plz_states.json`:** Statische Zuordnungstabelle von Postleitzahlen zu Bundesländern als Build-Input.
-* **`boilerplate.config.json`:** Konfiguration der aktiven Prüfschichten für das Fitness-Gate.
-
----
-
-## 2. Was mit den alten Skripten passiert ist (Archiv)
-
-Folgende 7 Altskripte wurden im Zuge der Inventur nach **`Papierkorb/scripts/`** verschoben:
-
-1. `bench_plz_formats.mjs` (V8-Benchmark erledigt, Entscheidung in `ADR-COLUMNAR-DATA.md`)
-2. `check-charakter-pipeline.py` (veraltete Pfade auf gelöschte `charactere.json`)
-3. `consolidate_all.py` (obsolete Popkultur-Pipeline)
-4. `consolidate_characters.py` (obsolete Popkultur-Pipeline)
-5. `enrich_data.py` (obsolete Popkultur-Pipeline)
-6. `gate.py` (Legacy-Gatekeeper, der archivierte Skripte aufrief)
-7. `migrate_figuren_tuples.mjs` (Einmal-Migration auf Tuple-Format v2.1 abgeschlossen)
+* **`tools/fonts/`:** `subset_fonts.py` (Inter Variable Font & lokale Testschriften dampfen).
+* **`tools/oneoff/`:** Archivierte Einmal-Skripte (`check-feature.js`, `og-image.mjs`, `seeder-diff.mjs`).
+* **`tools/antipatterns/`:** Layered JSON-Regelsätze (`base.json`, `web.json`, `project.json`).
+* **`tools/data/`:** Statische Zuordnungen (`plz_states.json`).
+* **`tools/dev.sh`:** Komfortabler Shell-Starter für Linux.
+* **`tools/boilerplate.config.json`:** Konfiguration der Fitness-Schichten.

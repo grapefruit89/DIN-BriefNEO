@@ -1,35 +1,28 @@
 ---
 id: testbrief-generator
-title: 'Testbrief-Generator — Adressleiter, Ankerleiter und Satzbausteine'
-type: guide
+title: "Testbrief-Generator — Adressleiter, Ankerleiter und Satzbausteine"
+type: how-to
 status: active
-created: '2026-10-26'
-updated: '2026-11-08'
+created: '2026-06-26'
+updated: '2026-11-27'
 tags:
   - din-briefneo
   - din-briefneo/implementation
   - status/active
   - type/guide
+summary: "Dokumentation und Richtlinien für Testbrief-Generator — Adressleiter, Ankerleiter und Satzbausteine."
 doc_links:
-  - ADR-JS
-  - glossary
 code_links:
-  - website/addons/testbrief/testbrief.js
-  - website/js/main.js
-error_patterns:
-  - testbrief
-  - testdaten
-  - charaktere
-  - held
-  - empfaengerblock
-  - adressleiter
-  - ankerleiter
-  - erfundene hausnummer
-  - residenz-platzhalter
-supersedes: []
-depends_on: []
+depends_on:
+sections:
+  - 1-grundsatz
+  - 2-adressleiter
+  - 3-zwei-leitern-person-und-thema
+  - 4-betreff-und-text
+  - 5-testfaelle-gemessen-am-bestand-vom-2026-11-08
+  - 6-offene-datenbefunde
+  - 7-generalisierbarkeit
 ---
-
 # Testbrief-Generator — Adressleiter, Ankerleiter und Satzbausteine
 
 > [!tip] Wozu dieser Guide

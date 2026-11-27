@@ -1,7 +1,7 @@
 ---
 id: templates
-title: 'Vorlagen für Dokumente (ADR & Guide)'
-type: meta
+title: "Vorlagen für Dokumente (ADR & Guide)"
+type: reference
 status: active
 created: '2026-06-30'
 updated: '2026-11-09'
@@ -10,21 +10,13 @@ tags:
   - din-briefneo/meta
   - status/active
   - type/meta
+summary: "Dokumentation und Spezifikation für Vorlagen für Dokumente (ADR & Guide)."
 doc_links:
   - longevity-guidelines
   - constitution
-error_patterns:
-  - adr template
-  - guide template
-  - vorlage
-  - neue adr
-  - new guide
-  - how-to
-supersedes: []
-depends_on: []
-code_links: []
+code_links:
+depends_on:
 ---
-
 # Vorlagen für Dokumente (ADR & Guide)
 
 Dieses Dokument bündelt die offiziellen Vorlagen zur Erstellung neuer Architekturentscheidungen (ADRs) und How-To Guides im DIN-BriefNEO-Repository.

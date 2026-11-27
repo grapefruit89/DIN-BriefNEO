@@ -1,21 +1,21 @@
 ---
-id: "18-overengineering-mass"
+id: 18-overengineering-mass
 title: "18 · Over-Engineering: Massenbefund (validiert)"
-status: "archived"
-type: "concept"
-created: "2026-11-09"
-updated: "2026-11-14"
+type: concept
+status: archived
+created: '2026-11-09'
+updated: '2026-11-14'
 tags:
-- din-briefneo
-- archiv
-- todo-2026-11
+  - din-briefneo
+  - archiv
+  - todo-2026-11
+summary: "Dokumentation und Spezifikation für 18 · Over-Engineering: Massenbefund (validiert)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # 18 · Over-Engineering: Massenbefund (validiert)
 
 Status: erledigt · Typ: audit · Erstellt: 2026-11-06

@@ -20,7 +20,7 @@ Inter-Schnitte sind entfallen — keine Datei, keine Lizenz, kein `@font-face`,
 kein Preset, keine Option in der Auswahl.
 
 Verwandte Dokumente:
-- `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/docs/fonts/ADR-TYPOGRAPHY.md` — Architekturentscheidung
+- `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/docs/norm/ADR-TYPOGRAPHY.md` — Architekturentscheidung
 - `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/fonts/subset_fonts.py` — Bau-Pipeline (**Quelle der Wahrheit** für den Soll-Zeichensatz)
 - `Nobara-PC: /home/moritz/repos/DIN-BriefNEO/website/css/base.css` — `@font-face`-Bindung und `--font-brief-stack`
 
@@ -32,7 +32,7 @@ Verwandte Dokumente:
 Codepage fest. Die Norm regelt, *welche Zeichen an welcher Stelle* einer Korrespondenz
 zulässig sind, und verlangt für den Zeichenvorrat insgesamt ISO/IEC 10646 (Unicode) — also
 keine herstellerspezifische 8-Bit-Codepage. (Projektstand, übernommen aus
-`Nobara-PC: /home/moritz/repos/DIN-BriefNEO/docs/fonts/ADR-TYPOGRAPHY.md:29`; der Normtext
+`Nobara-PC: /home/moritz/repos/DIN-BriefNEO/docs/norm/ADR-TYPOGRAPHY.md:29`; der Normtext
 ist kostenpflichtig und wurde nicht gegen den Originaltext geprüft → *ungeprüft*.)
 
 Normativ belegt sind dagegen die **einzelnen Zeichen**, die an konkreten Stellen gefordert

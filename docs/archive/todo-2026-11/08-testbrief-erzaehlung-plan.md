@@ -1,21 +1,32 @@
 ---
-id: "08-testbrief-erzaehlung-plan"
+id: 08-testbrief-erzaehlung-plan
 title: "08 — Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker (Plan & Konzeption)"
-status: "archived"
-type: "concept"
-created: "2026-11-04"
-updated: "2026-11-14"
+type: concept
+status: archived
+created: '2026-11-04'
+updated: '2026-11-14'
 tags:
-- din-briefneo
-- archiv
-- todo-2026-11
+  - din-briefneo
+  - todo-2026-11
+summary: "Dokumentation und Spezifikation für 08 — Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker (Plan & Konzeption)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - BACKLOG
+code_links:
+depends_on:
+sections:
+  - 1-die-idee-in-einem-satz
+  - 2-drei-ebenen-strikt-getrennt
+  - 3-was-die-figuren-json-dafuer-wirklich-hergibt
+  - 4-datenbestaende-bleiben-getrennt
+  - 5-anlass-katalog
+  - 6-besetzung-und-rollen
+  - 7-satzbausteine-und-sprachregeln
+  - 8-guardrails-gegen-schrott
+  - 9-stufenplan
+  - 10-was-aus-dem-brainstorm-nicht-uebernommen-wird
+  - 11-offene-entscheidungen
 ---
-
 # 08 — Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker (Plan & Konzeption)
 
 > **Status:** Konzept / nicht begonnen  

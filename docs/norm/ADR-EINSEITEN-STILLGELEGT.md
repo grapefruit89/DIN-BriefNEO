@@ -1,6 +1,6 @@
 ---
 id: adr-einseiten-stillgelegt
-title: 'ADR-EINSEITEN-STILLGELEGT: Einzelseiten-Modus abgeschaltet'
+title: "ADR-EINSEITEN-STILLGELEGT: Einzelseiten-Modus abgeschaltet"
 type: adr
 status: active
 created: '2026-11-10'
@@ -11,18 +11,19 @@ tags:
   - status/active
   - type/adr
   - tech/css
+summary: "Dokumentation und Spezifikation für ADR-EINSEITEN-STILLGELEGT: Einzelseiten-Modus abgeschaltet."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - '[[ADR-CSS]]'
-  - '[[ADR-JS]]'
-  - '[[ARCHITECTURE-MAP]]'
+  - [[ADR-CSS]]
+  - [[ADR-JS]]
+  - [[ARCHITECTURE-MAP]]
 code_links:
-  - 'website/index.html'
-  - 'website/js/boot.js'
-  - 'website/js/settings.js'
-  - 'website/js/main.js'
-depends_on: []
+  - website/index.html
+  - website/js/boot.js
+  - website/js/settings.js
+  - website/js/main.js
+depends_on:
 ---
-
 # ADR-EINSEITEN-STILLGELEGT: Einzelseiten-Modus abgeschaltet
 
 ## Status

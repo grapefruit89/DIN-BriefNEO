@@ -1,29 +1,35 @@
 ---
 id: id-register
-title: ID-Register — Nummernkreise, Vergabe und Auslauf
-status: active
+title: "ID-Register — Nummernkreise, Vergabe und Auslauf"
 type: reference
+status: active
 created: '2026-11-17'
 updated: '2026-11-22'
 tags:
-- din-briefneo
-- meta
-- governance
-- ids
+  - din-briefneo
+  - meta
+  - governance
+  - ids
+summary: "Dokumentation und Spezifikation für ID-Register — Nummernkreise, Vergabe und Auslauf."
 doc_links:
-- '[[BACKLOG]]'
-- '[[BACKLOG-ARCHIV]]'
-- '[[DECISION-LOG]]'
-- '[[glossary]]'
-- '[[AGENTS]]'
+  - [[BACKLOG]]
+  - [[BACKLOG-ARCHIV]]
+  - [[DECISION-LOG]]
+  - [[glossary]]
+  - [[AGENTS]]
 code_links:
-- 'tools/id-register.js'
-- 'tools/backlog-sync.mjs'
-- 'tools/antipatterns/project.json'
-depends_on: []
-supersedes: []
+  - tools/laws.mjs
+  - tools/content.mjs
+  - tools/antipatterns/project.json
+depends_on:
+sections:
+  - drei-regeln
+  - aktive-nummernkreise
+  - ausgelaufene-praefixe
+  - keine-ids-verwechslungsgefahr
+  - alias-tabelle-alt-heute
+  - aufgeloeste-unklarheiten
 ---
-
 # ID-Register
 
 Der Befund, der dieses Dokument erzwungen hat: Am 2026-11-17 zählte der Doku-Korpus

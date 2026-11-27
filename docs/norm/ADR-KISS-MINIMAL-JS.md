@@ -1,6 +1,6 @@
 ---
 id: adr-kiss-minimal-js
-title: 'ADR-KISS-MINIMAL-JS: 80/20-Prinzip, pragmatische FOUC-Toleranz und Minimal-JavaScript'
+title: "ADR-KISS-MINIMAL-JS: 80/20-Prinzip, pragmatische FOUC-Toleranz und Minimal-JavaScript"
 type: adr
 status: active
 created: '2026-11-20'
@@ -12,8 +12,7 @@ tags:
   - type/adr
   - kiss
   - yagni
-  - occams-razor
-  - fouc
+summary: "Dokumentation und Spezifikation für ADR-KISS-MINIMAL-JS: 80/20-Prinzip, pragmatische FOUC-Toleranz und Minimal-JavaScript."
 doc_links:
   - constitution
   - Immutable-Law-Catalog
@@ -24,10 +23,8 @@ code_links:
   - website/js/boot-state.js
   - website/js/main.js
   - website/css/sidebar.css
-depends_on: []
-supersedes: []
+depends_on:
 ---
-
 # ADR-KISS-MINIMAL-JS: 80/20-Prinzip, pragmatische FOUC-Toleranz und Minimal-JavaScript
 
 ## Status

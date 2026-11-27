@@ -1,6 +1,6 @@
 ---
 id: adr-omnitraceability
-title: 'ADR-OMNI: OmniTraceability System'
+title: "ADR-OMNI: OmniTraceability System"
 type: adr
 status: active
 created: '2026-07-06'
@@ -11,23 +11,14 @@ tags:
   - status/active
   - type/adr
   - tech/llm
+summary: "Dokumentation und Spezifikation für ADR-OMNI: OmniTraceability System."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
   - constitution
 code_links:
   - tools/fitness.mjs
-error_patterns:
-  - omnitraceability
-  - traceability
-  - fitness
-  - fitness score
-  - build_db
-  - reconciliation
-  - schema v6
-supersedes:
-  - doc-omnitraceability
-depends_on: []
+depends_on:
 ---
-
 # ADR-OMNI: OmniTraceability System
 
 Das OmniTraceability-System garantiert, dass Quellcode und Dokumentation niemals asynchron laufen. Es schlägt die Brücke zwischen `website/` und `docs/`, sodass jede logische Entität immer zweifelsfrei auf ihre architektonischen Entscheidungen (ADRs) und Implementierungs-Richtlinien (Guides) zurückgeführt werden kann.

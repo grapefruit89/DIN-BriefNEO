@@ -1,19 +1,15 @@
 ---
 id: review-anrede-dropdown
 title: "REVIEW: experiment/anrede-dropdown — alle angefassten Stellen, Risiken, Prüfungen"
-type: meta
+type: reference
 status: active
 created: '2026-11-22'
 updated: '2026-11-22'
 tags:
   - din-briefneo
-  - din-briefneo/meta
-  - status/active
-  - type/review
+  - meta
+summary: "REVIEW: experiment/anrede-dropdown — alle angefassten Stellen, Risiken, Prüfu..."
 doc_links:
-  - BRANCH-anrede-dropdown
-  - DECISION-LOG
-  - ADR-CSS
 code_links:
   - website/js/suggestion-list.js
   - website/js/geo-cache.js
@@ -21,9 +17,9 @@ code_links:
   - website/js/address.js
   - website/js/salutation.js
   - website/css/sidebar.css
-depends_on: []
+depends_on:
+sections: [0-die-fuenf-heissesten-stellen-zuerst-pruefen, 1-javascript-datei-fuer-datei, 2-klickketten-zum-nachstellen-browser-8088, 3-css-was-wo, 4-regeln-daten-gates, 5-bewusst-nicht-angefasst, 6-offene-entscheidungen-nicht-im-code]
 ---
-
 # REVIEW — `experiment/anrede-dropdown`
 
 > **Zweck.** Jede angefasste Stelle, ihr Risiko und der Nachweis, mit dem man sie

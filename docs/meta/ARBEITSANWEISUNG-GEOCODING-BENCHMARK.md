@@ -10,16 +10,16 @@ tags:
   - din-briefneo/meta
   - geocoding
   - benchmark
+summary: "Dokumentation und Spezifikation für Arbeitsanweisung: Geocoding Benchmark (Geoapify vs. Nominatim vs. Photon)."
 doc_links:
-  - '[[BACKLOG-ARCHIV]]'
-  - '[[BACKLOG]]'
-  - '[[BENCHMARK-GEOCODING-2026-11-20]]'
+  - [[BACKLOG-ARCHIV]]
+  - [[BACKLOG]]
+  - [[BENCHMARK-GEOCODING-2026-11-20]]
 code_links:
-  - 'website/js/address.js'
-  - 'website/js/main.js'
-depends_on: []
+  - website/js/address.js
+  - website/js/main.js
+depends_on:
 ---
-
 # Arbeitsanweisung: Geocoding Benchmark (Geoapify vs. Nominatim vs. Photon)
 
 **Kontext:** Für die Adress-Autovervollständigung im Empfängerfeld nutzt DIN-BriefNEO aktuell ein optimiertes Geoapify-Setup (BYOK, Pre-Warming, 300 ms Debounce, LRU-Cache, EU-Bias). Das Backlog-Item B28 (Multi-Provider Abstraktion) wurde verworfen, da freie Alternativen (OSM Nominatim, Komoot Photon) in Vortests subjektiv zu träge waren.

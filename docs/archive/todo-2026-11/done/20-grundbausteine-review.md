@@ -1,23 +1,21 @@
 ---
-id: "20-grundbausteine-review"
+id: 20-grundbausteine-review
 title: "20 · Grundbausteine-Review (sechste Liste) – [ERLEDIGT]"
-status: "done"
-type: "audit"
-created: "2026-11-09"
-updated: "2026-11-14"
+type: audit
+status: active
+created: '2026-11-09'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- audit
-- erledigt
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din5008
+  - briefneo
+  - audit
+  - erledigt
 summary: "Grundbausteine-Review (Build-Strategie und sheet-common.css) — Vollständig umgesetzt."
+doc_links:
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # 20 · Grundbausteine-Review (sechste Liste) – [ERLEDIGT]
 
 Status: erledigt · Typ: audit · Erstellt: 2026-11-06 · Abgeschlossen: 2026-11-09  

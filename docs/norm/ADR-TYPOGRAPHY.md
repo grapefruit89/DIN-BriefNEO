@@ -1,9 +1,9 @@
 ---
 id: adr-typography
-title: 'ADR-TYPOGRAPHY: DIN 5008 Font-Subsetting & Typografie-Architektur'
+title: "ADR-TYPOGRAPHY: DIN 5008 Font-Subsetting & Typografie-Architektur"
 type: adr
 status: active
-created: '2026-11-08'
+created: '2026-06-26'
 updated: '2026-11-27'
 tags:
   - din-briefneo
@@ -11,26 +11,13 @@ tags:
   - status/active
   - type/adr
   - tech/typography
-  - tech/fonts
+summary: "ADR-TYPOGRAPHY: DIN 5008 Font-Subsetting & Typografie-Architektur."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - Immutable-Law-Catalog
-  - ADR-CSS
-  - ADR-BINARY-ASSETS
-  - ADR-HTML
 code_links:
-  - website/css/base.css
-  - website/js/settings.js
-error_patterns:
-  - font subsetting
-  - webfont payload
-  - din 5008 typografie
-  - woff2
-  - tabellenziffern
-  - tnum
-supersedes: []
-depends_on: []
+depends_on:
+sections: [1-context-zielsetzung, 2-enthaltene-zeichenbereiche-din-5008-allowlist, 3-was-bewusst-verworfen-wird-blocklist-reduktion, 4-technischer-fallback-mechanismus-sicherheitsnetz, 5-implementierung-css-integration, zeichensatz-der-web-schriften-qwertz-din-5008-2026-11-27, brief-standard-inter-18pt-liberation-sans-restlos-entfernt-2026-11-27]
 ---
-
 # ADR-TYPOGRAPHY: DIN 5008 Font-Subsetting & Typografie-Architektur
 
 ## 1. Context & Zielsetzung

@@ -1,6 +1,6 @@
 ---
 id: adr-sender-synchronization
-title: 'ADR-005: Sender Synchronization Logic (Absenderblock → Rücksendezeile)'
+title: "ADR-005: Sender Synchronization Logic (Absenderblock → Rücksendezeile)"
 type: adr
 status: active
 created: '2026-07-07'
@@ -10,23 +10,16 @@ tags:
   - din-briefneo/architecture
   - status/active
   - type/adr
+summary: "Dokumentation und Spezifikation für ADR-005: Sender Synchronization Logic (Absenderblock → Rücksendezeile)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
   - ADR-HTML
   - ADR-JS
 code_links:
   - website/js/address.js
   - website/js/persistence.js
-error_patterns:
-  - sender synchronization
-  - rücksendezeile
-  - absenderblock
-  - unterschrift
-  - sender-sync
-  - maschinenschrift
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # ADR-005: Sender Synchronization Logic
 
 ## Context

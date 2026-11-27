@@ -1,24 +1,23 @@
 ---
-id: "05-brief-history-verlauf-plan"
+id: 05-brief-history-verlauf-plan
 title: "Brief-Verlauf & Historie (`din_history`) – Plan für DIN-BriefNEO"
-status: "draft"
-type: "concept"
-created: "2026-10-26"
-updated: "2026-11-14"
+type: concept
+status: draft
+created: '2026-10-26'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- plan
-- history
-- verlauf
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din5008
+  - briefneo
+  - plan
+  - history
+  - verlauf
 summary: "Plan zur Speicherung und Wiederherstellung der letzten 10 Briefentwürfe (din_history)."
+anchors: [single-source-of-truth, fail-closed]
+doc_links:
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # Brief-Verlauf & Historie (`din_history`) – Plan für DIN-BriefNEO
 
 **Quelle:** Analyse alter Versionen (`neu.html`, `neu 2.html`) & Backlog `B32`  

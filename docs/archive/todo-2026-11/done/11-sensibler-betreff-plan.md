@@ -1,25 +1,24 @@
 ---
-id: "11-sensibler-betreff-plan"
+id: 11-sensibler-betreff-plan
 title: "Sensibler Betreff (§ 20.9.2) — Schutz vertraulicher Daten im Fensterkuvert"
-status: "done"
-type: "concept"
-created: "2026-11-09"
-updated: "2026-11-14"
+type: concept
+status: active
+created: '2026-11-09'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- plan
-- betreff
-- datenschutz
-- fensterbriefumschlag
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din5008
+  - briefneo
+  - plan
+  - betreff
+  - datenschutz
+  - fensterbriefumschlag
 summary: "Plan für die DIN-5008-Option 'Sensibler Betreff' (§ 20.9.2): Tieferstellen des Betreffs um 1-2 Leerzeilen zum Schutz vertraulicher Daten im Sichtfenster."
+anchors: [single-source-of-truth, fail-closed]
+doc_links:
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # Sensibler Betreff (§ 20.9.2) — Schutz vertraulicher Daten im Fensterkuvert
 
 **Normativer Bezug:** DIN 5008:2020-03, Abschnitt 20.9.2, Absatz 3 („Wortlaut des Betreffs“)  

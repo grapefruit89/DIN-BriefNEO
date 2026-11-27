@@ -1,42 +1,29 @@
 ---
 id: adr-event-driven-architecture
-title: 'ADR-EVENT-DRIVEN-ARCHITECTURE: Ereignisgesteuerte Client-Architektur'
+title: "ADR-EVENT-DRIVEN-ARCHITECTURE: Ereignisgesteuerte Client-Architektur"
 type: adr
 status: active
 created: '2026-10-11'
 updated: '2026-10-11'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/adr
-  - tech/javascript
-  - tech/event-driven
+  - js
+summary: "Dokumentation und Spezifikation für ADR-EVENT-DRIVEN-ARCHITECTURE: Ereignisgesteuerte Client-Architektur."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - ADR-JS
-  - ADR-TOAST-SYSTEM
-  - ADR-DATA-PERSISTENCE
-  - ADR-OMNITRACEABILITY
-  - constitution
-  - Immutable-Law-Catalog
-  - longevity-guidelines
-  - spec
 code_links:
-  - website/js/core.js
-  - website/js/document.js
-  - website/js/main.js
-error_patterns:
-  - event bus
-  - pub/sub
-  - custom event
-  - callback coupling
-  - notification.requested
-  - document.save.requested
-  - event-driven architecture
-supersedes: []
-depends_on: []
+depends_on:
+sections:
+  - 1-status-und-geltungsbereich
+  - 2-kontext-und-problemstellung
+  - 3-entscheidung
+  - 4-systemvertraege-und-topic-katalog
+  - 5-geplante-topics-fuer-phase-5-und-folgestufen
+  - 6-eventbus-api-und-lifecycle
+  - 7-zustaendigkeiten-der-architektur
+  - 8-konsequenzen
+  - 9-verifikation-traceability
 ---
-
 # ADR-EVENT-DRIVEN-ARCHITECTURE: Ereignisgesteuerte Client-Architektur
 
 ## 1. Status und Geltungsbereich

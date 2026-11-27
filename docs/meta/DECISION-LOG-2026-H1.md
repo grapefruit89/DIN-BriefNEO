@@ -1,8 +1,6 @@
 ---
 id: decision-log-2026-h1
-aliases:
-  - DECISION-LOG-2026-H1
-title: 'DECISION-LOG Archiv — Mai–August 2026'
+title: "DECISION-LOG Archiv — Mai–August 2026"
 type: reference
 status: archived
 created: '2026-05-24'
@@ -12,15 +10,18 @@ tags:
   - din-briefneo/meta
   - status/archived
   - type/reference
-doc_links: []
-code_links: []
-depends_on: []
-supersedes: []
+summary: "Dokumentation und Spezifikation für DECISION-LOG Archiv — Mai–August 2026."
+doc_links:
+code_links:
+depends_on:
+sections:
+  - 1-chronologie-der-beschluesse-mai-august-2026
 ---
-
 # DECISION-LOG — Archiv (Mai–August 2026)
 
 > Ausgelagert aus [[DECISION-LOG]]. Enthält die Entscheidungen 2026-05 bis 2026-08.
+
+## 1. Chronologie der Beschlüsse (Mai–August 2026)
 
 ### 2026-05-24 – Longevity-Verfassung deklariert
 

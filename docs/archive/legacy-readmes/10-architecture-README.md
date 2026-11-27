@@ -1,41 +1,18 @@
 ---
 id: architecture-readme
-title: '10-architecture — Architektur-Entscheidungen & Traceability'
-type: meta
+title: "10-architecture — Architektur-Entscheidungen & Traceability"
+type: reference
 status: active
 created: '2026-07-07'
 updated: '2026-10-11'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/meta
+  - legacy-readmes
+summary: "Dokumentation und Spezifikation für 10-architecture — Architektur-Entscheidungen & Traceability."
 doc_links:
-  - IMR-Registry
-  - ADR-EVENT-DRIVEN-ARCHITECTURE
-  - ADR-JS
-  - ADR-TOAST-SYSTEM
-  - ADR-TYPOGRAPHY
-  - ADR-COLUMNAR-DATA
-  - ADR-OMNITRACEABILITY
-  - GUIDELINES-BROWSER-UPSTREAM
-  - constitution
-  - Immutable-Law-Catalog
-  - longevity-guidelines
-  - spec
-error_patterns:
-  - architektur
-  - adr
-  - 10-architecture
-  - entscheidung
-  - traceability
-  - imr
-  - registry
-supersedes: []
-depends_on: []
-code_links: []
+code_links:
+depends_on:
 ---
-
 # 10-architecture — Architektur-Entscheidungen & Traceability
 
 Einstieg in das Architekturmodell von DIN-BriefNEO. Dieses Verzeichnis dokumentiert die begründeten technischen Entscheidungen und verknüpft sie mit dem normativen Fachmodell und der Implementierung.

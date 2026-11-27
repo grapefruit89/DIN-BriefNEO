@@ -7,39 +7,21 @@ created: '2026-06-26'
 updated: '2026-11-06'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/adr
-  - tech/html
+  - norm
+summary: "Dokumentation und Spezifikation für ADR-HTML: HTML Architecture, Constraints & Single Source of Truth (SSOT)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - ADR-CSS
-  - ADR-JS
-  - ADR-ANTIPATTERN
-  - longevity-guidelines
 code_links:
-  - website/index.html
-error_patterns:
-  - html architektur
-  - custom elements
-  - contenteditable
-  - plaintext-only
-  - enterkeyhint
-  - popover
-  - popover top layer
-  - dialog
-  - commandfor
-  - command invoker
-  - input switch
-  - din-blatt
-  - semantik
-  - premium ux
-  - wysiwyg
-  - zero div soup
-supersedes:
-  - adr-feature
-depends_on: []
+depends_on:
+sections:
+  - 1-context-problemstellung
+  - 2-grundlegende-architektur-entscheidungen
+  - 3-single-source-of-truth-html-komponenten-dom-registry
+  - 4-antipattern-deprecation-registry-verbotene-html-praktiken
+  - 4-1-komponenten-regel-brief-feld-vs-ui
+  - 5-konsequenzen-entwickler-direktiven
+  - 6-related-documents
 ---
-
 # ADR-HTML: HTML Architecture, Constraints & Single Source of Truth (SSOT)
 
 ## 1. Context & Problemstellung

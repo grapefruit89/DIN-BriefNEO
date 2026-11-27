@@ -1,40 +1,34 @@
 ---
 id: imr-registry
-title: 'IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)'
+title: "IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)"
 type: reference
 status: active
 created: '2026-07-03'
 updated: '2026-11-20'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/reference
-  - tech/html
-  - standard/din-5008
+  - norm
+summary: "Dokumentation und Spezifikation für IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)."
 doc_links:
-  - constitution
-  - ADR-HTML
-  - ADR-CSS
 code_links:
-  - website/index.html
-  - website/css/base.css
-error_patterns:
-  - imr registry
-  - din tags
-  - custom elements
-  - atomare tags
-  - din-briefkopf
-  - din-anschriftfeld
-  - din-kern
-  - din-geschaeftsangaben
-  - falzmarke
-  - betreff
-supersedes:
-  - adr-betreff
-depends_on: []
+depends_on:
+sections:
+  - registry-contract
+  - namespace
+  - case-contract
+  - geometrieklassen
+  - komposition
+  - synonym-und-alias-registry
+  - autoritaet-und-herkunft
+  - platzierung-kontakt
+  - ebenen
+  - uebersicht-der-atomgruppen
+  - 0-dokumentrahmen
+  - 1-zone-absender-briefkopf
+  - 2-zone-anschriftfeld
+  - 2a-anschriftfeld-ist-vs-din-tab-b-1-gemessen-2026-11-11-9716cff-6fd0d2f
+  - 3-zone-infoblock-metadaten
 ---
-
 # IMR 4.0 — DIN 5008 Registry
 
 Die IMR-Registry ist das normative Master-Modell des DIN-Briefes. Sie definiert Vokabular, kanonische Tags, Zonen, Beziehungen und belegte normative Geometrie. HTML implementiert dieses Modell, CSS rendert es, JavaScript erzeugt keine konkurrierende normative Geometriequelle.

@@ -1,6 +1,6 @@
 ---
 id: agenten-webmcp
-title: 'Agenten-Zugang: WebMCP, window.dinBriefAgent und der MCP-Server'
+title: "Agenten-Zugang: WebMCP, window.dinBriefAgent und der MCP-Server"
 type: reference
 status: active
 created: '2026-11-23'
@@ -11,16 +11,23 @@ tags:
   - webmcp
   - mcp
   - integration
+summary: "Dokumentation und Spezifikation für Agenten-Zugang: WebMCP, window.dinBriefAgent und der MCP-Server."
 doc_links:
-  - '[[DECISION-LOG]]'
-  - '[[STRUCTURE]]'
+  - [[DECISION-LOG]]
+  - [[STRUCTURE]]
 code_links:
-  - 'website/js/webmcp.js'
-  - 'website/js/api.js'
-  - 'tools/runtime.mjs'
-depends_on: []
+  - website/js/webmcp.js
+  - website/js/api.js
+  - tools/runtime.mjs
+depends_on:
+sections:
+  - 1-warum-webmcp-allein-nicht-reicht
+  - 2-die-werkzeuge
+  - 3-im-browser-webmcp
+  - 4-in-der-kommandozeile-ohne-debug-port
+  - 5-grenzen-bewusst
+  - 6-pruefen
 ---
-
 # Agenten-Zugang
 
 > **Kurzfassung:** Es gibt drei Schichten. `api.js` kann den Brief schreiben.

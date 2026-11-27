@@ -7,18 +7,24 @@ created: '2026-11-20'
 updated: '2026-11-20'
 tags:
   - din-briefneo
-  - din-briefneo/meta
-  - geocoding
-  - benchmark
+  - meta
+summary: "Dokumentation und Spezifikation für Geocoding-Benchmark — Ergebnisbericht (Geoapify vs. Nominatim vs. Photon)."
 doc_links:
-  - '[[ARBEITSANWEISUNG-GEOCODING-BENCHMARK]]'
-  - '[[BACKLOG-ARCHIV]]'
-  - '[[BACKLOG]]'
 code_links:
-  - 'website/js/address.js'
-depends_on: []
+  - website/js/address.js
+depends_on:
+sections:
+  - 1-ergebnis-in-einem-satz
+  - 2-pflicht-tabelle-format-aus-abschnitt-4
+  - 3-latenz-im-detail-ttfb-ms
+  - 4-ergebnisqualitaet-top-1-lauf-warm-2
+  - 5-burst-rate-limiting
+  - 6-offline-self-host-faehigkeit-belegt
+  - 7-korpus-defekte-wichtig-fuer-die-interpretation
+  - 8-entscheidung-nach-der-schwelle-aus-abschnitt-4
+  - 9-reproduktion
+  - 10-einschraenkungen
 ---
-
 # Geocoding-Benchmark — Ergebnisbericht
 
 **Datum:** 2026-11-20, 10:04–10:25 CET

@@ -1,6 +1,6 @@
 ---
 id: glossary
-title: 'Fachbegriff-Glossar — DIN-BriefNEO'
+title: "Fachbegriff-Glossar — DIN-BriefNEO"
 type: reference
 status: active
 created: '2026-06-26'
@@ -10,24 +10,16 @@ tags:
   - din-briefneo/implementation
   - status/active
   - type/reference
+summary: "Dokumentation und Spezifikation für Fachbegriff-Glossar — DIN-BriefNEO."
 doc_links:
   - longevity-guidelines
   - constitution
-code_links: []
-error_patterns:
-  - glossar
-  - begriffe
-  - definitionen
-  - abortcontroller
-  - container queries
-  - cqw cqh
-  - localstorage
-  - oklch farbraum
-  - no-scroll-layout
-supersedes: []
-depends_on: []
+code_links:
+depends_on:
+sections:
+  - kanonische-begriffe
+  - begriffslexikon
 ---
-
 # Fachbegriff-Glossar: glossary.md
 
 > [!info] Glossar & Dokumentations-Map

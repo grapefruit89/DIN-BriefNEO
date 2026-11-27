@@ -1,6 +1,6 @@
 ---
 id: salutation-engine
-title: 'Salutation & Logic Engine — 80/20 B2B-Standard (SPEC-002)'
+title: "Salutation & Logic Engine — 80/20 B2B-Standard (SPEC-002)"
 type: reference
 status: active
 created: '2026-07-03'
@@ -10,6 +10,7 @@ tags:
   - din-briefneo/implementation
   - status/active
   - type/reference
+summary: "Dokumentation und Spezifikation für Salutation & Logic Engine — 80/20 B2B-Standard (SPEC-002)."
 doc_links:
   - ADR-JS
   - ADR-HTML
@@ -17,20 +18,8 @@ doc_links:
   - glossary
 code_links:
   - website/js/salutation.js
-error_patterns:
-  - salutation engine
-  - anrede
-  - grussformel
-  - gender detection
-  - formality switch
-  - b2b paerchen
-  - adelspartikel
-  - dirty flag
-  - auto reset
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # Salutation & Logic Engine — 80/20 B2B-Standard (SPEC-002)
 
 > [!NOTE] Implementierungsstatus & Architektur-Update (2026-09-04)

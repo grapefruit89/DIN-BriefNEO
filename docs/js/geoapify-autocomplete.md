@@ -1,7 +1,7 @@
 ---
 id: geoapify-autocomplete
-title: 'Guide: Geoapify Autocomplete Implementierung'
-type: guide
+title: "Guide: Geoapify Autocomplete Implementierung"
+type: how-to
 status: active
 created: '2026-07-02'
 updated: '2026-09-30'
@@ -10,23 +10,14 @@ tags:
   - din-briefneo/implementation
   - status/active
   - type/guide
+summary: "Dokumentation und Spezifikation für Guide: Geoapify Autocomplete Implementierung."
 doc_links:
   - ADR-OFFLINE-ADDRESS-INTELLIGENCE
 code_links:
   - website/js/main.js
   - website/js/address.js
-error_patterns:
-  - geoapify
-  - autocomplete
-  - adress-autovervollstaendigung
-  - debouncing
-  - proximity biasing
-  - photon fallback
-  - zippopotam
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # Guide: Geoapify Autocomplete Implementierung
 
 > [!tip] Was ist dieser Guide?

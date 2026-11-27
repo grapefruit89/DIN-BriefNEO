@@ -1,7 +1,7 @@
 ---
 id: ai-agents-cli
-title: 'Sichtpruefung: Chrome DevTools MCP an die laufende App'
-type: guide
+title: "Sichtpruefung: Chrome DevTools MCP an die laufende App"
+type: how-to
 status: active
 created: '2026-09-04'
 updated: '2026-09-30'
@@ -11,20 +11,14 @@ tags:
   - status/active
   - type/guide
   - tech/chrome
+summary: "Dokumentation und Spezifikation für Sichtpruefung: Chrome DevTools MCP an die laufende App."
 doc_links:
   - repository.yaml
   - tooling-overview
 code_links:
   - tools/dev.sh
-error_patterns:
-  - browser agent
-  - devtools mcp
-  - sichtpruefung
-  - chrome devtools
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # AI-AGENTS-CLI
 
 Stand: 2026-09-04  

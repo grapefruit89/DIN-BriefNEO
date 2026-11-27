@@ -1,32 +1,31 @@
 ---
 id: dead-code-audit-2026-11-05
-title: Dead-Code-Audit — 2026-11-05
-status: archived
+title: "Dead-Code-Audit — 2026-11-05"
 type: reference
+status: archived
 created: '2026-11-05'
 updated: '2026-11-05'
 tags:
-- din-briefneo
-- meta
-- audit
+  - din-briefneo
+  - meta
+  - audit
+summary: "Dokumentation und Spezifikation für Dead-Code-Audit — 2026-11-05."
 doc_links:
-- '[[AGENTS]]'
-- '[[Immutable-Law-Catalog]]'
-- '[[ADR-JS]]'
-- '[[DECISION-LOG]]'
-- '[[BACKLOG]]'
+  - [[AGENTS]]
+  - [[Immutable-Law-Catalog]]
+  - [[ADR-JS]]
+  - [[DECISION-LOG]]
+  - [[BACKLOG]]
 code_links:
-- 'website/index.html'
-- 'website/multipage.html'
-- 'website/js/main.js'
-- 'website/js/salutation.js'
-- 'website/js/boot-theme.js'
-- 'website/js/settings.js'
-- 'website/js/document.js'
-depends_on: []
-supersedes: []
+  - website/index.html
+  - website/multipage.html
+  - website/js/main.js
+  - website/js/salutation.js
+  - website/js/boot-theme.js
+  - website/js/settings.js
+  - website/js/document.js
+depends_on:
 ---
-
 # Dead-Code-Audit — geprüfte und korrigierte Befundliste
 
 **Datum:** 2026-11-05 · **Umfang:** Befundliste 4.1–4.7 aus dem externen Audit

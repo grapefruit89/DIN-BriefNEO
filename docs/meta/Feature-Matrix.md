@@ -1,24 +1,15 @@
 ---
 id: feature-matrix
-title: 'Feature-Matrix — aktueller Produktumfang'
+title: "Feature-Matrix — aktueller Produktumfang"
 type: reference
 status: active
 created: '2026-07-03'
 updated: '2026-11-23'
 tags:
   - din-briefneo
-  - din-briefneo/meta
-  - status/active
-  - type/reference
+  - meta
+summary: "Feature-Matrix — aktueller Produktumfang."
 doc_links:
-  - spec
-  - BACKLOG
-  - ROADMAP
-  - ADR-CSS
-  - ADR-HTML
-  - ADR-JS
-  - Salutation-Engine
-  - ADR-OFFLINE-ADDRESS-INTELLIGENCE
 code_links:
   - website/index.html
   - website/js/main.js
@@ -28,15 +19,9 @@ code_links:
   - website/js/salutation.js
   - website/js/address.js
   - website/js/persistence.js
-  - website/css/base.css
-  - website/css/sidebar.css
-  - website/css/sheet.css
-  - website/css/sheet-multipage.css
-depends_on: []
-supersedes:
-  - FEATURE-INVENTORY
+depends_on:
+sections: [statusvokabular, 1-brief-und-din-grundfunktionen, 2-eingabe-anrede-und-dokumentzustand, 3-adress-und-absenderintelligenz, 4-import-export-und-zwischenablage, 5-darstellung-und-plattform, 6-bewusst-nicht-im-aktuellen-umfang, zustaendigkeit-der-anderen-dokumente]
 ---
-
 # Feature-Matrix — aktueller Produktumfang
 
 > **Rolle dieses Dokuments:** aktuelle Bestandsaufnahme des Produkts. Es ist weder

@@ -1,6 +1,6 @@
 ---
 id: llm-modern-web-playbook-2026
-title: 'LLM Modern Web Playbook 2026: Anweisungen für KIs & Entwickler'
+title: "LLM Modern Web Playbook 2026: Anweisungen für KIs & Entwickler"
 type: reference
 status: active
 created: '2026-09-04'
@@ -10,14 +10,17 @@ tags:
   - din-briefneo/foundation
   - status/active
   - type/reference
+summary: "Dokumentation und Spezifikation für LLM Modern Web Playbook 2026: Anweisungen für KIs & Entwickler."
 doc_links:
   - Immutable-Law-Catalog
   - longevity-guidelines
-code_links: []
-depends_on: []
-supersedes: []
+code_links:
+depends_on:
+sections:
+  - kanonischer-feature-antipattern-extrakt-din-briefneo-2026
+  - die-10-kernregeln-im-detail
+  - zusammenfassung-fuer-kis
 ---
-
 # LLM Modern Web Playbook 2026: Anweisungen für KIs & Entwickler
 
 > **Zweck dieses Dokuments:**  

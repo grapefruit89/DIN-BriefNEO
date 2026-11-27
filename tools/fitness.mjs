@@ -1258,6 +1258,8 @@ id: structure
 title: 'Repo-Struktur — DIN-BriefNEO'
 type: reference
 status: active
+type: index
+summary: "Autogenerierte Strukturübersicht aller Module, Werkzeuge und Dokumentation für DIN-BriefNEO."
 created: '2026-10-17'
 updated: '${isoDate}'
 tags:

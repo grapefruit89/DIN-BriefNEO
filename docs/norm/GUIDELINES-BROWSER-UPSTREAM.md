@@ -1,25 +1,25 @@
 ---
 id: guidelines-browser-upstream
-title: Upstream Ground-Truth & Browser-Features
-type: guideline
+title: "Upstream Ground-Truth & Browser-Features"
+type: reference
 status: active
-created: 2026-11-09
-updated: 2026-11-09
+created: '2026-11-09'
+updated: '2026-11-09'
 tags:
   - architecture
   - standards
   - chromium
   - tooling
   - bcd
+summary: "Dokumentation und Spezifikation für Upstream Ground-Truth & Browser-Features."
 doc_links:
   - ADR-HTML
   - ADR-CSS
   - ADR-JS
 code_links:
   - tools/content.mjs
-depends_on: []
+depends_on:
 ---
-
 # Upstream Ground-Truth & Browser-Features (Chromium 150+)
 
 ## 1. Zweck & Leitprinzip

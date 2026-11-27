@@ -1,7 +1,7 @@
 ---
 id: init-invariante
 title: "Init-Invariante: Initialisierung degradiert, sie bricht nicht ab"
-type: meta
+type: reference
 status: active
 created: '2026-11-22'
 updated: '2026-11-22'
@@ -10,15 +10,15 @@ tags:
   - din-briefneo/meta
   - status/active
   - type/regel
+summary: "Dokumentation und Spezifikation für Init-Invariante: Initialisierung degradiert, sie bricht nicht ab."
 doc_links:
   - DECISION-LOG
   - BRANCH-anrede-dropdown
 code_links:
   - website/js/address.js
   - website/js/persistence.js
-depends_on: []
+depends_on:
 ---
-
 # Init-Invariante: Initialisierung degradiert, sie bricht nicht ab
 
 **Gilt für:** jede `init*`-Funktion in `website/js/` und `website/addons/`.

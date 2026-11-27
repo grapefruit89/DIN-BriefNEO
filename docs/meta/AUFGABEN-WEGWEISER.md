@@ -1,6 +1,6 @@
 ---
 id: aufgaben-wegweiser
-title: 'Aufgaben-Wegweiser — Absicht → Datei → Test → Gate'
+title: "Aufgaben-Wegweiser — Absicht → Datei → Test → Gate"
 type: reference
 status: active
 created: '2026-11-10'
@@ -8,21 +8,23 @@ updated: '2026-11-10'
 tags:
   - din-briefneo
   - meta
-  - navigation
-  - agent
+summary: "Dokumentation und Spezifikation für Aufgaben-Wegweiser — Absicht → Datei → Test → Gate."
 doc_links:
-  - '[[AGENTS]]'
-  - '[[STRUCTURE]]'
-  - '[[ARCHITECTURE-MAP]]'
-  - '[[ADR-JS]]'
-  - '[[DECISION-LOG]]'
 code_links:
-  - 'website/js/main.js'
-  - 'website/js/document.js'
-  - 'test/all.js'
-depends_on: []
+  - website/js/main.js
+  - website/js/document.js
+  - test/all.js
+depends_on:
+sections:
+  - 1-aufgabe-dateien-test-gate
+  - 1b-immer-zuerst-din-dev
+  - 1c-messen-statt-screenshot
+  - 2-module-in-einem-satz
+  - 3-datenfluesse
+  - 4-fallstricke
+  - 5-stand-bewusst-fluechtig
+  - 6-wenn-die-aufgabe-nicht-in-sektion-1-steht
 ---
-
 # Aufgaben-Wegweiser
 
 > 🧭 **Kompakter Einstieg (Root-Cockpit):**  
@@ -48,7 +50,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Telefon/Datum/IBAN/Geld | `website/js/format.js` | `--filter=format` | test-runner |
 | Unterschrift, Stempel | `website/js/signature.js`, `website/css/sheet-common.css` | `--filter=Signature` | test-runner |
 | Schriften, Font-Upload | `website/js/font-feature.js`, `website/fonts/`, `tools/fonts/subset_fonts.py` | `--filter=FontFeature` | test-runner |
-| Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/addons/testbrief-generator.md` | `node tools/measure.mjs brief` | Messgate |
+| Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/js/testbrief-generator.md` | `node tools/measure.mjs brief` | Messgate |
 | Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/measure.mjs brief` | Messgate |
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
 | Addons, Plugins, Erweiterungen | `website/js/addons.js`, `website/addons/` | `--filter="Addon"` | test-runner |

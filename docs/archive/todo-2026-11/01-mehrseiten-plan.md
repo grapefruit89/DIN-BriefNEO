@@ -1,23 +1,27 @@
 ---
-id: "01-mehrseiten-plan"
+id: 01-mehrseiten-plan
 title: "Mehrseitenunterstützung nach DIN 5008 – Plan für DIN-BriefNEO (Baseline Chrome 150+)"
-status: "draft"
-type: "concept"
-created: "2026-10-26"
-updated: "2026-11-14"
+type: concept
+status: draft
+created: '2026-10-26'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- plan
-- mehrseiten
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din-briefneo
+  - todo-2026-11
 summary: "Plan zur Mehrseitenunterstützung nach DIN 5008 für den DIN-BriefNEO-Generator."
+anchors: [single-source-of-truth, fail-closed]
+doc_links:
+  - BACKLOG
+code_links:
+depends_on:
+sections:
+  - 1-was-din-5008-fuer-mehrseitige-briefe-verlangt-fachlicher-rahmen
+  - 2-druck-pdf-paginierung-vs-page-margin-0-guard
+  - 3-bildschirm-paginierung-strategie-a-statische-din-a4-container-paging-karussell
+  - 4-datenmodell-draftmanager-dinbrief-json
+  - 5-konkrete-umsetzungs-reihenfolge
+  - 6-verifizierte-upstream-quellen
 ---
-
 # Mehrseitenunterstützung nach DIN 5008 – Plan für DIN-BriefNEO (Baseline Chrome 150+)
 
 **Ziel:** Briefe über mehrere DIN-A4-Seiten hinweg normgerecht nach DIN 5008:2020-03 bearbeiten, drucken und als PDF exportieren können – unter strikter Einhaltung der Projekt-Invarianten (Zero-Scroll **A43**, eindeutige IDs **A42**, kein DOM-Layout-Polling beim Tippen **A49**, `@page { margin: 0 }`-Vermaßung).

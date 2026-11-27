@@ -1,26 +1,28 @@
 ---
-id: "09-text-parsing-modernization-plan"
+id: 09-text-parsing-modernization-plan
 title: "09 — Modernisierung der Text- und Address Intelligence (Intl.Segmenter, RegExp /v & 3-Stufen-Pipeline)"
-status: "draft"
-type: "concept"
-created: "2026-11-04"
-updated: "2026-11-14"
+type: concept
+status: draft
+created: '2026-11-04'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- plan
-- intl-segmenter
-- regexp-v
-- text-parsing
-- address-intelligence
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din-briefneo
+  - todo-2026-11
 summary: "Modernisierungskonzept für Text- und Adress-Parsing in DIN-BriefNEO via Intl.Segmenter (ECMA-402), RegExp /v unicodeSets (ES2024) und einer deterministischen 3-Stufen-Pipeline für die Zwischenablage."
+anchors: [single-source-of-truth, fail-closed]
+doc_links:
+  - BACKLOG
+code_links:
+depends_on:
+sections:
+  - 1-architektonische-ausgangslage-ziel-vorgaben
+  - 2-hebel-1-intl-segmenter-w3c-ecma-402-icu4c
+  - 3-hebel-2-regexp-v-flag-ecmascript-2024-tc39-unicodesets
+  - 4-hebel-3-deterministische-3-stufen-pipeline-fuer-zwischenablage-adressen
+  - 5-konkrete-implementierungs-blueprints
+  - 6-testfaelle-verifikations-matrix
+  - 7-referenzen-upstream-quellen
 ---
-
 # 09 — Modernisierung der Text- und Address Intelligence (Intl.Segmenter, RegExp /v & 3-Stufen-Pipeline)
 
 > **Status:** Konzept / Architektur-Plan  

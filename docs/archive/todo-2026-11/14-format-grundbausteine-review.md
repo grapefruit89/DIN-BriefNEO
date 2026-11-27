@@ -1,21 +1,20 @@
 ---
-id: "14-format-grundbausteine-review"
+id: 14-format-grundbausteine-review
 title: "14 · Format- und Grundbausteine-Review (validiert)"
-status: "archived"
-type: "reference"
-created: "2026-11-07"
-updated: "2026-11-14"
+type: reference
+status: archived
+created: '2026-11-07'
+updated: '2026-11-14'
 tags:
-- din-briefneo
-- archiv
-- todo-2026-11
+  - din-briefneo
+  - archiv
+  - todo-2026-11
+summary: "Dokumentation und Spezifikation für 14 · Format- und Grundbausteine-Review (validiert)."
 doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # 14 · Format- und Grundbausteine-Review (validiert)
 
 Status: abgeschlossen (Verdikte) · Geprüft: 2026-11-12 · Typ: audit · Erstellt: 2026-11-06

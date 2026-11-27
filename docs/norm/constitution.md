@@ -1,6 +1,6 @@
 ---
 id: constitution
-title: 'Verfassung (Constitution) — DIN-BriefNEO'
+title: "Verfassung (Constitution) — DIN-BriefNEO"
 type: reference
 status: active
 created: '2026-06-26'
@@ -10,22 +10,15 @@ tags:
   - din-briefneo/foundation
   - status/active
   - type/reference
+summary: "Dokumentation und Spezifikation für Verfassung (Constitution) — DIN-BriefNEO."
 doc_links:
   - Immutable-Law-Catalog
   - spec
   - longevity-guidelines
   - ADR-RUNTIME-CONTEXT
-code_links: []
-error_patterns:
-  - constitution
-  - verfassung
-  - regelwerk
-  - zero-dependency
-  - offline-first
-supersedes: []
-depends_on: []
+code_links:
+depends_on:
 ---
-
 # Verfassung (Constitution) — DIN-BriefNEO
 
 Dieses Dokument beschreibt die unveränderlichen **Projektprinzipien** von

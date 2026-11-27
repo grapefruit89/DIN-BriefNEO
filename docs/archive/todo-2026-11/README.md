@@ -1,22 +1,26 @@
 ---
-id: "todo-2026-11-index"
+id: todo-2026-11-index
 title: "Archiv: Arbeitsnotizen, Pläne und Reviews (Okt–Nov 2026)"
-status: "archived"
-type: "reference"
-created: "2026-10-23"
-updated: "2026-11-14"
+type: reference
+status: archived
+created: '2026-10-23'
+updated: '2026-11-14'
 tags:
-- din-briefneo
-- archiv
-- todo-2026-11
+  - din-briefneo
+  - archiv
+  - todo-2026-11
+summary: "Dokumentation und Spezifikation für Archiv: Arbeitsnotizen, Pläne und Reviews (Okt–Nov 2026)."
 doc_links:
-- '[[BACKLOG]]'
-- '[[BACKLOG-ARCHIV]]'
-code_links: []
-depends_on: []
-supersedes: []
+  - [[BACKLOG]]
+  - [[BACKLOG-ARCHIV]]
+code_links:
+depends_on:
+sections:
+  - schnelle-uebersicht-prioritaeten
+  - detailuebersicht-der-vorhaben
+  - weitere-themen-aus-dem-backlog
+  - bewusst-verworfene-ideen-anti-nuggets
 ---
-
 # Archiv: Arbeitsnotizen, Pläne und Reviews (Okt–Nov 2026)
 
 > **Das hier ist Geschichte, keine Aufgabenliste.** Bis 2026-11-14 lag dieser

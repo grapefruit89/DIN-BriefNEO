@@ -1,6 +1,6 @@
 ---
 id: adr-toast-system
-title: 'ADR-TOAST: Toast-System Architektur & Registry'
+title: "ADR-TOAST: Toast-System Architektur & Registry"
 type: adr
 status: active
 created: '2026-07-03'
@@ -12,26 +12,16 @@ tags:
   - type/adr
   - tech/ui
   - tech/css
+summary: "Dokumentation und Spezifikation für ADR-TOAST: Toast-System Architektur & Registry."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
   - ADR-HTML
   - ADR-CSS
   - ADR-EVENT-DRIVEN-ARCHITECTURE
 code_links:
   - website/js/core.js
-error_patterns:
-  - toast
-  - popover
-  - notification
-  - benachrichtigung
-  - spam
-  - toast registry
-  - notification.requested
-supersedes:
-  - adr-toast-architecture
-  - imr-toast-registry
-depends_on: []
+depends_on:
 ---
-
 # ADR-TOAST: Toast-System Architektur & Registry
 
 ## 1. Context & Problem

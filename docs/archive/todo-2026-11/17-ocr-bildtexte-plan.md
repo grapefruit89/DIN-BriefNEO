@@ -1,21 +1,21 @@
 ---
-id: "17-ocr-bildtexte-plan"
+id: 17-ocr-bildtexte-plan
 title: "17 — Bildtexte per OCR nur aus den Bildern (offen)"
-status: "archived"
-type: "concept"
-created: "2026-11-12"
-updated: "2026-11-14"
+type: concept
+status: archived
+created: '2026-11-12'
+updated: '2026-11-14'
 tags:
-- din-briefneo
-- archiv
-- todo-2026-11
+  - din-briefneo
+  - archiv
+  - todo-2026-11
+summary: "Dokumentation und Spezifikation für 17 — Bildtexte per OCR nur aus den Bildern (offen)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # 17 — Bildtexte per OCR nur aus den Bildern (offen)
 
 **Stand:** 2026-11-12 · **Priorität:** P2 · **blockiert:** Version C (`DIN 5008 v.3 (C).md`)

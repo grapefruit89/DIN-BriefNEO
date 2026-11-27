@@ -1,24 +1,23 @@
 ---
-id: "test-dossier"
+id: test-dossier
 title: "Test-Dossier: was die 430 Fälle abdecken"
-status: "active"
-type: "reference"
-created: "2026-11-15"
-updated: "2026-11-15"
+type: reference
+status: active
+created: '2026-11-15'
+updated: '2026-11-15'
 tags:
-- din-briefneo
-- meta
-- tests
-- dossier
+  - din-briefneo
+  - meta
+  - tests
+  - dossier
+summary: "Dokumentation und Spezifikation für Test-Dossier: was die 430 Fälle abdecken."
 doc_links:
-- '[[AGENTS]]'
-- '[[AUFGABEN-WEGWEISER]]'
+  - [[AGENTS]]
+  - [[AUFGABEN-WEGWEISER]]
 code_links:
-- 'test/all.js'
-depends_on: []
-supersedes: []
+  - test/all.js
+depends_on:
 ---
-
 # Test-Dossier
 
 **Erzeugt von `tools/content.mjs tests` — nicht von Hand bearbeiten.**

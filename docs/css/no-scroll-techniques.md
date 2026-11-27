@@ -1,7 +1,7 @@
 ---
 id: no-scroll-techniques
-title: 'Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)'
-type: guide
+title: "Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)"
+type: how-to
 status: active
 created: '2026-06-26'
 updated: '2026-09-30'
@@ -11,23 +11,14 @@ tags:
   - status/active
   - type/guide
   - tech/css
+summary: "Dokumentation und Spezifikation für Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)."
 doc_links:
   - din-5008-css-architektur
   - ADR-CSS
 code_links:
   - website/css/base.css
-error_patterns:
-  - no-scroll
-  - overflow hidden
-  - scrollbalken
-  - viewport-perfect
-  - field-sizing
-  - app-shell
-  - sidebar scroll
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)
 
 > [!important] Viewport-Perfect Layouts

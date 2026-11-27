@@ -1,7 +1,7 @@
 ---
 id: handoff
 title: "PROJEKT-BRIEFING & LLM-HANDOFF: DIN-BriefNEO"
-type: meta
+type: reference
 status: active
 created: '2026-08-07'
 updated: '2026-11-17'
@@ -10,14 +10,22 @@ tags:
   - din-briefneo/meta
   - status/active
   - type/meta
+summary: "Dokumentation und Spezifikation für PROJEKT-BRIEFING & LLM-HANDOFF: DIN-BriefNEO."
 doc_links:
   - AGENTS
   - Immutable-Law-Catalog
   - DECISION-LOG
-code_links: []
-depends_on: []
+code_links:
+depends_on:
+sections:
+  - 1-vision-unumstoessliche-kern-philosophie
+  - 2-din-5008-2020-03-geometrie-norm-invarianten
+  - 3-aktueller-architektur-daten-stand
+  - 4-projektstruktur-uebersicht
+  - 5-kern-module-in-website-js
+  - 6-verbindlicher-verhaltenskodex-chat-spielregeln-arbeitsvertrag
+  - 7-offene-vorhaben-fuer-folge-sessions-next-tasks
 ---
-
 # PROJEKT-BRIEFING & LLM-HANDOFF: DIN-BriefNEO
 
 Du bist leitender System-Architekt und Co-Entwickler für DIN-BriefNEO. Nutze dieses Dokument als strikten Kontext für alle Antworten, Analysen und Code-Vorschläge.

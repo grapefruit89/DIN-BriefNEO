@@ -1,31 +1,30 @@
 ---
 id: architecture-map
-title: Architecture-Map — Lade-Trigger, Abhängigkeiten, Kaskade
-status: active
+title: "Architecture-Map — Lade-Trigger, Abhängigkeiten, Kaskade"
 type: reference
+status: active
 created: '2026-11-05'
 updated: '2026-11-07'
 tags:
-- din-briefneo
-- architecture
-- map
-- navigation
+  - din-briefneo
+  - norm
+summary: "Dokumentation und Spezifikation für Architecture-Map — Lade-Trigger, Abhängigkeiten, Kaskade."
 doc_links:
-- '[[STRUCTURE]]'
-- '[[ADR-JS]]'
-- '[[ADR-DATA-PERSISTENCE]]'
-- '[[ADR-EVENT-DRIVEN-ARCHITECTURE]]'
-- '[[ADR-TYPOGRAPHY]]'
-- '[[BACKLOG]]'
 code_links:
-- 'website/index.html'
-- 'website/js/main.js'
-- 'website/js/core.js'
-- 'website/js/persistence.js'
-depends_on: []
-supersedes: []
+  - website/index.html
+  - website/js/main.js
+  - website/js/core.js
+  - website/js/persistence.js
+depends_on:
+sections:
+  - 1-einstiegspunkte-und-lade-trigger
+  - 2-modul-abhaengigkeiten
+  - 3-css-kaskade
+  - 4-daten-zur-laufzeit-geladen-nicht-im-bundle
+  - 4a-build-zeit-nicht-laufzeit
+  - 4b-tests-nur-lokal
+  - 5-regeln-fuer-den-agenten
 ---
-
 # Architecture-Map — Lade-Trigger, Abhängigkeiten, Kaskade
 
 Diese Datei beantwortet drei Fragen, die `docs/STRUCTURE.md` **nicht** beantwortet:

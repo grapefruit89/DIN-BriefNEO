@@ -1,24 +1,24 @@
 ---
 id: grossemfaenger-post-und-rechts-spec
-title: 'Großempfänger der Deutschen Post: Rechtliche Grundlagen, Normen & Datenarchitektur'
+title: "Großempfänger der Deutschen Post: Rechtliche Grundlagen, Normen & Datenarchitektur"
 type: reference
 status: active
 created: '2026-09-04'
 updated: '2026-10-17'
 tags:
   - din-briefneo
-  - din-briefneo/foundation
-  - status/active
-  - type/reference
+  - data
+summary: "Dokumentation und Spezifikation für Großempfänger der Deutschen Post: Rechtliche Grundlagen, Normen & Datenarchitektur."
 doc_links:
-  - Immutable-Law-Catalog
-  - longevity-guidelines
 code_links:
   - website/js/address.js
-depends_on: []
-supersedes: []
+depends_on:
+sections:
+  - 1-wichtige-erkenntnisse-aus-dem-wikipedia-artikel
+  - 2-die-4-typen-deutscher-postleitzahlen-im-vergleich
+  - 3-prominente-grossempfaenger-die-jetzt-in-de-grosskunden-plz-json-integriert-sind
+  - 4-konkretes-verhalten-im-din-brief-neo-formular
 ---
-
 # Großempfänger der Deutschen Post: Rechtliche Grundlagen, Normen & Datenarchitektur
 
 > **Status:** Verbindliche Architektur- und Rechtsspezifikation für DIN-Brief Neo.  

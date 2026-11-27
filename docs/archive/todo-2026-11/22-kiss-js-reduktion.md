@@ -1,21 +1,29 @@
 ---
-id: "22-kiss-js-reduktion"
+id: 22-kiss-js-reduktion
 title: "22 — KISS/JS-Reduktion: geprüfte Vorschläge, offene Entscheidungen"
-status: "archived"
-type: "concept"
-created: "2026-11-12"
-updated: "2026-11-14"
+type: concept
+status: archived
+created: '2026-11-12'
+updated: '2026-11-14'
 tags:
-- din-briefneo
-- archiv
-- todo-2026-11
+  - din-briefneo
+  - todo-2026-11
+summary: "Dokumentation und Spezifikation für 22 — KISS/JS-Reduktion: geprüfte Vorschläge, offene Entscheidungen."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - BACKLOG
+code_links:
+depends_on:
+sections:
+  - sofort-behoben-nicht-hier
+  - geprueft-und-verworfen-kein-umbau-kein-nutzen
+  - offen-entscheidung-noetig
+  - dokumentiert-nicht-angefasst
+  - b5-audit-2026-11-12
+  - b7-b8-restentscheidungen-stand-2026-11-12
+  - k14-feldtext-klippt-maximallaenge-marker-oder-nichts-offen
+  - k15-draft-manager-restorestate-beim-erst-load-abschalten-offen
 ---
-
 # 22 — KISS/JS-Reduktion: geprüfte Vorschläge, offene Entscheidungen
 
 Belegt am Code (2026-11-12). Hier steht nur, was **nicht** sofort umgesetzt wurde,

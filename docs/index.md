@@ -1,43 +1,18 @@
 ---
 id: index
-title: 'DIN-Brief Neo — Zentraler Dokumentations- & Architektur-Hub'
-type: meta
+title: "DIN-Brief Neo — Zentraler Dokumentations- & Architektur-Hub"
+type: reference
 status: active
 created: '2026-07-03'
 updated: '2026-10-16'
 tags:
   - din-briefneo
-  - din-briefneo/hub
-  - status/active
-  - type/meta
+  - docs
+summary: "Dokumentation und Spezifikation für DIN-Brief Neo — Zentraler Dokumentations- & Architektur-Hub."
 doc_links:
-  - constitution
-  - Immutable-Law-Catalog
-  - spec
-  - longevity-guidelines
-  - IMR-Registry
-  - ADR-ANTIPATTERN
-  - ADR-OMNITRACEABILITY
-  - ADR-KISS-MINIMAL-JS
-  - ADR-OFFLINE-ADDRESS-INTELLIGENCE
-  - Salutation-Engine
-  - TEMPLATES
 code_links:
-  - website/index.html
-  - website/js/main.js
-  - website/css/base.css
-  - meta/AI-AGENTS-CLI.md
-error_patterns:
-  - hub
-  - navigation
-  - omnitraceability
-  - einstieg
-  - übersicht
-  - decimal frame
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # DIN-Brief Neo: Zentraler Dokumentations- & Architektur-Hub
 
 > **Willkommen im Dokumentationszentrum von DIN-Brief Neo.**  

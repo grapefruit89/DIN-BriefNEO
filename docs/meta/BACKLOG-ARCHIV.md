@@ -1,26 +1,25 @@
 ---
 id: backlog-archiv
-title: Backlog — erledigte und abgelehnte Einträge
-status: archive
+title: "Backlog — erledigte und abgelehnte Einträge"
 type: reference
+status: active
 created: '2026-11-14'
 updated: '2026-11-17'
 tags:
-- din-briefneo
-- meta
-- archiv
+  - din-briefneo
+  - meta
+  - archiv
+summary: "Dokumentation und Spezifikation für Backlog — erledigte und abgelehnte Einträge."
 doc_links:
-- '[[BACKLOG]]'
-- '[[DECISION-LOG]]'
-- '[[ID-REGISTER]]'
+  - [[BACKLOG]]
+  - [[DECISION-LOG]]
+  - [[ID-REGISTER]]
 code_links:
-- 'website/js/boot.js'
-- 'website/js/document.js'
-- 'website/js/address.js'
-depends_on: []
-supersedes: []
+  - website/js/boot.js
+  - website/js/document.js
+  - website/js/address.js
+depends_on:
 ---
-
 # Backlog — erledigte und abgelehnte Einträge
 
 Eine Zeile pro Punkt. Bis 2026-11-17 stand hier Fließtext (1.026 Zeilen); der Inhalt

@@ -1,3 +1,13 @@
+---
+status: completed
+type: reference
+tags:
+  - batch
+  - layer-kaskade
+  - fakten
+summary: 'Fakten und Kennzahlen zur Layer-Kaskade (B59)'
+sections: [1-kennzahlen, 2-scope-bloecke, 3-die-bildschirm-sperre-regeln-ohne-media-screen, 4-alle-important-je-datei]
+---
 # Fakten zur Layer-Kaskade (B59)
 
 **Erzeugt von `tools/batch-facts.mjs --scheibe 06` — nicht von Hand bearbeiten.**

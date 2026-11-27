@@ -1,7 +1,7 @@
 ---
 id: implementation-readme
-title: '20-implementation — Praktische Anleitungen & How-Tos'
-type: meta
+title: "20-implementation — Praktische Anleitungen & How-Tos"
+type: reference
 status: active
 created: '2026-07-07'
 updated: '2026-11-09'
@@ -10,6 +10,7 @@ tags:
   - din-briefneo/implementation
   - status/active
   - type/meta
+summary: "Dokumentation und Spezifikation für 20-implementation — Praktische Anleitungen & How-Tos."
 doc_links:
   - din-5008-css-architektur
   - no-scroll-techniques
@@ -19,20 +20,9 @@ doc_links:
   - plz-maintenance-and-update-lifecycle
   - datenfluss-und-laufzeit
   - icon-system-und-quellen
-  - glossary
-  - testing-guide
-  - TEMPLATES
-error_patterns:
-  - implementation
-  - guide
-  - anleitung
-  - how-to
-  - 20-implementation
-supersedes: []
-depends_on: []
-code_links: []
+code_links:
+depends_on:
 ---
-
 # 20-implementation — Praktische Anleitungen & How-Tos
 
 Freie Mitte im Dezimalrahmen (`_2–_8`). Hier liegt das Implementierungswissen: Guides, Feature-Dokumentation, Glossar.

@@ -7,47 +7,19 @@ created: '2026-06-26'
 updated: '2026-11-09'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/adr
+  - js
+summary: "Dokumentation und Spezifikation für ADR-JS: JavaScript Architecture, Constraints & Single Source of Truth (SSOT)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - ADR-HTML
-  - ADR-CSS
-  - ADR-ANTIPATTERN
-  - ADR-EVENT-DRIVEN-ARCHITECTURE
-  - longevity-guidelines
 code_links:
-  - website/js/boot.js
-  - website/js/webapi.d.ts
-  - website/js/binary-storage.js
-  - website/js/multipage-controller.js
-  - website/js/core.js
-  - website/js/font-feature.js
-  - website/js/signature.js
-  - website/js/settings.js
-  - website/js/main.js
-  - website/js/salutation.js
-  - website/js/format.js
-  - website/js/draft-manager.js
-  - website/js/draft-model.js
-  - website/js/document.js
-  - website/js/persistence.js
-  - website/js/address-data.js
-  - website/js/address.js
-error_patterns:
-  - javascript constraints
-  - js as a crutch
-  - execCommand verboten
-  - selection range api
-  - view transitions
-  - temporal api
-  - localstorage
-  - antipattern
-  - event bus
-supersedes: []
-depends_on: []
+depends_on:
+sections:
+  - 1-context-problemstellung
+  - 2-grundlegende-architektur-entscheidungen
+  - 3-single-source-of-truth-aktive-module-funktions-registry
+  - 4-antipattern-deprecation-registry-verbotene-alt-funktionen
+  - 5-konsequenzen-entwickler-direktiven
 ---
-
 # ADR-JS: JavaScript Architecture, Constraints & Single Source of Truth (SSOT)
 
 ## 1. Context & Problemstellung

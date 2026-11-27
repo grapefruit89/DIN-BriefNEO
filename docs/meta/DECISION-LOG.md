@@ -1,23 +1,37 @@
 ---
-aliases:
-- DECISION-LOG
-code_links: []
-created: '2026-06-26'
-depends_on: []
-doc_links: []
 id: decision-log
-status: active
-tags:
-- obsidian
-- core
-- documentation
-- decision-log
-- architecture
-title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
+title: "Chronologisches Entscheidungs-Log: DECISION-LOG.md"
 type: log
+status: active
+created: '2026-06-26'
 updated: '2026-11-27'
+tags:
+  - obsidian
+  - core
+  - documentation
+  - decision-log
+  - architecture
+summary: "Dokumentation und Spezifikation für Chronologisches Entscheidungs-Log: DECISION-LOG.md."
+doc_links:
+code_links:
+depends_on:
+sections:
+  - nutzungsregeln-dieses-logs
+  - 2026-10-02-kurztitel-der-entscheidung
+  - chronologie-der-entscheidungen-ab-2026-09
+  - 2026-09-09-kleindateien-bereinigung-intl-statt-monatstabelle-br-datenlader-statt-inline-woerterbuch
+  - 2026-09-09-chrome-release-notes-scan-142-151-temporal-nativ-stable-text-fit-page-margin-safety-fuer-druck-workflow
+  - 2026-09-09-pocs-text-fit-page-margin-safety-chrome-150-contain-ist-ungueltig-shrink-ist-der-fix
+  - 2026-09-09-dark-mode-fix-din-a4-blatt-bleibt-immer-weiss-user-bugfix
+  - 2026-09-10-format-toolbar-phase-3-finalisierung-temporal-intl-bugfix-init-kette-war-halb-tot
+  - 2026-09-10-native-api-batch-fontface-injection-closewatcher-toasts-view-transition-verifizierung-brotli-gzip-datenmigration
+  - 2026-09-10-baseline-verifizierung-form-a-b-animation-fix-css-context-split-8-dateien
+  - 2026-09-10-session-batch-vt-abort-fix-toast-policy-chrome-150-baseline-zero-inline-js
+  - 2026-09-10-readme-ueberarbeitung-mit-svg-header
+  - 2026-09-10-sanitizing-konsolidierung-eine-sicherheitsgrenze-fuer-rich-text
+  - 2026-09-10-tools-entschlackung-archive-obsidian-tools-geloescht
+  - 2026-09-10-praesentations-strings-von-js-in-css-verschoben-economy-layer
 ---
-
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
 
 Dieses Dokument protokolliert alle grundlegenden technologischen und architektonischen Entscheidungen des **DIN-BriefNEO**-Projekts in zeitlicher Reihenfolge. Es ergänzt die thematischen Architecture Decision Records (ADRs) um eine historische Perspektive.

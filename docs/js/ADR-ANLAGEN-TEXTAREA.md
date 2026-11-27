@@ -1,6 +1,6 @@
 ---
 id: adr-anlagen-textarea
-title: 'ADR-ANLAGEN-TEXTAREA: Anlagenangabe als natives textarea'
+title: "ADR-ANLAGEN-TEXTAREA: Anlagenangabe als natives textarea"
 type: adr
 status: active
 created: '2026-11-10'
@@ -11,20 +11,21 @@ tags:
   - status/active
   - type/adr
   - tech/html
+summary: "Dokumentation und Spezifikation für ADR-ANLAGEN-TEXTAREA: Anlagenangabe als natives textarea."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - '[[ADR-HTML]]'
-  - '[[IMR-Registry]]'
-  - '[[ADR-CSS]]'
-  - '[[ADR-DATA-PERSISTENCE]]'
+  - [[ADR-HTML]]
+  - [[IMR-Registry]]
+  - [[ADR-CSS]]
+  - [[ADR-DATA-PERSISTENCE]]
 code_links:
-  - 'website/index.html'
-  - 'website/js/field.js'
-  - 'website/js/document.js'
-  - 'website/js/draft-manager.js'
-  - 'website/css/sheet-common.css'
-depends_on: []
+  - website/index.html
+  - website/js/field.js
+  - website/js/document.js
+  - website/js/draft-manager.js
+  - website/css/sheet-common.css
+depends_on:
 ---
-
 # ADR-ANLAGEN-TEXTAREA: Anlagenangabe als natives textarea
 
 ## Status

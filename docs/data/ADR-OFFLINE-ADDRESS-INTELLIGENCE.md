@@ -1,35 +1,19 @@
 ---
 id: adr-offline-address-intelligence
-title: 'ADR-006: Offline Address Intelligence (Brotli Compact Engine & Fallback Architecture)'
+title: "ADR-006: Offline Address Intelligence (Brotli Compact Engine & Fallback Architecture)"
 type: adr
 status: active
 created: '2026-09-04'
 updated: '2026-09-30'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/adr
+  - data
+summary: "Dokumentation und Spezifikation für ADR-006: Offline Address Intelligence (Brotli Compact Engine & Fallback Architecture)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - ADR-JS
-  - ADR-HTML
-  - Immutable-Law-Catalog
-  - longevity-guidelines
 code_links:
-  - website/js/address.js
-  - website/data/orte.json.gz
-error_patterns:
-  - adr-api
-  - plz lookup
-  - brotli dictionary
-  - offline geocoding
-  - autocomplete
-  - address intelligence
-supersedes:
-  - ADR-API
-depends_on: []
+depends_on:
 ---
-
 # ADR-006: Offline Address Intelligence (Brotli Compact Engine & Fallback Architecture)
 
 ## Context

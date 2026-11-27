@@ -1,7 +1,7 @@
 ---
 id: datenfluss-und-laufzeit
-title: 'Datenfluss & Laufzeitverhalten — verifizierter Ist-Stand'
-type: guide
+title: "Datenfluss & Laufzeitverhalten — verifizierter Ist-Stand"
+type: how-to
 status: active
 created: '2026-10-26'
 updated: '2026-11-06'
@@ -10,6 +10,7 @@ tags:
   - type/guide
   - status/active
   - thema/datenfluss
+summary: "Dokumentation und Spezifikation für Datenfluss & Laufzeitverhalten — verifizierter Ist-Stand."
 doc_links:
   - IMR-Registry
   - ADR-JS
@@ -23,14 +24,8 @@ code_links:
   - website/js/document.js
   - website/js/persistence.js
   - website/js/core.js
-supersedes: []
-depends_on: []
-error_patterns:
-  - datenfluss
-  - autosave
-  - persistenz
+depends_on:
 ---
-
 # Datenfluss & Laufzeitverhalten — verifizierter Ist-Stand
 
 Zweck: Einstieg in den tatsächlichen Code, geprüft am 2026-10-26 gegen HEAD `a57a754`.

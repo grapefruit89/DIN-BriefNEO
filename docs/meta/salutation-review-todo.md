@@ -1,8 +1,8 @@
 ---
 id: salutation-review-todo
 title: "To-do & Review-Auftrag: Salutation-Engine Grenzfälle (4/80 Korpus-Fälle)"
+type: reference
 status: active
-type: project-plan
 created: '2026-11-19'
 updated: '2026-11-19'
 tags:
@@ -11,17 +11,17 @@ tags:
   - todo
   - review
   - corpus
+summary: "Dokumentation und Spezifikation für To-do & Review-Auftrag: Salutation-Engine Grenzfälle (4/80 Korpus-Fälle)."
 doc_links:
-  - '[[Salutation-Engine]]'
-  - '[[BACKLOG]]'
-  - '[[AUFGABEN-WEGWEISER]]'
+  - [[Salutation-Engine]]
+  - [[BACKLOG]]
+  - [[AUFGABEN-WEGWEISER]]
 code_links:
-  - 'website/js/salutation.js'
-  - 'test/corpus/address-cases.json'
-  - 'test/corpus/run.js'
-depends_on: []
+  - website/js/salutation.js
+  - test/corpus/address-cases.json
+  - test/corpus/run.js
+depends_on:
 ---
-
 # To-do: Review-Auftrag Salutation-Engine (4 offene Grenzfälle)
 
 > 📌 **Status:** Dokumentiertes To-do (nicht ausgeführt, reserviert für Review-Lauf).  

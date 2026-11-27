@@ -1,26 +1,30 @@
 ---
 id: adr-mess-schleife
-title: 'ADR-MESS-SCHLEIFE: Vier Ebenen für visuelle Bugs (Heatmap, PDF-Millimeter, Kollision, Mechanismus)'
+title: "ADR-MESS-SCHLEIFE: Vier Ebenen für visuelle Bugs (Heatmap, PDF-Millimeter, Kollision, Mechanismus)"
 type: adr
 status: active
 created: '2026-11-11'
 updated: '2026-11-11'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/adr
-  - tech/css
+  - css
+summary: "Dokumentation und Spezifikation für ADR-MESS-SCHLEIFE: Vier Ebenen für visuelle Bugs (Heatmap, PDF-Millimeter, Kollision, Mechanismus)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - '[[ADR-CONTENTEDITABLE-MIGRATION]]'
-  - '[[ADR-EINSEITEN-STILLGELEGT]]'
-  - '[[IMR-Registry]]'
 code_links:
-  - 'website/css/sheet-multipage.css'
-  - 'test/all.js'
-depends_on: []
+  - website/css/sheet-multipage.css
+  - test/all.js
+depends_on:
+sections:
+  - status
+  - kontext
+  - entscheidung
+  - akzeptanz-kriterien
+  - konsequenzen
+  - werkzeuge
+  - paging-erkenntnisse-gemessen-2026-11-11-6cad5bf
+  - verwandte-adrs
 ---
-
 # ADR: Mess-Schleife bei visuellen Bugs
 
 ## Status

@@ -1,27 +1,26 @@
 ---
-id: "plattform-watchlist"
+id: plattform-watchlist
 title: "Plattform-Watchlist: Was Chrome angekündigt hat und wann es uns trifft"
-status: "active"
-type: "reference"
-created: "2026-11-15"
-updated: "2026-11-15"
+type: reference
+status: active
+created: '2026-11-15'
+updated: '2026-11-15'
 tags:
-- din-briefneo
-- meta
-- web-platform
-- watchlist
+  - din-briefneo
+  - meta
+  - web-platform
+  - watchlist
+summary: "Dokumentation und Spezifikation für Plattform-Watchlist: Was Chrome angekündigt hat und wann es uns trifft."
 doc_links:
-- '[[DECISION-LOG]]'
-- '[[BACKLOG]]'
-- '[[AGENTS]]'
+  - [[DECISION-LOG]]
+  - [[BACKLOG]]
+  - [[AGENTS]]
 code_links:
-- 'website/js/document.js'
-- 'website/css/base.css'
-- 'website/css/sheet-multipage.css'
-depends_on: []
-supersedes: []
+  - website/js/document.js
+  - website/css/base.css
+  - website/css/sheet-multipage.css
+depends_on:
 ---
-
 # Plattform-Watchlist
 
 **Zweck:** Diese Datei ist der Vorraum, nicht die Werkbank. Hier stehen

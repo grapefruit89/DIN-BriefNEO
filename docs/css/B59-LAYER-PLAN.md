@@ -1,25 +1,21 @@
 ---
-id: "b59-layer-plan"
+id: b59-layer-plan
 title: "B59: was @layer hier kann, was nicht — und in welcher Reihenfolge"
-status: "active"
-type: "reference"
-created: "2026-11-15"
-updated: "2026-11-15"
+type: reference
+status: active
+created: '2026-11-15'
+updated: '2026-11-15'
 tags:
-- din-briefneo
-- css
-- kaskade
-- plan
+  - din-briefneo
+  - css
+summary: "B59: was @layer hier kann, was nicht — und in welcher Reihenfolge."
 doc_links:
-- '[[AGENTS]]'
-- '[[DECISION-LOG]]'
 code_links:
-- 'website/css/base.css'
-- 'website/css/sheet-multipage.css'
-depends_on: []
-supersedes: []
+  - website/css/base.css
+  - website/css/sheet-multipage.css
+depends_on:
+sections: [kurzfassung, bestand-2026-11-15, warum-test-2-scheiterte-und-das-ist-der-kern, die-drei-sorten-von-important, der-umbau-in-dieser-reihenfolge, messprotokoll-verbindlich, was-nicht-funktioniert-alles-gemessen-oder-belegt, kosten-und-abbruchkriterium, offener-pruefpunkt-aus-dem-review-2026-11-15, offene-fragen-nicht-neu-recherchieren-hier-beantwortet, werkzeuge]
 ---
-
 # B59: `@layer` statt `!important`
 
 **Diese Datei existiert, damit niemand dieselbe Untersuchung ein zweites Mal

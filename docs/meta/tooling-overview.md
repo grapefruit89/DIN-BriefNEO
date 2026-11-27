@@ -1,29 +1,39 @@
 ---
 id: tooling-overview
-title: Tool-Inventur — tools/
-status: active
+title: "Tool-Inventur — tools/"
 type: reference
+status: active
 created: '2026-08-07'
 updated: '2026-11-17'
 tags:
-- din-briefneo
-- meta
-- tooling
-- agent
+  - din-briefneo
+  - meta
+summary: "Dokumentation und Spezifikation für Tool-Inventur — tools/."
 doc_links:
-- '[[AGENTS]]'
 code_links:
-- 'tools/reconciliation.js'
-- 'tools/build_db.js'
-- 'tools/adr-check.js'
-- 'tools/check-feature.js'
-- 'tools/test-runner.mjs'
-- 'tools/build_plz_data.mjs'
-- 'fonts/subset_fonts.py'  (lokal, gitignored)
-depends_on: []
-supersedes: []
+  - tools/fitness.mjs
+  - tools/laws.mjs
+  - tools/content.mjs
+  - tools/runtime.mjs
+  - tools/measure.mjs
+  - tools/din.mjs
+depends_on:
+sections:
+  - aktives-kern-tooling
+  - repository-json-docs-10-architecture
+  - reconciliation-js
+  - build-db-js
+  - build-db-py-2026-10-15-abgeloest-geloescht
+  - test-runner-mjs
+  - debug-session-mjs
+  - check-feature-js
+  - adr-check-js
+  - build-plz-data-mjs
+  - subset-fonts-py
+  - tool-result-schema-vokabular
+  - zusammenfassung-fitness-gate-pipeline
+  - fitness-gate
 ---
-
 # Tool-Inventur — tools/
 
 > **Ueberarbeitet 2026-11-09**: Veraltete SQLite-Retrieval-Pipeline (`docs_index.js`),

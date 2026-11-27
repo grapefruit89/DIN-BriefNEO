@@ -1,37 +1,21 @@
 ---
 id: adr-runtime-context
-title: 'ADR-RUNTIME-CONTEXT: Lokaler Webserver als einziger Laufzeitkontext'
+title: "ADR-RUNTIME-CONTEXT: Lokaler Webserver als einziger Laufzeitkontext"
 type: reference
 status: active
 created: '2026-10-02'
 updated: '2026-11-06'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/reference
+  - js
+summary: "Dokumentation und Spezifikation für ADR-RUNTIME-CONTEXT: Lokaler Webserver als einziger Laufzeitkontext."
 doc_links:
-  - Immutable-Law-Catalog
-  - longevity-guidelines
-  - constitution
-  - ADR-DATA-PERSISTENCE
-  - ADR-OFFLINE-ADDRESS-INTELLIGENCE
-  - DECISION-LOG
-error_patterns:
-  - file protocol
-  - file://
-  - laufzeitkontext
-  - opaque origin
-  - lokaler webserver
-  - offline ohne server
-supersedes: []
-depends_on: []
 code_links:
-  - 'website/index.html'
-  - 'website/js/address.js'
-  - 'tools/dev.sh'
+  - website/index.html
+  - website/js/address.js
+  - tools/dev.sh
+depends_on:
 ---
-
 # ADR-RUNTIME-CONTEXT: Lokaler Webserver als einziger Laufzeitkontext
 
 ## 1. Context & Problem

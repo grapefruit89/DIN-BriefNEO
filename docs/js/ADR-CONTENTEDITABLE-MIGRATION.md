@@ -1,8 +1,8 @@
 ---
 id: adr-contenteditable-migration
-title: 'ADR-CONTENTEDITABLE-MIGRATION: Einzeilige Felder von contenteditable zu input/textarea'
+title: "ADR-CONTENTEDITABLE-MIGRATION: Einzeilige Felder von contenteditable zu input/textarea"
 type: adr
-status: proposed
+status: active
 created: '2026-11-10'
 updated: '2026-11-10'
 tags:
@@ -11,19 +11,20 @@ tags:
   - status/proposed
   - type/adr
   - tech/html
+summary: "Dokumentation und Spezifikation für ADR-CONTENTEDITABLE-MIGRATION: Einzeilige Felder von contenteditable zu input/textarea."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - '[[ADR-ANLAGEN-TEXTAREA]]'
-  - '[[ADR-EINSEITEN-STILLGELEGT]]'
-  - '[[ADR-HTML]]'
-  - '[[IMR-Registry]]'
+  - [[ADR-ANLAGEN-TEXTAREA]]
+  - [[ADR-EINSEITEN-STILLGELEGT]]
+  - [[ADR-HTML]]
+  - [[IMR-Registry]]
 code_links:
-  - 'website/js/field.js'
-  - 'website/js/document.js'
-  - 'website/js/draft-manager.js'
-  - 'website/css/sheet-common.css'
-depends_on: []
+  - website/js/field.js
+  - website/js/document.js
+  - website/js/draft-manager.js
+  - website/css/sheet-common.css
+depends_on:
 ---
-
 # ADR: Migration von contenteditable zu input/textarea
 
 ## Status

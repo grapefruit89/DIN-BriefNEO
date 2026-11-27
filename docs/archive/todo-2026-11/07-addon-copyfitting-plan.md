@@ -1,25 +1,24 @@
 ---
-id: "07-addon-copyfitting-plan"
+id: 07-addon-copyfitting-plan
 title: "Zero-JS Kompaktsatz nach DIN 5008 – Spezifikationsplan"
-status: "draft"
-type: "concept"
-created: "2026-11-09"
-updated: "2026-11-14"
+type: concept
+status: draft
+created: '2026-11-09'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- plan
-- copyfitting
-- kompaktsatz
-- typografie
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din5008
+  - briefneo
+  - plan
+  - copyfitting
+  - kompaktsatz
+  - typografie
 summary: "Spezifikationsplan für normkonformes Zero-JS-Kompaktsatz-Copyfitting nach DIN 5008 Toleranzbereichen (Schriftgröße, Zeilenabstand, Absatzabstand, Unterschrift)."
+anchors: [single-source-of-truth, fail-closed]
+doc_links:
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # Zero-JS Kompaktsatz nach DIN 5008 – Spezifikationsplan
 
 **Ziel:** Typografische Raumersparnis (4 bis 8 Zeilen) zur Vermeidung einer zweiten Seite bei knapp überlaufenden Briefen – vollständig **Zero-JS**, rein deklarativ über CSS `:has()` und unter striktem Erhalt der 25-mm-Fluchtlinie nach DIN 5008:2020-03.

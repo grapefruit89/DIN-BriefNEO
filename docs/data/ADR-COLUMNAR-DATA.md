@@ -1,35 +1,19 @@
 ---
 id: adr-columnar-data
-title: 'ADR-013: Verlustfreies Columnar-JSON & Deterministische Daten-Pipeline'
+title: "ADR-013: Verlustfreies Columnar-JSON & Deterministische Daten-Pipeline"
 type: adr
 status: active
 created: '2026-11-09'
 updated: '2026-11-09'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/adr
+  - data
+summary: "Dokumentation und Spezifikation für ADR-013: Verlustfreies Columnar-JSON & Deterministische Daten-Pipeline."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - ADR-JS
-  - ADR-OFFLINE-ADDRESS-INTELLIGENCE
-  - Immutable-Law-Catalog
 code_links:
-  - package.json
-  - tools/content.mjs
-  - tools/data/plz_states.json
-  - website/data/orte.json.gz
-  - website/data/grosskunden.json.gz
-  - website/js/address.js
-error_patterns:
-  - columnar json
-  - plz datenbank
-  - ortsteile verlust
-  - bundesland disambiguierung
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # ADR-013: Verlustfreies Columnar-JSON & Deterministische Daten-Pipeline
 
 ## 1. Kontext & Problemstellung

@@ -1,24 +1,22 @@
 ---
-id: "22-mikro-optimierungen"
+id: 22-mikro-optimierungen
 title: "22 · Mikro-Optimierungen (aus dem Durchsehen) – [ERLEDIGT]"
-status: "done"
-type: "audit"
-created: "2026-11-09"
-updated: "2026-11-14"
+type: audit
+status: active
+created: '2026-11-09'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- audit
-- optimierung
-- erledigt
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din5008
+  - briefneo
+  - audit
+  - optimierung
+  - erledigt
 summary: "Mikro-Optimierungen (CaretToEnd, Konstanten 50/130, getElementById-Cache) — Vollständig umgesetzt."
+doc_links:
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # 22 · Mikro-Optimierungen (aus dem Durchsehen) – [ERLEDIGT]
 
 Status: erledigt · Typ: audit · Erstellt: 2026-11-06 · Abgeschlossen: 2026-11-09  

@@ -1,7 +1,7 @@
 ---
 id: roadmap
-title: 'Roadmap — echte Zukunft des Produkts'
-type: roadmap
+title: "Roadmap — echte Zukunft des Produkts"
+type: reference
 status: active
 created: '2026-07-07'
 updated: '2026-11-17'
@@ -10,6 +10,7 @@ tags:
   - din-briefneo/meta
   - status/active
   - type/roadmap
+summary: "Dokumentation und Spezifikation für Roadmap — echte Zukunft des Produkts."
 doc_links:
   - spec
   - BACKLOG
@@ -21,16 +22,8 @@ code_links:
   - website/index.html
   - website/js/address.js
   - website/css/sheet.css
-error_patterns:
-  - roadmap
-  - zukunft
-  - mehrseitig
-  - serienbrief
-  - modernisierung
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # Roadmap — echte Zukunft des Produkts
 
 > Diese Datei beschreibt ausschließlich Vorhaben, die **noch nicht Bestandteil** des

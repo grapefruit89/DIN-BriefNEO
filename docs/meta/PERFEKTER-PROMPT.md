@@ -1,25 +1,28 @@
 ---
 id: perfekter-prompt
-title: 'Was ein perfekter Prompt für diesen Agenten enthält'
+title: "Was ein perfekter Prompt für diesen Agenten enthält"
 type: reference
 status: active
 created: '2026-11-11'
 updated: '2026-11-11'
-tags:
-  - din-briefneo
-  - meta
-  - agent
-  - prompt
+tags: [din-briefneo, meta, agent, prompt]
+summary: "Dokumentation und Spezifikation für Was ein perfekter Prompt für diesen Agenten enthält."
 doc_links:
-  - '[[AGENTS]]'
-  - '[[AUFGABEN-WEGWEISER]]'
-  - '[[ADR-MESS-SCHLEIFE]]'
-code_links:
-  - 'website/css/sheet-multipage.css'
-  - 'test/all.js'
-depends_on: []
+  - [[AGENTS]]
+  - [[AUFGABEN-WEGWEISER]]
+  - [[ADR-MESS-SCHLEIFE]]
+code_links: [website/css/sheet-multipage.css, test/all.js]
+depends_on:
+sections:
+  - 1-pflichtfelder
+  - 2-aufgabentypen
+  - 3-anti-patterns-im-prompt
+  - 4-positive-patterns
+  - 5-rueckfragen
+  - 6-stoppen
+  - 7-output
+  - 8-prompt-checkliste-vor-dem-absenden
 ---
-
 # Was ein perfekter Prompt für diesen Agenten enthält
 
 **Zweck:** Referenz beim Prompt-Schreiben. Keine Regel — die Regeln stehen in

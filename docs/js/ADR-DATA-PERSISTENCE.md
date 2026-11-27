@@ -1,6 +1,6 @@
 ---
 id: adr-data-persistence
-title: 'ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling'
+title: "ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling"
 type: adr
 status: active
 created: '2026-07-02'
@@ -10,23 +10,16 @@ tags:
   - din-briefneo/architecture
   - status/active
   - type/adr
+summary: "Dokumentation und Spezifikation für ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
   - ADR-ANTIPATTERN
   - longevity-guidelines
 code_links:
   - website/js/main.js
   - website/js/persistence.js
-error_patterns:
-  - data persistence
-  - localstorage
-  - speicherung
-  - temporal api
-  - datumshandling
-  - indexeddb
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling
 
 ## 1. Context & Problem

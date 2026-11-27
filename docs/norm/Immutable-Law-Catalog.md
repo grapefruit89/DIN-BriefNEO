@@ -1,6 +1,6 @@
 ---
 id: immutable-law-catalog
-title: 'Immutable Law Catalog (MUST-USE vs FORBIDDEN)'
+title: "Immutable Law Catalog (MUST-USE vs FORBIDDEN)"
 type: reference
 status: active
 created: '2026-06-26'
@@ -10,23 +10,21 @@ tags:
   - din-briefneo/foundation
   - status/active
   - type/reference
+summary: "Dokumentation und Spezifikation für Immutable Law Catalog (MUST-USE vs FORBIDDEN)."
 doc_links:
   - constitution
   - longevity-guidelines
   - spec
-code_links: []
-error_patterns:
-  - must-use
-  - antipattern
-  - forbidden
-  - law catalog
-  - technology catalog
-  - banned
-  - must-use replacement
-supersedes: []
-depends_on: []
+code_links:
+depends_on:
+sections:
+  - klassifikation
+  - part-i-must-use-principles
+  - part-ii-forbidden-antipatterns
+  - part-iii-single-source-keine-15-kopien
+  - part-iv-amendment-protocol
+  - part-v-enforcement
 ---
-
 > **Einordnung des Namens.** Was hier „Law" heißt, ist in der Architekturpraxis
 > **Architecture Invariants** bzw. **Policy-as-Code** (Vorbild: ArchUnit): Regeln
 > mit IDs, die maschinell geprüft werden (`tools/reconciliation.js`,

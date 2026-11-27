@@ -1,24 +1,26 @@
 ---
-id: "antipatterns-verworfen"
+id: antipatterns-verworfen
 title: "Verworfen / Anti-Nuggets — Was wir nicht bauen (und warum)"
-status: "active"
-type: "reference"
-created: "2026-10-26"
-updated: "2026-11-14"
+type: reference
+status: active
+created: '2026-10-26'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- antipattern
-- verworfen
-- anti-nuggets
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din5008
+  - briefneo
+  - antipattern
+  - verworfen
+  - anti-nuggets
 summary: "Kompakte Übersicht aller verworfenen Funktionen, Anti-Nuggets und Fehlkonzepte mit Begründung."
+doc_links:
+  - [[BACKLOG]]
+code_links:
+depends_on:
+sections:
+  - uebersicht-der-verworfenen-konzepte-anti-nuggets
+  - 2026-11-10-durch-messung-und-architektur-verworfen
+  - verwandte-referenzen-im-repository
 ---
-
 # Verworfen / Anti-Nuggets — Was wir nicht bauen (und warum)
 
 > **Zweck dieser Liste:** Dieses Dokument sammelt Ideen, Code-Muster und Vorschläge, über die nachgedacht wurde, die aber nach eingehender Prüfung **bewusst und mit guten Gründen verworfen wurden**.  

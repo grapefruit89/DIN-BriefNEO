@@ -1,7 +1,7 @@
 ---
 id: longevity-guidelines
-title: 'Guide: Longevity & W3C Native Standards Guidelines'
-type: guide
+title: "Guide: Longevity & W3C Native Standards Guidelines"
+type: how-to
 status: active
 created: '2026-06-26'
 updated: '2026-09-02'
@@ -10,22 +10,13 @@ tags:
   - din-briefneo/foundation
   - status/active
   - type/guide
+summary: "Dokumentation und Spezifikation für Guide: Longevity & W3C Native Standards Guidelines."
 doc_links:
   - constitution
   - Immutable-Law-Catalog
-code_links: []
-error_patterns:
-  - longevity
-  - wartungsfreiheit
-  - w3c living standards
-  - zero-dependency
-  - deprecated apis
-  - langlebigkeit
-  - 10 jahre
-supersedes: []
-depends_on: []
+code_links:
+depends_on:
 ---
-
 # Longevity & Native Standards Guidelines
 
 ## 1. Wartungsarme Lebensdauer

@@ -1,32 +1,31 @@
 ---
 id: upstream-befund-2026-11-10
-title: Upstream-Befund — 12 Behauptungen zu Web-Plattform-Features (2026-11-10)
-status: archived
+title: "Upstream-Befund — 12 Behauptungen zu Web-Plattform-Features (2026-11-10)"
 type: reference
+status: archived
 created: '2026-11-10'
 updated: '2026-11-10'
 tags:
-- din-briefneo
-- meta
-- audit
-- web-platform
+  - din-briefneo
+  - meta
+  - audit
+  - web-platform
+summary: "Dokumentation und Spezifikation für Upstream-Befund — 12 Behauptungen zu Web-Plattform-Features (2026-11-10)."
 doc_links:
-- '[[AGENTS]]'
-- '[[ADR-JS]]'
-- '[[DECISION-LOG]]'
+  - [[AGENTS]]
+  - [[ADR-JS]]
+  - [[DECISION-LOG]]
 code_links:
-- 'website/js/document.js'
-- 'website/js/address.js'
-- 'website/js/main.js'
-- 'website/js/salutation.js'
-- 'website/js/boot.js'
-- 'website/js/persistence.js'
-- 'website/js/draft-manager.js'
-- 'website/css/sheet.css'
-- 'website/index.html'
-depends_on: []
+  - website/js/document.js
+  - website/js/address.js
+  - website/js/main.js
+  - website/js/salutation.js
+  - website/js/boot.js
+  - website/js/persistence.js
+  - website/js/draft-manager.js
+  - website/css/sheet.css
+depends_on:
 ---
-
 # Upstream-Befund — 12 Behauptungen zu Web-Plattform-Features
 
 Eingefrorener Prüfbericht (Batch 1). Keine Code-Änderung: nur Befund, damit dieselben

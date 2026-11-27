@@ -1,26 +1,36 @@
 ---
 id: agents-contract
-title: AGENTS.md — Bindender KI-Verhaltensvertrag
-type: ai-context
+title: "AGENTS.md — Bindender KI-Verhaltensvertrag"
+type: instructions
 status: active
 created: '2026-07-01'
 updated: '2026-11-06'
 tags:
-- din-briefneo
-- meta
-- ai-context
-- governance
-- gemini
-- agents
+  - din-briefneo
+  - archive
+summary: "Dokumentation und Spezifikation für AGENTS.md — Bindender KI-Verhaltensvertrag."
 doc_links:
-- '[[CLAUDE]]'
-- '[[Immutable-Law-Catalog]]'
-- '[[DECISION-LOG]]'
-- '[[longevity-guidelines]]'
-code_links: []
-depends_on: []
+  - [[CLAUDE]]
+  - [[Immutable-Law-Catalog]]
+  - [[DECISION-LOG]]
+  - [[longevity-guidelines]]
+code_links:
+depends_on:
+sections:
+  - lokale-vorschau-pflicht-vor-manuellen-tests
+  - 1-hoechste-autoritaet-immutable-law-catalog
+  - 2-unverhandelbare-kernprinzipien
+  - 2a-verworfen-bleibt-verworfen-ratsche
+  - 3-workflow-modi
+  - 4-context7-verbindliche-nutzung
+  - 5-dokumentations-traceability-pflicht
+  - 6-generalisierbarkeit-llm-boilerplate
+  - 7-verbotene-technologien
+  - 7a-arbeitsweise-uebernommen-aus-gemini-md-2026-10-02
+  - upstream-ground-truth-browser-features-chromium-150
+  - 8-protokollierung
+  - 9-zusammenfassung-der-harten-regeln
 ---
-
 # AGENTS.md — DIN-BriefNEO
 
 **BINDENDER VERHALTENSVERTRAG FÜR ALLE KI-AGENTEN**  

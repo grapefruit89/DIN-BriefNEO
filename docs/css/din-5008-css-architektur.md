@@ -1,41 +1,18 @@
 ---
 id: din-5008-css-architektur
-title: 'DIN 5008 CSS-Architektur — Layout-Philosophie & Feature-Referenz'
-type: guide
+title: "DIN 5008 CSS-Architektur — Layout-Philosophie & Feature-Referenz"
+type: how-to
 status: active
 created: '2026-06-26'
 updated: '2026-09-30'
 tags:
   - din-briefneo
-  - din-briefneo/implementation
-  - status/active
-  - type/guide
-  - tech/css
+  - css
+summary: "Dokumentation und Spezifikation für DIN 5008 CSS-Architektur — Layout-Philosophie & Feature-Referenz."
 doc_links:
-  - ADR-CSS
-  - longevity-guidelines
-  - no-scroll-techniques
 code_links:
-  - website/css/base.css
-  - website/css/sheet.css
-error_patterns:
-  - din 5008 layout
-  - css architektur
-  - container queries
-  - absolute positionierung
-  - latex lessons
-  - light-dark
-  - oklch
-  - container units
-  - cqw cqh
-  - popover api
-  - anchor positioning
-supersedes:
-  - din-5008-precise-layout-lessons
-  - chrome-modern-css
-depends_on: []
+depends_on:
 ---
-
 # DIN 5008 CSS-Architektur — Layout-Philosophie & Feature-Referenz
 
 Zwei Perspektiven auf dieselbe Architektur: **Warum** wir so denken (Lessons Learned aus LaTeX) und **Was** wir konkret einsetzen (moderne CSS-Feature-Referenz für Chrome 150+).

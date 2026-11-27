@@ -1,7 +1,7 @@
 ---
 id: icon-system-und-quellen
-title: 'Icon-System & SVG-Quellen'
-type: guide
+title: "Icon-System & SVG-Quellen"
+type: how-to
 status: active
 created: '2026-10-24'
 updated: '2026-10-24'
@@ -10,21 +10,15 @@ tags:
   - din-briefneo/implementation
   - status/active
   - type/guide
+summary: "Dokumentation und Spezifikation für Icon-System & SVG-Quellen."
 doc_links:
   - din-5008-css-architektur
   - glossary
 code_links:
   - website/index.html
   - website/css/sidebar.css
-error_patterns:
-  - icons
-  - svg quellen
-  - lucide
-  - icon bibliothek
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # Icon-System & SVG-Quellen
 
 > [!INFO] Single Source of Truth für UI-Icons

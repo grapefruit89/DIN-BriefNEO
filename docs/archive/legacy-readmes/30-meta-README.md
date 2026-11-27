@@ -1,7 +1,7 @@
 ---
 id: meta-readme
-title: '30-meta — Projektgeschichte, Status & Tooling'
-type: meta
+title: "30-meta — Projektgeschichte, Status & Tooling"
+type: reference
 status: active
 created: '2026-07-07'
 updated: '2026-11-09'
@@ -10,6 +10,7 @@ tags:
   - din-briefneo/meta
   - status/active
   - type/meta
+summary: "Dokumentation und Spezifikation für 30-meta — Projektgeschichte, Status & Tooling."
 doc_links:
   - DECISION-LOG
   - Feature-Matrix
@@ -17,18 +18,9 @@ doc_links:
   - tooling-overview
   - HANDOFF
   - AUFGABEN-WEGWEISER
-error_patterns:
-  - meta
-  - projektgeschichte
-  - status
-  - changelog
-  - roadmap
-  - 30-meta
-supersedes: []
-depends_on: []
-code_links: []
+code_links:
+depends_on:
 ---
-
 # 30-meta — Projektgeschichte, Status & Obsidian-Setup
 
 Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentiert — kein ausführbarer Code, kein Governance.

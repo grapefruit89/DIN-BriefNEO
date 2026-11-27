@@ -1,7 +1,7 @@
 ---
 id: testing-guide
-title: 'Test-Architektur & Qualitätssicherung'
-type: guide
+title: "Test-Architektur & Qualitätssicherung"
+type: how-to
 status: active
 created: '2026-06-26'
 updated: '2026-11-09'
@@ -10,6 +10,7 @@ tags:
   - din-briefneo/implementation
   - status/active
   - type/guide
+summary: "Dokumentation und Spezifikation für Test-Architektur & Qualitätssicherung."
 doc_links:
   - Salutation-Engine
   - glossary
@@ -19,16 +20,8 @@ code_links:
   - tools/runtime.mjs
   - test/corpus/run.js
   - test/corpus/address-cases.json
-error_patterns:
-  - testing
-  - testfaelle
-  - qa protokoll
-  - testrunner
-  - regression
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # Test-Architektur & Qualitätssicherung: testing-guide.md
 
 DIN-BriefNEO setzt auf ein kompromissloses, zweistufiges Testkonzept: Eine headless Chromium-gestützte Unit-Testsuite für DOM-, State- und Storage-Interaktionen sowie ein isolierter Node.js-Regressionstest für Adress-, Straßen- und Anrede-Parser.

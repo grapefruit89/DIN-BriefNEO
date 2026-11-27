@@ -1,20 +1,15 @@
 ---
 id: branch-anrede-dropdown
-title: "BRANCH-STATUS: experiment/anrede-dropdown — Vorschlagslisten, Anrede, Blattgeometrie, Geo-Cache"
-type: meta
+title: "BRANCH-STATUS: experiment/anrede-dropdown"
+type: reference
 status: active
 created: '2026-11-22'
 updated: '2026-11-22'
 tags:
   - din-briefneo
-  - din-briefneo/meta
-  - status/active
-  - type/branch-handoff
+  - meta
+summary: "Status für experiment/anrede-dropdown."
 doc_links:
-  - HANDOFF
-  - DECISION-LOG
-  - ADR-CSS
-  - INIT-INVARIANTE
 code_links:
   - website/js/suggestion-list.js
   - website/js/geo-cache.js
@@ -24,9 +19,9 @@ code_links:
   - website/js/date-picker.js
   - website/css/sidebar.css
   - website/css/sheet-multipage.css
-depends_on: []
+depends_on:
+sections: [lage, straenge, invarianten, review, verifikation, offen, begruendungen]
 ---
-
 # BRANCH-STATUS: `experiment/anrede-dropdown`
 
 > **Für den nächsten Agenten.** Dieses Dokument ersetzt das Suchen: es nennt

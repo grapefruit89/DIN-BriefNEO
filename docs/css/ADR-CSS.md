@@ -7,46 +7,20 @@ created: '2026-06-26'
 updated: '2026-11-17'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/adr
-  - tech/css
+  - css
+summary: "Dokumentation und Spezifikation für ADR-CSS: CSS Architecture, Constraints & Single Source of Truth (SSOT)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - ADR-HTML
-  - ADR-JS
-  - ADR-ANTIPATTERN
-  - longevity-guidelines
 code_links:
-  - website/css/base.css
-  - website/css/sidebar.css
-  - website/css/sheet-common.css
-  - website/css/sheet.css
-  - website/css/sheet-multipage.css
-error_patterns:
-  - css architektur
-  - container queries
-  - cqw cqh
-  - anchor positioning
-  - oklch
-  - light-dark
-  - aspect-ratio
-  - overflow hidden
-  - betreff
-  - falzmarken
-  - pdf titel
-  - pdf dateiname
-  - window.print
-  - field-sizing content
-  - text-fit
-  - zero scroll
-  - starting-style
-  - popover top layer
-  - input switch
-supersedes:
-  - adr-betreff
-depends_on: []
+depends_on:
+sections:
+  - 1-context-problemstellung
+  - 2-grundlegende-architektur-entscheidungen
+  - 3-single-source-of-truth-aktive-css-dateien-komponenten-registry
+  - 4-antipattern-deprecation-registry-verbotene-css-praktiken
+  - 5-konsequenzen-entwickler-direktiven
+  - 6-related-documents
 ---
-
 # ADR-CSS: CSS Architecture, Constraints & Single Source of Truth (SSOT)
 
 ## 1. Context & Problemstellung

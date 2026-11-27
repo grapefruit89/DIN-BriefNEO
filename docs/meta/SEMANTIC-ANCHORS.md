@@ -1,7 +1,7 @@
 ---
 id: semantic-anchors
 title: "SEMANTIC-ANCHORS: Projektbegriffe und ihre etablierten Namen"
-type: meta
+type: reference
 status: active
 created: '2026-11-22'
 updated: '2026-11-22'
@@ -10,6 +10,7 @@ tags:
   - din-briefneo/meta
   - status/active
   - type/reference
+summary: "Dokumentation und Spezifikation für SEMANTIC-ANCHORS: Projektbegriffe und ihre etablierten Namen."
 doc_links:
   - HANDOFF
   - DECISION-LOG
@@ -23,10 +24,8 @@ code_links:
   - website/js/document.js
   - website/js/boot.js
   - website/js/multipage-controller.js
-  - tools/fitness.mjs
-depends_on: []
+depends_on:
 ---
-
 # SEMANTIC-ANCHORS — Projektbegriffe und ihre etablierten Namen
 
 > **Zweck.** Wer eine Stelle anfasst, soll den *etablierten* Begriff dafür kennen —

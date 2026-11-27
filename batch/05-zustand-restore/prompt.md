@@ -1,3 +1,13 @@
+---
+status: completed
+type: prompt
+tags:
+  - batch
+  - zustand
+  - restore
+summary: 'Review-Prompt für Batch 05: Zustand und Restore-Pfade'
+sections: [rolle, kontext, aufgaben, messmethode-mitliefern-nicht-nachfragen]
+---
 # Batch 05 — Zustand und Restore: sind die zwei Pfade gleich?
 
 > **STATUS: Der Review zu dieser Scheibe ist gelaufen und ausgewertet (2026-11-15).**

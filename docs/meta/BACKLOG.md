@@ -1,28 +1,32 @@
 ---
 id: backlog
-title: Backlog — offene Baustellen nach Aufwand und ROI
-status: active
+title: "Backlog — offene Baustellen nach Aufwand und ROI"
 type: reference
+status: active
 created: '2026-10-02'
 updated: '2026-11-22'
 tags:
-- din-briefneo
-- meta
-- planung
-- backlog
+  - din-briefneo
+  - meta
+  - planung
+  - backlog
+summary: "Dokumentation und Spezifikation für Backlog — offene Baustellen nach Aufwand und ROI."
 doc_links:
-- '[[AGENTS]]'
-- '[[DECISION-LOG]]'
-- '[[BACKLOG-ARCHIV]]'
-- '[[ROADMAP]]'
+  - [[AGENTS]]
+  - [[DECISION-LOG]]
+  - [[BACKLOG-ARCHIV]]
+  - [[ROADMAP]]
 code_links:
-- 'website/js/01-document.js'
-- 'website/css/sheet.css'
-- 'tools/links.js'
-depends_on: []
-supersedes: []
+  - website/js/document.js
+  - website/css/sheet.css
+  - tools/laws.mjs
+depends_on:
+sections:
+  - uebersicht
+  - architektur-technik
+  - neue-features
+  - addons
 ---
-
 # Backlog — offene Aufgaben (To-do)
 
 **Diese Datei ist die To-do-Liste: nur offene Punkte.** Erledigtes wird beim

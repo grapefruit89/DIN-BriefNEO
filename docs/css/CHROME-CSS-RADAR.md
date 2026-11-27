@@ -1,6 +1,6 @@
 ---
 id: chrome-css-radar
-title: 'Chrome-CSS-Radar 2026 — was kommt, was wir schon nutzen'
+title: "Chrome-CSS-Radar 2026 — was kommt, was wir schon nutzen"
 type: reference
 status: active
 created: '2026-11-23'
@@ -10,15 +10,15 @@ tags:
   - css
   - research
   - bleeding-edge
+summary: "Dokumentation und Spezifikation für Chrome-CSS-Radar 2026 — was kommt, was wir schon nutzen."
 doc_links:
-  - '[[ADR-CSS]]'
-  - '[[BACKLOG]]'
+  - [[ADR-CSS]]
+  - [[BACKLOG]]
 code_links:
-  - 'website/css/sheet-multipage.css'
-  - 'website/css/base.css'
-depends_on: []
+  - website/css/sheet-multipage.css
+  - website/css/base.css
+depends_on:
 ---
-
 # Chrome-CSS-Radar 2026
 
 > **Quelle:** Chromestatus-Dump vom 03.09.2026 (`chrome_features_2026.json`,

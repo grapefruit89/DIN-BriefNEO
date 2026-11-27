@@ -1,23 +1,32 @@
 ---
-id: "03-mobile-ansicht-plan"
+id: 03-mobile-ansicht-plan
 title: "Mobile Ansicht & Touch-UX – Plan für DIN-BriefNEO (Baseline Chrome 150+)"
-status: "draft"
-type: "concept"
-created: "2026-10-26"
-updated: "2026-11-14"
+type: concept
+status: draft
+created: '2026-10-26'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- plan
-- mobile
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din5008
+  - briefneo
+  - plan
+  - mobile
 summary: "Plan für mobile Ansicht und Touch-UX des DIN-BriefNEO-Generators."
+anchors: [single-source-of-truth, fail-closed]
+doc_links:
+  - [[BACKLOG]]
+code_links:
+depends_on:
+sections:
+  - 1-viewport-meta-und-safe-areas-anpassen
+  - 2-layout-umschaltung-sidebar-bottom-sheet
+  - 3-din-a4-blatt-auf-kleinen-viewports-handhaben
+  - 4-virtuelle-tastatur-und-contenteditable
+  - 5-touch-ziele-und-interaktionsgroessen-48-48-px
+  - 6-anchor-positioning-fuer-popover-auf-kleinen-bildschirmen
+  - 7-konkrete-reihenfolge-fuer-die-umsetzung
+  - 8-weiterfuehrende-upstream-quellen
+  - messung-2026-11-06
 ---
-
 # Mobile Ansicht & Touch-UX – Plan für DIN-BriefNEO (Baseline Chrome 150+)
 
 Unter der Baseline **Chrome 150+** stehen alle modernen CSS- und Web-APIs (Container Queries, `@function`, `attr()`, Popover, `<dialog>`, `env()`, `svh`/`dvh`, Anchor Positioning) nativ und ohne Polyfills zur Verfügung. Der Fokus liegt auf der **Umorganisation des Desktop-Layouts** für kleine Viewports, Touch-Bedienung und virtuelle Tastaturen.

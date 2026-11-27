@@ -1,34 +1,19 @@
 ---
 id: adr-binary-assets
-title: 'ADR-BINARY-ASSETS: Binär-Assets in IndexedDB (A34-Präzisierung, S3 gestrichen)'
+title: "ADR-BINARY-ASSETS: Binär-Assets in IndexedDB (A34-Präzisierung, S3 gestrichen)"
 type: adr
 status: active
 created: '2026-11-06'
 updated: '2026-11-06'
 tags:
   - din-briefneo
-  - din-briefneo/architecture
-  - status/active
-  - type/adr
-  - tech/storage
+  - js
+summary: "Dokumentation und Spezifikation für ADR-BINARY-ASSETS: Binär-Assets in IndexedDB (A34-Präzisierung, S3 gestrichen)."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
-  - Immutable-Law-Catalog
-  - ADR-DATA-PERSISTENCE
-  - ADR-RUNTIME-CONTEXT
-  - ADR-ANTIPATTERN
 code_links:
-  - website/js/binary-storage.js
-  - website/js/settings.js
-error_patterns:
-  - binary assets
-  - indexeddb
-  - base64
-  - signaturbild speichern
-  - eigene schrift speichern
-supersedes: []
-depends_on: []
+depends_on:
 ---
-
 # ADR-BINARY-ASSETS: Binär-Assets in IndexedDB
 
 ## 1. Context & Problem

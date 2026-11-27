@@ -1,7 +1,7 @@
 ---
 id: spec
-title: 'Spezifikation (Spec) — DIN-BriefNEO Baseline Features'
-type: spec
+title: "Spezifikation (Spec) — DIN-BriefNEO Baseline Features"
+type: specification
 status: active
 created: '2026-06-26'
 updated: '2026-09-30'
@@ -10,20 +10,15 @@ tags:
   - din-briefneo/foundation
   - status/active
   - type/spec
+summary: "Dokumentation und Spezifikation für Spezifikation (Spec) — DIN-BriefNEO Baseline Features."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
   - constitution
   - Immutable-Law-Catalog
   - longevity-guidelines
-code_links: []
-error_patterns:
-  - spec
-  - baseline features
-  - user story
-  - akzeptanzkriterien
-supersedes: []
-depends_on: []
+code_links:
+depends_on:
 ---
-
 # Spezifikation (Spec) — DIN-BriefNEO Baseline
 
 Dieses Dokument beschreibt **erforderliches Verhalten**. Es ist nicht die Quelle der Millimeter, nicht der Implementierungsplan und nicht die Roadmap.

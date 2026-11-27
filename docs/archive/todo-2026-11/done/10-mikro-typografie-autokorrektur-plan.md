@@ -1,25 +1,24 @@
 ---
-id: "10-mikro-typografie-autokorrektur-plan"
+id: 10-mikro-typografie-autokorrektur-plan
 title: "Mikro-Typografie-Autokorrektur nach DIN 5008 (§ 7.2 & § 8.2)"
-status: "done"
-type: "concept"
-created: "2026-11-09"
-updated: "2026-11-14"
+type: concept
+status: active
+created: '2026-11-09'
+updated: '2026-11-14'
 tags:
-- din5008
-- briefneo
-- typografie
-- geschuetztes-leerzeichen
-- autokorrektur
-- microtypography
-doc_links:
-- [[BACKLOG]]
-code_links: []
-depends_on: []
-supersedes: []
+  - din5008
+  - briefneo
+  - typografie
+  - geschuetztes-leerzeichen
+  - autokorrektur
+  - microtypography
 summary: "Plan für die automatisierte Mikro-Typografie nach DIN 5008 (§ 7.2 und § 8.2): Geschützte Leerzeichen bei Abkürzungen, Einheiten, Paragrafen und Gedankenstrichen."
+anchors: [single-source-of-truth, fail-closed]
+doc_links:
+  - [[BACKLOG]]
+code_links:
+depends_on:
 ---
-
 # Mikro-Typografie-Autokorrektur nach DIN 5008 (§ 7.2 & § 8.2)
 
 **Normativer Bezug:** DIN 5008:2020-03, Abschnitt 7.2 („Geschütztes Leerzeichen“) und 8.2 („Gedankenstrich“ / „Langstrich“)  

@@ -1,7 +1,7 @@
 ---
 id: foundation-readme
-title: '00-foundation — Fundament & Unverrückbare Gesetze'
-type: meta
+title: "00-foundation — Fundament & Unverrückbare Gesetze"
+type: reference
 status: active
 created: '2026-08-07'
 updated: '2026-10-02'
@@ -10,22 +10,15 @@ tags:
   - din-briefneo/foundation
   - status/active
   - type/meta
+summary: "Dokumentation und Spezifikation für 00-foundation — Fundament & Unverrückbare Gesetze."
 doc_links:
   - constitution
   - Immutable-Law-Catalog
   - longevity-guidelines
   - spec
-error_patterns:
-  - fundament
-  - gesetze
-  - constitution
-  - spec
-  - 00-foundation
-supersedes: []
-depends_on: []
-code_links: []
+code_links:
+depends_on:
 ---
-
 # 00-foundation — Fundament & Unverrückbare Gesetze
 
 Der `_0`-Anker im Dezimalrahmen. Hier liegt, was **nicht verhandelbar** ist. Diese Dokumente werden niemals ohne expliziten menschlichen Entscheid geändert.

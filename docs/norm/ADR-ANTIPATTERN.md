@@ -1,6 +1,6 @@
 ---
 id: adr-antipattern
-title: 'ADR-ANTIPATTERN: aufgelöst in den Immutable Law Catalog'
+title: "ADR-ANTIPATTERN: aufgelöst in den Immutable Law Catalog"
 type: adr
 status: superseded
 created: '2026-06-26'
@@ -10,18 +10,14 @@ tags:
   - din-briefneo/architecture
   - status/superseded
   - type/adr
+summary: "Dokumentation und Spezifikation für ADR-ANTIPATTERN: aufgelöst in den Immutable Law Catalog."
+anchors: [single-source-of-truth, fail-closed]
 doc_links:
   - Immutable-Law-Catalog
   - DECISION-LOG
-code_links: []
-error_patterns:
-  - antipattern
-  - verboten
-  - forbidden
-supersedes: []
-depends_on: []
+code_links:
+depends_on:
 ---
-
 # ADR-ANTIPATTERN — aufgelöst am 2026-10-02
 
 > [!warning] Dieses Dokument führt keine Normen mehr
